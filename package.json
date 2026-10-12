@@ -1,0 +1,41 @@
+{
+	"name": "Aviv_Client",
+	"version": "0.0.1",
+	"description": "אביב - ניהול שיחות חניכים",
+	"scripts": {
+		"build": "webpack --mode production  --env sviva=prod",
+		"build:dev": "webpack --mode production  --env sviva=dev",
+		"build:start": "cd dist && PORT=3000 npx serve",
+		"start": "set NODE_ENV=local && webpack serve --open --mode development  --env sviva=local",
+		"start:live": "webpack serve --open --mode development --live-reload --hot",
+		"tw": "tailwindcss -i ./src/index.css -o ./src/output.css"
+	},
+	"keywords": [],
+	"author": "Nathan Shenker",
+	"license": "MIT",
+	"dependencies": {
+		"@babel/preset-env": "^7.28.3",
+		"@babel/preset-react": "^7.22.15",
+		"@babel/preset-typescript": "^7.27.1",
+		"@emotion/react": "^11.14.0",
+		"@rnd/digital-utils": "^0.1.4",
+		"@mui/material": "^7.3.11",
+		"@mui/system": "^7.3.11",
+		"axios": "^1.13.5",
+		"babel-loader": "^8.3.0",
+		"html-webpack-plugin": "^5.5.3",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"react-router-dom": "^6.30.1"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.26.0",
+		"@types/node": "^25.0.3",
+		"@types/react": "^18.3.12",
+		"@types/react-dom": "^18.2.0",
+		"typescript": "^5.8.2",
+		"webpack": "^5.75.0",
+		"webpack-cli": "^5.0.0",
+		"webpack-dev-server": "^5.2.3"
+	}
+}
