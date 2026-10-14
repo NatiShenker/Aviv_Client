@@ -1,0 +1,3 @@
+/* הסריקה מוגבלת ל-src, כדי שמחלקות מתיקיית reference לא ייכנסו ל-CSS */
+@import "tailwindcss" source("..");
+@import "./tokens.css";

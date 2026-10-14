@@ -10,8 +10,10 @@ The UI is in Hebrew only and is laid out right-to-left (RTL).
 
 ## Platforms and Run Modes
 
-- Mobile and tablet: the app runs standalone.
-- Desktop: the app is hosted inside a host Shell (Module Federation). Shell integration details will be specified separately; do not assume them.
+- Mobile: the app runs inside a full-page iframe; the host provides only a top and bottom frame.
+- Tablet: the app runs fully standalone.
+- Desktop: the app is hosted as a micro-frontend inside the host Shell (Module Federation). Global CSS leaks into the Shell page in this mode; how to handle it is an open decision.
+- Host integration details will be specified separately; do not assume them.
 - Mobile-first: build for mobile first, then extend to tablet and desktop.
 - Mobile and desktop differ in flow and design, not only in layout. Share business logic and data access; use separate view components wherever the experience differs.
 
@@ -25,11 +27,19 @@ The UI is in Hebrew only and is laid out right-to-left (RTL).
 ## Sources of Truth
 
 - This file holds only top-level goals and standing rules. Screen, design, data and schema details live in dedicated files; do not copy them here. All guidance files are written in English.
+- `reference/` and `config/` are read-only. Do not create, change or delete anything in them without explicit instruction for that specific change.
 - Design: follow only the provided guidelines and files. Do not introduce your own design solutions.
-- Controls: use custom MUI wrappers, with one control per file, each wrapping its MUI counterpart. Screens use the wrappers and never use MUI controls directly.
-- Styling: use Tailwind with only the design tokens from the dedicated tokens file. Do not hard-code colors, sizes or spacing.
+- Controls: use the controls of the shared UI library (`ui-library`). Screens never use MUI controls directly. When the library has no matching control, wrap MUI in an app-level control, one control per file.
+- Styling: use Tailwind with only the design tokens from `src/styles/tokens.css`. Do not hard-code colors, sizes or spacing. Library controls keep their own styling.
 - Data: types and mock data must match the provided schema and data files.
 - Libraries: use only those listed in `package.json`, within the versions it specifies. If a concrete need for another library arises, present it and wait for explicit approval before using it.
+
+## Guidance Documents
+
+These documents are binding. Before starting a task, read every document that covers it, and follow it as you would this file. If a document conflicts with this file, stop and ask.
+
+- `.agent/design.md`: required before building or changing any screen, layout or styling.
+- `.agent/ui-library.md`: required before using, wrapping or adding any control.
 
 ## Server Simulation
 

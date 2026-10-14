@@ -1,0 +1,12 @@
+{
+	// תיקיית עיון בלבד: הקבצים נשענים על חבילות שאינן בפרויקט, ולכן בדיקת הטיפוסים מושבתת בה
+	"compilerOptions": {
+		"noCheck": true,
+		"noEmit": true,
+		"jsx": "react-jsx",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"target": "ES2020"
+	},
+	"include": ["**/*"]
+}
