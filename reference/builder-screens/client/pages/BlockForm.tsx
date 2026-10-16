@@ -1,20 +1,17 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  daysFromToday,
+  describeConditions,
+  devicesSummary,
+  formatDate,
+  LIMIT_KINDS,
+  LIMIT_OPTIONS,
+  type LimitKind,
+  type TraineeRestriction,
+} from "@/lib/restrictions";
 
-interface BlockRecord {
-  id: string;
-  startDate: string;
-  endDate: string;
-  startTime: string;
-  endTime: string;
-  devices: string[];
-  reason: string;
-  details: string;
-  approver: string;
-  files: string[];
-}
-
-type Errors = Partial<Record<"dates" | "hours" | "files", string>>;
+type Errors = Partial<Record<"dates" | "duration" | "hours" | "file", string>>;
 
 const REASONS = ["הפרת משמעת", "שימוש לא תקין בטלפון", "בקשת גורם טיפולי", "בקשת הורים", "אחר"];
 const APPROVERS = ["מנהל הפנימייה", "רכז חינוך", "עובד סוציאלי", "מדריך אחראי"];
@@ -27,37 +24,34 @@ const STYLES = `
 .native-picker::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: auto; height: auto; margin: 0; padding: 0; opacity: 0; cursor: pointer; }
 `;
 
-const pad = (value: number) => String(value).padStart(2, "0");
-const daysFromToday = (days: number) => {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-};
-const formatDate = (iso: string) => {
-  const [year, month, day] = iso.split("-");
-  return `${day}/${month}/${year.slice(2)}`;
-};
-
-const emptyRecord = (): BlockRecord => ({
-  id: `block-${Date.now()}`,
+const emptyRecord = (): TraineeRestriction => ({
+  id: `restriction-${Date.now()}`,
   startDate: daysFromToday(0),
   endDate: daysFromToday(1),
+  duration: null,
   startTime: "",
   endTime: "",
   devices: [],
   reason: "",
   details: "",
   approver: "",
-  files: [],
+  file: "",
 });
 
-const validate = (values: BlockRecord): Errors => {
+const LIMIT = LIMIT_OPTIONS.restriction;
+
+const parseDuration = (text: string) => (text ? Number(text) : null);
+
+const validate = (values: TraineeRestriction, durationText: string, limited: boolean): Errors => {
   const errors: Errors = {};
   if (!values.startDate || !values.endDate) errors.dates = "יש לבחור תאריך התחלה ותאריך סיום";
   else if (values.endDate < values.startDate) errors.dates = "תאריך הסיום לא יכול להיות לפני תאריך ההתחלה";
+  const minutes = parseDuration(durationText);
+  if (limited && (minutes === null || minutes < 1 || minutes > 120))
+    errors.duration = "יש להזין מספר דקות שלם בין 1 ל-120";
   if (Boolean(values.startTime) !== Boolean(values.endTime)) errors.hours = "יש לבחור שעת התחלה ושעת סיום";
   else if (values.startTime && values.endTime <= values.startTime) errors.hours = "שעת הסיום חייבת להיות אחרי שעת ההתחלה";
-  if (values.files.length === 0) errors.files = "יש לצרף קובץ";
+  if (!values.file) errors.file = "יש לצרף קובץ";
   return errors;
 };
 
@@ -111,6 +105,14 @@ const ClockIcon = (
   <Icon>
     <circle cx="12" cy="12" r="9" />
     <path d="M12 7v5l3 3" />
+  </Icon>
+);
+
+const TimerIcon = (
+  <Icon>
+    <circle cx="12" cy="13" r="8" />
+    <path d="M12 9v4l2 2" />
+    <path d="M10 2h4" />
   </Icon>
 );
 
@@ -218,6 +220,130 @@ function PickerInput({
           className="native-picker absolute inset-0 size-full cursor-pointer appearance-none rounded-[8px] text-[16px] opacity-0"
         />
       </div>
+    </div>
+  );
+}
+
+function RadioDot({ checked }: { checked: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex size-6 shrink-0 items-center justify-center rounded-full peer-focus-visible:ring-2 peer-focus-visible:ring-[#006aff]/40"
+    >
+      <span
+        className={`flex size-5 items-center justify-center rounded-full border-[#006aff] ${checked ? "border-2" : "border"}`}
+      >
+        {checked && <span className="size-2.5 rounded-full bg-[#006aff]" />}
+      </span>
+    </span>
+  );
+}
+
+function RadioOption({
+  name,
+  checked,
+  onChange,
+  children,
+}: {
+  name: string;
+  checked: boolean;
+  onChange: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <label className="relative flex cursor-pointer items-center gap-2">
+      <input type="radio" name={name} checked={checked} onChange={onChange} className="peer sr-only" />
+      <RadioDot checked={checked} />
+      <span className="whitespace-nowrap text-[16px] leading-6 text-[#00033d]">{children}</span>
+    </label>
+  );
+}
+
+function DurationField({
+  value,
+  invalid,
+  autoFocus,
+  onChange,
+}: {
+  value: string;
+  invalid: boolean;
+  autoFocus: boolean;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="block min-w-0">
+      <FieldLabel text="משך מרבי לכל שיחה" required />
+      <span className={boxClass(invalid)}>
+        <span className="flex min-w-0 flex-1 items-center gap-1">
+          <input
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            maxLength={3}
+            autoFocus={autoFocus}
+            aria-label="משך מרבי לכל שיחה בדקות (חובה)"
+            aria-invalid={invalid}
+            placeholder="הזן דקות"
+            value={value}
+            onChange={(event) => onChange(event.target.value.replace(/\D/g, ""))}
+            // Shrinks to the digits so the unit sits right next to the number
+            style={value ? { width: `${value.length + 0.5}ch` } : undefined}
+            className={`bg-transparent text-right text-[16px] leading-5 text-[#00033d] outline-none placeholder:text-[#8e929f] ${
+              value ? "" : "min-w-0 flex-1"
+            }`}
+          />
+          {value && <span className="text-[16px] leading-5 text-[#00033d]">דק'</span>}
+        </span>
+        {value ? (
+          <button
+            type="button"
+            aria-label="ניקוי משך השיחה"
+            onClick={() => onChange("")}
+            className="relative z-10 flex size-6 items-center justify-center text-[#00033d]"
+          >
+            <CloseIcon />
+          </button>
+        ) : (
+          <span className="text-[#00033d]">{TimerIcon}</span>
+        )}
+      </span>
+    </label>
+  );
+}
+
+function ConditionAccordion({
+  title,
+  summary,
+  open,
+  error,
+  onToggle,
+  children,
+}: {
+  title: string;
+  summary: ReactNode;
+  open: boolean;
+  error?: string;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onToggle}
+        className="flex h-10 w-full items-center gap-2 text-right text-[14px] leading-[18px] text-[#00033d]"
+      >
+        <span className="shrink-0">{title}</span>
+        <span className="min-w-0 flex-1 truncate text-[#8e929f]">{summary}</span>
+        <ChevronDownIcon className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="pb-2" style={{ animation: "fadeIn 200ms ease-out" }}>
+          {children}
+        </div>
+      )}
+      <ErrorText message={error} />
     </div>
   );
 }
@@ -418,25 +544,36 @@ function OptionsSheet({
   );
 }
 
-function BlockFormScreen({ childId, initial }: { childId: string; initial?: BlockRecord }) {
+function BlockFormScreen({ childId, initial }: { childId: string; initial?: TraineeRestriction }) {
   const navigate = useNavigate();
   const editing = Boolean(initial);
   const listPath = `/child/${childId}/block`;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [values, setValues] = useState<BlockRecord>(() => (initial ? { ...emptyRecord(), ...initial } : emptyRecord()));
-  const [touchedDates, setTouchedDates] = useState({ startDate: editing, endDate: editing });
-  const [moreOpen, setMoreOpen] = useState(
-    Boolean(initial && (initial.startTime || initial.endTime || initial.devices.length > 0)),
+  const [values, setValues] = useState<TraineeRestriction>(() =>
+    initial ? { ...emptyRecord(), ...initial } : emptyRecord(),
   );
+  const [limit, setLimit] = useState<LimitKind>(initial?.duration != null ? "limited" : "full");
+  // Focus the minutes only when the user switches, not when an existing record opens
+  const [limitTouched, setLimitTouched] = useState(false);
+  const [durationText, setDurationText] = useState(initial?.duration != null ? String(initial.duration) : "");
+  const [touchedDates, setTouchedDates] = useState({ startDate: editing, endDate: editing });
+  const [hoursOpen, setHoursOpen] = useState(Boolean(initial && (initial.startTime || initial.endTime)));
+  const [devicesOpen, setDevicesOpen] = useState(Boolean(initial && initial.devices.length > 0));
   const [approverOpen, setApproverOpen] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
+
+  const limited = limit === "limited";
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const update = <K extends keyof BlockRecord>(key: K, value: BlockRecord[K], errorKey?: keyof Errors) => {
+  const update = <K extends keyof TraineeRestriction>(
+    key: K,
+    value: TraineeRestriction[K],
+    errorKey?: keyof Errors,
+  ) => {
     setValues((current) => ({ ...current, [key]: value }));
     if (errorKey) setErrors((current) => ({ ...current, [errorKey]: undefined }));
   };
@@ -446,25 +583,43 @@ function BlockFormScreen({ childId, initial }: { childId: string; initial?: Bloc
     setTouchedDates((current) => ({ ...current, [key]: true }));
   };
 
-  const onFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const names = Array.from(event.target.files ?? [], (file) => file.name);
-    if (names.length > 0) update("files", names, "files");
+  const changeLimit = (kind: LimitKind) => {
+    setLimit(kind);
+    setLimitTouched(true);
+    setErrors((current) => ({ ...current, duration: undefined }));
+  };
+
+  const changeDuration = (text: string) => {
+    setDurationText(text);
+    setErrors((current) => ({ ...current, duration: undefined }));
+  };
+
+  const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) update("file", file.name, "file");
     event.target.value = "";
   };
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    const nextErrors = validate(values);
+    const nextErrors = validate(values, durationText, limited);
     setErrors(nextErrors);
-    if (nextErrors.hours) setMoreOpen(true);
+    if (nextErrors.hours) setHoursOpen(true);
     if (Object.keys(nextErrors).length > 0) return;
-    navigate(listPath, { replace: true, state: { saved: values } });
+    const saved: TraineeRestriction = { ...values, duration: limited ? parseDuration(durationText) : null };
+    navigate(listPath, { replace: true, state: { saved } });
   };
 
   const closeApprover = () => setApproverOpen(false);
 
-  const fileLabel =
-    values.files.length === 0 ? "העלאת קבצים" : values.files.length === 1 ? values.files[0] : `${values.files.length} קבצים`;
+  const allowed = describeConditions(values, false, limited);
+  const hoursSummary =
+    values.startTime || values.endTime ? (
+      <span dir="ltr">{`${values.startTime || "--:--"}-${values.endTime || "--:--"}`}</span>
+    ) : (
+      allowed.hours
+    );
+  const devicesText = values.devices.length > 0 ? devicesSummary(values.devices) : allowed.devices;
 
   return (
     <div dir="rtl" lang="he" className="min-h-screen bg-[#f6f8fe] font-['Rubik'] text-[#00033d]">
@@ -473,7 +628,7 @@ function BlockFormScreen({ childId, initial }: { childId: string; initial?: Bloc
       <form noValidate onSubmit={handleSubmit} className="mx-auto w-full max-w-[375px] px-4 pb-[108px] pt-[50px]">
         <header className="h-[41px] shadow-[inset_0_-0.5px_0_#c5cbdd]">
           <div className="flex h-[25px] items-center justify-between gap-4">
-            <h1 className="text-[20px] font-medium leading-[25px]">{editing ? "עריכת חסימה" : "חסימה חדשה"}</h1>
+            <h1 className="text-[20px] font-medium leading-[25px]">{editing ? "עריכת הגבלה" : "הגבלה חדשה"}</h1>
             <Link
               to={listPath}
               replace
@@ -486,8 +641,8 @@ function BlockFormScreen({ childId, initial }: { childId: string; initial?: Bloc
         </header>
 
         <section className="mt-6">
-          <h2 className="text-[16px] leading-5">פרטי החלטה</h2>
-          <FieldIntro className="mt-4" title="טווח תאריכים" description="החסימה תחול בתאריכים אלו בלבד" />
+          <h2 className="text-[16px] leading-5">פרטי ההגבלה</h2>
+          <FieldIntro className="mt-4" title="טווח תאריכים" description="ההגבלה תחול בתאריכים אלו בלבד" />
           <div className="mt-2 grid grid-cols-2 gap-2">
             <PickerInput
               type="date"
@@ -516,67 +671,87 @@ function BlockFormScreen({ childId, initial }: { childId: string; initial?: Bloc
           </div>
           <ErrorText message={errors.dates} />
 
-          <div className="mt-2 flex">
-            <button
-              type="button"
-              aria-expanded={moreOpen}
-              onClick={() => setMoreOpen((open) => !open)}
-              className="flex h-6 items-center gap-1.5 text-[14px] leading-[18px] text-[#00033d]"
-            >
-              <span>אפשרויות נוספות</span>
-              <ChevronDownIcon className={`transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`} />
-            </button>
+          <FieldIntro className="mt-4" title={LIMIT.title} description={LIMIT.options[limit].hint} />
+          <div role="radiogroup" aria-label={LIMIT.title} className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+            {LIMIT_KINDS.map((kind) => (
+              <RadioOption key={kind} name="limit-kind" checked={limit === kind} onChange={() => changeLimit(kind)}>
+                {LIMIT.options[kind].label}
+              </RadioOption>
+            ))}
           </div>
-
-          {moreOpen && (
-            <div style={{ animation: "fadeIn 200ms ease-out" }}>
-              <div className="mt-4">
-                <FieldIntro title="טווח שעות" description="החסימה תחול בשעות אלו בלבד, בכל יום בטווח התאריכים" />
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  <PickerInput
-                    type="time"
-                    label="בחר שעה"
-                    ariaLabel="שעת התחלה"
-                    value={values.startTime}
-                    display={values.startTime}
-                    placeholder="--:--"
-                    invalid={Boolean(errors.hours)}
-                    icon={ClockIcon}
-                    onChange={(value) => update("startTime", value, "hours")}
-                    onClear={() => update("startTime", "", "hours")}
-                  />
-                  <PickerInput
-                    type="time"
-                    ariaLabel="שעת סיום"
-                    value={values.endTime}
-                    display={values.endTime}
-                    placeholder="--:--"
-                    invalid={Boolean(errors.hours)}
-                    icon={ClockIcon}
-                    onChange={(value) => update("endTime", value, "hours")}
-                    onClear={() => update("endTime", "", "hours")}
-                  />
-                </div>
-                <ErrorText message={errors.hours} />
-              </div>
-
-              <div className="mt-4">
-                <FieldIntro
-                  compact
-                  title="מכשירים"
-                  description="ברירת המחדל — החסימה תחול על כל המכשירים. בחר מכשירים מסוימים אם צריך"
-                />
-                <div className="mt-2">
-                  <NativeMultiSelect
-                    label="בחר מכשיר"
-                    values={values.devices}
-                    options={DEVICES}
-                    onChange={(devices) => update("devices", devices)}
-                  />
-                </div>
-              </div>
+          {limited && (
+            <div className="mt-[13px] grid grid-cols-2 gap-2" style={{ animation: "fadeIn 200ms ease-out" }}>
+              <DurationField
+                value={durationText}
+                invalid={Boolean(errors.duration)}
+                autoFocus={limitTouched}
+                onChange={changeDuration}
+              />
             </div>
           )}
+          <ErrorText message={errors.duration} />
+        </section>
+
+        <div className="mb-[23.5px] mt-6 h-[0.5px] bg-[#c5cbdd]" />
+
+        <section>
+          <h2 className="text-[16px] leading-5">היתרים להגבלה</h2>
+          <p className="mt-1 text-[14px] leading-[18px] text-[#8e929f]">{LIMIT.options[limit].conditionsHint}</p>
+          <div className="mt-2">
+            <ConditionAccordion
+              title="שעות מותרות"
+              summary={hoursSummary}
+              open={hoursOpen}
+              error={errors.hours}
+              onToggle={() => setHoursOpen((open) => !open)}
+            >
+              <p className="text-[12px] leading-[15px] text-[#8e929f]">
+                השיחות יותרו רק בשעות אלו, בכל יום בטווח התאריכים
+              </p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <PickerInput
+                  type="time"
+                  label="בחר שעה"
+                  ariaLabel="שעת התחלה"
+                  value={values.startTime}
+                  display={values.startTime}
+                  placeholder="--:--"
+                  invalid={Boolean(errors.hours)}
+                  icon={ClockIcon}
+                  onChange={(value) => update("startTime", value, "hours")}
+                  onClear={() => update("startTime", "", "hours")}
+                />
+                <PickerInput
+                  type="time"
+                  ariaLabel="שעת סיום"
+                  value={values.endTime}
+                  display={values.endTime}
+                  placeholder="--:--"
+                  invalid={Boolean(errors.hours)}
+                  icon={ClockIcon}
+                  onChange={(value) => update("endTime", value, "hours")}
+                  onClear={() => update("endTime", "", "hours")}
+                />
+              </div>
+            </ConditionAccordion>
+
+            <ConditionAccordion
+              title="מכשירים מותרים"
+              summary={devicesText}
+              open={devicesOpen}
+              onToggle={() => setDevicesOpen((open) => !open)}
+            >
+              <p className="text-[12px] leading-[15px] text-[#8e929f]">השיחות יותרו רק מהמכשירים שנבחרו</p>
+              <div className="mt-2">
+                <NativeMultiSelect
+                  label="בחר מכשיר"
+                  values={values.devices}
+                  options={DEVICES}
+                  onChange={(devices) => update("devices", devices)}
+                />
+              </div>
+            </ConditionAccordion>
+          </div>
         </section>
 
         <div className="mb-[23.5px] mt-6 h-[0.5px] bg-[#c5cbdd]" />
@@ -611,19 +786,19 @@ function BlockFormScreen({ childId, initial }: { childId: string; initial?: Bloc
 
           <div className="mt-4">
             <FieldLabel text="צירוף קובץ" required />
-            <div className={boxClass(Boolean(errors.files))}>
+            <div className={boxClass(Boolean(errors.file))}>
               <button
                 type="button"
                 aria-label="צירוף קובץ (חובה)"
                 onClick={() => fileInputRef.current?.click()}
                 className="absolute inset-0 rounded-[8px] outline-none"
               />
-              <span className={valueClass(values.files.length > 0)}>{fileLabel}</span>
-              {values.files.length > 0 ? (
+              <span className={valueClass(Boolean(values.file))}>{values.file || "העלאת קובץ"}</span>
+              {values.file ? (
                 <button
                   type="button"
-                  aria-label="הסרת הקבצים"
-                  onClick={() => update("files", [])}
+                  aria-label="הסרת הקובץ"
+                  onClick={() => update("file", "")}
                   className="relative z-10 flex size-6 items-center justify-center text-[#00033d]"
                 >
                   <CloseIcon />
@@ -636,9 +811,9 @@ function BlockFormScreen({ childId, initial }: { childId: string; initial?: Bloc
                   <path d="M9.5 13.5 12 11l2.5 2.5" />
                 </Icon>
               )}
-              <input ref={fileInputRef} type="file" multiple hidden onChange={onFilesChange} />
+              <input ref={fileInputRef} type="file" hidden onChange={onFileChange} />
             </div>
-            <ErrorText message={errors.files} />
+            <ErrorText message={errors.file} />
           </div>
         </section>
 
@@ -647,7 +822,7 @@ function BlockFormScreen({ childId, initial }: { childId: string; initial?: Bloc
             type="submit"
             className="h-12 w-full rounded-[8px] bg-[#006aff] text-[16px] font-semibold leading-5 text-white"
           >
-            שמור חסימה
+            שמור הגבלה
           </button>
         </div>
       </form>
@@ -671,7 +846,7 @@ function BlockFormScreen({ childId, initial }: { childId: string; initial?: Bloc
 export default function BlockForm() {
   const { id = "", recordId } = useParams();
   const location = useLocation();
-  const record = (location.state as { record?: BlockRecord } | null)?.record;
+  const record = (location.state as { record?: TraineeRestriction } | null)?.record;
 
   if (recordId && record?.id !== recordId) return <Navigate to={`/child/${id}/block`} replace />;
 

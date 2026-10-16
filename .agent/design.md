@@ -12,47 +12,13 @@ There is no binding design system yet. The look comes from two sources:
    - They cover **mobile only**. Tablet and desktop are not designed yet; do not invent them — ask.
 2. **The UI library**: `../ui-library` (see `ui-library.md`). It owns the look and behavior of the controls themselves.
 
-## Screen inventory (from the sketches)
+## User Experience (UX) Excellence
 
-Entry point: `reference/builder-screens/client/App.tsx`.
-
-| Route | Sketch file | Purpose |
-|---|---|---|
-| `/` | `ChildrenList.tsx` | Trainee list. Search by name or number; filter sheet (status, wing); sort sheet (name, last date, stay time). Card: photo, name and ID, last date, status badge (active / blocked until a date), wing, minutes, data-gap warning. |
-| `/child/:id` | `ChildDetails.tsx` | Trainee page. Actions: block, exception, voice message. More info: minutes history. |
-| `/child/:id/block` | `BlockList.tsx` | Block history: search, sort sheet, expandable record cards with edit, fixed "new" button. |
-| `/child/:id/block/new`, `…/:recordId/edit` | `BlockForm.tsx` | Restrict the trainee's calls by date range, optional hour range and devices. Reason, details, approver, required attachment. |
-| `/child/:id/exception` | `ExceptionList.tsx` | Exception history, same list pattern. Card shows the phone number and its type. |
-| `/child/:id/exception/new`, `…/:recordId/edit` | `ExceptionForm.tsx` | Per phone number: open a blocked number or block an open one. One or more numbers; same decision details as the block form. |
-| `/child/:id/voice-message` | `VoiceMessageList.tsx` | Voice message history, same list pattern. |
-| `/child/:id/voice-message/new`, `…/:recordId/edit` | `VoiceMessageForm.tsx` | Message played on the trainee's calls: on all calls or only to selected numbers, optional repeat during the call, plus the same decision details. |
-| `*` | `NotFound.tsx` | Not-found page. |
-
-**Naming is under review.** The names and scope of "block" (חסימה) and "exception" (החרגה) are not final: a block may also include opening, and an exception may work in either direction. Describe these features by what they do, and do not rename, merge or split them without explicit instruction.
-
-## Recurring patterns
-
-- Page header: title with a back arrow (list pages) or a close button (forms).
-- Toolbar search that expands in place, next to filter and sort actions.
-- Bottom sheets for sort, filter and option pickers.
-- Expandable record card: summary row (icon, dates or phone, status badge, reason) that opens to a details grid and an edit button.
-- Fixed bottom action bar: a single CTA on lists; cancel and save on forms.
-- Forms in sections separated by dividers; a collapsible "more options" area (hour range, devices).
-- Date range and hour range as two side-by-side pickers.
-- Required file attachment.
-- Empty result text ("לא נמצאו …").
-
-## Behavior observed in the sketches
-
-These rules appear in the sketches. Treat them as expected behavior, and confirm against the spec when one is provided:
-
-- End date cannot be before start date.
-- Hours are either both empty (all day) or both set, with end after start.
-- An attachment is required to save.
-- Phone numbers: Israeli format, `0` followed by 8–9 digits; duplicates rejected.
-- Exception: at least one phone number; saving creates one record per number.
-- Voice message: phone numbers are required only when the scope is "selected numbers".
-- A record is "active" while its end date has not passed.
+Excellent UX across all platforms is a primary goal. When building screens, you must strictly enforce the following:
+- **State Clarity:** The user must always know what is happening. Explicitly implement and design Loading, Empty, and Error states for EVERY data-fetching or mutation interaction.
+- **Form UX:** Clearly distinguish mandatory fields from optional ones. Dependent fields must be logically grouped and their disabled/enabled states clearly communicated visually.
+- **Transitions & Feedback:** Use smooth, standard transitions (e.g., sheets sliding up, skeleton loaders). Use toast notifications (`useToast()`) or inline alerts for success/failure feedback on actions.
+- **Icons & Affordance:** Actions must be recognizable. Ensure touch targets are adequately sized for mobile fingers (minimum 44x44px functional area).
 
 ## What not to copy from the sketches
 
@@ -63,19 +29,7 @@ The sketches were built to be self-contained, not maintainable. Do not carry ove
 - Hard-coded hex colors and pixel values. Use the tokens.
 - Inline `<style>` blocks with font imports and keyframes.
 - Helper components duplicated in every file (`Icon`, `Sheet`, `SearchField`, `StatusBadge`, …). Build each once.
-- Native `<select>`, date and time inputs. Use the library controls.
 - The fixed `max-w-[375px]` frame. Layouts must be responsive.
-
-## Gaps in the sketches
-
-- No tablet or desktop design.
-- No loading or error states; only empty states.
-- The "minutes history" screen is linked but not designed.
-- The data-gap warning on trainee cards ("קיים פער בנתונים בסלקום") is static; its rule is unknown.
-- The sort sheet on the trainee list contains a "+" button with no defined purpose.
-- No delete action and no confirmation when leaving a form with unsaved changes.
-
-When a screen needs any of these, ask before deciding.
 
 ## Styling rules
 

@@ -1,21 +1,18 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  describeConditions,
+  formatRange,
+  hasHours,
+  limitTypeLabel,
+  readTraineeRestrictions,
+  todayISO,
+  writeTraineeRestrictions,
+  type TraineeRestriction,
+} from "@/lib/restrictions";
 
 type SortKey = "start" | "end" | "status";
 type Direction = "asc" | "desc";
-
-interface BlockRecord {
-  id: string;
-  startDate: string;
-  endDate: string;
-  startTime: string;
-  endTime: string;
-  devices: string[];
-  reason: string;
-  details: string;
-  approver: string;
-  files: string[];
-}
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: "start", label: "תאריך התחלה" },
@@ -34,110 +31,27 @@ const STYLES = `
 @media (prefers-reduced-motion: no-preference) { .search-open { animation: searchOpen 200ms ease-out; } }
 `;
 
-const pad = (value: number) => String(value).padStart(2, "0");
-const toISO = (date: Date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-const daysFromToday = (days: number) => {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return toISO(date);
-};
-const formatDate = (iso: string) => {
-  const [year, month, day] = iso.split("-");
-  return `${day}/${month}/${year.slice(2)}`;
-};
-const formatRange = (record: BlockRecord) => `${formatDate(record.startDate)}-${formatDate(record.endDate)}`;
-const isActive = (record: BlockRecord) => record.endDate >= toISO(new Date());
+const recordRange = (record: TraineeRestriction) => formatRange(record.startDate, record.endDate);
+const isActive = (record: TraineeRestriction) => record.endDate >= todayISO();
 
-const seedRecords = (): BlockRecord[] => [
-  {
-    id: "seed-1",
-    startDate: daysFromToday(-1),
-    endDate: daysFromToday(2),
-    startTime: "",
-    endTime: "",
-    devices: [],
-    reason: "הפרת משמעת",
-    details: "יציאה מהפנימייה ללא אישור במהלך סוף השבוע",
-    approver: "מנהל הפנימייה",
-    files: ["החלטת_הנהלה.pdf"],
-  },
-  {
-    id: "seed-2",
-    startDate: daysFromToday(-10),
-    endDate: daysFromToday(-7),
-    startTime: "14:30",
-    endTime: "22:30",
-    devices: ["טלפון ציבורי – אגף א"],
-    reason: "שימוש לא תקין בטלפון",
-    details: "שיחות ארוכות בשעות הלילה, בניגוד לנהלי האגף",
-    approver: "רכז חינוך",
-    files: ["דוח_אירוע.pdf"],
-  },
-  {
-    id: "seed-3",
-    startDate: daysFromToday(0),
-    endDate: daysFromToday(5),
-    startTime: "20:00",
-    endTime: "23:00",
-    devices: [],
-    reason: "בקשת גורם טיפולי",
-    details: "",
-    approver: "עובד סוציאלי",
-    files: ["המלצה_טיפולית.pdf"],
-  },
-  {
-    id: "seed-4",
-    startDate: daysFromToday(1),
-    endDate: daysFromToday(3),
-    startTime: "",
-    endTime: "",
-    devices: ["טלפון ציבורי – אגף ב", "טלפון משרד הפנימייה"],
-    reason: "בקשת הורים",
-    details: "ההורים ביקשו להגביל שיחות יוצאות עד לשיחת המשפחה",
-    approver: "מדריך אחראי",
-    files: ["בקשת_הורים.jpg"],
-  },
-  {
-    id: "seed-5",
-    startDate: daysFromToday(-30),
-    endDate: daysFromToday(-25),
-    startTime: "",
-    endTime: "",
-    devices: [],
-    reason: "הפרת משמעת",
-    details: "",
-    approver: "מנהל הפנימייה",
-    files: ["סיכום_שיחה.pdf"],
-  },
-];
-
-const storageKey = (childId: string) => `child:${childId}:blocks`;
-
-// sessionStorage throws when storage is blocked (e.g. sandboxed iframes)
-const readRecords = (childId: string): BlockRecord[] => {
-  try {
-    const stored = sessionStorage.getItem(storageKey(childId));
-    if (stored) return JSON.parse(stored) as BlockRecord[];
-  } catch {
-    return seedRecords();
-  }
-  return seedRecords();
+const searchableText = (record: TraineeRestriction) => {
+  const allowed = describeConditions(record, false);
+  return [
+    record.reason,
+    record.details,
+    record.approver,
+    limitTypeLabel(record.duration, false),
+    allowed.hours,
+    allowed.devices,
+    recordRange(record),
+    record.startDate,
+    record.endDate,
+  ]
+    .join(" ")
+    .replace(/\u00a0/g, " ");
 };
 
-const writeRecords = (childId: string, records: BlockRecord[]) => {
-  try {
-    sessionStorage.setItem(storageKey(childId), JSON.stringify(records));
-  } catch {
-    return;
-  }
-};
-
-const searchableText = (record: BlockRecord) =>
-  [record.reason, record.details, record.approver, ...record.devices, formatRange(record), record.startDate, record.endDate].join(
-    " ",
-  );
-
-const compareBy = (a: BlockRecord, b: BlockRecord, key: SortKey) => {
+const compareBy = (a: TraineeRestriction, b: TraineeRestriction, key: SortKey) => {
   if (key === "end") return a.endDate.localeCompare(b.endDate);
   if (key === "status") return Number(isActive(a)) - Number(isActive(b)) || a.startDate.localeCompare(b.startDate);
   return a.startDate.localeCompare(b.startDate);
@@ -286,12 +200,12 @@ function BlockCard({
   onToggle,
   onEdit,
 }: {
-  record: BlockRecord;
+  record: TraineeRestriction;
   open: boolean;
   onToggle: () => void;
   onEdit: () => void;
 }) {
-  const hasHours = Boolean(record.startTime && record.endTime);
+  const allowed = describeConditions(record, false);
 
   return (
     <article className="rounded-[8px] bg-white p-4 shadow-[inset_0_0_0_0.5px_#c5cbdd]">
@@ -310,7 +224,7 @@ function BlockCard({
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="flex items-center gap-2">
             <span dir="ltr" className="whitespace-nowrap text-[16px] leading-5 text-[#8e929f]">
-              {formatRange(record)}
+              {recordRange(record)}
             </span>
             <StatusBadge active={isActive(record)} />
           </span>
@@ -324,14 +238,11 @@ function BlockCard({
       {open && (
         <div className="mt-4" style={{ animation: "fadeIn 200ms ease-out" }}>
           <dl className="grid grid-cols-2 gap-y-4">
-            <Detail label="תאריכים" value={formatRange(record)} ltr />
-            <Detail
-              label="שעות"
-              value={hasHours ? `${record.startTime}-${record.endTime}` : "כל היום"}
-              ltr={hasHours}
-            />
+            <Detail label="תאריכים" value={recordRange(record)} ltr />
+            <Detail label="סוג ההגבלה" value={limitTypeLabel(record.duration, false)} />
+            <Detail label="שעות מותרות" value={allowed.hours} ltr={hasHours(record)} />
+            <Detail label="מכשירים מותרים" value={allowed.devices} />
             <Detail label="סיבה" value={record.reason || "לא צוין"} />
-            <Detail label="היקף" value={record.devices.length ? record.devices.join(", ") : "כל המכשירים"} />
             <Detail label="גורם מאשר" value={record.approver || "לא צוין"} />
             {record.details && <Detail label="פירוט" value={record.details} className="col-span-2" />}
           </dl>
@@ -386,10 +297,10 @@ export default function BlockList() {
   const { id = "" } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const savedRecord = (location.state as { saved?: BlockRecord } | null)?.saved;
+  const savedRecord = (location.state as { saved?: TraineeRestriction } | null)?.saved;
 
-  const [records, setRecords] = useState<BlockRecord[]>(() => {
-    const stored = readRecords(id);
+  const [records, setRecords] = useState<TraineeRestriction[]>(() => {
+    const stored = readTraineeRestrictions(id);
     if (!savedRecord) return stored;
     return stored.some((record) => record.id === savedRecord.id)
       ? stored.map((record) => (record.id === savedRecord.id ? savedRecord : record))
@@ -409,7 +320,7 @@ export default function BlockList() {
   }, []);
 
   useEffect(() => {
-    writeRecords(id, records);
+    writeTraineeRestrictions(id, records);
   }, [id, records]);
 
   // Drop the saved record from history so back/forward can't re-apply a stale version
@@ -462,19 +373,19 @@ export default function BlockList() {
                 <path d="M3.5 12h16.83" />
               </Icon>
             </Link>
-            <h1 className="text-[20px] font-medium leading-[25px]">חסימה</h1>
+            <h1 className="text-[20px] font-medium leading-[25px]">הגבלה/היתר לחניך</h1>
           </div>
         </header>
 
         {/* 17 + (34 - 20) / 2 keeps the icons 24px below the divider, as in the design */}
         <section className="mt-[17px]">
           <div className="flex h-[34px] items-center justify-between gap-2">
-            <h2 className={searching ? "sr-only" : "whitespace-nowrap text-[16px] leading-5"}>הסטוריית חסימות</h2>
+            <h2 className={searching ? "sr-only" : "whitespace-nowrap text-[16px] leading-5"}>הסטוריית הגבלות</h2>
             {searching && (
               <SearchField
                 inputRef={searchRef}
                 value={query}
-                label="חיפוש חסימות"
+                label="חיפוש הגבלות"
                 placeholder="חיפוש לפי סיבה, גורם או תאריך"
                 onChange={setQuery}
                 onClose={closeSearch}
@@ -516,7 +427,7 @@ export default function BlockList() {
           </ul>
 
           {visibleRecords.length === 0 && (
-            <p className="mt-16 text-center text-[16px] leading-5 text-[#8e929f]">לא נמצאו חסימות</p>
+            <p className="mt-16 text-center text-[16px] leading-5 text-[#8e929f]">לא נמצאו הגבלות</p>
           )}
         </section>
       </main>
@@ -526,7 +437,7 @@ export default function BlockList() {
           to={`/child/${id}/block/new`}
           className="flex h-12 w-full items-center justify-center gap-1 rounded-[8px] bg-[#006aff] text-[16px] font-semibold leading-5 text-white"
         >
-          <span>חסימה חדשה</span>
+          <span>הגבלה חדשה</span>
           <Icon className="text-white">
             <path d="M12 5v14" />
             <path d="M5 12h14" />

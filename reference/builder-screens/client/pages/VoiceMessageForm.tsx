@@ -645,9 +645,9 @@ function VoiceMessageFormScreen({
     );
   };
 
-  const onFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const names = Array.from(event.target.files ?? [], (file) => file.name);
-    if (names.length > 0) update("files", names, "files");
+  const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) update("files", [file.name], "files");
     event.target.value = "";
   };
 
@@ -678,8 +678,6 @@ function VoiceMessageFormScreen({
 
   const closeApprover = () => setApproverOpen(false);
 
-  const fileLabel =
-    values.files.length === 0 ? "העלאת קבצים" : values.files.length === 1 ? values.files[0] : `${values.files.length} קבצים`;
 
   return (
     <div dir="rtl" lang="he" className="min-h-screen bg-[#f6f8fe] font-['Rubik'] text-[#00033d]">
@@ -894,11 +892,11 @@ function VoiceMessageFormScreen({
                 onClick={() => fileInputRef.current?.click()}
                 className="absolute inset-0 rounded-[8px] outline-none"
               />
-              <span className={valueClass(values.files.length > 0)}>{fileLabel}</span>
+              <span className={valueClass(values.files.length > 0)}>{values.files[0] ?? "העלאת קובץ"}</span>
               {values.files.length > 0 ? (
                 <button
                   type="button"
-                  aria-label="הסרת הקבצים"
+                  aria-label="הסרת הקובץ"
                   onClick={() => update("files", [])}
                   className="relative z-10 flex size-6 items-center justify-center text-[#00033d]"
                 >
@@ -912,7 +910,7 @@ function VoiceMessageFormScreen({
                   <path d="M9.5 13.5 12 11l2.5 2.5" />
                 </Icon>
               )}
-              <input ref={fileInputRef} type="file" multiple hidden onChange={onFilesChange} />
+              <input ref={fileInputRef} type="file" hidden onChange={onFileChange} />
             </div>
             <ErrorText message={errors.files} />
           </div>

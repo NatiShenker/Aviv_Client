@@ -1,29 +1,29 @@
-import { useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  activePermitsFor,
+  daysFromToday,
+  describeConditions,
+  devicesSummary,
+  findRestrictions,
+  formatDate,
+  formatRange,
+  LIMIT_KINDS,
+  LIMIT_OPTIONS,
+  NUMBER_TYPE_LABELS,
+  permitSummary,
+  readNumberRecords,
+  scopeLabel,
+  todayISO,
+  type LimitKind,
+  type NumberRecord,
+  type NumberRecordType,
+  type RestrictionRef,
+} from "@/lib/restrictions";
 
-type ExceptionType = "unblock" | "block";
+type Errors = Partial<Record<"phones" | "restriction" | "dates" | "duration" | "hours" | "file", string>>;
 
-interface ExceptionRecord {
-  id: string;
-  type: ExceptionType;
-  phone: string;
-  startDate: string;
-  endDate: string;
-  startTime: string;
-  endTime: string;
-  devices: string[];
-  reason: string;
-  details: string;
-  approver: string;
-  files: string[];
-}
-
-type Errors = Partial<Record<"phones" | "dates" | "hours" | "files", string>>;
-
-const TYPE_OPTIONS: { value: ExceptionType; label: string }[] = [
-  { value: "unblock", label: "פתיחת מספר חסום" },
-  { value: "block", label: "חסימת מספר פתוח" },
-];
+const TYPE_OPTIONS: NumberRecordType[] = ["permit", "restriction"];
 const REASONS = ["מורשה לזמן מוגבל", "קשר עם בן משפחה", "קשר עם גורם טיפולי", "בקשת הורים", "בקשת גורם טיפולי", "אחר"];
 const APPROVERS = ["מנהל הפנימייה", "רכז חינוך", "עובד סוציאלי", "מדריך אחראי"];
 const DEVICES = ["טלפון ציבורי – אגף א", "טלפון ציבורי – אגף ב", "טלפון ציבורי – אגף ג", "טלפון משרד הפנימייה"];
@@ -35,43 +35,42 @@ const STYLES = `
 .native-picker::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: auto; height: auto; margin: 0; padding: 0; opacity: 0; cursor: pointer; }
 `;
 
-const pad = (value: number) => String(value).padStart(2, "0");
-const daysFromToday = (days: number) => {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-};
-const formatDate = (iso: string) => {
-  const [year, month, day] = iso.split("-");
-  return `${day}/${month}/${year.slice(2)}`;
-};
-
 const normalizePhone = (value: string) => value.replace(/[\s()-]/g, "");
 // Israeli landline (9 digits) or mobile (10 digits)
 const isValidPhone = (phone: string) => /^0\d{8,9}$/.test(phone);
 
-const emptyRecord = (): ExceptionRecord => ({
-  id: `exception-${Date.now()}`,
-  type: "unblock",
+const emptyRecord = (type: NumberRecordType = "permit"): NumberRecord => ({
+  id: `number-${Date.now()}`,
+  type,
   phone: "",
+  restriction: null,
   startDate: daysFromToday(0),
   endDate: daysFromToday(1),
+  duration: null,
   startTime: "",
   endTime: "",
   devices: [],
   reason: "",
   details: "",
   approver: "",
-  files: [],
+  file: "",
 });
 
-const validate = (values: ExceptionRecord): Errors => {
+const parseDuration = (text: string) => (text ? Number(text) : null);
+
+const validate = (values: NumberRecord, durationText: string, limited: boolean): Errors => {
   const errors: Errors = {};
+  const bounds = values.type === "permit" ? values.restriction : null;
   if (!values.startDate || !values.endDate) errors.dates = "יש לבחור תאריך התחלה ותאריך סיום";
   else if (values.endDate < values.startDate) errors.dates = "תאריך הסיום לא יכול להיות לפני תאריך ההתחלה";
+  else if (bounds && (values.startDate < bounds.startDate || values.endDate > bounds.endDate))
+    errors.dates = `תאריכי ההיתר חייבים להיות בתוך תקופת ההגבלה (${formatRange(bounds.startDate, bounds.endDate)})`;
+  const minutes = parseDuration(durationText);
+  if (limited && (minutes === null || minutes < 1 || minutes > 120))
+    errors.duration = "יש להזין מספר דקות שלם בין 1 ל-120";
   if (Boolean(values.startTime) !== Boolean(values.endTime)) errors.hours = "יש לבחור שעת התחלה ושעת סיום";
   else if (values.startTime && values.endTime <= values.startTime) errors.hours = "שעת הסיום חייבת להיות אחרי שעת ההתחלה";
-  if (values.files.length === 0) errors.files = "יש לצרף קובץ";
+  if (!values.file) errors.file = "יש לצרף קובץ";
   return errors;
 };
 
@@ -128,6 +127,14 @@ const ClockIcon = (
   </Icon>
 );
 
+const TimerIcon = (
+  <Icon>
+    <circle cx="12" cy="13" r="8" />
+    <path d="M12 9v4l2 2" />
+    <path d="M10 2h4" />
+  </Icon>
+);
+
 const boxClass = (invalid: boolean) =>
   `relative mt-0.5 flex h-[42px] w-full items-center gap-2 rounded-[8px] border bg-white px-4 focus-within:border-[#006aff] ${
     invalid ? "border-[#a72223]" : "border-[#8e929f]"
@@ -178,6 +185,33 @@ function FieldIntro({
   );
 }
 
+function NumberIcon() {
+  return (
+    <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#fef2f2] text-[#fb444c]">
+      <Icon>
+        <rect x="5" y="11" width="14" height="10" rx="2" />
+        <path d="M8 11V7a4 4 0 0 1 7.46-2" />
+        <circle cx="12" cy="16" r="1.2" />
+      </Icon>
+    </span>
+  );
+}
+
+function RadioDot({ checked, className = "" }: { checked: boolean; className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`flex size-6 shrink-0 items-center justify-center rounded-full peer-focus-visible:ring-2 peer-focus-visible:ring-[#006aff]/40 ${className}`}
+    >
+      <span
+        className={`flex size-5 items-center justify-center rounded-full border-[#006aff] ${checked ? "border-2" : "border"}`}
+      >
+        {checked && <span className="size-2.5 rounded-full bg-[#006aff]" />}
+      </span>
+    </span>
+  );
+}
+
 function RadioOption({
   name,
   checked,
@@ -192,18 +226,76 @@ function RadioOption({
   return (
     <label className="relative flex cursor-pointer items-center gap-2">
       <input type="radio" name={name} checked={checked} onChange={onChange} className="peer sr-only" />
-      <span
-        aria-hidden="true"
-        className="flex size-6 shrink-0 items-center justify-center rounded-full peer-focus-visible:ring-2 peer-focus-visible:ring-[#006aff]/40"
-      >
-        <span
-          className={`flex size-5 items-center justify-center rounded-full border-[#006aff] ${checked ? "border-2" : "border"}`}
-        >
-          {checked && <span className="size-2.5 rounded-full bg-[#006aff]" />}
-        </span>
-      </span>
+      <RadioDot checked={checked} />
       <span className="whitespace-nowrap text-[16px] leading-6 text-[#00033d]">{children}</span>
     </label>
+  );
+}
+
+function PhoneInputRow({
+  hintId,
+  value,
+  invalid,
+  actionLabel,
+  actionIcon,
+  actionEnabled,
+  enterKeyHint,
+  onChange,
+  onAction,
+}: {
+  hintId: string;
+  value: string;
+  invalid: boolean;
+  actionLabel: string;
+  actionIcon: ReactNode;
+  actionEnabled: boolean;
+  enterKeyHint: "done" | "search";
+  onChange: (value: string) => void;
+  onAction: () => void;
+}) {
+  return (
+    <div className="mt-1 flex gap-2">
+      <div
+        className={`flex h-[42px] min-w-0 flex-1 items-center gap-2 rounded-[8px] border bg-white px-4 focus-within:border-[#006aff] ${
+          invalid ? "border-[#a72223]" : "border-[#8e929f]"
+        }`}
+      >
+        <input
+          type="tel"
+          inputMode="tel"
+          autoComplete="off"
+          enterKeyHint={enterKeyHint}
+          aria-label="מספר טלפון"
+          aria-describedby={hintId}
+          aria-invalid={invalid}
+          placeholder="הקלד"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter") return;
+            event.preventDefault();
+            if (actionEnabled) onAction();
+          }}
+          className="h-full min-w-0 flex-1 bg-transparent text-right text-[16px] leading-5 text-[#00033d] outline-none placeholder:text-[#8e929f]"
+        />
+        <Icon className="text-[#00033d]">
+          <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />
+          <path d="M15 7a2 2 0 0 1 2 2" />
+          <path d="M15 3a6 6 0 0 1 6 6" />
+        </Icon>
+      </div>
+      <button
+        type="button"
+        disabled={!actionEnabled}
+        onClick={onAction}
+        className={`flex h-[42px] w-[88px] shrink-0 items-center justify-center gap-1 rounded-[8px] text-[16px] font-semibold leading-5 text-white transition-colors ${
+          actionEnabled ? "bg-[#006aff]" : "bg-[#8e929f]"
+        }`}
+      >
+        <span>{actionLabel}</span>
+        {actionIcon}
+      </button>
+    </div>
   );
 }
 
@@ -227,58 +319,28 @@ function PhoneNumbersField({
   onRemove: (phone: string) => void;
 }) {
   const hintId = useId();
-  const canAdd = draft.trim() !== "";
 
   return (
     <div className={className}>
       <p id={hintId} className="text-[12px] leading-[15px] text-[#8e929f]">
         {hint}
       </p>
-      <div className="mt-1 flex gap-2">
-        <div
-          className={`flex h-[42px] min-w-0 flex-1 items-center gap-2 rounded-[8px] border bg-white px-4 focus-within:border-[#006aff] ${
-            error ? "border-[#a72223]" : "border-[#8e929f]"
-          }`}
-        >
-          <input
-            type="tel"
-            inputMode="tel"
-            autoComplete="off"
-            enterKeyHint="done"
-            aria-label="מספר טלפון"
-            aria-describedby={hintId}
-            aria-invalid={Boolean(error)}
-            placeholder="הקלד"
-            value={draft}
-            onChange={(event) => onDraftChange(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key !== "Enter") return;
-              event.preventDefault();
-              onAdd();
-            }}
-            className="h-full min-w-0 flex-1 bg-transparent text-right text-[16px] leading-5 text-[#00033d] outline-none placeholder:text-[#8e929f]"
-          />
-          <Icon className="text-[#00033d]">
-            <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />
-            <path d="M15 7a2 2 0 0 1 2 2" />
-            <path d="M15 3a6 6 0 0 1 6 6" />
-          </Icon>
-        </div>
-        <button
-          type="button"
-          disabled={!canAdd}
-          onClick={onAdd}
-          className={`flex h-[42px] w-[88px] shrink-0 items-center justify-center gap-1 rounded-[8px] text-[16px] font-semibold leading-5 text-white transition-colors ${
-            canAdd ? "bg-[#006aff]" : "bg-[#8e929f]"
-          }`}
-        >
-          <span>הוסף</span>
+      <PhoneInputRow
+        hintId={hintId}
+        value={draft}
+        invalid={Boolean(error)}
+        actionLabel="הוסף"
+        actionIcon={
           <Icon>
             <path d="M12 5v14" />
             <path d="M5 12h14" />
           </Icon>
-        </button>
-      </div>
+        }
+        actionEnabled={draft.trim() !== ""}
+        enterKeyHint="done"
+        onChange={onDraftChange}
+        onAction={onAdd}
+      />
       <ErrorText message={error} />
 
       {phones.length > 0 && (
@@ -305,6 +367,125 @@ function PhoneNumbersField({
   );
 }
 
+function PhoneSearchField({
+  value,
+  error,
+  canSearch,
+  className = "",
+  onChange,
+  onSearch,
+}: {
+  value: string;
+  error?: string;
+  canSearch: boolean;
+  className?: string;
+  onChange: (value: string) => void;
+  onSearch: () => void;
+}) {
+  const hintId = useId();
+
+  return (
+    <div className={className}>
+      <p id={hintId} className="text-[12px] leading-[15px] text-[#8e929f]">
+        הזן את המספר המלא כדי לאתר את ההגבלות החלות עליו עבור החניך
+      </p>
+      <PhoneInputRow
+        hintId={hintId}
+        value={value}
+        invalid={Boolean(error)}
+        actionLabel="חיפוש"
+        actionIcon={
+          <Icon className="size-5">
+            <circle cx="10" cy="10" r="7" />
+            <path d="m21 21-6-6" />
+          </Icon>
+        }
+        actionEnabled={canSearch}
+        enterKeyHint="search"
+        onChange={onChange}
+        onAction={onSearch}
+      />
+      <ErrorText message={error} />
+    </div>
+  );
+}
+
+function RestrictionLines({ restriction }: { restriction: RestrictionRef }) {
+  return (
+    <>
+      <span className="block text-[16px] font-medium leading-5 text-[#00033d]">{scopeLabel(restriction)}</span>
+      <span className="mt-1 block text-[14px] leading-[18px] text-[#8e929f]">
+        <span dir="ltr">{formatRange(restriction.startDate, restriction.endDate)}</span>
+        {" · "}
+        {restriction.reason || "ללא סיבה"}
+      </span>
+    </>
+  );
+}
+
+function RestrictionOption({
+  restriction,
+  permits,
+  checked,
+  onSelect,
+}: {
+  restriction: RestrictionRef;
+  permits: string[];
+  checked: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <label
+      className={`flex cursor-pointer items-start gap-3 rounded-[8px] bg-white p-4 ${
+        checked ? "shadow-[inset_0_0_0_1px_#006aff]" : "shadow-[inset_0_0_0_0.5px_#c5cbdd]"
+      }`}
+    >
+      <input
+        type="radio"
+        name="source-restriction"
+        checked={checked}
+        onChange={onSelect}
+        // Re-clicking the chosen card has no change event, but should still close the list
+        onClick={checked ? onSelect : undefined}
+        className="peer sr-only"
+      />
+      <RadioDot checked={checked} className="-my-0.5" />
+      <span className="min-w-0 flex-1">
+        <RestrictionLines restriction={restriction} />
+        {permits.length > 0 && (
+          <span className="mt-1 block text-[14px] leading-[18px] text-[#00033d]">
+            היתרים קיימים לחניך: {permits.join("; ")}
+          </span>
+        )}
+      </span>
+    </label>
+  );
+}
+
+function LockedNumberCard({ record }: { record: NumberRecord }) {
+  return (
+    <div className="rounded-[8px] bg-white p-4 shadow-[inset_0_0_0_0.5px_#c5cbdd]">
+      <div className="flex items-center gap-3">
+        <NumberIcon />
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="text-[16px] leading-5 text-[#00033d]">
+            <span dir="ltr">{record.phone}</span>
+          </span>
+          <span className="text-[14px] leading-[18px] text-[#8e929f]">{NUMBER_TYPE_LABELS[record.type]}</span>
+        </div>
+      </div>
+      {record.restriction && (
+        <div className="mt-3 pt-3 shadow-[inset_0_0.5px_0_#c5cbdd]">
+          <span className="block text-[14px] leading-[18px] text-[#8e929f]">על הגבלה</span>
+          <span className="mt-0.5 block">
+            <RestrictionLines restriction={record.restriction} />
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PickerInput({
   type,
   label,
@@ -316,6 +497,7 @@ function PickerInput({
   invalid,
   icon,
   min,
+  max,
   onChange,
   onClear,
 }: {
@@ -329,6 +511,7 @@ function PickerInput({
   invalid: boolean;
   icon: ReactNode;
   min?: string;
+  max?: string;
   onChange: (value: string) => void;
   onClear?: () => void;
 }) {
@@ -355,10 +538,100 @@ function PickerInput({
           aria-invalid={invalid}
           value={value}
           min={min}
+          max={max}
           onChange={(event) => onChange(event.target.value)}
           className="native-picker absolute inset-0 size-full cursor-pointer appearance-none rounded-[8px] text-[16px] opacity-0"
         />
       </div>
+    </div>
+  );
+}
+
+function DurationField({
+  value,
+  invalid,
+  autoFocus,
+  onChange,
+}: {
+  value: string;
+  invalid: boolean;
+  autoFocus: boolean;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="block min-w-0">
+      <FieldLabel text="משך מרבי לכל שיחה" required />
+      <span className={boxClass(invalid)}>
+        <span className="flex min-w-0 flex-1 items-center gap-1">
+          <input
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            maxLength={3}
+            autoFocus={autoFocus}
+            aria-label="משך מרבי לכל שיחה בדקות (חובה)"
+            aria-invalid={invalid}
+            placeholder="הזן דקות"
+            value={value}
+            onChange={(event) => onChange(event.target.value.replace(/\D/g, ""))}
+            // Shrinks to the digits so the unit sits right next to the number
+            style={value ? { width: `${value.length + 0.5}ch` } : undefined}
+            className={`bg-transparent text-right text-[16px] leading-5 text-[#00033d] outline-none placeholder:text-[#8e929f] ${
+              value ? "" : "min-w-0 flex-1"
+            }`}
+          />
+          {value && <span className="text-[16px] leading-5 text-[#00033d]">דק'</span>}
+        </span>
+        {value ? (
+          <button
+            type="button"
+            aria-label="ניקוי משך השיחה"
+            onClick={() => onChange("")}
+            className="relative z-10 flex size-6 items-center justify-center text-[#00033d]"
+          >
+            <CloseIcon />
+          </button>
+        ) : (
+          <span className="text-[#00033d]">{TimerIcon}</span>
+        )}
+      </span>
+    </label>
+  );
+}
+
+function ConditionAccordion({
+  title,
+  summary,
+  open,
+  error,
+  onToggle,
+  children,
+}: {
+  title: string;
+  summary: ReactNode;
+  open: boolean;
+  error?: string;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onToggle}
+        className="flex h-10 w-full items-center gap-2 text-right text-[14px] leading-[18px] text-[#00033d]"
+      >
+        <span className="shrink-0">{title}</span>
+        <span className="min-w-0 flex-1 truncate text-[#8e929f]">{summary}</span>
+        <ChevronDownIcon className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="pb-2" style={{ animation: "fadeIn 200ms ease-out" }}>
+          {children}
+        </div>
+      )}
+      <ErrorText message={error} />
     </div>
   );
 }
@@ -559,28 +832,41 @@ function OptionsSheet({
   );
 }
 
-function ExceptionFormScreen({ childId, initial }: { childId: string; initial?: ExceptionRecord }) {
+function ExceptionFormScreen({ childId, initial }: { childId: string; initial?: NumberRecord }) {
   const navigate = useNavigate();
   const editing = Boolean(initial);
   const listPath = `/child/${childId}/exception`;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typeTitleId = useId();
+  const pickerTitleId = useId();
+  const records = useMemo(() => readNumberRecords(childId), [childId]);
 
-  const [values, setValues] = useState<ExceptionRecord>(() => (initial ? { ...emptyRecord(), ...initial } : emptyRecord()));
-  const [phones, setPhones] = useState<string[]>(initial ? [initial.phone] : []);
+  const [values, setValues] = useState<NumberRecord>(() => (initial ? { ...emptyRecord(), ...initial } : emptyRecord()));
+  const [limit, setLimit] = useState<LimitKind>(initial?.duration != null ? "limited" : "full");
+  // Focus the minutes only when the user switches, not when an existing record opens
+  const [limitTouched, setLimitTouched] = useState(false);
+  const [durationText, setDurationText] = useState(initial?.duration != null ? String(initial.duration) : "");
+  const [phones, setPhones] = useState<string[]>([]);
   const [draft, setDraft] = useState("");
+  // null until a search runs; permits always rely on one of these restrictions
+  const [matches, setMatches] = useState<RestrictionRef[] | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [touchedDates, setTouchedDates] = useState({ startDate: editing, endDate: editing });
-  const [moreOpen, setMoreOpen] = useState(
-    Boolean(initial && (initial.startTime || initial.endTime || initial.devices.length > 0)),
-  );
+  const [hoursOpen, setHoursOpen] = useState(Boolean(initial && (initial.startTime || initial.endTime)));
+  const [devicesOpen, setDevicesOpen] = useState(Boolean(initial && initial.devices.length > 0));
   const [approverOpen, setApproverOpen] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
+
+  const isPermit = values.type === "permit";
+  const noun = isPermit ? "היתר" : "הגבלה";
+  const limited = limit === "limited";
+  const limitConfig = LIMIT_OPTIONS[values.type];
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const update = <K extends keyof ExceptionRecord>(key: K, value: ExceptionRecord[K], errorKey?: keyof Errors) => {
+  const update = <K extends keyof NumberRecord>(key: K, value: NumberRecord[K], errorKey?: keyof Errors) => {
     setValues((current) => ({ ...current, [key]: value }));
     if (errorKey) setErrors((current) => ({ ...current, [errorKey]: undefined }));
   };
@@ -590,9 +876,96 @@ function ExceptionFormScreen({ childId, initial }: { childId: string; initial?: 
     setTouchedDates((current) => ({ ...current, [key]: true }));
   };
 
+  const changeLimit = (kind: LimitKind) => {
+    setLimit(kind);
+    setLimitTouched(true);
+    setErrors((current) => ({ ...current, duration: undefined }));
+  };
+
+  const changeDuration = (text: string) => {
+    setDurationText(text);
+    setErrors((current) => ({ ...current, duration: undefined }));
+  };
+
+  const resetConditions = () => {
+    setLimit("full");
+    setLimitTouched(false);
+    setDurationText("");
+    setHoursOpen(false);
+    setDevicesOpen(false);
+  };
+
+  const changeType = (type: NumberRecordType) => {
+    if (type === values.type) return;
+    setValues((current) => ({
+      ...emptyRecord(type),
+      id: current.id,
+      reason: current.reason,
+      details: current.details,
+      approver: current.approver,
+      file: current.file,
+    }));
+    resetConditions();
+    setPhones([]);
+    setDraft("");
+    setMatches(null);
+    setPickerOpen(false);
+    setTouchedDates({ startDate: false, endDate: false });
+    setErrors({});
+  };
+
+  const selectRestriction = (restriction: RestrictionRef) => {
+    setPickerOpen(false);
+    if (values.restriction?.id === restriction.id) return;
+    const today = todayISO();
+    setValues((current) => ({
+      ...current,
+      restriction,
+      startDate: restriction.startDate > today ? restriction.startDate : today,
+      endDate: restriction.endDate,
+      startTime: "",
+      endTime: "",
+      devices: [],
+    }));
+    resetConditions();
+    setTouchedDates({ startDate: true, endDate: true });
+    setErrors((current) => ({ ...current, restriction: undefined, dates: undefined, duration: undefined, hours: undefined }));
+  };
+
   const changeDraft = (value: string) => {
     setDraft(value);
     setErrors((current) => ({ ...current, phones: undefined }));
+    if (isPermit && matches !== null) {
+      setMatches(null);
+      setPickerOpen(false);
+      setValues((current) => ({ ...current, phone: "", restriction: null }));
+      setErrors((current) => ({ ...current, restriction: undefined }));
+    }
+  };
+
+  const searchPhone = () => {
+    const phone = normalizePhone(draft);
+    if (!phone) return;
+    if (!isValidPhone(phone)) {
+      setErrors((current) => ({ ...current, phones: "מספר טלפון לא תקין" }));
+      return;
+    }
+    const found = findRestrictions(records, phone);
+    setMatches(found);
+    setValues((current) => ({ ...current, phone }));
+    setErrors((current) => ({ ...current, phones: undefined, restriction: undefined }));
+    if (found.length === 1) {
+      selectRestriction(found[0]);
+    } else {
+      setValues((current) => ({ ...current, restriction: null }));
+      setPickerOpen(found.length > 0);
+    }
+  };
+
+  const restrictSearchedNumber = () => {
+    const phone = values.phone;
+    changeType("restriction");
+    setPhones([phone]);
   };
 
   const addPhone = () => {
@@ -611,42 +984,67 @@ function ExceptionFormScreen({ childId, initial }: { childId: string; initial?: 
     setPhones((current) => current.filter((item) => item !== phone));
   };
 
-  const onFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const names = Array.from(event.target.files ?? [], (file) => file.name);
-    if (names.length > 0) update("files", names, "files");
+  const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) update("file", file.name, "file");
     event.target.value = "";
   };
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    const nextErrors = validate(values);
-    const pending = normalizePhone(draft);
+    // Until a restriction is chosen the rest of a permit form is hidden, so only the lookup is checked
+    const awaitingRestriction = isPermit && !values.restriction;
+    const nextErrors: Errors = awaitingRestriction ? {} : validate(values, durationText, limited);
     let nextPhones = phones;
-    if (pending && !isValidPhone(pending)) nextErrors.phones = "מספר טלפון לא תקין";
-    else if (pending) {
-      if (!phones.includes(pending)) nextPhones = [...phones, pending];
-      setPhones(nextPhones);
-      setDraft("");
+
+    if (isPermit && !editing) {
+      if (matches === null) nextErrors.phones = "יש להזין מספר ולחפש";
+      else if (matches.length === 0) nextErrors.phones = "יש להזין מספר מוגבל ולחפש";
+      else if (!values.restriction) nextErrors.restriction = "יש לבחור הגבלה";
+    } else if (!isPermit && !editing) {
+      const pending = normalizePhone(draft);
+      if (pending && !isValidPhone(pending)) nextErrors.phones = "מספר טלפון לא תקין";
+      else if (pending) {
+        if (!phones.includes(pending)) nextPhones = [...phones, pending];
+        setPhones(nextPhones);
+        setDraft("");
+      }
+      if (!nextErrors.phones && nextPhones.length === 0) nextErrors.phones = "יש להוסיף לפחות מספר אחד";
     }
-    if (!nextErrors.phones && nextPhones.length === 0) nextErrors.phones = "יש להוסיף לפחות מספר אחד";
 
     setErrors(nextErrors);
-    if (nextErrors.hours) setMoreOpen(true);
+    if (nextErrors.hours) setHoursOpen(true);
     if (Object.keys(nextErrors).length > 0) return;
 
+    const record: NumberRecord = { ...values, duration: limited ? parseDuration(durationText) : null };
     const stamp = Date.now();
-    const saved = nextPhones.map((phone, index) => ({
-      ...values,
-      phone,
-      id: index === 0 ? values.id : `exception-${stamp}-${index}`,
-    }));
+    const saved =
+      isPermit || editing
+        ? [record]
+        : nextPhones.map((phone, index) => ({
+            ...record,
+            phone,
+            id: index === 0 ? record.id : `number-${stamp}-${index}`,
+          }));
     navigate(listPath, { replace: true, state: { saved } });
   };
 
   const closeApprover = () => setApproverOpen(false);
 
-  const fileLabel =
-    values.files.length === 0 ? "העלאת קבצים" : values.files.length === 1 ? values.files[0] : `${values.files.length} קבצים`;
+  const showDetails = !isPermit || Boolean(values.restriction);
+  const showPickerList = pickerOpen || !values.restriction;
+  const pickerOptions = matches && (showPickerList ? matches : matches.filter((item) => item.id === values.restriction?.id));
+  const canSearch = normalizePhone(draft) !== "" && !(matches !== null && normalizePhone(draft) === values.phone);
+  const bounds = isPermit ? values.restriction : null;
+
+  const allowed = describeConditions(values, isPermit, limited);
+  const hoursSummary =
+    values.startTime || values.endTime ? (
+      <span dir="ltr">{`${values.startTime || "--:--"}-${values.endTime || "--:--"}`}</span>
+    ) : (
+      allowed.hours
+    );
+  const devicesText = values.devices.length > 0 ? devicesSummary(values.devices) : allowed.devices;
 
   return (
     <div dir="rtl" lang="he" className="min-h-screen bg-[#f6f8fe] font-['Rubik'] text-[#00033d]">
@@ -655,7 +1053,9 @@ function ExceptionFormScreen({ childId, initial }: { childId: string; initial?: 
       <form noValidate onSubmit={handleSubmit} className="mx-auto w-full max-w-[375px] px-4 pb-[108px] pt-[50px]">
         <header className="h-[41px] shadow-[inset_0_-0.5px_0_#c5cbdd]">
           <div className="flex h-[25px] items-center justify-between gap-4">
-            <h1 className="text-[20px] font-medium leading-[25px]">{editing ? "עריכת החרגה" : "החרגה חדשה"}</h1>
+            <h1 className="text-[20px] font-medium leading-[25px]">
+              {editing ? `עריכת ${noun}` : isPermit ? "היתר חדש" : "הגבלה חדשה"}
+            </h1>
             <Link
               to={listPath}
               replace
@@ -667,193 +1067,307 @@ function ExceptionFormScreen({ childId, initial }: { childId: string; initial?: 
           </div>
         </header>
 
-        <section className="mt-6">
-          <h2 id={typeTitleId} className="text-[16px] leading-5">
-            סוג ההחרגה
-          </h2>
-          <div role="radiogroup" aria-labelledby={typeTitleId} className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
-            {TYPE_OPTIONS.map((option) => (
-              <RadioOption
-                key={option.value}
-                name="exception-type"
-                checked={values.type === option.value}
-                onChange={() => update("type", option.value)}
-              >
-                {option.label}
-              </RadioOption>
-            ))}
-          </div>
-
-          <PhoneNumbersField
-            className="mt-[13px]"
-            hint="הזן מספר אחד או יותר. כל הנתונים שלמטה יחולו על כל המספרים"
-            phones={phones}
-            draft={draft}
-            error={errors.phones}
-            onDraftChange={changeDraft}
-            onAdd={addPhone}
-            onRemove={removePhone}
-          />
-        </section>
-
-        <div className="mb-[23.5px] mt-6 h-[0.5px] bg-[#c5cbdd]" />
-
-        <section>
-          <h2 className="text-[16px] leading-5">פרטי החלטה</h2>
-          <FieldIntro className="mt-4" title="טווח תאריכים" description="ההחרגה תחול בתאריכים אלו בלבד" />
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <PickerInput
-              type="date"
-              label="בחר תאריך"
-              ariaLabel="תאריך התחלה"
-              value={values.startDate}
-              display={values.startDate && formatDate(values.startDate)}
-              placeholder="--/--/--"
-              muted={!touchedDates.startDate}
-              invalid={Boolean(errors.dates)}
-              icon={CalendarIcon}
-              onChange={(value) => changeDate("startDate", value)}
-            />
-            <PickerInput
-              type="date"
-              ariaLabel="תאריך סיום"
-              value={values.endDate}
-              display={values.endDate && formatDate(values.endDate)}
-              placeholder="--/--/--"
-              muted={!touchedDates.endDate}
-              invalid={Boolean(errors.dates)}
-              icon={CalendarIcon}
-              min={values.startDate || undefined}
-              onChange={(value) => changeDate("endDate", value)}
-            />
-          </div>
-          <ErrorText message={errors.dates} />
-
-          <div className="mt-2 flex">
-            <button
-              type="button"
-              aria-expanded={moreOpen}
-              onClick={() => setMoreOpen((open) => !open)}
-              className="flex h-6 items-center gap-1.5 text-[14px] leading-[18px] text-[#00033d]"
-            >
-              <span>אפשרויות נוספות</span>
-              <ChevronDownIcon className={`transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`} />
-            </button>
-          </div>
-
-          {moreOpen && (
-            <div style={{ animation: "fadeIn 200ms ease-out" }}>
-              <div className="mt-4">
-                <FieldIntro title="טווח שעות" description="ההחרגה תחול בשעות אלו בלבד, בכל יום בטווח התאריכים" />
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  <PickerInput
-                    type="time"
-                    label="בחר שעה"
-                    ariaLabel="שעת התחלה"
-                    value={values.startTime}
-                    display={values.startTime}
-                    placeholder="--:--"
-                    invalid={Boolean(errors.hours)}
-                    icon={ClockIcon}
-                    onChange={(value) => update("startTime", value, "hours")}
-                    onClear={() => update("startTime", "", "hours")}
-                  />
-                  <PickerInput
-                    type="time"
-                    ariaLabel="שעת סיום"
-                    value={values.endTime}
-                    display={values.endTime}
-                    placeholder="--:--"
-                    invalid={Boolean(errors.hours)}
-                    icon={ClockIcon}
-                    onChange={(value) => update("endTime", value, "hours")}
-                    onClear={() => update("endTime", "", "hours")}
-                  />
-                </div>
-                <ErrorText message={errors.hours} />
-              </div>
-
-              <div className="mt-4">
-                <FieldIntro
-                  compact
-                  title="מכשירים"
-                  description="ברירת המחדל — ההחרגה תחול על כל המכשירים. בחר מכשירים מסוימים אם צריך"
-                />
-                <div className="mt-2">
-                  <NativeMultiSelect
-                    label="בחר מכשיר"
-                    values={values.devices}
-                    options={DEVICES}
-                    onChange={(devices) => update("devices", devices)}
-                  />
-                </div>
-              </div>
+        {editing ? (
+          <section className="mt-6">
+            <LockedNumberCard record={values} />
+          </section>
+        ) : (
+          <section className="mt-6">
+            <h2 id={typeTitleId} className="text-[16px] leading-5">
+              סוג הפעולה
+            </h2>
+            <div role="radiogroup" aria-labelledby={typeTitleId} className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+              {TYPE_OPTIONS.map((type) => (
+                <RadioOption key={type} name="number-type" checked={values.type === type} onChange={() => changeType(type)}>
+                  {NUMBER_TYPE_LABELS[type]}
+                </RadioOption>
+              ))}
             </div>
-          )}
-        </section>
 
-        <div className="mb-[23.5px] mt-6 h-[0.5px] bg-[#c5cbdd]" />
-
-        <section>
-          <h2 className="text-[16px] leading-5">סיבות והחלטה</h2>
-          <div className="mt-4 flex flex-col gap-2">
-            <NativeSelect
-              label="סיבה/הערה"
-              value={values.reason}
-              placeholder="הכל"
-              options={REASONS}
-              onChange={(reason) => update("reason", reason)}
-            />
-            <label className="block">
-              <FieldLabel text="פירוט" />
-              <textarea
-                rows={3}
-                placeholder="הוסף פירוט"
-                value={values.details}
-                onChange={(event) => update("details", event.target.value)}
-                className="mt-0.5 block h-24 w-full resize-none rounded-[8px] border border-[#8e929f] bg-white px-4 py-[11px] text-right text-[16px] leading-5 text-[#00033d] outline-none placeholder:text-[#8e929f] focus:border-[#006aff]"
+            {isPermit ? (
+              <PhoneSearchField
+                className="mt-[13px]"
+                value={draft}
+                error={errors.phones}
+                canSearch={canSearch}
+                onChange={changeDraft}
+                onSearch={searchPhone}
               />
-            </label>
-            <SelectField
-              label="גורם מאשר"
-              value={values.approver}
-              placeholder="הכל"
-              onOpen={() => setApproverOpen(true)}
-            />
-          </div>
-
-          <div className="mt-4">
-            <FieldLabel text="צירוף קובץ" required />
-            <div className={boxClass(Boolean(errors.files))}>
-              <button
-                type="button"
-                aria-label="צירוף קובץ (חובה)"
-                onClick={() => fileInputRef.current?.click()}
-                className="absolute inset-0 rounded-[8px] outline-none"
+            ) : (
+              <PhoneNumbersField
+                className="mt-[13px]"
+                hint="הזן מספר אחד או יותר. כל מספר יישמר כהגבלה נפרדת"
+                phones={phones}
+                draft={draft}
+                error={errors.phones}
+                onDraftChange={changeDraft}
+                onAdd={addPhone}
+                onRemove={removePhone}
               />
-              <span className={valueClass(values.files.length > 0)}>{fileLabel}</span>
-              {values.files.length > 0 ? (
+            )}
+
+            {isPermit && matches !== null && matches.length === 0 && (
+              <div
+                className="mt-4 rounded-[8px] bg-white p-4 shadow-[inset_0_0_0_0.5px_#c5cbdd]"
+                style={{ animation: "fadeIn 200ms ease-out" }}
+              >
+                <p className="text-[14px] leading-[18px] text-[#00033d]">
+                  לא נמצאו הגבלות פעילות על המספר עבור החניך – המספר פתוח ואין צורך בהיתר
+                </p>
                 <button
                   type="button"
-                  aria-label="הסרת הקבצים"
-                  onClick={() => update("files", [])}
-                  className="relative z-10 flex size-6 items-center justify-center text-[#00033d]"
+                  onClick={restrictSearchedNumber}
+                  className="mt-2 flex h-6 items-center gap-0.5 text-[14px] leading-[18px] text-[#006aff]"
                 >
-                  <CloseIcon />
+                  <span>להגבלת המספר</span>
+                  <Icon className="size-5">
+                    <path d="m15 18-6-6 6-6" />
+                  </Icon>
                 </button>
-              ) : (
-                <Icon className="text-[#00033d]">
-                  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                  <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z" />
-                  <path d="M12 11v6" />
-                  <path d="M9.5 13.5 12 11l2.5 2.5" />
-                </Icon>
+              </div>
+            )}
+
+            {isPermit && pickerOptions && pickerOptions.length > 0 && (
+              <div className="mt-4" style={{ animation: "fadeIn 200ms ease-out" }}>
+                <div className="flex h-[22px] items-center justify-between gap-2">
+                  <h3 id={pickerTitleId} className="text-[14px] leading-[18px] text-[#00033d]">
+                    {showPickerList ? "בחר את ההגבלה שעליה יחול ההיתר" : "ההגבלה שעליה יחול ההיתר"}
+                  </h3>
+                  {!showPickerList && matches.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setPickerOpen(true)}
+                      className="-my-2 flex h-10 shrink-0 items-center text-[14px] leading-[18px] text-[#006aff]"
+                    >
+                      החלפה
+                    </button>
+                  )}
+                </div>
+                {(showPickerList || matches.length === 1) && (
+                  <p className="text-[12px] leading-[15px] text-[#8e929f]">
+                    {matches.length === 1
+                      ? "זו ההגבלה היחידה החלה על המספר עבור החניך, ולכן נבחרה"
+                      : `נמצאו ${matches.length} הגבלות החלות על המספר עבור החניך`}
+                  </p>
+                )}
+                <div role="radiogroup" aria-labelledby={pickerTitleId} className="mt-2 flex flex-col gap-2">
+                  {pickerOptions.map((restriction) => (
+                    <RestrictionOption
+                      key={restriction.id}
+                      restriction={restriction}
+                      permits={activePermitsFor(records, restriction.id).map(permitSummary)}
+                      checked={values.restriction?.id === restriction.id}
+                      onSelect={() => selectRestriction(restriction)}
+                    />
+                  ))}
+                </div>
+                <ErrorText message={errors.restriction} />
+              </div>
+            )}
+          </section>
+        )}
+
+        {showDetails && (
+          <>
+            <div className="mb-[23.5px] mt-6 h-[0.5px] bg-[#c5cbdd]" />
+
+            <section>
+              <h2 className="text-[16px] leading-5">{isPermit ? "פרטי ההיתר" : "פרטי ההגבלה"}</h2>
+              <FieldIntro
+                className="mt-4"
+                title="טווח תאריכים"
+                description={
+                  isPermit ? "ההיתר יחול בתאריכים אלו, בתוך תקופת ההגבלה" : "ההגבלה תחול בתאריכים אלו בלבד"
+                }
+              />
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <PickerInput
+                  type="date"
+                  label="בחר תאריך"
+                  ariaLabel="תאריך התחלה"
+                  value={values.startDate}
+                  display={values.startDate && formatDate(values.startDate)}
+                  placeholder="--/--/--"
+                  muted={!touchedDates.startDate}
+                  invalid={Boolean(errors.dates)}
+                  icon={CalendarIcon}
+                  min={bounds?.startDate}
+                  max={bounds?.endDate}
+                  onChange={(value) => changeDate("startDate", value)}
+                />
+                <PickerInput
+                  type="date"
+                  ariaLabel="תאריך סיום"
+                  value={values.endDate}
+                  display={values.endDate && formatDate(values.endDate)}
+                  placeholder="--/--/--"
+                  muted={!touchedDates.endDate}
+                  invalid={Boolean(errors.dates)}
+                  icon={CalendarIcon}
+                  min={values.startDate || bounds?.startDate}
+                  max={bounds?.endDate}
+                  onChange={(value) => changeDate("endDate", value)}
+                />
+              </div>
+              <ErrorText message={errors.dates} />
+
+              <FieldIntro
+                className="mt-4"
+                title={limitConfig.title}
+                description={limitConfig.options[limit].hint}
+              />
+              <div
+                role="radiogroup"
+                aria-label={limitConfig.title}
+                className="mt-2 flex flex-wrap gap-x-4 gap-y-2"
+              >
+                {LIMIT_KINDS.map((kind) => (
+                  <RadioOption key={kind} name="limit-kind" checked={limit === kind} onChange={() => changeLimit(kind)}>
+                    {limitConfig.options[kind].label}
+                  </RadioOption>
+                ))}
+              </div>
+              {limited && (
+                <div className="mt-[13px] grid grid-cols-2 gap-2" style={{ animation: "fadeIn 200ms ease-out" }}>
+                  <DurationField
+                    value={durationText}
+                    invalid={Boolean(errors.duration)}
+                    autoFocus={limitTouched}
+                    onChange={changeDuration}
+                  />
+                </div>
               )}
-              <input ref={fileInputRef} type="file" multiple hidden onChange={onFilesChange} />
-            </div>
-            <ErrorText message={errors.files} />
-          </div>
-        </section>
+              <ErrorText message={errors.duration} />
+            </section>
+
+            <div className="mb-[23.5px] mt-6 h-[0.5px] bg-[#c5cbdd]" />
+
+            <section>
+              <h2 className="text-[16px] leading-5">{isPermit ? 'הגבלה להיתר' : 'היתרים להגבלה'}</h2>
+              <p className="mt-1 text-[14px] leading-[18px] text-[#8e929f]">
+                {limitConfig.options[limit].conditionsHint}
+              </p>
+              <div className="mt-2">
+                <ConditionAccordion
+                  title="שעות מותרות"
+                  summary={hoursSummary}
+                  open={hoursOpen}
+                  error={errors.hours}
+                  onToggle={() => setHoursOpen((open) => !open)}
+                >
+                  <p className="text-[12px] leading-[15px] text-[#8e929f]">
+                    השיחות יותרו רק בשעות אלו, בכל יום בטווח התאריכים
+                  </p>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <PickerInput
+                      type="time"
+                      label="בחר שעה"
+                      ariaLabel="שעת התחלה"
+                      value={values.startTime}
+                      display={values.startTime}
+                      placeholder="--:--"
+                      invalid={Boolean(errors.hours)}
+                      icon={ClockIcon}
+                      onChange={(value) => update("startTime", value, "hours")}
+                      onClear={() => update("startTime", "", "hours")}
+                    />
+                    <PickerInput
+                      type="time"
+                      ariaLabel="שעת סיום"
+                      value={values.endTime}
+                      display={values.endTime}
+                      placeholder="--:--"
+                      invalid={Boolean(errors.hours)}
+                      icon={ClockIcon}
+                      onChange={(value) => update("endTime", value, "hours")}
+                      onClear={() => update("endTime", "", "hours")}
+                    />
+                  </div>
+                </ConditionAccordion>
+
+                <ConditionAccordion
+                  title="מכשירים מותרים"
+                  summary={devicesText}
+                  open={devicesOpen}
+                  onToggle={() => setDevicesOpen((open) => !open)}
+                >
+                  <p className="text-[12px] leading-[15px] text-[#8e929f]">השיחות יותרו רק מהמכשירים שנבחרו</p>
+                  <div className="mt-2">
+                    <NativeMultiSelect
+                      label="בחר מכשיר"
+                      values={values.devices}
+                      options={DEVICES}
+                      onChange={(devices) => update("devices", devices)}
+                    />
+                  </div>
+                </ConditionAccordion>
+              </div>
+            </section>
+
+            <div className="mb-[23.5px] mt-6 h-[0.5px] bg-[#c5cbdd]" />
+
+            <section>
+              <h2 className="text-[16px] leading-5">סיבות והחלטה</h2>
+              <div className="mt-4 flex flex-col gap-2">
+                <NativeSelect
+                  label="סיבה/הערה"
+                  value={values.reason}
+                  placeholder="הכל"
+                  options={REASONS}
+                  onChange={(reason) => update("reason", reason)}
+                />
+                <label className="block">
+                  <FieldLabel text="פירוט" />
+                  <textarea
+                    rows={3}
+                    placeholder="הוסף פירוט"
+                    value={values.details}
+                    onChange={(event) => update("details", event.target.value)}
+                    className="mt-0.5 block h-24 w-full resize-none rounded-[8px] border border-[#8e929f] bg-white px-4 py-[11px] text-right text-[16px] leading-5 text-[#00033d] outline-none placeholder:text-[#8e929f] focus:border-[#006aff]"
+                  />
+                </label>
+                <SelectField
+                  label="גורם מאשר"
+                  value={values.approver}
+                  placeholder="הכל"
+                  onOpen={() => setApproverOpen(true)}
+                />
+              </div>
+
+              <div className="mt-4">
+                <FieldLabel text="צירוף קובץ" required />
+                <div className={boxClass(Boolean(errors.file))}>
+                  <button
+                    type="button"
+                    aria-label="צירוף קובץ (חובה)"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute inset-0 rounded-[8px] outline-none"
+                  />
+                  <span className={valueClass(Boolean(values.file))}>{values.file || "העלאת קובץ"}</span>
+                  {values.file ? (
+                    <button
+                      type="button"
+                      aria-label="הסרת הקובץ"
+                      onClick={() => update("file", "")}
+                      className="relative z-10 flex size-6 items-center justify-center text-[#00033d]"
+                    >
+                      <CloseIcon />
+                    </button>
+                  ) : (
+                    <Icon className="text-[#00033d]">
+                      <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                      <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z" />
+                      <path d="M12 11v6" />
+                      <path d="M9.5 13.5 12 11l2.5 2.5" />
+                    </Icon>
+                  )}
+                  <input ref={fileInputRef} type="file" hidden onChange={onFileChange} />
+                </div>
+                <ErrorText message={errors.file} />
+              </div>
+            </section>
+          </>
+        )}
 
         <div className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-[375px] bg-[#f6f8fe] px-4 pb-[max(24px,env(safe-area-inset-bottom))] pt-3">
           <div className="grid grid-cols-2 gap-2">
@@ -893,7 +1407,7 @@ function ExceptionFormScreen({ childId, initial }: { childId: string; initial?: 
 export default function ExceptionForm() {
   const { id = "", recordId } = useParams();
   const location = useLocation();
-  const record = (location.state as { record?: ExceptionRecord } | null)?.record;
+  const record = (location.state as { record?: NumberRecord } | null)?.record;
 
   if (recordId && record?.id !== recordId) return <Navigate to={`/child/${id}/exception`} replace />;
 

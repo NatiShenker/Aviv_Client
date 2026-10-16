@@ -1,29 +1,21 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  describeConditions,
+  formatRange,
+  hasHours,
+  limitTypeLabel,
+  NUMBER_TYPE_LABELS,
+  readNumberRecords,
+  scopeLabel,
+  todayISO,
+  writeNumberRecords,
+  type NumberRecord,
+  type NumberRecordType,
+} from "@/lib/restrictions";
 
 type SortKey = "start" | "end" | "status";
 type Direction = "asc" | "desc";
-type ExceptionType = "unblock" | "block";
-
-interface ExceptionRecord {
-  id: string;
-  type: ExceptionType;
-  phone: string;
-  startDate: string;
-  endDate: string;
-  startTime: string;
-  endTime: string;
-  devices: string[];
-  reason: string;
-  details: string;
-  approver: string;
-  files: string[];
-}
-
-const TYPE_LABELS: Record<ExceptionType, string> = {
-  unblock: "פתיחת מספר חסום",
-  block: "חסימת מספר פתוח",
-};
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: "start", label: "תאריך התחלה" },
@@ -42,134 +34,38 @@ const STYLES = `
 @media (prefers-reduced-motion: no-preference) { .search-open { animation: searchOpen 200ms ease-out; } }
 `;
 
-const pad = (value: number) => String(value).padStart(2, "0");
-const toISO = (date: Date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-const daysFromToday = (days: number) => {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return toISO(date);
-};
-const formatDate = (iso: string) => {
-  const [year, month, day] = iso.split("-");
-  return `${day}/${month}/${year.slice(2)}`;
-};
-const formatRange = (record: ExceptionRecord) => `${formatDate(record.startDate)}-${formatDate(record.endDate)}`;
-const isActive = (record: ExceptionRecord) => record.endDate >= toISO(new Date());
+const TYPE_TAGS: Record<NumberRecordType, string> = { permit: "היתר", restriction: "הגבלה" };
 
-const seedRecords = (): ExceptionRecord[] => [
-  {
-    id: "seed-1",
-    type: "unblock",
-    phone: "0523695424",
-    startDate: daysFromToday(-1),
-    endDate: daysFromToday(2),
-    startTime: "14:30",
-    endTime: "22:30",
-    devices: [],
-    reason: "מורשה לזמן מוגבל",
-    details: "",
-    approver: "מנהל הפנימייה",
-    files: ["אישור_הנהלה.pdf"],
-  },
-  {
-    id: "seed-2",
-    type: "block",
-    phone: "0541234567",
-    startDate: daysFromToday(-12),
-    endDate: daysFromToday(-8),
-    startTime: "",
-    endTime: "",
-    devices: [],
-    reason: "בקשת הורים",
-    details: "ההורים ביקשו לחסום שיחות למספר זה עד לשיחת המשפחה",
-    approver: "עובד סוציאלי",
-    files: ["בקשת_הורים.pdf"],
-  },
-  {
-    id: "seed-3",
-    type: "unblock",
-    phone: "0779876543",
-    startDate: daysFromToday(0),
-    endDate: daysFromToday(6),
-    startTime: "",
-    endTime: "",
-    devices: ["טלפון משרד הפנימייה"],
-    reason: "קשר עם גורם טיפולי",
-    details: "שיחות שבועיות עם המטפלת, בתיאום עם רכז החינוך",
-    approver: "רכז חינוך",
-    files: ["המלצה_טיפולית.pdf"],
-  },
-  {
-    id: "seed-4",
-    type: "block",
-    phone: "0501112233",
-    startDate: daysFromToday(-20),
-    endDate: daysFromToday(-15),
-    startTime: "",
-    endTime: "",
-    devices: [],
-    reason: "בקשת גורם טיפולי",
-    details: "",
-    approver: "מנהל הפנימייה",
-    files: ["סיכום_שיחה.pdf"],
-  },
-  {
-    id: "seed-5",
-    type: "unblock",
-    phone: "036123456",
-    startDate: daysFromToday(-3),
-    endDate: daysFromToday(10),
-    startTime: "18:00",
-    endTime: "21:00",
-    devices: ["טלפון ציבורי – אגף א"],
-    reason: "קשר עם בן משפחה",
-    details: "",
-    approver: "מדריך אחראי",
-    files: ["אישור_משפחה.jpg"],
-  },
-];
+const recordRange = (record: NumberRecord) => formatRange(record.startDate, record.endDate);
+const isActive = (record: NumberRecord) => record.endDate >= todayISO();
 
-const storageKey = (childId: string) => `child:${childId}:exceptions`;
-
-// sessionStorage throws when storage is blocked (e.g. sandboxed iframes)
-const readRecords = (childId: string): ExceptionRecord[] => {
-  try {
-    const stored = sessionStorage.getItem(storageKey(childId));
-    if (stored) return JSON.parse(stored) as ExceptionRecord[];
-  } catch {
-    return seedRecords();
-  }
-  return seedRecords();
-};
-
-const writeRecords = (childId: string, records: ExceptionRecord[]) => {
-  try {
-    sessionStorage.setItem(storageKey(childId), JSON.stringify(records));
-  } catch {
-    return;
-  }
-};
-
-const mergeSaved = (stored: ExceptionRecord[], saved: ExceptionRecord[]) => {
+const mergeSaved = (stored: NumberRecord[], saved: NumberRecord[]) => {
   const added = saved.filter((record) => !stored.some((item) => item.id === record.id));
   const updated = stored.map((record) => saved.find((item) => item.id === record.id) ?? record);
   return [...added, ...updated];
 };
 
-const searchableText = (record: ExceptionRecord) =>
-  [
+const searchableText = (record: NumberRecord) => {
+  const allowed = describeConditions(record, record.type === "permit");
+  return [
     record.phone,
-    TYPE_LABELS[record.type],
+    NUMBER_TYPE_LABELS[record.type],
+    limitTypeLabel(record.duration, record.type === "permit"),
+    record.restriction ? scopeLabel(record.restriction) : "",
     record.reason,
     record.details,
     record.approver,
-    ...record.devices,
-    formatRange(record),
+    allowed.hours,
+    allowed.devices,
+    recordRange(record),
     record.startDate,
     record.endDate,
-  ].join(" ");
+  ]
+    .join(" ")
+    .replace(/\u00a0/g, " ");
+};
 
-const compareBy = (a: ExceptionRecord, b: ExceptionRecord, key: SortKey) => {
+const compareBy = (a: NumberRecord, b: NumberRecord, key: SortKey) => {
   if (key === "end") return a.endDate.localeCompare(b.endDate);
   if (key === "status") return Number(isActive(a)) - Number(isActive(b)) || a.startDate.localeCompare(b.startDate);
   return a.startDate.localeCompare(b.startDate);
@@ -207,28 +103,14 @@ const SearchIcon = ({ className = "" }: { className?: string }) => (
   </Icon>
 );
 
-function TypeIcon({ type }: { type: ExceptionType }) {
-  const unblock = type === "unblock";
+function NumberIcon() {
   return (
-    <span
-      role="img"
-      aria-label={TYPE_LABELS[type]}
-      className={`flex size-11 shrink-0 items-center justify-center rounded-full ${
-        unblock ? "bg-[#f0fdf4] text-[#00c950]" : "bg-[#fef2f2] text-[#fb444c]"
-      }`}
-    >
-      {unblock ? (
-        <Icon>
-          <rect x="5" y="11" width="14" height="10" rx="2" />
-          <circle cx="12" cy="16" r="1" />
-          <path d="M8 11V6a4 4 0 0 1 8 0" />
-        </Icon>
-      ) : (
-        <Icon>
-          <circle cx="12" cy="12" r="9" />
-          <path d="m9 15 6-6" />
-        </Icon>
-      )}
+    <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#fef2f2] text-[#fb444c]">
+      <Icon>
+        <rect x="5" y="11" width="14" height="10" rx="2" />
+        <path d="M8 11V7a4 4 0 0 1 7.46-2" />
+        <circle cx="12" cy="16" r="1.2" />
+      </Icon>
     </span>
   );
 }
@@ -305,14 +187,22 @@ function SearchField({
   );
 }
 
-function StatusBadge({ active }: { active: boolean }) {
+function TypeTag({ type }: { type: NumberRecordType }) {
+  return (
+    <span className="flex h-5 shrink-0 items-center rounded-full bg-[#e0ebff] px-2 text-[10px] leading-3 text-[#00033d]">
+      {TYPE_TAGS[type]}
+    </span>
+  );
+}
+
+function StatusBadge({ active, masculine = false }: { active: boolean; masculine?: boolean }) {
   return (
     <span
       className={`flex h-5 shrink-0 items-center rounded-full px-2 text-[10px] leading-3 ${
         active ? "bg-[#e7ffef] text-[#069940]" : "bg-[#f6f9fc] text-[#c5cbdd]"
       }`}
     >
-      {active ? "פעילה" : "הסתיים"}
+      {active ? (masculine ? "פעיל" : "פעילה") : "הסתיים"}
     </span>
   );
 }
@@ -344,12 +234,13 @@ function ExceptionCard({
   onToggle,
   onEdit,
 }: {
-  record: ExceptionRecord;
+  record: NumberRecord;
   open: boolean;
   onToggle: () => void;
   onEdit: () => void;
 }) {
-  const hasHours = Boolean(record.startTime && record.endTime);
+  const isPermit = record.type === "permit";
+  const allowed = describeConditions(record, isPermit);
 
   return (
     <article className="rounded-[8px] bg-white p-4 shadow-[inset_0_0_0_0.5px_#c5cbdd]">
@@ -359,13 +250,14 @@ function ExceptionCard({
         onClick={onToggle}
         className="flex w-full items-center gap-3 text-right"
       >
-        <TypeIcon type={record.type} />
+        <NumberIcon />
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="flex items-center gap-2">
             <span dir="ltr" className="whitespace-nowrap text-[16px] leading-5 text-[#8e929f]">
               {record.phone}
             </span>
-            <StatusBadge active={isActive(record)} />
+            <TypeTag type={record.type} />
+            <StatusBadge active={isActive(record)} masculine={isPermit} />
           </span>
           <span className="truncate text-[16px] leading-5 text-[#00033d]">{record.reason || "ללא סיבה"}</span>
         </span>
@@ -377,14 +269,18 @@ function ExceptionCard({
       {open && (
         <div className="mt-4" style={{ animation: "fadeIn 200ms ease-out" }}>
           <dl className="grid grid-cols-2 gap-y-4">
-            <Detail label="תאריכים" value={formatRange(record)} ltr />
-            <Detail
-              label="שעות"
-              value={hasHours ? `${record.startTime}-${record.endTime}` : "כל היום"}
-              ltr={hasHours}
-            />
+            <Detail label="סוג" value={limitTypeLabel(record.duration, isPermit)} />
+            <Detail label="תאריכים" value={recordRange(record)} ltr />
+            {record.restriction && (
+              <Detail
+                label="על הגבלה"
+                value={`${scopeLabel(record.restriction)} · ${formatRange(record.restriction.startDate, record.restriction.endDate)}`}
+                className="col-span-2"
+              />
+            )}
+            <Detail label="שעות מותרות" value={allowed.hours} ltr={hasHours(record)} />
+            <Detail label="מכשירים מותרים" value={allowed.devices} />
             <Detail label="סיבה" value={record.reason || "לא צוין"} />
-            <Detail label="היקף" value={record.devices.length ? record.devices.join(", ") : "כל המכשירים"} />
             <Detail label="גורם מאשר" value={record.approver || "לא צוין"} />
             {record.details && <Detail label="פירוט" value={record.details} className="col-span-2" />}
           </dl>
@@ -439,10 +335,10 @@ export default function ExceptionList() {
   const { id = "" } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const savedRecords = (location.state as { saved?: ExceptionRecord[] } | null)?.saved;
+  const savedRecords = (location.state as { saved?: NumberRecord[] } | null)?.saved;
 
-  const [records] = useState<ExceptionRecord[]>(() => {
-    const stored = readRecords(id);
+  const [records] = useState<NumberRecord[]>(() => {
+    const stored = readNumberRecords(id);
     return savedRecords ? mergeSaved(stored, savedRecords) : stored;
   });
   const [openId, setOpenId] = useState<string | null>(savedRecords?.[0]?.id ?? null);
@@ -459,7 +355,7 @@ export default function ExceptionList() {
   }, []);
 
   useEffect(() => {
-    writeRecords(id, records);
+    writeNumberRecords(id, records);
   }, [id, records]);
 
   // Drop the saved records from history so back/forward can't re-apply a stale version
@@ -512,19 +408,19 @@ export default function ExceptionList() {
                 <path d="M3.5 12h16.83" />
               </Icon>
             </Link>
-            <h1 className="text-[20px] font-medium leading-[25px]">החרגה</h1>
+            <h1 className="text-[20px] font-medium leading-[25px]">הגבלה/היתר למספר</h1>
           </div>
         </header>
 
         {/* 17 + (34 - 20) / 2 keeps the icons 24px below the divider, as in the design */}
         <section className="mt-[17px]">
           <div className="flex h-[34px] items-center justify-between gap-2">
-            <h2 className={searching ? "sr-only" : "whitespace-nowrap text-[16px] leading-5"}>הסטוריית החרגות</h2>
+            <h2 className={searching ? "sr-only" : "whitespace-nowrap text-[16px] leading-5"}>הסטוריית הגבלות והיתרים</h2>
             {searching && (
               <SearchField
                 inputRef={searchRef}
                 value={query}
-                label="חיפוש החרגות"
+                label="חיפוש הגבלות והיתרים"
                 placeholder="חיפוש לפי מספר, סיבה או תאריך"
                 onChange={setQuery}
                 onClose={closeSearch}
@@ -566,7 +462,7 @@ export default function ExceptionList() {
           </ul>
 
           {visibleRecords.length === 0 && (
-            <p className="mt-16 text-center text-[16px] leading-5 text-[#8e929f]">לא נמצאו החרגות</p>
+            <p className="mt-16 text-center text-[16px] leading-5 text-[#8e929f]">לא נמצאו הגבלות או היתרים</p>
           )}
         </section>
       </main>
@@ -576,7 +472,7 @@ export default function ExceptionList() {
           to={`/child/${id}/exception/new`}
           className="flex h-12 w-full items-center justify-center gap-1 rounded-[8px] bg-[#006aff] text-[16px] font-semibold leading-5 text-white"
         >
-          <span>הוספת החרגה</span>
+          <span>הוספת הגבלה/היתר</span>
           <Icon className="text-white">
             <path d="M12 5v14" />
             <path d="M5 12h14" />

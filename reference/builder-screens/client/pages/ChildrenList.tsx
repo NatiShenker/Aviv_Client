@@ -187,7 +187,7 @@ function StatusBadge({ child }: { child: Child }) {
       }`}
     >
       <span className={`size-1.5 rounded-full ${blocked ? "bg-[#ff3b3b]" : "bg-[#22c55e]"}`} />
-      {blocked ? `חסום עד ${child.blockedUntil}` : "פעיל"}
+      {blocked ? `מוגבל עד ${child.blockedUntil}` : "פעיל"}
     </span>
   );
 }

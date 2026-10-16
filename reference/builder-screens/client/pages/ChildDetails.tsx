@@ -81,7 +81,7 @@ function ActionCard({
 
 const ACTIONS = [
   {
-    label: "חסימה",
+    label: "הגבלה/היתר לחניך",
     path: "block",
     icon: (
       <>
@@ -91,7 +91,7 @@ const ACTIONS = [
     ),
   },
   {
-    label: "החרגה",
+    label: "הגבלה/היתר למספר",
     path: "exception",
     icon: (
       <>
