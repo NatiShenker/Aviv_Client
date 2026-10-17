@@ -8,10 +8,13 @@ import type { ISODateString, LookupItem } from "./common.schema.ts";
 
 // ============================================================================
 // 1. בקשת שליפת חניכים לפי פנימייה (מערך פנימיות לסקיילביליות)
+// POST Trainees/GetTrainees - החוזה משוער, הפעולה עדיין לא קיימת בסרביס (ראו pending-decisions)
 // ============================================================================
 
 export interface GetTraineesRequest {
   instituteIds: number[];
+  /** אופציונלי - צמצום לאגפים מסוימים. כרגע לא נשלח, כי סינון האגף מקומי */
+  wingIds?: number[];
 }
 
 // ============================================================================
@@ -59,7 +62,7 @@ export interface TraineeListItemDto {
   firstName: string;
   lastName: string;
   fullName: string;
-  photoUrl?: string | null;
+  // התמונה מגיעה מפעולה נפרדת (GetTraineePhotoRequest), ולכן אינה חלק מהרשימה
 
   instituteId: number;
   /** a. אגף */
@@ -81,6 +84,15 @@ export interface TraineeListItemDto {
 
 export interface GetTraineesResponse {
   trainees: TraineeListItemDto[];
+}
+
+// ============================================================================
+// 3a. תמונת חניך (GET Trainees/GetTraineePhoto - שם זמני, ראו pending-decisions)
+// הפעולה מחזירה את קובץ התמונה עצמו; הכתובת נבנית בקליינט ונכנסת ישירות ל-src
+// ============================================================================
+
+export interface GetTraineePhotoRequest {
+  traineeId: number;
 }
 
 // ============================================================================

@@ -1,0 +1,75 @@
+import type { ISODateString } from "@/schemas/common.schema";
+import type {
+  GetTraineePhotoRequest,
+  GetTraineesRequest,
+  GetTraineesResponse,
+  TraineeListItemDto,
+} from "@/schemas/trainees.schema";
+import { TRAINEE_PHONE_RECORDS_MOCK_DATA } from "../data/traineePhoneRecordsMockData";
+import { MISSING_PHOTO_URL, TRAINEE_PHOTOS_MOCK_DATA } from "../data/traineePhotosMockData";
+import { TRAINEE_RESTRICTIONS_MOCK_DATA } from "../data/traineeRestrictionsMockData";
+import { TRAINEES_MOCK_DATA, type TraineeMockRecord } from "../data/traineesMockData";
+import { isTodayInRange } from "../mockDates";
+import type { MockRequest } from "../mockRequest";
+
+interface DatedRecord {
+  isActive: boolean;
+  startDate: ISODateString;
+  endDate: ISODateString;
+}
+
+export function handleGetTrainees(request: MockRequest): GetTraineesResponse {
+  const { instituteIds, wingIds = [] } = request.body as GetTraineesRequest;
+
+  const trainees = TRAINEES_MOCK_DATA.filter(
+    (trainee) =>
+      instituteIds.includes(trainee.instituteId) &&
+      (wingIds.length === 0 || wingIds.includes(trainee.wing.id)),
+  ).map(toTraineeListItem);
+
+  return { trainees };
+}
+
+/** כתובת תמונת החניך. הפעולה האמיתית מחזירה את קובץ התמונה עצמו, ולכן הכתובת נכנסת ישירות ל-src */
+export function resolveTraineePhotoUri(params: unknown): string {
+  const { traineeId } = params as GetTraineePhotoRequest;
+  return TRAINEE_PHOTOS_MOCK_DATA.get(Number(traineeId)) ?? MISSING_PHOTO_URL;
+}
+
+// הדגלים נגזרים מהרשומות עצמן, כמו שהשרת מחשב אותם ב-SQL, כדי שיצירת רשומה תתעדכן גם ברשימה
+function toTraineeListItem(record: TraineeMockRecord): TraineeListItemDto {
+  const { staticFlags, ...traineeFields } = record;
+  const activeRestrictions = TRAINEE_RESTRICTIONS_MOCK_DATA.filter(
+    (restriction) => restriction.traineeId === record.id && isActiveToday(restriction),
+  );
+  const activePhoneRecords = TRAINEE_PHONE_RECORDS_MOCK_DATA.filter(
+    (phoneRecord) => phoneRecord.traineeId === record.id && isActiveToday(phoneRecord),
+  );
+
+  return {
+    ...traineeFields,
+    restrictedUntilDate: latestEndDate(activeRestrictions),
+    flags: {
+      hasActiveFullRestriction: activeRestrictions.some((restriction) => restriction.durationMinutes === null),
+      hasActiveMinutesRestriction: activeRestrictions.some((restriction) => restriction.durationMinutes !== null),
+      hasActivePhoneRestriction: activePhoneRecords.some((phoneRecord) => phoneRecord.type === "restriction"),
+      hasActivePhonePermit: activePhoneRecords.some((phoneRecord) => phoneRecord.type === "permit"),
+      ...staticFlags,
+    },
+  };
+}
+
+function isActiveToday(record: DatedRecord): boolean {
+  return record.isActive && isTodayInRange(record.startDate, record.endDate);
+}
+
+// "מוגבל עד" = תאריך הסיום המאוחר מבין ההגבלות הפעילות (לפי ההצעה ב-OQ-03)
+function latestEndDate(records: DatedRecord[]): ISODateString | null {
+  if (records.length === 0) {
+    return null;
+  }
+  return records.reduce(
+    (latest, record) => (record.endDate > latest ? record.endDate : latest),
+    records[0].endDate,
+  );
+}
