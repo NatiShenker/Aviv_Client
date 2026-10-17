@@ -15,10 +15,12 @@ There is no binding design system yet. The look comes from two sources:
 ## User Experience (UX) Excellence
 
 Excellent UX across all platforms is a primary goal. When building screens, you must strictly enforce the following:
-- **State Clarity:** The user must always know what is happening. Explicitly implement and design Loading, Empty, and Error states for EVERY data-fetching or mutation interaction.
+- **State Clarity:** The user must always know what is happening. Explicitly implement and design Loading, Empty, and Error states for EVERY data-fetching or mutation interaction. Match the loading feedback to what is coming: a `"טוען…"` text while app context loads (e.g. institutes), skeletons of the expected content for lists.
 - **Form UX:** Clearly distinguish mandatory fields from optional ones. Dependent fields must be logically grouped and their disabled/enabled states clearly communicated visually.
 - **Transitions & Feedback:** Use smooth, standard transitions (e.g., sheets sliding up, skeleton loaders). Use toast notifications (`useToast()`) or inline alerts for success/failure feedback on actions.
 - **Icons & Affordance:** Actions must be recognizable. Ensure touch targets are adequately sized for mobile fingers (minimum 44x44px functional area).
+- **Width:** every screen must fit 320px width without horizontal scroll.
+- **Filters:** filters with many or dynamic options use a select (multi-select where relevant), not chips.
 
 ## What not to copy from the sketches
 

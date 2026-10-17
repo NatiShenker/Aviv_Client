@@ -18,7 +18,8 @@ The UI is in Hebrew only and is laid out right-to-left (RTL).
 - You are a client-side developer working in React and TypeScript. Write components in TSX, and put logic without JSX in TS files.
 - Before implementing, read the spec documents relevant to the task.
 - When essential information about behavior, design or data is missing, ask. Do not invent requirements or business rules.
-- **Pending Decisions Management:** If the user explicitly states that a certain feature, design, or logic is "undecided", "leave it for later", or "we'll handle this in the future", you MUST document it in `.agent/pending-decisions.md` under the appropriate category (Architecture/Logic or Design/UX).
+- **Pending Decisions Management:** If the user explicitly states that a certain feature, design, or logic is "undecided", "leave it for later", or "we'll handle this in the future", you MUST document it in `.agent/pending-decisions.md` under the appropriate category (Architecture/Logic or Design/UX). Record every open question there as well.
+- The user runs and tests the app. Do not run it or test in a browser unless explicitly asked.
 - Keep changes focused on the task. When done, briefly report what was implemented, what was verified, and what remains open.
 
 ## Sources of Truth
@@ -41,6 +42,8 @@ The app is not connected to a server yet; the connection will be added later. Un
 - Error and empty scenarios can be triggered deliberately for testing.
 - Operations that change data update the in-memory mock data, so the change is reflected throughout the app for the rest of the session. Changes reset on page reload.
 - Switching to the real server happens only in the service layer, without changing view components.
+- Server access goes only through the internal HTTP client and the service client; details in `.agent/infrastructure.md`.
+- Mock data exists for every data type in the schemas, one file per type.
 
 ## The "Architect" Self-Critique Protocol
 

@@ -226,11 +226,15 @@ Each entry: **structure**, **states**, **used in**.
 
 ### 3.24 BottomSheet
 
-- Backdrop (`overlay`, a button with aria-label `"סגירה"`), and a dialog anchored to the bottom (`role="dialog"`, `aria-modal="true"`, aria-label = title): grab handle, title (18/23, 500), X button (aria-label `"סגירה"`), content. Escape closes. Animations `fadeIn` + `sheetUp`.
+- Backdrop (`overlay`, a button with aria-label `"סגירה"`), and a dialog anchored to the bottom (`role="dialog"`, `aria-modal="true"`, aria-label = title): grab handle, title (18/23, 500), X button on the left (aria-label `"סגירה"`), content. Escape closes. Animations `fadeIn` + `sheetUp`.
+- **Height:** follows the content, up to 90% of the screen; longer content scrolls inside the sheet.
+- **Drag to close:** dragging the sheet down closes it, which is what the grab handle signals.
+- Implemented by `IpsDrawer anchor="bottom"`.
 
 ### 3.25 SortSheet
 
-- BottomSheet titled `"מיון"` (Sort). One 56px row per sort option, with a check icon on the selected one (`aria-pressed`). A last row `"כיוון מיון"` (Sort direction) shows `"עולה"` (ascending) or `"יורד"` (descending) with an arrow, and toggles on tap.
+- BottomSheet titled `"מיון"` (Sort). One 56px row per sort option, where every option is a field **and** a direction (e.g. `"שם – א׳ עד ת׳"`). There is no separate direction row.
+- Rows are separated by a line. The selected row is bold, in the primary color, with a check icon. Implemented by `IpsRadioListMobile` (native radios).
 - Changes apply immediately; the sheet stays open until closed.
 
 ### 3.26 StickyActionBar
@@ -321,7 +325,7 @@ In production each lookup item is typed as `LookupItem<number> { id: number; nam
 
 Full TypeScript contracts live in `common.schema.ts`, `organization.schema.ts`, `trainees.schema.ts`, `trainee-restrictions.schema.ts`, `phone-exceptions.schema.ts`, and `voice-messages.schema.ts`:
 
-- **Style:** REST + JSON under `/api`.
+- **Style:** JSON over HTTP to Aviv_Service in `Controller/Action` form (e.g. `Institutions/GetInstitutionsAndWings`), through the internal HTTP client. Queries may use `POST` when they send arrays of IDs. The `/api/...` paths in the feature specs (03–05) are older placeholders until those endpoints are defined.
 - **IDs:** `number`.
 - **Scalability with Arrays:** `GET`, `Lookup`, and `POST` (create) endpoints accept arrays (`clientIds: number[]`, `instituteIds: number[]`, `traineeIds: number[]`, `phoneNumbers: PhoneString[]`, `deviceIds: number[]`) where cost is low. `PUT` (update) targets a single record ID (`previousId: number`).
 - **Immutable Updates:** Updating an existing record (`PUT`) sets `LOGI_ACTIVE = 0` on the previous DB record and inserts a new active record (`LOGI_ACTIVE = 1`), returning the new ID(s) in `MutationResultDto`.

@@ -33,28 +33,33 @@ The organization's shared React component library: `Ips*` components (wrapping M
   - Although desktop controls generally use MUI, **on Mobile you must first evaluate whether a native HTML/OS control provides a good, natural mobile UX** (for example: native `<select>`, `<input type="date">`, `<input type="time">`, `<input type="range">` slider, etc.).
   - **When a good native mobile option exists:** Create a dedicated mobile control inside `../ui-library` named **`Ips<Control>Mobile`** (e.g., `IpsSliderMobile`, `IpsDatePickerMobile`, `IpsTimePickerMobile`, `IpsSelectMobile`) built on the native control, and consume it in the mobile app. Later, when Desktop mode is developed, a separate `Ips<Control>` based on MUI will be created/used for desktop.
   - **When NO good native option exists:** Create or use a single `Ips<Control>` in `../ui-library` based on MUI that serves both mobile and future platforms.
+  - **Evaluate every part of the control** (trigger area, label, chevron, picker, helper text) against native first. MUI enters only for a part that native cannot fully cover; otherwise an `Ips*Mobile` uses no MUI components (the theme's styling engine is fine).
+- **Mobile look and behavior:** while the app is mobile-only, every library control a screen uses must look and behave like a mobile control (touch-sized, mobile patterns, no desktop chrome), native or not. It does not have to be the most modern look, but it must clearly read as mobile. If an existing control does not, adapt it in the library (a mobile variant or an `Ips*Mobile` control).
 - **Modifying the UI Library (Sensitive Action):** Creating a new `Ips*Mobile` / `Ips*` control or modifying an existing one in `../ui-library` triggers the architect's self-review protocol (`<architect_review>` in `CLAUDE.md`).
 - **Infrastructure Git Workflow:** Any changes to `../ui-library` must be performed on a dedicated branch named `AVIV`.
 - **No Autonomous Git Commands:** Do not execute Git commands or create Pull Requests (PRs) for library changes on your own. Implement the changes locally, ask the user to verify that they function correctly and meet UX standards, and—only after the user's approval—provide the specific Git commands for the user to execute.
 - Use a control's own props (`variant`, `size`, `color`, `error`, `helperText`, …) for its appearance. Tailwind classes do not override control styles (see `design.md`).
-- Icons: `@mui/icons-material` is installed because the library requires it. The icon source for the app is not decided yet; ask before choosing icons for a real screen.
+- Icons: always through `AppIcon` (see `.agent/infrastructure.md` › Icons). Production icons are image files from storage; `@mui/icons-material` serves only as a temporary stand-in.
 
 ## Mapping: sketch element → library control (Mobile Native-First check required)
 
 | Sketch element | Library Control / Strategy | Notes |
 |---|---|---|
-| Primary and outlined buttons, bottom CTA, edit button | `IpsButton` | `variant`, `fullWidth`, `startIcon`/`endIcon`, `loading`. |
-| Back, close, toolbar icons | `IpsIconButton` | Requires `icon`; add `aria-label`. |
-| Search field, phone input, duration input | `IpsTextField` (or `IpsTextFieldMobile`) | `type="search"` / `inputMode="tel"` / `inputMode="numeric"`. |
+| Primary and outlined buttons, bottom CTA, edit button | `IpsButton` | `variant`, `fullWidth`, `startIcon`/`endIcon`, `loading`. Mobile primary actions (sheet / form footers): `size="large"` (48px). |
+| Back, close, toolbar icons | `IpsIconButton` | Requires `icon`; add `aria-label`. In a mobile toolbar next to a field: `variant="surface"` (44px white circle). |
+| Search field | `IpsSearchFieldMobile` (available) | Native `<input type="search">` pill, 44px, borderless; pass `clearButtonLabel`. |
+| Phone input, duration input | `IpsTextField` (or a future `IpsTextFieldMobile`) | `inputMode="tel"` / `inputMode="numeric"`. Check against the mobile look-and-behavior rule before use. |
 | Details text | `IpsTextArea` | Note fixed width gap below; adjust in `ui-library` if full-width is needed. |
-| Reason select | `IpsSelectMobile` (native `<select>`) or `IpsSelect` | Prefer native OS picker on mobile (`IpsSelectMobile`) per Mobile Native-First rule. |
-| Devices multi-select | `IpsMultiSelectMobile` (native `<select multiple>`) or `IpsChipSelect` | Prefer native mobile multi-select picker on mobile if suitable. |
+| Reason select, institute selector | `IpsSelectMobile` (native `<select>`, available) or `IpsSelect` | Prefer native OS picker on mobile (`IpsSelectMobile`) per Mobile Native-First rule. `onChange` returns the option's original value type. `variant="plain"` (text + chevron) for a context selector in a header row. |
+| Multi-select (devices, wing/location filters) | `IpsMultiSelectMobile` (available) | Native `<select multiple>` on a real iPhone/iPad; `IpsSelect multiple` elsewhere (Android, desktop, devtools emulation). `allOptionLabel` adds an explicit "הכל" option. |
+| Grouped options (any select) | `group` on `IpsSelectOption` | Native `<optgroup>` / menu subheaders, in all select controls. |
+| Single choice from a list of rows (sort options) | `IpsRadioListMobile` (available) | Native radios as full-width rows; selected row bold with a check. |
 | Date range | `IpsDatePickerMobile` (native `date`) or `IpsDatePicker` | Native mobile date picker avoids the English locale issue of `IpsDatePicker` and gives native OS UX. |
 | Hour range | `IpsTimePickerMobile` (native `time`) or `IpsTimePicker` | Native mobile time picker avoids `Moment` overhead and gives native OS UX. |
 | Approver picker | **External 3rd-party Approver MFE** (or `OptionsSheet` in simulation) | In production, approver selection is handled via a 3rd-party MFE. |
 | Repeat toggle | `IpsSwitch` | |
-| Filter chips (status, wing, etc.) | `IpsPillSelect` | Single or `multiple`. |
-| Bottom sheets (sort, filter) | `IpsDrawer` | `anchor="bottom"`. |
+| Filter chips (few fixed options) | `IpsPillSelect` | Single or `multiple`. `label` for the group title; `allowDeselect={false}` when the group always keeps a value (e.g. "הכל"). On mobile `size="large"` (44px). |
+| Bottom sheets (sort, filter) | `IpsDrawer` | `anchor="bottom"`: grab handle, drag down to close, height up to 90%. Pass `closeButtonLabel="סגירה"`. |
 | Expandable record card | Custom app card or `IpsAccordion` | Must match the UX behavior specified in `00-foundations.md §3.22`. |
 | Save and error feedback | `useToast` | |
 | Confirmations | `IpsDialog` | |
