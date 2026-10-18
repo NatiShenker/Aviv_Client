@@ -1,21 +1,14 @@
-import { useMatch } from "react-router-dom";
 import { ROUTE_PATTERNS, parseRouteId } from "@/routes";
+import { useFormSheetRoute, type FormSheetTarget } from "@/shared/navigation/useFormSheetRoute";
 
-/** הטופס שהכתובת מבקשת לפתוח מעל ההיסטוריה */
-export type RestrictionFormTarget = { mode: "create" } | { mode: "edit"; recordId: number };
+/** הטופס שהכתובת מבקשת לפתוח מעל ההיסטוריה. בעריכה - מזהה ההגבלה */
+export type RestrictionFormTarget = FormSheetTarget<number>;
 
 /** null = הכתובת היא של ההיסטוריה עצמה, ומגירת הטופס סגורה */
 export function useRestrictionFormRoute(): RestrictionFormTarget | null {
-  const createMatch = useMatch(ROUTE_PATTERNS.newTraineeRestriction);
-  const editMatch = useMatch(ROUTE_PATTERNS.editTraineeRestriction);
-
-  if (createMatch) {
-    return { mode: "create" };
-  }
-
-  const recordId = parseRouteId(editMatch?.params.recordId);
-  if (recordId !== null) {
-    return { mode: "edit", recordId };
-  }
-  return null;
+  return useFormSheetRoute({
+    createPattern: ROUTE_PATTERNS.newTraineeRestriction,
+    editPattern: ROUTE_PATTERNS.editTraineeRestriction,
+    parseRecordRef: (params) => parseRouteId(params.recordId),
+  });
 }

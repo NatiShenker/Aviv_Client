@@ -52,13 +52,13 @@ DetailGrid, two columns, in this order (right column first):
 
 Below the grid: outline button `"עריכה"` (Edit) with edit icon.
 
-Note: in the card the devices value lists **all** device labels joined with `", "`; the form summary shows a count instead ([form.md §4.5](form.md#45-permits-block-accordions)).
+Note: like the form summary ([form.md §4.5](form.md#45-permits-block-accordions)), the card shows one device by its label and more as `"{n} מכשירים"` – an institute can have many devices (decided 2026-10-18).
 
 ---
 
 ## 4. Behavior & states
 
-- **Search** matches the trimmed query (substring) against a text built from: reason, details, approver, type label, hours value, devices value, date range (`DD/MM/YY-DD/MM/YY`), start date and end date (`YYYY-MM-DD`). Non-breaking spaces in the type label count as spaces, so `"עד 10 דק'"` matches.
+- **Search** matches the trimmed query (substring) against a text built from: reason, details, approver, type label, hours value, devices value and every device label (so a device is found even when the card shows only the count), date range (`DD/MM/YY-DD/MM/YY`), start date and end date (`YYYY-MM-DD`). Non-breaking spaces in the type label count as spaces, so `"עד 10 דק'"` matches.
 - **Empty list** and **no search match** both show `"לא נמצאו הגבלות"`.
 - **Sort sheet rows** (field + direction, [00 §3.25](../00_foundations.md)) **(proposed)**: `"תאריך התחלה – מהחדש לישן"` (default), `"תאריך התחלה – מהישן לחדש"`, `"תאריך סיום – מהחדש לישן"`, `"תאריך סיום – מהישן לחדש"`, `"סטטוס – פעילות קודם"`, `"סטטוס – שהסתיימו קודם"`.
 - **Loading:** skeleton cards. **Failure:** `"לא ניתן לטעון את ההגבלות"` **(proposed)** + `"נסה שוב"`.

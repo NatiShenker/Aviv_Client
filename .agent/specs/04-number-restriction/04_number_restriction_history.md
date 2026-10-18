@@ -15,7 +15,7 @@ Prototype source: `client/pages/ExceptionList.tsx`. Business rules and model: [o
 
 - **Route:** `/child/:id/exception` (legacy slug, [OQ-19](../README.md#oq-19))
 - **`id`:** trainee ID. Unknown trainee → not-found screen (production).
-- **After save (production):** the form passes the saved record IDs (navigation state or `?saved={id}`); the list opens the **first** one, then clears the parameter.
+- **After save (production):** the form passes the saved record keys (navigation state or `?saved={key}`); the list opens the **first** one, then clears the parameter. A record key is the type + ID (e.g. `permit-12`), because restrictions and permits come from separate tables and their IDs can repeat; the edit route uses the same key ([form §2](04_number_restriction_form.md)).
 
 ---
 
@@ -47,7 +47,7 @@ DetailGrid, two columns (right column first):
 |---|---|---|
 | 1 | `"סוג"` (Type) – type label, permit or restriction variant ([overview §3](overview.md#3-derived-display-values)) | `"תאריכים"` – range, LTR |
 | 2 (permits only) | `"על הגבלה"` (On restriction) – `"{scope label} · {range}"`, full width | |
-| 3 | `"שעות מותרות"` – hours value; LTR when set | `"מכשירים מותרים"` – device labels joined with `", "`, or the default value |
+| 3 | `"שעות מותרות"` – hours value; LTR when set | `"מכשירים מותרים"` – 1 device → its label; more → `"{n} מכשירים"`; or the default value |
 | 4 | `"סיבה"` – label or `"לא צוין"` | `"גורם מאשר"` – label or `"לא צוין"` |
 | 5 | `"פירוט"` – full width, **only when not empty** | |
 
@@ -62,7 +62,7 @@ Below the grid: outline button `"עריכה"` with edit icon.
 
 ## 4. Behavior & states
 
-- **Search** matches the trimmed query (substring) against: phone, full type label (`"היתר למספר מוגבל"` / `"הגבלת מספר"`), type label (e.g. `"היתר עם הגבלת משך – עד 15 דק'"`, non-breaking spaces count as spaces), scope label of the underlying restriction (permits), reason, details, approver, hours value, devices value, date range (`DD/MM/YY-DD/MM/YY`), start and end dates (`YYYY-MM-DD`).
+- **Search** matches the trimmed query (substring) against: phone, full type label (`"היתר למספר מוגבל"` / `"הגבלת מספר"`), type label (e.g. `"היתר עם הגבלת משך – עד 15 דק'"`, non-breaking spaces count as spaces), scope label of the underlying restriction (permits), reason, details, approver, hours value, devices value and every device label, date range (`DD/MM/YY-DD/MM/YY`), start and end dates (`YYYY-MM-DD`).
 - **Empty list** and **no search match** both show `"לא נמצאו הגבלות או היתרים"`.
 
 ---

@@ -32,8 +32,7 @@ Everything shared by all screens. Screen files reference the components and patt
 | `success-soft` / `success` | `#e7ffef` / `#069940` | "Active" badge on history lists |
 | `muted-soft` | `#f6f9fc` | "Ended" badge background |
 | `warning` | `#bd4d00` | Data-gap warning on the children list |
-| `border-light` | `#ededed` | Children card border, sheet row separators, actions-screen dividers |
-| `border-row` | `#e6e9f0` | Action row border on the actions screen |
+| `border-light` | `#ededed` | Sheet row separators, actions-screen dividers |
 | `border-inner` | `#ebebf0` | Divider inside a children card |
 | `grabber` | `#dfe3ec` | Bottom sheet grab handle |
 | `chevron` | `#0c3058` | Expand chevron on history cards |
@@ -60,10 +59,9 @@ Everything shared by all screens. Screen files reference the components and patt
 | Page side padding | 16px (20px on the children list) |
 | Header | 41px tall, 0.5px bottom line `divider` |
 | Section divider | 0.5px `divider`, 24px above, 23.5px below |
-| Field | 42px tall, radius 8, 1px border `text-secondary`, 16px side padding; focus border `action`; invalid border `error` |
+| Field | 42px tall, radius from the library field token (6), 1px border, 16px side padding; focus border `action`; invalid border `error`. The search field and toolbar icon buttons are outlined the same way (44px) |
 | Button | 48px tall, radius 8. Primary: `action` background, white text. Outline: white background, 1px `action` border, `action` text |
-| History card | White, radius 8, padding 16, 0.5px inset outline `divider` |
-| Children card | White, radius 19, padding 16, 0.5px border `border-light` |
+| Card | **One rule for every card:** white, radius from the library card token (12), padding 16. On the page background (history cards, children cards, action rows) – **no border**. On a white surface (inside a form sheet) – 1px `divider` border. Rows that stand in a field's place (an attached file, a chosen approver) look like a field (field radius, field border) |
 | Bottom sheet | Top radius 24, side padding 20, bottom padding 32, grab handle 40×4 |
 | Badge / tag | 20px tall, pill, 8px side padding |
 | Sticky footer | Stays at the bottom of the viewport, `bg-app`, 12px top padding, 24px bottom padding. Implemented as `position: sticky` inside the page (not `fixed`), so it moves with the page during the page transition and never hides the last item |
@@ -177,6 +175,7 @@ Each entry: **structure**, **states**, **used in**.
 - Native `select multiple` shown as an open list box with all options visible (list height = number of options). Selected options get the `chip` background.
 - **Desktop:** a plain click toggles one option (no Ctrl/Cmd needed). **Mobile:** the OS multi-select picker.
 - FieldLabel `"בחר מכשיר"` (Pick a device).
+- **Devices are grouped by wing** (native `optgroup` / menu subheaders), in the institute's wing order, because an institute can have many devices. The group heading is `"אגף {name}"`, or just the name for a virtual wing (e.g. `"מיקומים שונים"`). **No `"הכל"` option** – nothing selected means all devices are allowed.
 - **Used in:** permitted devices, voice message devices.
 
 ### 3.14 DetailsTextArea
@@ -232,7 +231,7 @@ Each entry: **structure**, **states**, **used in**.
 Same structure and look as the children list header row 2 ([01 §3.1](01_children_list.md)), for uniformity across screens:
 
 - **Row 1:** the section title (`h2`, 18px, weight 500), e.g. `"היסטוריית הגבלות"`.
-- **Row 2:** an always-visible search field (`IpsSearchFieldMobile`, takes the remaining width, clear button `"ניקוי חיפוש"` clears the text) + a round sort button (`IpsIconButton variant="surface"`, sort icon only, aria-label `"מיון"`). Both 44px on a white background, no borders.
+- **Row 2:** an always-visible search field (`IpsSearchFieldMobile`, takes the remaining width, clear button `"ניקוי חיפוש"` clears the text) + a square sort button (`IpsIconButton variant="surface"`, sort icon only, aria-label `"מיון"`). Both 44px, white, and outlined like the form fields (the field radius for the search field, the button radius for the sort button), so they read as controls and match the cards below them.
 - The search field and the sort button are disabled until the records have loaded.
 - Results filter live as you type (trimmed substring match).
 
@@ -300,7 +299,7 @@ Block title `"סיבות והחלטה"`. Identical in every form, except for the
 | Order | Field | Component (`ui-library` / External) | Placeholder | Required |
 |---|---|---|---|---|
 | 1 | `"סיבה/הערה"` (Reason/note) | `IpsSelectMobile` (NativeSelect behavior) | `"בחר סיבה"` (prototype: `"הכל"`) | No (**Yes** in Trainee Restriction – `CODE_RESTRICTION`; error `"יש לבחור סיבה"` **(proposed)**) |
-| 2 | `"פירוט"` (Details) | `IpsTextAreaMobile` (DetailsTextArea behavior) | `"הוסף פירוט"` | No |
+| 2 | `"פירוט"` (Details) | `IpsTextAreaMobile` (DetailsTextArea behavior) | `"הוסף פירוט"` | **Yes** in every form (decided 2026-10-18) – error `"יש להזין פירוט"` **(proposed)**. Only spaces count as empty |
 | 3 | `"גורם מאשר"` (Approver) | **External 3rd-party Approver MFE** – see below | – | **Yes** – error `"יש לבחור גורם מאשר"` **(proposed)** |
 | 4 | `"צירוף קובץ"` (File) | `IpsFileUpload` → **Direct upload to SharePoint** – see below | – | **Yes** – error `"יש לצרף קובץ"` (A file must be attached) |
 
@@ -328,7 +327,7 @@ Fields 1–3 are stacked 8px apart; the file field is 16px below them. See [OQ-1
 In production each lookup item is typed as `LookupItem<number> { id: number; name: string }` (`common.schema.ts`):
 
 - **Institutes, Wings & Wing Locations (`organization.schema.ts`):** Fetched via existing endpoints by `clientIds: number[]`, `instituteIds: number[]`, and `wingIds: number[]`.
-- **Devices (`organization.schema.ts`):** Fetched per boarding school (`instituteIds: number[]`) **in the background immediately after the trainees list loads**, and cached in the client. Prototype demo labels: `"טלפון ציבורי – אגף א"`, `"טלפון ציבורי – אגף ב"`, `"טלפון ציבורי – אגף ג"`, `"טלפון משרד הפנימייה"`.
+- **Devices (`organization.schema.ts`):** Fetched per boarding school (`instituteIds: number[]`) **in the background immediately after the trainees list loads**, and cached in the client. **Every device belongs to a wing** (`wingId`); devices of the whole institute come in a virtual wing named `"מיקומים שונים"`. Prototype demo labels: `"טלפון ציבורי – אגף א"`, `"טלפון ציבורי – אגף ב"`, `"טלפון ציבורי – אגף ג"`, `"טלפון משרד הפנימייה"`.
 - **Reasons:**
   - **Trainee restriction:** `"הפרת משמעת"`, `"שימוש לא תקין בטלפון"`, `"בקשת גורם טיפולי"`, `"בקשת הורים"`, `"אחר"`.
   - **Number restriction / permit:** `"מורשה לזמן מוגבל"`, `"קשר עם בן משפחה"`, `"קשר עם גורם טיפולי"`, `"בקשת הורים"`, `"אחר"`.

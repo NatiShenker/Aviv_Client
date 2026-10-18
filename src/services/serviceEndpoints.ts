@@ -20,11 +20,24 @@ export const SERVICE_ENDPOINTS = {
     /** PUT: מכבה את הרשומה הקודמת ויוצר רשומה פעילה חדשה */
     updateTraineeRestriction: "TraineeRestrictions/UpdateTraineeRestriction",
   },
+  phoneExceptions: {
+    /** כל הרשומות של החניך: הגבלות והיתרים למספרים (ספק 04 history §6) */
+    getTraineePhoneRecords: "PhoneExceptions/GetTraineePhoneRecords",
+    /** ההגבלות החלות על מספר עבור החניך, ליצירת היתר (ספק 04 overview §2.7) */
+    lookupRestrictionsForPermit: "PhoneExceptions/LookupPhoneRestrictionsForPermit",
+    createTraineePhoneRestriction: "PhoneExceptions/CreateTraineePhoneRestriction",
+    /** PUT: מכבה את הרשומה הקודמת ויוצר רשומה פעילה חדשה */
+    updateTraineePhoneRestriction: "PhoneExceptions/UpdateTraineePhoneRestriction",
+    createTraineePhonePermit: "PhoneExceptions/CreateTraineePhonePermit",
+    /** PUT: מכבה את ההיתר הקודם ויוצר היתר פעיל חדש */
+    updateTraineePhonePermit: "PhoneExceptions/UpdateTraineePhonePermit",
+  },
   devices: {
     getInstituteDevices: "Devices/GetInstituteDevices",
   },
   lookups: {
     getTraineeRestrictionReasons: "Lookups/GetTraineeRestrictionReasons",
+    getPhoneExceptionReasons: "Lookups/GetPhoneExceptionReasons",
   },
   files: {
     /** רישום קובץ שהועלה ל-SharePoint, כדי לקבל את המזהה שלו (IDNT_APPROVED_FILE) */

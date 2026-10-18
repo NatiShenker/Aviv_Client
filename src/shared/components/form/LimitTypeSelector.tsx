@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { IpsRadioGroupMobile, IpsTextFieldMobile, type IpsRadioGroupMobileValue } from "ui-library";
 import type { CallLimitKind } from "@/schemas/common.schema";
 import AppIcon from "@/shared/icons/AppIcon";
+import type { CallRuleKind } from "@/shared/restrictions/callConditionsLogic";
 import ErrorText from "./ErrorText";
 import FieldIntro from "./FieldIntro";
 import { FORM_TEXTS } from "./formTexts";
@@ -11,9 +12,6 @@ const DIGITS_ONLY = /\D/g;
 // ספק 00 §3.7: עד 3 ספרות
 const DURATION_MAX_LENGTH = 3;
 
-/** "restriction" בהגבלות, "permit" בהיתרים - משנה רק את הטקסטים (ספק 00 §3.9) */
-export type LimitTypeContext = "restriction" | "permit";
-
 const LIMIT_KINDS: CallLimitKind[] = ["full", "limited"];
 
 function isLimitKind(value: IpsRadioGroupMobileValue): value is CallLimitKind {
@@ -21,7 +19,8 @@ function isLimitKind(value: IpsRadioGroupMobileValue): value is CallLimitKind {
 }
 
 interface LimitTypeSelectorProps {
-  context: LimitTypeContext;
+  /** "restriction" בהגבלות, "permit" בהיתרים - משנה רק את הטקסטים (ספק 00 §3.9) */
+  context: CallRuleKind;
   kind: CallLimitKind;
   onKindChange: (kind: CallLimitKind) => void;
   durationText: string;

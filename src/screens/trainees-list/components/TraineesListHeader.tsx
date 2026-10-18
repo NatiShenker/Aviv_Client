@@ -34,7 +34,7 @@ export default function TraineesListHeader({
         </div>
       </div>
 
-      {/* שורה אחידה: שדה חיפוש ושני כפתורים עגולים, כולם בגובה 44 על רקע לבן ובלי מסגרת */}
+      {/* שורה אחידה: שדה חיפוש ושני כפתורים, כולם בגובה 44, לבנים ועם מסגרת כמו שדות הטופס */}
       <div className="flex items-center gap-2">
         <div className="min-w-0 flex-1">
           <IpsSearchFieldMobile

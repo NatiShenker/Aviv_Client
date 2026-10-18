@@ -25,13 +25,13 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 ### 3.1 Header (side padding 16px)
 
 - **Right:** back arrow link to `/` (aria-label `"חזרה"`).
-- **Next to it (16px gap):** the trainee's full name as `h1`, 20/24, weight 500, e.g. `"יוסי כהן"` (name only, no personal number).
+- **Next to it (16px gap):** the trainee's full name and personal number as `h1`, 20/24, weight 500, in the same format as the children card: `"יוסי כהן | 012453"` (decided 2026-10-18).
 - **Divider:** 17px below, 1px `#ededed`, 16px side margins.
 
 ### 3.2 Actions section (side padding 19px)
 
 - **Title** `"פעולות"` (Actions), 16/20, 31px below the divider.
-- **Rows** 15px below the title, 4px apart. Each row: 60px, white, radius 8, 1px `#e6e9f0` border, 12px side padding; a 36px `#e0ebff` circle with a navy icon; the label (16/20); a chevron pointing left at the far side.
+- **Rows** 15px below the title, 4px apart. Each row: 60px, a card on the page background – white, card radius, no border ([00 §2.3](00_foundations.md)) – 12px side padding; a 36px `#e0ebff` circle with a navy icon; the label (16/20); a chevron pointing left at the far side.
 
 | Order | Label | Icon | Opens |
 |---|---|---|---|
@@ -40,13 +40,13 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 | 3 | `"הוספת הודעה קולית"` (Add voice message) | Microphone with plus | `/child/{id}/voice-message` – [05 history](05-voice-message/history.md) |
 
 - **Permissions:** the menu is built from the permission IDs returned by `GetPermissionsForInstitution` for the selected institute, and is the same for every trainee. Each action has its own permission ID; a row is shown only when the user has it. The section (title included) is hidden when no action is permitted.
-- **Rows without a screen yet** (number restriction, voice message – until screens 04 and 05 are built) are shown disabled.
+- **Rows without a screen yet** (voice message – until screen 05 is built) are shown disabled.
 
 ### 3.3 Additional information section
 
 - **Divider** 24px below the actions (same style as §3.1).
 - **Title** `"מידע נוסף"` (Additional information), 16/20, weight 500, 23px below the divider.
-- **One row**, 15px below: `"הסטורית דקות"` (Minutes history), clock icon, same row style **without a border**. It has no destination ([OQ-08](README.md#oq-08)), so it is shown disabled.
+- **One row**, 15px below: `"הסטורית דקות"` (Minutes history), clock icon, same row style. It has no destination ([OQ-08](README.md#oq-08)), so it is shown disabled.
 - **Permission:** the whole section (divider, title and rows) requires one general permission ID.
 
 ---

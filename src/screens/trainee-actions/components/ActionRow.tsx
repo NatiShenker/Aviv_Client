@@ -7,25 +7,23 @@ interface ActionRowProps {
   icon: AppIconName;
   /** הכתובת שהשורה מובילה אליה. null = אין עדיין יעד, והשורה מוצגת מנוטרלת */
   to: string | null;
-  /** שורות הפעולות עם מסגרת; שורות "מידע נוסף" בלי (ספק 02 §3.3) */
-  bordered: boolean;
 }
 
-/** שורה בתפריט החניך: אייקון בעיגול, תווית וחץ (ספק 02 §3.2) */
-export default function ActionRow({ label, icon, to, bordered }: ActionRowProps) {
-  const borderClass = bordered ? "border border-divider" : "";
-  const rowClass = `flex h-15 w-full items-center gap-3 rounded-base bg-paper px-3 ${borderClass}`;
+// כרטיס על רקע העמוד: לבן ובלי מסגרת, בפינות של כרטיס (design.md)
+const ROW_CLASS = "flex h-15 w-full items-center gap-3 rounded-card bg-paper px-3";
 
+/** שורה בתפריט החניך: אייקון בעיגול, תווית וחץ (ספק 02 §3.2) */
+export default function ActionRow({ label, icon, to }: ActionRowProps) {
   if (to === null) {
     return (
-      <div aria-disabled="true" className={`${rowClass} text-text-disabled`}>
+      <div aria-disabled="true" className={`${ROW_CLASS} text-text-disabled`}>
         <RowContent label={label} icon={icon} />
       </div>
     );
   }
 
   return (
-    <Link to={to} className={`${rowClass} text-text-primary`}>
+    <Link to={to} className={`${ROW_CLASS} text-text-primary`}>
       <RowContent label={label} icon={icon} />
     </Link>
   );

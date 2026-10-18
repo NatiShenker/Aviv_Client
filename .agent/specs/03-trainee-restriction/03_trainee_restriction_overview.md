@@ -73,7 +73,7 @@ A restriction is **open by default** when any of these is true: it is duration-l
 | Value | Set | Not set, open by default | Not set, not open by default |
 |---|---|---|---|
 | Hours | `"HH:mm-HH:mm"` (LTR) | `"כל היום"` (All day) | `"לא הוגדרו"` (Not set) |
-| Devices | Device labels joined with `", "` | `"כל המכשירים"` (All devices) | `"לא הוגדרו"` |
+| Devices | 1 device → its label; more → `"{n} מכשירים"` (there can be many) | `"כל המכשירים"` (All devices) | `"לא הוגדרו"` |
 
 Examples: full + nothing → `"לא הוגדרו"` / `"לא הוגדרו"`; full + hours only → `"16:00-18:00"` / `"כל המכשירים"`; duration only → `"כל היום"` / `"כל המכשירים"`.
 

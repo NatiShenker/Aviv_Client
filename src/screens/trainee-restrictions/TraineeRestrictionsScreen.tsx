@@ -2,6 +2,7 @@ import PermissionBlockedMessage from "@/context/institutes/PermissionBlockedMess
 import { PERMISSION_IDS } from "@/context/institutes/permissionIds";
 import { usePermissionCheck } from "@/context/institutes/usePermissionCheck";
 import AppPage from "@/shared/components/AppPage";
+import HistorySkeleton from "@/shared/components/history/HistorySkeleton";
 import PageHeader from "@/shared/components/PageHeader";
 import PinnedPageTop from "@/shared/components/PinnedPageTop";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
@@ -9,7 +10,6 @@ import { useScrollToTopOnOpen } from "@/shared/hooks/useScrollToTopOnOpen";
 import { TRAINEE_TEXTS } from "@/shared/trainee/traineeTexts";
 import { useRouteTrainee } from "@/shared/trainee/useRouteTrainee";
 import RestrictionsHistory from "./components/RestrictionsHistory";
-import RestrictionsSkeleton from "./components/RestrictionsSkeleton";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "./traineeRestrictionsTexts";
 
 /** היסטוריית "הגבלה/היתר לחניך" של חניך אחד, וטופס ההגבלה במסך מלא מעליה (ספק 03) */
@@ -44,7 +44,7 @@ function TraineeRestrictionsContent() {
     return (
       <>
         {pinnedHeaderOnly}
-        <RestrictionsSkeleton />
+        <HistorySkeleton loadingLabel={TRAINEE_RESTRICTIONS_TEXTS.states.loading} />
       </>
     );
   }

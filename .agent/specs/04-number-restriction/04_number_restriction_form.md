@@ -17,7 +17,7 @@ Prototype source: `client/pages/ExceptionForm.tsx`. Business rules and model: [o
 | Mode | Route | Notes |
 |---|---|---|
 | Create | `/child/:id/exception/new` | Opens on type `"היתר למספר מוגבל"` |
-| Edit | `/child/:id/exception/:recordId/edit` | Production: load by ID; 404 → redirect to `/child/:id/exception` (replace). Prototype: works only when opened from the list |
+| Edit | `/child/:id/exception/:recordKey/edit` | `recordKey` = record type + ID, e.g. `permit-12` or `restriction-12` (restrictions and permits come from separate tables, so IDs can repeat). Production: load by key; unknown key → redirect to `/child/:id/exception` (replace). Prototype: works only when opened from the list |
 
 ---
 
@@ -50,21 +50,22 @@ The create title follows the action type selected below. Close X (aria-label `"�
      - Text (14/18): `"לא נמצאו הגבלות פעילות על המספר עבור החניך – המספר פתוח ואין צורך בהיתר"` (No active restrictions on this number for the trainee – the number is open and no permit is needed).
      - Link button (8px below, 14/18, `action` color, chevron pointing left): `"להגבלת המספר"` (Restrict the number).
    - **Restriction picker:**
-     - Heading row (22px): title (14/18) at the start; `"החלפה"` (Change) text button (14/18, `action`) at the end, when shown (§4.4).
+     - Heading row (44px): title (14/18) at the start; at the end, when shown (§4.4), a text button (14/18, `action`): `"החלפה"` (Change) or `"ביטול"` (Cancel).
      - Hint (12/15 gray), when shown (§4.4).
-     - Cards (8px below, 8px apart) in a radiogroup labelled by the title – **RestrictionOption** (§3.2.1).
+     - Cards (8px below, 8px apart) in a list labelled by the title and described by the hint – **RestrictionOption** (§3.2.1). Rendered incrementally like every list (30 at a time).
      - ErrorText – restriction.
+   - **While the picker is open for choosing** (§4.4) it takes the whole form below block 0: blocks 1–3 are hidden. The form scrolls as usual (no inner scroll area).
 
 #### 3.2.1 RestrictionOption card
 
-White card, radius 8, padding 16; outline 1px `action` when selected, 0.5px `divider` otherwise. The whole card is the radio label.
+White card, radius 8, outline 1px `action` when it is the selected restriction, 0.5px `divider` otherwise. The card body is information only and is **not** tappable; choosing happens only on the dedicated "בחירה" row, so a card is never chosen by accident while scrolling or reading.
 
 | Part | Content |
 |---|---|
-| Radio | RadioDot, aligned with the first line |
-| Line 1 | Scope label (16/20, weight 500): `"הגבלה ארצית"` / `"הגבלת פנימייה – {institute}"` / `"הגבלה לחניך"` |
+| Line 1 | (padding 16) Scope label (16/20, weight 500): `"הגבלה ארצית"` / `"הגבלת פנימייה – {institute}"` (several institutes joined with `", "`) / `"הגבלה לחניך"` |
 | Line 2 | (14/18 gray, 4px below) date range (LTR) + `" · "` + reason, or `"ללא סיבה"` |
 | Line 3 | Only when this trainee has existing permits on it (14/18 navy, 4px below): `"היתרים קיימים לחניך: {summary}"`, several joined with `"; "`. Summary format: [overview §3](https://www.google.com/search?q=overview.md%233-derived-display-values), e.g. `"16:00-19:00 · עד 15 דק'"` |
+| Choose row | Only while choosing (§4.4): a 0.5px line, then a 44px+ row with the text button `"בחירה"` + chevron (pointing left) at the end. Accessible name `"בחירה: {scope label}, {range}"`. On the currently selected restriction (after `"החלפה"`) the row shows `"נבחרה"` + check icon instead, not tappable |
 
 ### 3.3 Edit mode – locked number card (instead of block 0)
 
@@ -104,7 +105,8 @@ StickyActionBar, two columns: outline `"ביטול"` (link to the history list, 
 |---|---|
 | Create, restriction | Shown |
 | Create, permit, no restriction selected yet | **Hidden** (only block 0 and the footer) |
-| Create, permit, restriction selected | Shown (fade-in) |
+| Create, permit, restriction selected, picker closed | Shown (fade-in) |
+| Create, permit, picker reopened with `"החלפה"` | **Hidden** – the list takes the form. The values in blocks 1–3 are kept (including a file being uploaded) |
 | Edit | Shown |
 
 ---
@@ -143,21 +145,21 @@ StickyActionBar, two columns: outline `"ביטול"` (link to the history list, 
 
 ### 4.4 Permit – picker states
 
-| State | Title | Hint | Cards shown | `"החלפה"` |
-|---|---|---|---|---|
-| 1 result (auto-selected) | `"ההגבלה שעליה יחול ההיתר"` (The restriction the permit will apply to) | `"זו ההגבלה היחידה החלה על המספר עבור החניך, ולכן נבחרה"` (This is the only restriction on the number for the trainee, so it was selected) | The one card, selected | No |
-| 2+ results, none selected | `"בחר את ההגבלה שעליה יחול ההיתר"` (Choose the restriction the permit will apply to) | `"נמצאו {n} הגבלות החלות על המספר עבור החניך"` (Found {n} restrictions on the number for the trainee) | All, none selected | No |
-| 2+ results, one selected | `"ההגבלה שעליה יחול ההיתר"` | – | **Only the selected card** | Yes |
-| 2+ results, reopened with `"החלפה"` | `"בחר את ההגבלה שעליה יחול ההיתר"` | `"נמצאו {n} הגבלות החלות על המספר עבור החניך"` | All, current one selected | No |
+| State | Title | Hint | Cards shown | Heading button | Choose row (§3.2.1) |
+|---|---|---|---|---|---|
+| 1 result (auto-selected) | `"ההגבלה שעליה יחול ההיתר"` (The restriction the permit will apply to) | `"זו ההגבלה היחידה החלה על המספר עבור החניך, ולכן נבחרה"` (This is the only restriction on the number for the trainee, so it was selected) | The one card, selected | – | – |
+| 2+ results, none selected | `"בחר את ההגבלה שעליה יחול ההיתר"` (Choose the restriction the permit will apply to) | `"נמצאו {n} הגבלות החלות על המספר עבור החניך"` (Found {n} restrictions on the number for the trainee) | All | – | `"בחירה"` on every card |
+| 2+ results, one selected | `"ההגבלה שעליה יחול ההיתר"` | – | **Only the selected card** | `"החלפה"` | – |
+| 2+ results, reopened with `"החלפה"` | `"בחר את ההגבלה שעליה יחול ההיתר"` | `"נמצאו {n} הגבלות החלות על המספר עבור החניך"` | All | `"ביטול"` – back to the current selection, nothing changes | `"בחירה"`, and `"נבחרה"` on the current one |
 
 - Card order: national → institute → trainee, then start date ascending ([overview §2.7](https://www.google.com/search?q=overview.md%2327-which-restrictions-the-permit-lookup-returns)).
 - The existing-permits line is information only; it does not block creating another permit ([OQ-12](https://www.google.com/search?q=..%2FREADME.md%23oq-12)).
 
 ### 4.5 Permit – selecting a restriction
 
-- Selecting a card collapses the list to that card.
-- **Selecting the card that is already selected** only collapses the list; nothing is reset.
-- **Selecting a different card (or the first selection):**
+- `"בחירה"` on a card selects it and collapses the list to that card; focus moves to the picker title, so screen-reader users know the choice was made.
+- **`"ביטול"` after `"החלפה"`** only collapses the list back to the current card; nothing is reset.
+- **Choosing a different card (or the first selection):**
   - Start date = the later of today and the restriction's start; end date = the restriction's end; dates are not muted.
   - Limit type → `"היתר מלא"`; minutes cleared; hours and devices cleared; accordions closed.
   - Errors cleared: restriction, dates, duration, hours.
@@ -199,7 +201,7 @@ Same behavior as the trainee form ([03 form §4.3–4.5](https://www.google.com/
 | Create permit, no search yet | Phone error `"יש להזין מספר ולחפש"` (Enter a number and search). Nothing else is checked |
 | Create permit, search returned 0 | Phone error `"יש להזין מספר מוגבל ולחפש"` (Enter a restricted number and search). Nothing else is checked |
 | Create permit, results but none selected | Restriction error `"יש לבחור הגבלה"` (Choose a restriction). Nothing else is checked |
-| Create permit, restriction selected | All rules in §5 |
+| Create permit, restriction selected | All rules in §5. If the picker was reopened with `"החלפה"`, it first collapses back to the selected card, so blocks 1–3 are visible again |
 | Create restriction | Pending input (§4.7), at least one number, all rules in §5 |
 | Edit | All rules in §5 (no number or restriction checks) |
 
@@ -225,6 +227,8 @@ Same behavior as the trainee form ([03 form §4.3–4.5](https://www.google.com/
 | Duration | With option 2: whole number 1–120 | `"יש להזין מספר דקות שלם בין 1 ל-120"` | Submit | Minutes change; limit type changes; a restriction is selected |
 | Hours | Both or none | `"יש לבחור שעת התחלה ושעת סיום"` | Submit (opens accordion) | Either time changes; a restriction is selected |
 | Hours | End > start | `"שעת הסיום חייבת להיות אחרי שעת ההתחלה"` | Submit (opens accordion) | Same |
+| Details | Not empty (spaces only count as empty), [00 §4.3](../00_foundations.md) | `"יש להזין פירוט"` **(proposed)** | Submit | The details change |
+| Approver | An approver is chosen | `"יש לבחור גורם מאשר"` **(proposed)** | Submit | An approver is chosen |
 | File | One file attached | `"יש לצרף קובץ"` | Submit | A file is picked |
 
 - Changing the action type clears all errors.

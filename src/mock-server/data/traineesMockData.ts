@@ -67,7 +67,9 @@ function buildTrainee(institute: InstituteWithWingsDto, index: number): TraineeM
   const id = institute.id * TRAINEE_ID_BLOCK_PER_INSTITUTE + index + 1;
   const firstName = FIRST_NAMES[index % FIRST_NAMES.length];
   const lastName = LAST_NAMES[index % LAST_NAMES.length];
-  const wing = institute.wings[index % institute.wings.length];
+  // באגף וירטואלי אין חניכים
+  const traineeWings = institute.wings.filter((candidate) => !candidate.isVirtualContainer);
+  const wing = traineeWings[index % traineeWings.length];
   const remainingMinutes = (index * REMAINING_MINUTES_STEP) % MAX_REMAINING_MINUTES;
 
   return {

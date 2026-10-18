@@ -9,49 +9,25 @@ import { todayIsoDate } from "@/shared/dates/isoDate";
 import { focusField } from "@/shared/dom/focusField";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import {
+  openConditionsForRecord,
+  touchedDatesFor,
+  type PermittedCondition,
+} from "@/shared/restrictions/callConditionsLogic";
+import { decisionErrorSlotsFor, findReasonIdByName, toValidatedDecision } from "@/shared/restrictions/decisionLogic";
+import { findFirstErrorSlot, hasErrors, withoutErrors } from "@/shared/restrictions/formErrors";
+import {
+  RESTRICTION_DECISION_RULES,
+  RESTRICTION_ERROR_SLOTS,
   RESTRICTION_FIELD_IDS,
   buildCreateRestrictionRequest,
   buildUpdateRestrictionRequest,
   createInitialRestrictionValues,
-  findFirstErrorSlot,
-  findReasonIdByName,
-  hasErrors,
-  mapServerFieldErrors,
-  toValidatedDecision,
+  mapRestrictionServerErrors,
   validateRestrictionForm,
   type RestrictionErrorSlot,
   type RestrictionFormErrors,
   type RestrictionFormValues,
 } from "./restrictionFormLogic";
-
-export type RestrictionCondition = "hours" | "devices";
-
-type OpenConditions = Record<RestrictionCondition, boolean>;
-
-interface TouchedDates {
-  startDate: boolean;
-  endDate: boolean;
-}
-
-/** אקורדיון שיש בו ערכים נפתח כשרשומה נפתחת לעריכה (ספק 03 form §4.1) */
-function initialOpenConditions(record: TraineeRestrictionRecordDto | null): OpenConditions {
-  return {
-    hours: Boolean(record && (record.startTime || record.endTime)),
-    devices: Boolean(record && record.devices.length > 0),
-  };
-}
-
-// בעריכה התאריכים מוצגים רגיל; בהגבלה חדשה ברירות המחדל באפור עד שהמשתמש משנה אותן
-function initialTouchedDates(record: TraineeRestrictionRecordDto | null): TouchedDates {
-  return { startDate: record !== null, endDate: record !== null };
-}
-
-// השגיאה של כל שדה בבלוק "סיבות והחלטה" נמחקת כשהשדה משתנה
-const DECISION_FIELD_ERROR_SLOT: Partial<Record<keyof DecisionValues, RestrictionErrorSlot>> = {
-  reasonId: "reason",
-  approver: "approver",
-  approvedFile: "file",
-};
 
 interface UseRestrictionFormOptions {
   traineeId: number;
@@ -66,8 +42,8 @@ interface UseRestrictionFormOptions {
 export function useRestrictionForm({ traineeId, record, reasons, onSaved }: UseRestrictionFormOptions) {
   const [values, setValues] = useState(() => createInitialRestrictionValues(record, todayIsoDate()));
   const [errors, setErrors] = useState<RestrictionFormErrors>({});
-  const [touchedDates, setTouchedDates] = useState(() => initialTouchedDates(record));
-  const [openConditions, setOpenConditions] = useState(() => initialOpenConditions(record));
+  const [touchedDates, setTouchedDates] = useState(() => touchedDatesFor(record !== null));
+  const [openConditions, setOpenConditions] = useState(() => openConditionsForRecord(record));
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | undefined>(undefined);
   const [isFileUploading, setIsFileUploading] = useState(false);
@@ -91,13 +67,7 @@ export function useRestrictionForm({ traineeId, record, reasons, onSaved }: UseR
 
   const changeValues = (update: Partial<RestrictionFormValues>, clearedSlots: RestrictionErrorSlot[] = []) => {
     setValues((current) => ({ ...current, ...update }));
-    if (clearedSlots.length > 0) {
-      setErrors((current) => {
-        const remaining = { ...current };
-        clearedSlots.forEach((slot) => delete remaining[slot]);
-        return remaining;
-      });
-    }
+    setErrors((current) => withoutErrors(current, clearedSlots));
   };
 
   const showErrors = (nextErrors: RestrictionFormErrors) => {
@@ -106,11 +76,11 @@ export function useRestrictionForm({ traineeId, record, reasons, onSaved }: UseR
       hours: current.hours || Boolean(nextErrors.hours),
       devices: current.devices || Boolean(nextErrors.devices),
     }));
-    setSlotToFocus(findFirstErrorSlot(nextErrors));
+    setSlotToFocus(findFirstErrorSlot(nextErrors, RESTRICTION_ERROR_SLOTS));
   };
 
   const saveRestriction = async (formValues: RestrictionFormValues): Promise<number | null> => {
-    const decision = toValidatedDecision(formValues, reasons.data ?? []);
+    const decision = toValidatedDecision(formValues, reasons.data ?? [], RESTRICTION_DECISION_RULES);
     if (!decision) return null;
 
     const result = record
@@ -121,7 +91,7 @@ export function useRestrictionForm({ traineeId, record, reasons, onSaved }: UseR
 
   const handleSaveError = (error: unknown) => {
     const appError = toAppError(error);
-    const serverErrors = appError.code === "VALIDATION_ERROR" ? mapServerFieldErrors(appError.fieldErrors) : {};
+    const serverErrors = appError.code === "VALIDATION_ERROR" ? mapRestrictionServerErrors(appError.fieldErrors) : {};
     if (hasErrors(serverErrors)) {
       showErrors(serverErrors);
     } else {
@@ -165,7 +135,7 @@ export function useRestrictionForm({ traineeId, record, reasons, onSaved }: UseR
     saveError,
     submit,
     setIsFileUploading,
-    toggleCondition: (condition: RestrictionCondition) =>
+    toggleCondition: (condition: PermittedCondition) =>
       setOpenConditions((current) => ({ ...current, [condition]: !current[condition] })),
     changeStartDate: (startDate: string) => {
       changeValues({ startDate }, ["dates"]);
@@ -180,12 +150,7 @@ export function useRestrictionForm({ traineeId, record, reasons, onSaved }: UseR
     changeStartTime: (startTime: string) => changeValues({ startTime }, ["hours"]),
     changeEndTime: (endTime: string) => changeValues({ endTime }, ["hours"]),
     changeDeviceIds: (deviceIds: number[]) => changeValues({ deviceIds }, ["devices"]),
-    changeDecision: (update: Partial<DecisionValues>) => {
-      const clearedSlots = Object.keys(update)
-        .map((fieldName) => DECISION_FIELD_ERROR_SLOT[fieldName as keyof DecisionValues])
-        .filter((slot): slot is RestrictionErrorSlot => slot !== undefined);
-      changeValues(update, clearedSlots);
-    },
+    changeDecision: (update: Partial<DecisionValues>) => changeValues(update, decisionErrorSlotsFor(update)),
   };
 }
 

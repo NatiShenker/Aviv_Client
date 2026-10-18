@@ -10,6 +10,7 @@ import {
 import type { WingDto, WingLocationDto } from "@/schemas/organization.schema";
 import type { TraineeListFiltersState } from "@/schemas/trainees.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { buildWingLabel } from "@/shared/organization/organizationLogic";
 import { locationsOfSelectedWings } from "../traineesListLogic";
 import {
   BALANCE_FILTER_OPTIONS,
@@ -57,7 +58,7 @@ export default function TraineesFilterDrawer({
   onFiltersChange,
 }: TraineesFilterDrawerProps) {
   const wingOptions = useMemo<IpsSelectOption[]>(
-    () => wings.map((wing) => ({ value: wing.id, label: TRAINEES_LIST_TEXTS.card.wing(wing.name) })),
+    () => wings.map((wing) => ({ value: wing.id, label: buildWingLabel(wing) })),
     [wings],
   );
 

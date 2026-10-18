@@ -1,17 +1,25 @@
 import type { LookupItem } from "@/schemas/common.schema";
-import type { DeviceDto } from "@/schemas/organization.schema";
+import type { DeviceDto, WingDto } from "@/schemas/organization.schema";
+import CallDetailsBlock from "@/shared/components/form/CallDetailsBlock";
 import DecisionBlock from "@/shared/components/form/DecisionBlock";
+import PermittedConditionsBlock from "@/shared/components/form/PermittedConditionsBlock";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import { RESTRICTION_FIELD_IDS } from "../restrictionFormLogic";
+import { RESTRICTION_DECISION_RULES, RESTRICTION_FIELD_IDS } from "../restrictionFormLogic";
+import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import type { RestrictionForm as RestrictionFormState } from "../useRestrictionForm";
-import RestrictionDetailsBlock from "./RestrictionDetailsBlock";
-import RestrictionPermitsBlock from "./RestrictionPermitsBlock";
 
 /** כפתור השמירה נמצא בפוטר של הטופס, מחוץ ל-<form>, ומשויך אליו לפי המזהה */
 export const RESTRICTION_FORM_ID = "trainee-restriction-form";
 
+const TEXTS = TRAINEE_RESTRICTIONS_TEXTS.form;
+// כל הרשומות בטופס הזה הן הגבלות
+const RULE_KIND = "restriction";
+
+const DETAILS_FIELD_IDS = { dates: RESTRICTION_FIELD_IDS.dates, duration: RESTRICTION_FIELD_IDS.duration };
+const CONDITIONS_FIELD_IDS = { hours: RESTRICTION_FIELD_IDS.hours, devices: RESTRICTION_FIELD_IDS.devices };
 const DECISION_FIELD_IDS = {
   reason: RESTRICTION_FIELD_IDS.reason,
+  details: RESTRICTION_FIELD_IDS.details,
   approver: RESTRICTION_FIELD_IDS.approver,
   file: RESTRICTION_FIELD_IDS.file,
 };
@@ -19,17 +27,45 @@ const DECISION_FIELD_IDS = {
 interface RestrictionFormProps {
   form: RestrictionFormState;
   devices: AsyncResource<DeviceDto[]>;
+  /** אגפי הפנימייה - המכשירים מקובצים לפיהם */
+  wings: WingDto[];
   reasons: AsyncResource<LookupItem<number>[]>;
 }
 
 /** שלושת הבלוקים של טופס ההגבלה, מופרדים בקו (ספק 03 form §3) */
-export default function RestrictionForm({ form, devices, reasons }: RestrictionFormProps) {
+export default function RestrictionForm({ form, devices, wings, reasons }: RestrictionFormProps) {
   const { values, errors } = form;
 
   return (
     <form id={RESTRICTION_FORM_ID} noValidate onSubmit={form.submit} className="divide-y divide-divider">
-      <RestrictionDetailsBlock form={form} />
-      <RestrictionPermitsBlock form={form} devices={devices} />
+      <CallDetailsBlock
+        title={TEXTS.detailsBlock.title}
+        dateRangeDescription={TEXTS.detailsBlock.dateRangeDescription}
+        ruleKind={RULE_KIND}
+        values={values}
+        touchedDates={form.touchedDates}
+        errors={{ dates: errors.dates, duration: errors.duration }}
+        fieldIds={DETAILS_FIELD_IDS}
+        onStartDateChange={form.changeStartDate}
+        onEndDateChange={form.changeEndDate}
+        onLimitKindChange={form.changeLimitKind}
+        onDurationTextChange={form.changeDurationText}
+      />
+      <PermittedConditionsBlock
+        title={TEXTS.permitsBlock.title}
+        hint={TEXTS.permitsBlock.hint[values.limitKind]}
+        ruleKind={RULE_KIND}
+        values={values}
+        errors={{ hours: errors.hours, devices: errors.devices }}
+        openConditions={form.openConditions}
+        onToggleCondition={form.toggleCondition}
+        devices={devices}
+        wings={wings}
+        fieldIds={CONDITIONS_FIELD_IDS}
+        onStartTimeChange={form.changeStartTime}
+        onEndTimeChange={form.changeEndTime}
+        onDeviceIdsChange={form.changeDeviceIds}
+      />
       <DecisionBlock
         values={{
           reasonId: values.reasonId,
@@ -37,8 +73,9 @@ export default function RestrictionForm({ form, devices, reasons }: RestrictionF
           approver: values.approver,
           approvedFile: values.approvedFile,
         }}
-        errors={{ reason: errors.reason, approver: errors.approver, file: errors.file }}
+        errors={{ reason: errors.reason, details: errors.details, approver: errors.approver, file: errors.file }}
         reasons={reasons}
+        isReasonRequired={RESTRICTION_DECISION_RULES.isReasonRequired}
         fieldIds={DECISION_FIELD_IDS}
         onChange={form.changeDecision}
         onFileUploadingChange={form.setIsFileUploading}

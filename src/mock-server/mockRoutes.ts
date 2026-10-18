@@ -7,6 +7,10 @@ import type {
   GetLocationsAndVirtualLocationsResponse,
   GetPermissionsForInstituteResponse,
 } from "@/schemas/organization.schema";
+import type {
+  GetTraineePhoneRecordsResponse,
+  LookupPhoneRestrictionsForPermitResponse,
+} from "@/schemas/phone-exceptions.schema";
 import type { GetTraineeRestrictionsResponse } from "@/schemas/trainee-restrictions.schema";
 import type { GetTraineesResponse } from "@/schemas/trainees.schema";
 import { SERVICE_ENDPOINTS } from "@/services/serviceEndpoints";
@@ -17,7 +21,19 @@ import {
   handleGetPermissionsForInstitute,
 } from "./handlers/institutionsHandlers";
 import { handleGetLocationsAndVirtualLocations } from "./handlers/locationsHandlers";
-import { handleGetInstituteDevices, handleGetTraineeRestrictionReasons } from "./handlers/lookupsHandlers";
+import {
+  handleGetInstituteDevices,
+  handleGetPhoneExceptionReasons,
+  handleGetTraineeRestrictionReasons,
+} from "./handlers/lookupsHandlers";
+import {
+  handleCreateTraineePhonePermit,
+  handleCreateTraineePhoneRestriction,
+  handleGetTraineePhoneRecords,
+  handleLookupPhoneRestrictionsForPermit,
+  handleUpdateTraineePhonePermit,
+  handleUpdateTraineePhoneRestriction,
+} from "./handlers/phoneExceptionsHandlers";
 import {
   handleCreateTraineeRestriction,
   handleGetTraineeRestrictions,
@@ -79,6 +95,48 @@ const MOCK_ROUTES: MockRoute[] = [
   },
   {
     method: "POST",
+    url: SERVICE_ENDPOINTS.phoneExceptions.getTraineePhoneRecords,
+    scenarioKey: "phoneRecords",
+    handle: handleGetTraineePhoneRecords,
+    createEmptyResponse: (): GetTraineePhoneRecordsResponse => ({ records: [] }),
+  },
+  {
+    method: "POST",
+    url: SERVICE_ENDPOINTS.phoneExceptions.lookupRestrictionsForPermit,
+    scenarioKey: "phoneRestrictionsLookup",
+    handle: handleLookupPhoneRestrictionsForPermit,
+    createEmptyResponse: (): LookupPhoneRestrictionsForPermitResponse => ({ results: [] }),
+  },
+  {
+    method: "POST",
+    url: SERVICE_ENDPOINTS.phoneExceptions.createTraineePhoneRestriction,
+    scenarioKey: "savePhoneRecord",
+    handle: handleCreateTraineePhoneRestriction,
+    createEmptyResponse: createEmptyMutationResult,
+  },
+  {
+    method: "PUT",
+    url: SERVICE_ENDPOINTS.phoneExceptions.updateTraineePhoneRestriction,
+    scenarioKey: "savePhoneRecord",
+    handle: handleUpdateTraineePhoneRestriction,
+    createEmptyResponse: createEmptyMutationResult,
+  },
+  {
+    method: "POST",
+    url: SERVICE_ENDPOINTS.phoneExceptions.createTraineePhonePermit,
+    scenarioKey: "savePhoneRecord",
+    handle: handleCreateTraineePhonePermit,
+    createEmptyResponse: createEmptyMutationResult,
+  },
+  {
+    method: "PUT",
+    url: SERVICE_ENDPOINTS.phoneExceptions.updateTraineePhonePermit,
+    scenarioKey: "savePhoneRecord",
+    handle: handleUpdateTraineePhonePermit,
+    createEmptyResponse: createEmptyMutationResult,
+  },
+  {
+    method: "POST",
     url: SERVICE_ENDPOINTS.devices.getInstituteDevices,
     scenarioKey: "devices",
     handle: handleGetInstituteDevices,
@@ -89,6 +147,13 @@ const MOCK_ROUTES: MockRoute[] = [
     url: SERVICE_ENDPOINTS.lookups.getTraineeRestrictionReasons,
     scenarioKey: "reasons",
     handle: handleGetTraineeRestrictionReasons,
+    createEmptyResponse: (): LookupItem<number>[] => [],
+  },
+  {
+    method: "GET",
+    url: SERVICE_ENDPOINTS.lookups.getPhoneExceptionReasons,
+    scenarioKey: "reasons",
+    handle: handleGetPhoneExceptionReasons,
     createEmptyResponse: (): LookupItem<number>[] => [],
   },
   {

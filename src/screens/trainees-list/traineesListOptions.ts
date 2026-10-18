@@ -73,8 +73,9 @@ export interface TraineeSortOption {
 export const TRAINEE_SORT_OPTIONS: TraineeSortOption[] = [
   { key: "name-asc", field: "name", direction: "asc", label: SORT_TEXTS.nameAscending },
   { key: "name-desc", field: "name", direction: "desc", label: SORT_TEXTS.nameDescending },
-  { key: "date-desc", field: "date", direction: "desc", label: SORT_TEXTS.dateDescending },
-  { key: "date-asc", field: "date", direction: "asc", label: SORT_TEXTS.dateAscending },
+  // "יורד" בסטטוס = החניכים עם הגבלה קודם
+  { key: "status-desc", field: "status", direction: "desc", label: SORT_TEXTS.statusRestrictedFirst },
+  { key: "status-asc", field: "status", direction: "asc", label: SORT_TEXTS.statusActiveFirst },
   { key: "minutes-desc", field: "minutes", direction: "desc", label: SORT_TEXTS.minutesDescending },
   { key: "minutes-asc", field: "minutes", direction: "asc", label: SORT_TEXTS.minutesAscending },
   { key: "wing-asc", field: "wing", direction: "asc", label: SORT_TEXTS.wingAscending },
@@ -83,8 +84,8 @@ export const TRAINEE_SORT_OPTIONS: TraineeSortOption[] = [
   { key: "location-desc", field: "location", direction: "desc", label: SORT_TEXTS.locationDescending },
 ];
 
-// ספק 01 §4.1: תאריך אחרון, מהחדש לישן
-export const DEFAULT_TRAINEE_SORT_OPTION = TRAINEE_SORT_OPTIONS[2];
+// ספק 01 §4.1: שם, א׳ עד ת׳
+export const DEFAULT_TRAINEE_SORT_OPTION = TRAINEE_SORT_OPTIONS[0];
 
 export function findSortOption(key: string): TraineeSortOption {
   return TRAINEE_SORT_OPTIONS.find((option) => option.key === key) ?? DEFAULT_TRAINEE_SORT_OPTION;
