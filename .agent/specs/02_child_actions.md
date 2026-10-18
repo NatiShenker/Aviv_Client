@@ -14,7 +14,7 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 
 ## 2. Route & parameters
 
-- **Route:** `/child/:id`
+- **Route:** `/trainee/:id`
 - **`id`:** trainee ID.
 - **Unknown ID:** the not-found screen is shown ([OQ-21](../pending-decisions.md#oq-21)).
 
@@ -35,9 +35,9 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 
 | Order | Label | Icon | Opens |
 |---|---|---|---|
-| 1 | `"הגבלה/היתר לחניך"` (Trainee restriction/permit) | Circle with a slash | `/child/{id}/block` – [03 history](03-trainee-restriction/03_trainee_restriction_history.md) |
-| 2 | `"הגבלה/היתר למספר"` (Number restriction/permit) | Open lock | `/child/{id}/exception` – [04 history](04-number-restriction/04_number_restriction_history.md) |
-| 3 | `"הודעה קולית לנמען"` (Voice message to the recipient – decided 2026-10-18) | Microphone with plus | `/child/{id}/voice-message` – [05 history](05-voice-message/05_voice_message_history.md) |
+| 1 | `"הגבלה/היתר לחניך"` (Trainee restriction/permit) | Circle with a slash | `/trainee/{id}/trainee-restriction` – [03 history](03-trainee-restriction/03_trainee_restriction_history.md) |
+| 2 | `"הגבלה/היתר למספר"` (Number restriction/permit) | Open lock | `/trainee/{id}/number-restriction` – [04 history](04-number-restriction/04_number_restriction_history.md) |
+| 3 | `"הודעה קולית לנמען"` (Voice message to the recipient – decided 2026-10-18) | Microphone with plus | `/trainee/{id}/voice-message` – [05 history](05-voice-message/05_voice_message_history.md) |
 
 - **Permissions:** the menu is built from the permission IDs returned by `GetPermissionsForInstitution` for the selected institute, and is the same for every trainee. Each action has its own permission ID; a row is shown only when the user has it. The section (title included) is hidden when no action is permitted.
 - **Rows without a screen** are shown disabled.

@@ -63,7 +63,7 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 
 ### 3.2 Cards list
 
-12px below the header, 12px between cards. Each card is a link to `/child/{id}`.
+12px below the header, 12px between cards. Each card is a link to `/trainee/{id}`.
 
 - **Incremental rendering:** the first 30 cards are rendered. When the user scrolls near the end, the next 30 are added. Any change to the search, filters, sort or institute starts again from the first 30.
 

@@ -13,7 +13,7 @@ Prototype source: `client/pages/ExceptionList.tsx`. Business rules and model: [o
 
 ## 2. Route & parameters
 
-- **Route:** `/child/:id/exception` (legacy slug, [OQ-19](../../pending-decisions.md#oq-19))
+- **Route:** `/trainee/:id/number-restriction` (renamed from the sketch slug `exception`, [OQ-19](../../pending-decisions.md#oq-19))
 - **`id`:** trainee ID. Unknown trainee → not-found screen (production).
 - **After save:** the list reloads and opens the **first** saved record. The key passes from the form to the list in memory, not in the URL. A record key is the type + ID (e.g. `permit-12`), because restrictions and permits come from separate tables and their IDs can repeat; the edit route uses the same key ([form §2](04_number_restriction_form.md)).
 
@@ -28,7 +28,7 @@ Prototype source: `client/pages/ExceptionList.tsx`. Business rules and model: [o
    - Round sort button (aria-label `"מיון"`).
 3. **Cards** – one ExpandableRecordCard per record (each permit and each restriction separately).
 4. **EmptyState** – `"לא נמצאו הגבלות או היתרים"` (No restrictions or permits found).
-5. **StickyActionBar** – primary link `"הוספת הגבלה/היתר"` (Add restriction/permit) + plus icon → `/child/{id}/exception/new`.
+5. **StickyActionBar** – primary link `"הוספת הגבלה/היתר"` (Add restriction/permit) + plus icon → `/trainee/{id}/number-restriction/new`.
 
 ### 3.1 Card – closed
 

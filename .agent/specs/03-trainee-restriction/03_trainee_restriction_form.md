@@ -19,9 +19,9 @@ Prototype source: `client/pages/BlockForm.tsx`. Business rules and model: [overv
 
 | Mode | Route | Notes |
 |---|---|---|
-| Create | `/child/:id/block/new` | |
-| Create based on | `/child/:id/block/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
-| Edit | `/child/:id/block/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/child/:id/block` (replace). A direct URL starts at the app start ([00 §1](../00_foundations.md)) |
+| Create | `/trainee/:id/trainee-restriction/new` | |
+| Create based on | `/trainee/:id/trainee-restriction/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
+| Edit | `/trainee/:id/trainee-restriction/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/trainee/:id/trainee-restriction` (replace). A direct URL starts at the app start ([00 §1](../00_foundations.md)) |
 
 ---
 

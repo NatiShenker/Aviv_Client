@@ -13,7 +13,7 @@ Prototype source: `client/pages/BlockList.tsx`. Business rules and model: [overv
 
 ## 2. Route & parameters
 
-- **Route:** `/child/:id/block` (legacy slug, [OQ-19](../../pending-decisions.md#oq-19))
+- **Route:** `/trainee/:id/trainee-restriction` (renamed from the sketch slug `block`, [OQ-19](../../pending-decisions.md#oq-19))
 - **`id`:** trainee ID. Unknown trainee → not-found screen (production).
 - **After save:** the list reloads and opens the saved record. The ID passes from the form to the list in memory, not in the URL.
 
@@ -28,7 +28,7 @@ Prototype source: `client/pages/BlockList.tsx`. Business rules and model: [overv
    - Round sort button (aria-label `"מיון"`).
 3. **Cards** – one ExpandableRecordCard per restriction, rendered incrementally.
 4. **EmptyState** – `"לא נמצאו הגבלות"` (No restrictions found).
-5. **StickyActionBar** – primary button `"הוספת הגבלה"` (Add restriction) + plus icon → `/child/{id}/block/new` (decided 2026-10-18, like the other history screens).
+5. **StickyActionBar** – primary button `"הוספת הגבלה"` (Add restriction) + plus icon → `/trainee/{id}/trainee-restriction/new` (decided 2026-10-18, like the other history screens).
 
 ### 3.1 Card – closed
 

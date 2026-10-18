@@ -17,9 +17,9 @@ Prototype source: `client/pages/ExceptionForm.tsx`. Business rules and model: [o
 
 | Mode | Route | Notes |
 |---|---|---|
-| Create | `/child/:id/exception/new` | Opens on type `"היתר למספר מוגבל"` |
-| Create based on | `/child/:id/exception/new?basedOn={recordKey}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
-| Edit | `/child/:id/exception/:recordKey/edit` | `recordKey` = record type + ID, e.g. `permit-12` or `restriction-12` (restrictions and permits come from separate tables, so IDs can repeat). The record is taken from the loaded history; unknown key or an ended record → redirect to `/child/:id/exception` (replace) |
+| Create | `/trainee/:id/number-restriction/new` | Opens on type `"היתר למספר מוגבל"` |
+| Create based on | `/trainee/:id/number-restriction/new?basedOn={recordKey}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
+| Edit | `/trainee/:id/number-restriction/:recordKey/edit` | `recordKey` = record type + ID, e.g. `permit-12` or `restriction-12` (restrictions and permits come from separate tables, so IDs can repeat). The record is taken from the loaded history; unknown key or an ended record → redirect to `/trainee/:id/number-restriction` (replace) |
 
 ---
 

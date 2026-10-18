@@ -32,10 +32,10 @@ The same concept has a product name (the UI and the specs), a client name (route
 
 | Concept | UI name | Spec | Route | Feature folder (`src/features`) | Server and schema names |
 |---|---|---|---|---|---|
-| Trainee ("child" in the sketches) | חניך | 01, 02 | `/child/:traineeId` | `trainees-list`, `trainee-actions` | `Trainees/…`, `TraineeListItemDto` |
-| Trainee restriction ("block" in the sketches) | הגבלה/היתר לחניך | 03 | `/child/:traineeId/block` | `trainee-restrictions` | `TraineeRestrictions/…`, `TraineeRestrictionRecordDto` |
-| Number restriction or permit ("exception" in the sketches). One record is a "number record": a restriction or a permit | הגבלה/היתר למספר | 04 | `/child/:traineeId/exception` | `number-restrictions` | `PhoneExceptions/…`, `TraineePhoneRecordDto`, `phone-exceptions.schema.ts`; trainee flag group `phoneException` |
-| Voice message ("recipient message" in the trainee flags) | הודעה קולית לנמען | 05 | `/child/:traineeId/voice-message` | `voice-messages` | `VoiceMessages/…`, `TraineeVoiceMessageRecordDto` |
+| Trainee ("child" in the sketches) | חניך | 01, 02 | `/trainee/:traineeId` | `trainees-list`, `trainee-actions` | `Trainees/…`, `TraineeListItemDto` |
+| Trainee restriction ("block" in the sketches) | הגבלה/היתר לחניך | 03 | `/trainee/:traineeId/trainee-restriction` | `trainee-restrictions` | `TraineeRestrictions/…`, `TraineeRestrictionRecordDto` |
+| Number restriction or permit ("exception" in the sketches). One record is a "number record": a restriction or a permit | הגבלה/היתר למספר | 04 | `/trainee/:traineeId/number-restriction` | `number-restrictions` | `PhoneExceptions/…`, `TraineePhoneRecordDto`, `phone-exceptions.schema.ts`; trainee flag group `phoneException` |
+| Voice message ("recipient message" in the trainee flags) | הודעה קולית לנמען | 05 | `/trainee/:traineeId/voice-message` | `voice-messages` | `VoiceMessages/…`, `TraineeVoiceMessageRecordDto` |
 | Institute ("institution" on the server) | פנימייה | 01 | – | `institutes` | `Institutions/…`, `organization.schema.ts` |
 | Wing / location in a wing | אגף / מיקום באגף | 01 | – | – | `WingDto`, `WingLocationDto` |
 

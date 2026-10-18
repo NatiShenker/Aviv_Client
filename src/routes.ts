@@ -2,20 +2,20 @@
 export const ROUTE_PATTERNS = {
   root: "/",
   /** מסך הפעולות של חניך (ספק 02) */
-  traineeActions: "/child/:traineeId",
+  traineeActions: "/trainee/:traineeId",
   /** היסטוריית ההגבלות (ספק 03). כולל את נתיבי הטופס, שנפתח כמגירה מעל ההיסטוריה */
-  traineeRestrictions: "/child/:traineeId/block/*",
-  newTraineeRestriction: "/child/:traineeId/block/new",
-  editTraineeRestriction: "/child/:traineeId/block/:recordId/edit",
+  traineeRestrictions: "/trainee/:traineeId/trainee-restriction/*",
+  newTraineeRestriction: "/trainee/:traineeId/trainee-restriction/new",
+  editTraineeRestriction: "/trainee/:traineeId/trainee-restriction/:recordId/edit",
   /** היסטוריית ההגבלות וההיתרים למספר (ספק 04). כולל את נתיבי הטופס, שנפתח כמגירה מעל ההיסטוריה */
-  numberRestrictions: "/child/:traineeId/exception/*",
-  newNumberRecord: "/child/:traineeId/exception/new",
+  numberRestrictions: "/trainee/:traineeId/number-restriction/*",
+  newNumberRecord: "/trainee/:traineeId/number-restriction/new",
   /** recordKey = סוג הרשומה ומזהה, למשל "permit-12" (להגבלות ולהיתרים יש רצפי מזהים נפרדים) */
-  editNumberRecord: "/child/:traineeId/exception/:recordKey/edit",
+  editNumberRecord: "/trainee/:traineeId/number-restriction/:recordKey/edit",
   /** היסטוריית ההודעות לנמען (ספק 05). כולל את נתיבי הטופס, שנפתח כמגירה מעל ההיסטוריה */
-  voiceMessages: "/child/:traineeId/voice-message/*",
-  newVoiceMessage: "/child/:traineeId/voice-message/new",
-  editVoiceMessage: "/child/:traineeId/voice-message/:recordId/edit",
+  voiceMessages: "/trainee/:traineeId/voice-message/*",
+  newVoiceMessage: "/trainee/:traineeId/voice-message/new",
+  editVoiceMessage: "/trainee/:traineeId/voice-message/:recordId/edit",
 } as const;
 
 /** פרמטרי הנתיבים, כפי שהם מופיעים בתבניות */
@@ -25,7 +25,7 @@ export interface TraineeRouteParams {
   recordKey: string;
 }
 
-/** בכתובת יצירה: הרשומה שהסתיימה שהטופס החדש מתחיל ממנה, למשל ‎/block/new?basedOn=12 */
+/** בכתובת יצירה: הרשומה שהסתיימה שהטופס החדש מתחיל ממנה, למשל ‎/trainee-restriction/new?basedOn=12 */
 export const BASED_ON_QUERY_PARAM = "basedOn";
 
 /** כתובת היצירה, ואם יש - הרשומה שהיא מבוססת עליה */
@@ -36,19 +36,19 @@ function withBasedOn(createPath: string, basedOnRef?: number | string): string {
 
 /** בניית כתובות לניווט */
 export const ROUTES = {
-  traineeActions: (traineeId: number) => `/child/${traineeId}`,
-  traineeRestrictions: (traineeId: number) => `/child/${traineeId}/block`,
+  traineeActions: (traineeId: number) => `/trainee/${traineeId}`,
+  traineeRestrictions: (traineeId: number) => `/trainee/${traineeId}/trainee-restriction`,
   newTraineeRestriction: (traineeId: number, basedOnRecordId?: number) =>
-    withBasedOn(`/child/${traineeId}/block/new`, basedOnRecordId),
-  editTraineeRestriction: (traineeId: number, recordId: number) => `/child/${traineeId}/block/${recordId}/edit`,
-  numberRestrictions: (traineeId: number) => `/child/${traineeId}/exception`,
+    withBasedOn(`/trainee/${traineeId}/trainee-restriction/new`, basedOnRecordId),
+  editTraineeRestriction: (traineeId: number, recordId: number) => `/trainee/${traineeId}/trainee-restriction/${recordId}/edit`,
+  numberRestrictions: (traineeId: number) => `/trainee/${traineeId}/number-restriction`,
   newNumberRecord: (traineeId: number, basedOnRecordKey?: string) =>
-    withBasedOn(`/child/${traineeId}/exception/new`, basedOnRecordKey),
-  editNumberRecord: (traineeId: number, recordKey: string) => `/child/${traineeId}/exception/${recordKey}/edit`,
-  voiceMessages: (traineeId: number) => `/child/${traineeId}/voice-message`,
+    withBasedOn(`/trainee/${traineeId}/number-restriction/new`, basedOnRecordKey),
+  editNumberRecord: (traineeId: number, recordKey: string) => `/trainee/${traineeId}/number-restriction/${recordKey}/edit`,
+  voiceMessages: (traineeId: number) => `/trainee/${traineeId}/voice-message`,
   newVoiceMessage: (traineeId: number, basedOnRecordId?: number) =>
-    withBasedOn(`/child/${traineeId}/voice-message/new`, basedOnRecordId),
-  editVoiceMessage: (traineeId: number, recordId: number) => `/child/${traineeId}/voice-message/${recordId}/edit`,
+    withBasedOn(`/trainee/${traineeId}/voice-message/new`, basedOnRecordId),
+  editVoiceMessage: (traineeId: number, recordId: number) => `/trainee/${traineeId}/voice-message/${recordId}/edit`,
 } as const;
 
 const NUMERIC_ID_PATTERN = /^\d+$/;

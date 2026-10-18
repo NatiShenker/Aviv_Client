@@ -296,7 +296,7 @@ Rules shared by all forms:
 - **Close / cancel** goes back to the list without saving and without confirmation ([OQ-16](../pending-decisions.md#oq-16)).
 - **New record defaults:** start date = today, end date = tomorrow, both shown **muted** until changed. They are real values and are saved as is.
 - **Edit:** all fields load from the record; dates are not muted; accordions that contain values start open.
-- **Create based on an ended record** (decided 2026-10-19): the create route with `?basedOn={record}` (e.g. `/child/1/block/new?basedOn=12`; in the number form the record key, `permit-12`). The form opens in create mode with: **what** the record does (type, duration, hours, devices, number, scope, repeat), the **reason** (matched by name when the list arrives) and the **details**. The **dates** are the new-record defaults (today–tomorrow, muted); **approver and file are empty** – a new decision needs a new approval. A source that is not found opens a plain create form. Per-form details are in each form spec.
+- **Create based on an ended record** (decided 2026-10-19): the create route with `?basedOn={record}` (e.g. `/trainee/1/trainee-restriction/new?basedOn=12`; in the number form the record key, `permit-12`). The form opens in create mode with: **what** the record does (type, duration, hours, devices, number, scope, repeat), the **reason** (matched by name when the list arrives) and the **details**. The **dates** are the new-record defaults (today–tomorrow, muted); **approver and file are empty** – a new decision needs a new approval. A source that is not found opens a plain create form. Per-form details are in each form spec.
 
 ### 4.3 Reasons & decision block
 

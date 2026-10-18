@@ -18,9 +18,9 @@ Prototype source: `client/pages/VoiceMessageForm.tsx` (superseded where this spe
 
 | Mode | Route | Notes |
 |---|---|---|
-| Create | `/child/:id/voice-message/new` | |
-| Create based on | `/child/:id/voice-message/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
-| Edit | `/child/:id/voice-message/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/child/:id/voice-message` (replace) |
+| Create | `/trainee/:id/voice-message/new` | |
+| Create based on | `/trainee/:id/voice-message/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
+| Edit | `/trainee/:id/voice-message/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/trainee/:id/voice-message` (replace) |
 
 ---
 

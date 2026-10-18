@@ -13,7 +13,7 @@ Prototype source: `client/pages/VoiceMessageList.tsx` (superseded where this spe
 
 ## 2. Route & parameters
 
-- **Route:** `/child/:id/voice-message`
+- **Route:** `/trainee/:id/voice-message`
 - **`id`:** trainee ID. Unknown trainee → `"החניך לא נמצא"` under the header.
 - **After save:** the list reloads and opens the first saved record.
 
@@ -28,7 +28,7 @@ Prototype source: `client/pages/VoiceMessageList.tsx` (superseded where this spe
    - Sort button (aria-label `"מיון"`).
 3. **Cards** – one ExpandableRecordCard per record.
 4. **EmptyState** – `"לא נמצאו הודעות לנמען"` (No messages found).
-5. **StickyActionBar** – primary button `"הוספת הודעה לנמען"` (Add message) + plus icon → `/child/{id}/voice-message/new`.
+5. **StickyActionBar** – primary button `"הוספת הודעה לנמען"` (Add message) + plus icon → `/trainee/{id}/voice-message/new`.
 
 ### 3.1 Card – closed
 

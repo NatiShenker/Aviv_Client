@@ -18,7 +18,7 @@ function lookupKey({ instituteId, traineeId }: TraineeLookup): string {
   return `${instituteId}:${traineeId}`;
 }
 
-/** החניך שהמזהה שלו בנתיב (‎/child/:traineeId), מתוך הפנימייה הנבחרת */
+/** החניך שהמזהה שלו בנתיב (‎/trainee/:traineeId), מתוך הפנימייה הנבחרת */
 export function useRouteTrainee(): RouteTrainee {
   const params = useParams<Pick<TraineeRouteParams, "traineeId">>();
   const traineeId = parseRouteId(params.traineeId);

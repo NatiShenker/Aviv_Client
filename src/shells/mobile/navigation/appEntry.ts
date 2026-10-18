@@ -19,7 +19,7 @@ const INNER_ROUTE_QUERY_PARAMS = [BASED_ON_QUERY_PARAM];
 interface AppLocation {
   /** הקידומת של המארח, למשל "/host/aviv". "/" כשאביב בשורש */
   basePath: string;
-  /** הניתוב של אביב בתוך הכתובת, למשל "/child/5" */
+  /** הניתוב של אביב בתוך הכתובת, למשל "/trainee/5" */
   avivPath: string;
 }
 
