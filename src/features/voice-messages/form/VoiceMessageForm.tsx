@@ -4,7 +4,7 @@ import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.sche
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import MessageBlock from "./MessageBlock";
 import MessageDetailsBlock from "./MessageDetailsBlock";
-import type { VoiceMessageForm as VoiceMessageFormState } from "./useVoiceMessageForm";
+import type { VoiceMessageFormController } from "./useVoiceMessageForm";
 import { VOICE_MESSAGE_FIELD_IDS } from "./voiceMessageFormLogic";
 
 /** כפתור השמירה נמצא בפוטר של הטופס, מחוץ ל-<form>, ומשויך אליו לפי המזהה */
@@ -18,7 +18,7 @@ const DECISION_FIELD_IDS = {
 };
 
 interface VoiceMessageFormProps {
-  form: VoiceMessageFormState;
+  form: VoiceMessageFormController;
   /** בעריכה - ההודעה, לכרטיס ההיקף הנעול */
   editRecord: TraineeVoiceMessageRecordDto | null;
   traineeFullName: string;

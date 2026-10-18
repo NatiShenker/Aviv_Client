@@ -1,11 +1,11 @@
 import { createDefaultDateRange, validateDateRange, type DateRangeValues } from "@/features/records/form/dateRangeLogic";
-import type { DecisionValues } from "@/features/records/form/DecisionBlock";
 import {
   createBasedOnDecisionValues,
   createEmptyDecisionValues,
   decisionValuesFromRecord,
   toDecisionInput,
   validateDecision,
+  type DecisionValues,
   type ValidatedDecision,
 } from "@/features/records/form/decisionLogic";
 import { mapServerFieldErrors, removeEmptyErrors, type FormErrors } from "@/features/records/form/formErrors";
@@ -129,7 +129,7 @@ export interface SubmissionCheck {
 }
 
 /** כל הכללים רצים יחד, ובכל מקום מוצגת רק השגיאה הראשונה */
-export function checkSubmission(values: VoiceMessageFormValues, isEditMode: boolean): SubmissionCheck {
+export function checkVoiceMessageSubmission(values: VoiceMessageFormValues, isEditMode: boolean): SubmissionCheck {
   // המספרים נבדקים רק ביצירה במספרים נבחרים: בעריכה המספר נעול
   const shouldCheckPhones = !isEditMode && values.scope === "selected";
   let submittedValues = values;

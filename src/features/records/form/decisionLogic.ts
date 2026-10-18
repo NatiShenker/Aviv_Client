@@ -1,11 +1,31 @@
-import type { DecisionApprovalDto, DecisionApprovalInput, LookupItem } from "@/schemas/common.schema";
-import type { DecisionErrors, DecisionValues } from "./DecisionBlock";
+import type {
+  ApproverRef,
+  DecisionApprovalDto,
+  DecisionApprovalInput,
+  FileAttachmentRef,
+  LookupItem,
+} from "@/schemas/common.schema";
 import { FORM_TEXTS } from "./formTexts";
 
 /*
  * "סיבות והחלטה" (ספק 00 §4.3): זהה בכל הטפסים, חוץ מרשימת הסיבות.
  * כל ארבעת השדות חובה בכל הטפסים - סיבה, פירוט, גורם מאשר וקובץ (הוחלט 2026-10-19).
  */
+
+/** ערכי בלוק "סיבות והחלטה" - זהים בכל הטפסים, חוץ מרשימת הסיבות */
+export interface DecisionValues {
+  reasonId: number | null;
+  details: string;
+  approver: ApproverRef | null;
+  approvedFile: FileAttachmentRef | null;
+}
+
+export interface DecisionErrors {
+  reason?: string;
+  details?: string;
+  approver?: string;
+  file?: string;
+}
 
 /** רשומה חדשה: אין עדיין סיבה, פירוט, גורם מאשר או קובץ */
 export function createEmptyDecisionValues(): DecisionValues {

@@ -6,54 +6,36 @@ import {
   createNewConditionsValues,
   openConditionsForRecord,
   openConditionsForTerms,
-  toConditionsInput,
-  validateDuration,
-  validateHours,
   type CallConditionsValues,
   type CallTermsValues,
   type OpenConditions,
 } from "@/features/records/form/callConditionsLogic";
-import type { DateBounds } from "@/features/records/form/DateRangeField";
 import {
   createDefaultDateRange,
   touchedDatesFor,
-  validateDateRange,
+  type DateBounds,
   type TouchedDates,
 } from "@/features/records/form/dateRangeLogic";
-import type { DecisionValues } from "@/features/records/form/DecisionBlock";
 import {
   createBasedOnDecisionValues,
   createEmptyDecisionValues,
   decisionValuesFromRecord,
-  toDecisionInput,
-  validateDecision,
-  type ValidatedDecision,
+  type DecisionValues,
 } from "@/features/records/form/decisionLogic";
 import {
-  CALL_FORM_SERVER_FIELD_SLOTS,
-  mapServerFieldErrors,
-  removeEmptyErrors,
   withoutErrors,
   type CallFormErrorSlot,
   type FormErrors,
 } from "@/features/records/form/formErrors";
 import type { FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
-import { commitPendingPhone, tryAddPhone } from "@/features/records/form/phone/phoneNumbersLogic";
-import type { AppError } from "@/infrastructure/errors/appError";
-import type { ISODateString, PermittedCallConditionsInput, PhoneString } from "@/schemas/common.schema";
+import { tryAddPhone } from "@/features/records/form/phone/phoneNumbersLogic";
+import type { ISODateString, PhoneString } from "@/schemas/common.schema";
 import type {
-  CreateTraineePhonePermitRequest,
-  CreateTraineePhoneRestrictionRequest,
   SourceRestrictionSummaryDto,
-  TraineePhonePermitRecordDto,
   TraineePhoneRecordDto,
   TraineePhoneRecordType,
-  TraineePhoneRestrictionRecordDto,
-  UpdateTraineePhonePermitRequest,
-  UpdateTraineePhoneRestrictionRequest,
 } from "@/schemas/phone-exceptions.schema";
-import { formatDateRange } from "@/shared/formatting/dateFormat";
 import { normalizePhone } from "@/shared/formatting/phoneFormat";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 
@@ -429,149 +411,5 @@ export function showErrors(state: NumberRecordFormState, errors: NumberRecordFor
       hours: state.openConditions.hours || Boolean(errors.hours),
       devices: state.openConditions.devices || Boolean(errors.devices),
     },
-  };
-}
-
-// ── שמירה: ולידציה (ספק 04 form §4.10, §5) ──
-
-interface SubmissionCheck {
-  /** המצב שנשמר: הרשימה סגורה, ומספר שנשאר בשדה כבר נוסף */
-  submittedState: NumberRecordFormState;
-  errors: NumberRecordFormErrors;
-}
-
-/**
- * "שמור": רשימה שנפתחה מחדש אחרי בחירה נסגרת, כדי שכל הבלוקים יוצגו ויבדקו.
- * בהגבלה חדשה, מספר שנשאר בשדה נוסף. אחר כך כל הכללים רצים יחד.
- */
-export function checkSubmission(state: NumberRecordFormState): SubmissionCheck {
-  const visibleState = closeRestrictionPicker(state);
-
-  if (visibleState.mode === "create" && visibleState.recordType === "permit") {
-    const lookupErrors = validatePermitLookup(visibleState);
-    // עד שנבחרה הגבלה שאר הטופס מוסתר, ולכן רק החיפוש נבדק
-    if (lookupErrors) return { submittedState: visibleState, errors: lookupErrors };
-  }
-
-  if (visibleState.mode === "create" && visibleState.recordType === "restriction") {
-    const committed = commitPendingPhone(visibleState.phoneDraft, visibleState.addedPhones);
-    const committedState =
-      "phones" in committed ? { ...visibleState, addedPhones: committed.phones, phoneDraft: "" } : visibleState;
-    const phoneErrors = "error" in committed ? { phone: committed.error } : {};
-    return { submittedState: committedState, errors: { ...phoneErrors, ...validateRecordRules(committedState) } };
-  }
-
-  return { submittedState: visibleState, errors: validateRecordRules(visibleState) };
-}
-
-function validatePermitLookup(state: NumberRecordFormState): NumberRecordFormErrors | null {
-  const { lookup } = state;
-  if (lookup.status !== "done") return { phone: TEXTS.validation.searchRequired };
-  if (lookup.results.length === 0) return { phone: TEXTS.validation.restrictedSearchRequired };
-  if (state.selectedRestriction === null) return { restriction: TEXTS.validation.restrictionRequired };
-  return null;
-}
-
-/** הכללים של §5 שחלים על כל רשומה: תאריכים, משך, שעות, ו"סיבות והחלטה" */
-function validateRecordRules(state: NumberRecordFormState): NumberRecordFormErrors {
-  const { values } = state;
-  return removeEmptyErrors<NumberRecordErrorSlot>({
-    dates: validateDateRange(values) ?? validatePermitDatesInsideRestriction(state),
-    duration: validateDuration(values),
-    hours: validateHours(values),
-    ...validateDecision(values),
-  });
-}
-
-function validatePermitDatesInsideRestriction(state: NumberRecordFormState): string | undefined {
-  const bounds = permitDateBounds(state);
-  if (!bounds) return undefined;
-  const { startDate, endDate } = state.values;
-  const isInside = startDate >= bounds.min && endDate <= bounds.max;
-  return isInside ? undefined : TEXTS.validation.permitOutsideRestriction(formatDateRange(bounds.min, bounds.max));
-}
-
-// ── שמירה: שגיאות שרת → מקומות בטופס (ספק 04 form §6.3) ──
-
-const NUMBER_RECORD_SERVER_FIELD_SLOTS: Record<string, NumberRecordErrorSlot> = {
-  ...CALL_FORM_SERVER_FIELD_SLOTS,
-  phoneNumber: "phone",
-  phoneNumbers: "phone",
-  sourceRestrictionId: "restriction",
-};
-
-/** שגיאות שדה מהשרת, או 409 ביצירת היתר (ההגבלה כבר לא פעילה). אובייקט ריק = שגיאה כללית */
-export function mapSaveErrorToSlots(appError: AppError, state: NumberRecordFormState): NumberRecordFormErrors {
-  if (appError.code === "VALIDATION_ERROR") {
-    return mapServerFieldErrors(appError.fieldErrors, NUMBER_RECORD_SERVER_FIELD_SLOTS);
-  }
-  const isCreatePermit = state.mode === "create" && state.recordType === "permit";
-  if (appError.code === "CONFLICT" && isCreatePermit) {
-    return { restriction: TEXTS.validation.restrictionNoLongerActive };
-  }
-  return {};
-}
-
-// ── שמירה: בניית הבקשות (ספק 04 form §6.1) ──
-
-type DatesAndConditionsInput = PermittedCallConditionsInput & { startDate: ISODateString; endDate: ISODateString };
-
-function datesAndConditions(values: NumberRecordFormValues): DatesAndConditionsInput {
-  return { startDate: values.startDate, endDate: values.endDate, ...toConditionsInput(values) };
-}
-
-/** כל מספר יישמר כהגבלה נפרדת עם אותם ערכים */
-export function buildCreateRestrictionRequest(
-  state: NumberRecordFormState,
-  decision: ValidatedDecision,
-  traineeId: number,
-): CreateTraineePhoneRestrictionRequest {
-  return {
-    traineeIds: [traineeId],
-    phoneNumbers: state.addedPhones,
-    ...datesAndConditions(state.values),
-    ...toDecisionInput(state.values.details, decision),
-  };
-}
-
-export function buildUpdateRestrictionRequest(
-  state: NumberRecordFormState,
-  decision: ValidatedDecision,
-  record: TraineePhoneRestrictionRecordDto,
-): UpdateTraineePhoneRestrictionRequest {
-  return {
-    previousId: record.id,
-    traineeId: record.traineeId,
-    phoneNumber: record.phoneNumber,
-    ...datesAndConditions(state.values),
-    ...toDecisionInput(state.values.details, decision),
-  };
-}
-
-export function buildCreatePermitRequest(
-  state: NumberRecordFormState,
-  decision: ValidatedDecision,
-  traineeId: number,
-  restriction: SourceRestrictionSummaryDto,
-): CreateTraineePhonePermitRequest {
-  return {
-    traineeIds: [traineeId],
-    sourceRestrictionId: restriction.restrictionId,
-    ...datesAndConditions(state.values),
-    ...toDecisionInput(state.values.details, decision),
-  };
-}
-
-export function buildUpdatePermitRequest(
-  state: NumberRecordFormState,
-  decision: ValidatedDecision,
-  record: TraineePhonePermitRecordDto,
-): UpdateTraineePhonePermitRequest {
-  return {
-    previousPermitId: record.id,
-    traineeId: record.traineeId,
-    sourceRestrictionId: record.sourceRestriction.restrictionId,
-    ...datesAndConditions(state.values),
-    ...toDecisionInput(state.values.details, decision),
   };
 }

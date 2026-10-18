@@ -5,8 +5,8 @@ import {
   buildPermittedHoursValue,
   hasPermittedHours,
 } from "@/features/records/form/callConditionsLogic";
-import type { DetailItem } from "@/features/records/history/DetailGrid";
 import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
+import type { DetailItem } from "@/features/records/history/recordDetails";
 import type {
   SourceRestrictionSummaryDto,
   TraineePhonePermitRecordDto,

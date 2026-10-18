@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
-import { parseRouteId, type TraineeRouteParams } from "@/routes";
 import { useInstitutes } from "@/features/institutes/InstitutesProvider";
+import { parseRouteId, type TraineeRouteParams } from "@/routes";
 import type { TraineeListItemDto } from "@/schemas/trainees.schema";
 import { findTrainee, getCachedTrainee, type TraineeLookup } from "@/services/traineesService";
 import { useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";

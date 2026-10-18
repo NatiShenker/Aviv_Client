@@ -6,7 +6,7 @@ import type { DeviceDto, WingDto } from "@/schemas/organization.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import { RESTRICTION_FIELD_IDS } from "./restrictionFormLogic";
-import type { RestrictionForm as RestrictionFormState } from "./useRestrictionForm";
+import type { RestrictionFormController } from "./useRestrictionForm";
 
 /** כפתור השמירה נמצא בפוטר של הטופס, מחוץ ל-<form>, ומשויך אליו לפי המזהה */
 export const RESTRICTION_FORM_ID = "trainee-restriction-form";
@@ -25,7 +25,7 @@ const DECISION_FIELD_IDS = {
 };
 
 interface RestrictionFormProps {
-  form: RestrictionFormState;
+  form: RestrictionFormController;
   devices: AsyncResource<DeviceDto[]>;
   /** אגפי הפנימייה - המכשירים מקובצים לפיהם */
   wings: WingDto[];

@@ -5,14 +5,14 @@ import FieldIntro from "@/shared/components/form/FieldIntro";
 import FormSection from "@/shared/components/form/FormSection";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 import LockedScopeCard from "./LockedScopeCard";
-import type { VoiceMessageForm } from "./useVoiceMessageForm";
+import type { VoiceMessageFormController } from "./useVoiceMessageForm";
 import { VOICE_MESSAGE_FIELD_IDS } from "./voiceMessageFormLogic";
 import { SCOPE_OPTIONS, isVoiceMessageScope } from "./voiceMessagesOptions";
 
 const TEXTS = VOICE_MESSAGES_TEXTS.form.messageBlock;
 
 interface MessageBlockProps {
-  form: VoiceMessageForm;
+  form: VoiceMessageFormController;
   /** בעריכה ההיקף והמספר נעולים, ובמקום הבחירה מוצג כרטיס נעול */
   editRecord: TraineeVoiceMessageRecordDto | null;
   traineeFullName: string;
@@ -39,7 +39,7 @@ function MessageContentBox({ traineeFullName }: { traineeFullName: string }) {
 }
 
 /** "היקף ההפעלה", ושדה המספרים מתחת לאפשרות שפותחת אותו */
-function ScopeSelector({ form }: { form: VoiceMessageForm }) {
+function ScopeSelector({ form }: { form: VoiceMessageFormController }) {
   const { values, errors } = form;
 
   const handleScopeChange = (value: IpsRadioGroupMobileValue) => {

@@ -1,27 +1,13 @@
 import { IpsButton, IpsSelectMobile, IpsTextAreaMobile } from "ui-library";
-import type { ApproverRef, FileAttachmentRef, LookupItem } from "@/schemas/common.schema";
+import type { LookupItem } from "@/schemas/common.schema";
 import FormSection from "@/shared/components/form/FormSection";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import ApprovalFileField from "./ApprovalFileField";
 import ApproverField from "./ApproverField";
+import type { DecisionErrors, DecisionValues } from "./decisionLogic";
 import { FORM_TEXTS } from "./formTexts";
 
 const TEXTS = FORM_TEXTS.decision;
-
-/** ערכי בלוק "סיבות והחלטה" - זהים בכל הטפסים, חוץ מרשימת הסיבות */
-export interface DecisionValues {
-  reasonId: number | null;
-  details: string;
-  approver: ApproverRef | null;
-  approvedFile: FileAttachmentRef | null;
-}
-
-export interface DecisionErrors {
-  reason?: string;
-  details?: string;
-  approver?: string;
-  file?: string;
-}
 
 /** מזהי השדות, כדי שהטופס יוכל להעביר פוקוס לשדה הראשון עם שגיאה */
 export interface DecisionFieldIds {

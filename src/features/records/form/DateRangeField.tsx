@@ -1,18 +1,11 @@
 import { IpsDatePickerMobile } from "ui-library";
-import type { ISODateString } from "@/schemas/common.schema";
 import ErrorText from "@/shared/components/form/ErrorText";
 import FieldIntro from "@/shared/components/form/FieldIntro";
 import { formatShortDate } from "@/shared/formatting/dateFormat";
-import type { DateRangeValues, TouchedDates } from "./dateRangeLogic";
+import type { DateBounds, DateRangeValues, TouchedDates } from "./dateRangeLogic";
 import { FORM_TEXTS } from "./formTexts";
 
 const TEXTS = FORM_TEXTS.dateRange;
-
-/** טווח מותר לתאריכים (בהיתר: תקופת ההגבלה שעליה הוא יושב) */
-export interface DateBounds {
-  min: ISODateString;
-  max: ISODateString;
-}
 
 interface DateRangeFieldProps {
   /** מה הטווח קובע, למשל "ההגבלה תחול בתאריכים אלו בלבד" */

@@ -1,11 +1,10 @@
-import { ROUTES } from "@/routes";
 import { PERMISSION_IDS, type PermissionId } from "@/features/institutes/permissionIds";
+import { ROUTES } from "@/routes";
 import type { AppIconName } from "@/shared/icons/appIcons";
 import { TRAINEE_ACTIONS_TEXTS } from "./traineeActionsTexts";
 
 const ITEM_TEXTS = TRAINEE_ACTIONS_TEXTS.items;
 
-/** שורה בתפריט החניך */
 export interface TraineeMenuItem {
   key: string;
   label: string;

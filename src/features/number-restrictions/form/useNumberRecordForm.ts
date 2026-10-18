@@ -1,7 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
 import type { PermittedCondition } from "@/features/records/form/callConditionsLogic";
-import type { DecisionValues } from "@/features/records/form/DecisionBlock";
-import { decisionErrorSlotsFor, findReasonIdByName, toValidatedDecision } from "@/features/records/form/decisionLogic";
+import {
+  decisionErrorSlotsFor,
+  findReasonIdByName,
+  toValidatedDecision,
+  type DecisionValues,
+} from "@/features/records/form/decisionLogic";
 import { findFirstErrorSlot, hasErrors } from "@/features/records/form/formErrors";
 import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
@@ -26,13 +30,11 @@ import {
   changeFormValues,
   changePhoneDraft,
   changeRecordType,
-  checkSubmission,
   chooseRestriction,
   closeRestrictionPicker,
   completePhoneSearch,
   createInitialNumberRecordState,
   failPhoneSearch,
-  mapSaveErrorToSlots,
   openRestrictionPicker,
   phoneToSearchOnOpen,
   rejectInvalidPhone,
@@ -44,6 +46,7 @@ import {
   type NumberRecordFormState,
 } from "./numberRecordFormLogic";
 import { saveNumberRecord } from "./numberRecordSave";
+import { checkNumberRecordSubmission, mapSaveErrorToSlots } from "./numberRecordValidation";
 import { usePermitLookup } from "./usePermitLookup";
 
 type StateTransition = (current: NumberRecordFormState) => NumberRecordFormState;
@@ -177,7 +180,7 @@ export function useNumberRecordForm({
     if (isSaving || isFileUploading) return;
 
     setSaveError(undefined);
-    const { submittedState, errors } = checkSubmission(state);
+    const { submittedState, errors } = checkNumberRecordSubmission(state);
     if (hasErrors(errors)) {
       showSubmissionErrors(submittedState, errors);
       return;
@@ -229,4 +232,4 @@ export function useNumberRecordForm({
   };
 }
 
-export type NumberRecordForm = ReturnType<typeof useNumberRecordForm>;
+export type NumberRecordFormController = ReturnType<typeof useNumberRecordForm>;

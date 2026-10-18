@@ -8,7 +8,7 @@ import type { CallRuleKind } from "./callConditionsLogic";
 import { FORM_TEXTS } from "./formTexts";
 
 const DURATION_TEXTS = FORM_TEXTS.duration;
-const DIGITS_ONLY = /\D/g;
+const NON_DIGIT_CHARACTERS = /\D/g;
 // ספק 00 §3.7: עד 3 ספרות
 const DURATION_MAX_LENGTH = 3;
 
@@ -91,7 +91,7 @@ export default function LimitTypeSelector({
             endIcon={<AppIcon name="timer" />}
             clearButtonLabel={DURATION_TEXTS.clear}
             value={durationText}
-            onChange={(text) => onDurationTextChange(text.replace(DIGITS_ONLY, ""))}
+            onChange={(text) => onDurationTextChange(text.replace(NON_DIGIT_CHARACTERS, ""))}
             error={Boolean(durationError)}
           />
         </div>

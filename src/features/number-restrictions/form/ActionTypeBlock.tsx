@@ -6,12 +6,12 @@ import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import { NUMBER_RECORD_FIELD_IDS, canSearchPhone } from "./numberRecordFormLogic";
 import { RECORD_TYPE_OPTIONS, isNumberRecordType } from "./numberRestrictionsOptions";
 import PermitLookupResult from "./PermitLookupResult";
-import type { NumberRecordForm } from "./useNumberRecordForm";
+import type { NumberRecordFormController } from "./useNumberRecordForm";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.actionType;
 
 interface ActionTypeBlockProps {
-  form: NumberRecordForm;
+  form: NumberRecordFormController;
 }
 
 /** בלוק 0 ביצירה - "הגבלה או היתר": הבחירה, ושדה המספר של כל סוג (ספק 04 form §3.2) */

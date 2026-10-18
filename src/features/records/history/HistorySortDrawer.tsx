@@ -1,12 +1,8 @@
 import { IpsDrawer, IpsRadioListMobile, type IpsRadioListMobileValue } from "ui-library";
+import type { HistorySortRow } from "./historySort";
 import { HISTORY_TEXTS } from "./historyTexts";
 
 const DRAWER_HEIGHT = "auto";
-
-export interface HistorySortRow {
-  value: string;
-  label: string;
-}
 
 interface HistorySortDrawerProps {
   open: boolean;

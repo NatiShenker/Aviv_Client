@@ -3,8 +3,9 @@ import { IpsButton } from "ui-library";
 import Collapsible, { COLLAPSIBLE_MOTION_CLASS } from "@/shared/components/Collapsible";
 import AppIcon from "@/shared/icons/AppIcon";
 import type { AppIconName } from "@/shared/icons/appIcons";
-import DetailGrid, { type DetailItem } from "./DetailGrid";
+import DetailGrid from "./DetailGrid";
 import { HISTORY_TEXTS } from "./historyTexts";
+import type { DetailItem } from "./recordDetails";
 import RecordIconCircle, { type RecordIconTone } from "./RecordIconCircle";
 
 interface ExpandableRecordCardProps {

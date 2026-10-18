@@ -11,6 +11,12 @@ export interface DateRangeValues {
   endDate: ISODateString;
 }
 
+/** טווח מותר לתאריכים (בהיתר: תקופת ההגבלה שעליה הוא יושב) */
+export interface DateBounds {
+  min: ISODateString;
+  max: ISODateString;
+}
+
 /** תאריך שהמשתמש עוד לא שינה מוצג באפור (ספק 00 §4.2) */
 export interface TouchedDates {
   startDate: boolean;

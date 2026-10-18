@@ -1,8 +1,8 @@
 import type { CallLimitKind } from "@/schemas/common.schema";
 import FormSection from "@/shared/components/form/FormSection";
 import type { CallConditionsValues, CallRuleKind } from "./callConditionsLogic";
-import DateRangeField, { type DateBounds } from "./DateRangeField";
-import type { TouchedDates } from "./dateRangeLogic";
+import DateRangeField from "./DateRangeField";
+import type { DateBounds, TouchedDates } from "./dateRangeLogic";
 import LimitTypeSelector from "./LimitTypeSelector";
 
 interface CallDetailsBlockProps {

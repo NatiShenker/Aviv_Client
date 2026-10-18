@@ -1,6 +1,5 @@
 import type { ISODateString, TemporalStatus } from "@/schemas/common.schema";
 import type { SortDirection } from "@/schemas/trainees.schema";
-import type { HistorySortRow } from "./HistorySortDrawer";
 import { HISTORY_TEXTS } from "./historyTexts";
 
 const SORT_TEXTS = HISTORY_TEXTS.sort;
@@ -43,7 +42,12 @@ export const HISTORY_SORT_OPTIONS: HistorySortOption[] = [
 // ספק 00 §4.1: תאריך התחלה, מהחדש לישן
 export const DEFAULT_HISTORY_SORT_OPTION = HISTORY_SORT_OPTIONS[0];
 
-/** השורות של מגירת המיון */
+/** שורה במגירת המיון: צירוף אחד של שדה וכיוון */
+export interface HistorySortRow {
+  value: string;
+  label: string;
+}
+
 export const HISTORY_SORT_ROWS: HistorySortRow[] = HISTORY_SORT_OPTIONS.map((option) => ({
   value: option.key,
   label: option.label,

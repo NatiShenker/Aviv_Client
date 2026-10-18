@@ -1,7 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { touchedDatesFor } from "@/features/records/form/dateRangeLogic";
-import type { DecisionValues } from "@/features/records/form/DecisionBlock";
-import { decisionErrorSlotsFor, findReasonIdByName, toValidatedDecision } from "@/features/records/form/decisionLogic";
+import {
+  decisionErrorSlotsFor,
+  findReasonIdByName,
+  toValidatedDecision,
+  type DecisionValues,
+} from "@/features/records/form/decisionLogic";
 import { findFirstErrorSlot, hasErrors, withoutErrors } from "@/features/records/form/formErrors";
 import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
@@ -18,7 +22,7 @@ import {
   addDraftPhone,
   buildCreateVoiceMessageRequest,
   buildUpdateVoiceMessageRequest,
-  checkSubmission,
+  checkVoiceMessageSubmission,
   createInitialVoiceMessageValues,
   mapVoiceMessageSaveError,
   type VoiceMessageErrorSlot,
@@ -129,7 +133,7 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
     if (isSaving || isFileUploading) return;
 
     setSaveError(undefined);
-    const { submittedValues, errors: validationErrors } = checkSubmission(values, isEditMode);
+    const { submittedValues, errors: validationErrors } = checkVoiceMessageSubmission(values, isEditMode);
     // מספר תקין שנשאר בשדה נוסף לרשימה גם כשיש שגיאות אחרות
     setValues(submittedValues);
     if (hasErrors(validationErrors)) {
@@ -177,4 +181,4 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
   };
 }
 
-export type VoiceMessageForm = ReturnType<typeof useVoiceMessageForm>;
+export type VoiceMessageFormController = ReturnType<typeof useVoiceMessageForm>;

@@ -8,12 +8,12 @@ import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import { NUMBER_RECORD_FIELD_IDS, RESTRICTION_PICKER_HEADING_ID } from "./numberRecordFormLogic";
 import RestrictionOptionCard from "./RestrictionOptionCard";
 import { buildRestrictionPickerView } from "./restrictionPickerLogic";
-import type { NumberRecordForm } from "./useNumberRecordForm";
+import type { NumberRecordFormController } from "./useNumberRecordForm";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.picker;
 
 interface RestrictionPickerProps {
-  form: NumberRecordForm;
+  form: NumberRecordFormController;
 }
 
 /**

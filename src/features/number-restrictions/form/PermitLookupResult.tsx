@@ -3,12 +3,12 @@ import AppIcon from "@/shared/icons/AppIcon";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import RestrictionPicker from "./RestrictionPicker";
 import { buildLookupAnnouncement } from "./restrictionPickerLogic";
-import type { NumberRecordForm } from "./useNumberRecordForm";
+import type { NumberRecordFormController } from "./useNumberRecordForm";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.noRestrictions;
 
 interface PermitLookupResultProps {
-  form: NumberRecordForm;
+  form: NumberRecordFormController;
 }
 
 /** תוצאת החיפוש של היתר חדש: אין הגבלות על המספר, או בוחר ההגבלה (ספק 04 form §3.2) */

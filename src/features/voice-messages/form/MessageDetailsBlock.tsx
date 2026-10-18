@@ -3,7 +3,7 @@ import { IpsSwitch } from "ui-library";
 import DateRangeField from "@/features/records/form/DateRangeField";
 import FormSection from "@/shared/components/form/FormSection";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
-import type { VoiceMessageForm } from "./useVoiceMessageForm";
+import type { VoiceMessageFormController } from "./useVoiceMessageForm";
 import { VOICE_MESSAGE_FIELD_IDS } from "./voiceMessageFormLogic";
 
 const TEXTS = VOICE_MESSAGES_TEXTS.form.detailsBlock;
@@ -40,7 +40,7 @@ const MOBILE_SWITCH_SX = {
 } as const;
 
 interface MessageDetailsBlockProps {
-  form: VoiceMessageForm;
+  form: VoiceMessageFormController;
 }
 
 /**

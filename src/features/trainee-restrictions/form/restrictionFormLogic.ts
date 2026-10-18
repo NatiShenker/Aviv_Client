@@ -7,13 +7,13 @@ import {
   type CallConditionsValues,
 } from "@/features/records/form/callConditionsLogic";
 import { createDefaultDateRange, validateDateRange } from "@/features/records/form/dateRangeLogic";
-import type { DecisionValues } from "@/features/records/form/DecisionBlock";
 import {
   createBasedOnDecisionValues,
   createEmptyDecisionValues,
   decisionValuesFromRecord,
   toDecisionInput,
   validateDecision,
+  type DecisionValues,
   type ValidatedDecision,
 } from "@/features/records/form/decisionLogic";
 import {

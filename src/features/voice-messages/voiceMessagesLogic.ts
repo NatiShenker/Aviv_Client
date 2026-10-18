@@ -1,5 +1,5 @@
-import type { DetailItem } from "@/features/records/history/DetailGrid";
 import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
+import type { DetailItem } from "@/features/records/history/recordDetails";
 import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
 import { formatDateRange } from "@/shared/formatting/dateFormat";
 import { filterBySearchQuery } from "@/shared/search/searchText";

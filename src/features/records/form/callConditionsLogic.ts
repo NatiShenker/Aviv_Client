@@ -105,7 +105,7 @@ export function validateDuration({ limitKind, durationText }: DurationValues): s
   if (limitKind !== "limited") return undefined;
   const minutes = Number(durationText);
   const isValid = DIGITS_ONLY.test(durationText) && minutes >= MIN_DURATION_MINUTES && minutes <= MAX_DURATION_MINUTES;
-  return isValid ? undefined : TEXTS.validation.duration;
+  return isValid ? undefined : TEXTS.validation.duration(MIN_DURATION_MINUTES, MAX_DURATION_MINUTES);
 }
 
 export function validateHours({ startTime, endTime }: HoursValues): string | undefined {

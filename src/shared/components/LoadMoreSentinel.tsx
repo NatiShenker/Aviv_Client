@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 const PRELOAD_DISTANCE = "200px";
 
 interface LoadMoreSentinelProps {
-  /** מספר הפריטים שכבר מוצגים */
   renderedCount: number;
   onVisible: () => void;
 }

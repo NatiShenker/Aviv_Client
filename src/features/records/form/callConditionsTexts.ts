@@ -28,7 +28,7 @@ export const CALL_CONDITIONS_TEXTS = {
   validation: {
     datesRequired: "יש לבחור תאריך התחלה ותאריך סיום",
     endBeforeStart: "תאריך הסיום לא יכול להיות לפני תאריך ההתחלה",
-    duration: "יש להזין מספר דקות שלם בין 1 ל-120",
+    duration: (minMinutes: number, maxMinutes: number) => `יש להזין מספר דקות שלם בין ${minMinutes} ל-${maxMinutes}`,
     hoursRequired: "יש לבחור שעת התחלה ושעת סיום",
     endTimeBeforeStart: "שעת הסיום חייבת להיות אחרי שעת ההתחלה",
   },

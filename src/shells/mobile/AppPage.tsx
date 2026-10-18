@@ -16,7 +16,6 @@ const ENTER_ANIMATION_CLASS: Record<PageEnterDirection, string> = {
 
 interface AppPageProps {
   children: ReactNode;
-  /** ריווח ותוספות של המסך */
   className?: string;
 }
 

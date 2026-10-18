@@ -9,7 +9,7 @@ import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import ActionTypeBlock from "./ActionTypeBlock";
 import LockedNumberCard from "./LockedNumberCard";
 import { NUMBER_RECORD_FIELD_IDS, permitDateBounds, shouldShowDetailBlocks } from "./numberRecordFormLogic";
-import type { NumberRecordForm as NumberRecordFormState } from "./useNumberRecordForm";
+import type { NumberRecordFormController } from "./useNumberRecordForm";
 
 /** כפתור השמירה נמצא בפוטר של הטופס, מחוץ ל-<form>, ומשויך אליו לפי המזהה */
 export const NUMBER_RECORD_FORM_ID = "number-record-form";
@@ -26,7 +26,7 @@ const DECISION_FIELD_IDS = {
 };
 
 interface NumberRecordFormProps {
-  form: NumberRecordFormState;
+  form: NumberRecordFormController;
   /** בעריכה - הרשומה, לכרטיס המספר הנעול */
   editRecord: TraineePhoneRecordDto | null;
   devices: AsyncResource<DeviceDto[]>;
