@@ -143,7 +143,7 @@ StickyActionBar, two columns: outline `"ביטול"` (one step back to the histo
 
 ### 4.3 Permit – searching a number
 
-- **Search button enabled** when the input is not blank **and** it is not the number already searched (compared after normalization).
+- **Search button enabled** when the input is not blank **and** it is not the number already searched (compared after normalization) – unless the save returned `409 CONFLICT`, which makes the earlier results outdated (§6.3).
 - **Enter** in the field searches, when the button is enabled.
 - **On search:**
   1. Normalize the input. Empty → nothing happens.
@@ -283,7 +283,8 @@ As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details 
 | `details` | Details |
 | `approverId` | Approver |
 | `approvedFileId` | File |
-| `409 CONFLICT` when creating a permit | Restriction slot: `"ההגבלה שנבחרה אינה פעילה עוד. יש לחפש שוב"` (The selected restriction is no longer active. Search again) **(proposed)** |
+| A key whose slot is not shown (the locked number or restriction in edit; the restriction in a new restriction) | The general save error `"השמירה נכשלה. נסה שוב"`, together with the errors of the shown slots |
+| `409 CONFLICT` when creating a permit | Restriction slot: `"ההגבלה שנבחרה אינה פעילה עוד. יש לחפש שוב"` (The selected restriction is no longer active. Search again) **(proposed)**. The earlier results stay shown, and `"חיפוש"` is enabled again for the same number (decided 2026-10-19) |
 
 ---
 

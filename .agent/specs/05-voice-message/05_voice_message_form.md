@@ -140,6 +140,7 @@ Only one message per slot (first failing rule, in table order).
 | `details` | Details |
 | `approverId` | Approver |
 | `approvedFileId` | File |
+| A key whose slot is not shown (the locked number in edit; the numbers with `"בכל השיחות"`) | The general save error `"השמירה נכשלה. נסה שוב"`, together with the errors of the shown slots |
 
 ---
 

@@ -62,6 +62,8 @@ export interface PermitLookup {
   /** המספר (מנורמל) שהחיפוש האחרון רץ עליו. null = עדיין לא חיפשו, או שהחיפוש נכשל */
   searchedPhone: PhoneString | null;
   results: SourceRestrictionSummaryDto[];
+  /** ההגבלה שנבחרה השתנתה מאז החיפוש (409 בשמירה), ולכן אפשר לחפש שוב את אותו מספר */
+  isOutdated: boolean;
 }
 
 export interface NumberRecordFormState {
@@ -124,7 +126,7 @@ export const RESTRICTION_PICKER_HEADING_ID = "number-record-restriction-heading"
 
 // ── מצב הפתיחה (ספק 04 form §4.1) ──
 
-const IDLE_LOOKUP: PermitLookup = { status: "idle", searchedPhone: null, results: [] };
+const IDLE_LOOKUP: PermitLookup = { status: "idle", searchedPhone: null, results: [], isOutdated: false };
 
 const COMMON_INITIAL_STATE = {
   phoneDraft: "",
@@ -253,10 +255,11 @@ export function changePhoneDraft(state: NumberRecordFormState, phoneDraft: strin
   return { ...state, phoneDraft, errors, lookup: IDLE_LOOKUP, selectedRestriction: null, isPickerOpen: false };
 }
 
-/** "חיפוש" פעיל כשיש מספר, והוא לא המספר שכבר חיפשו (או שמחפשים עכשיו) */
+/** "חיפוש" פעיל כשיש מספר, והוא לא המספר שכבר חיפשו (או שמחפשים עכשיו) – אלא אם התוצאות שלו כבר לא עדכניות */
 export function canSearchPhone(state: NumberRecordFormState): boolean {
   const phone = normalizePhone(state.phoneDraft);
-  return phone !== "" && phone !== state.lookup.searchedPhone;
+  const isSameUpToDateSearch = phone === state.lookup.searchedPhone && !state.lookup.isOutdated;
+  return phone !== "" && !isSameUpToDateSearch;
 }
 
 export function rejectInvalidPhone(state: NumberRecordFormState): NumberRecordFormState {
@@ -266,7 +269,7 @@ export function rejectInvalidPhone(state: NumberRecordFormState): NumberRecordFo
 export function startPhoneSearch(state: NumberRecordFormState, phone: PhoneString): NumberRecordFormState {
   return {
     ...state,
-    lookup: { status: "searching", searchedPhone: phone, results: [] },
+    lookup: { status: "searching", searchedPhone: phone, results: [], isOutdated: false },
     selectedRestriction: null,
     isPickerOpen: false,
     errors: withoutErrors(state.errors, ["phone", "restriction"]),
@@ -290,7 +293,10 @@ export function completePhoneSearch(
   // תשובה לחיפוש שכבר בוטל (המשתמש הקליד או החליף סוג בינתיים)
   if (!isCurrentSearch(state, phone)) return state;
 
-  const searchedState: NumberRecordFormState = { ...state, lookup: { status: "done", searchedPhone: phone, results } };
+  const searchedState: NumberRecordFormState = {
+    ...state,
+    lookup: { status: "done", searchedPhone: phone, results, isOutdated: false },
+  };
   const preferredRestriction = results.find(
     (restriction) => restriction.restrictionId === state.copiedPermitTerms?.preferredRestrictionId,
   );
@@ -307,6 +313,11 @@ export function completePhoneSearch(
 export function failPhoneSearch(state: NumberRecordFormState, phone: PhoneString): NumberRecordFormState {
   if (!isCurrentSearch(state, phone)) return state;
   return { ...state, lookup: IDLE_LOOKUP, errors: { ...state.errors, phone: TEXTS.validation.searchFailed } };
+}
+
+/** 409 בשמירת היתר: ההגבלה השתנתה מאז החיפוש. התוצאות נשארות מוצגות, ו"חיפוש" נפתח שוב לאותו מספר */
+export function markLookupOutdated(state: NumberRecordFormState): NumberRecordFormState {
+  return { ...state, lookup: { ...state.lookup, isOutdated: true } };
 }
 
 export function addPhoneFromDraft(state: NumberRecordFormState): NumberRecordFormState {

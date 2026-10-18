@@ -84,13 +84,24 @@ const NUMBER_RECORD_SERVER_FIELD_SLOTS: Record<string, NumberRecordErrorSlot> = 
   sourceRestrictionId: "restriction",
 };
 
+/** מקומות שגיאה בלי שדה גלוי: בעריכה המספר וההגבלה נעולים בכרטיס, ובהגבלה חדשה אין בחירת הגבלה */
+export function hiddenNumberRecordErrorSlots(state: NumberRecordFormState): NumberRecordErrorSlot[] {
+  if (state.mode === "edit") return ["phone", "restriction"];
+  return state.recordType === "restriction" ? ["restriction"] : [];
+}
+
+/** 409 ביצירת היתר: ההגבלה שנבחרה הסתיימה או כבר לא חלה על החניך מאז החיפוש */
+export function isRestrictionConflict(appError: AppError, state: NumberRecordFormState): boolean {
+  const isCreatePermit = state.mode === "create" && state.recordType === "permit";
+  return appError.code === "CONFLICT" && isCreatePermit;
+}
+
 /** שגיאות שדה מהשרת, או 409 ביצירת היתר (ההגבלה כבר לא פעילה). אובייקט ריק = שגיאה כללית */
 export function mapSaveErrorToSlots(appError: AppError, state: NumberRecordFormState): NumberRecordFormErrors {
   if (appError.code === "VALIDATION_ERROR") {
     return mapServerFieldErrors(appError.fieldErrors, NUMBER_RECORD_SERVER_FIELD_SLOTS);
   }
-  const isCreatePermit = state.mode === "create" && state.recordType === "permit";
-  if (appError.code === "CONFLICT" && isCreatePermit) {
+  if (isRestrictionConflict(appError, state)) {
     return { restriction: TEXTS.validation.restrictionNoLongerActive };
   }
   return {};

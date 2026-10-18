@@ -34,6 +34,18 @@ export function findFirstErrorSlot<TSlot extends string>(
   return slotOrder.find((slot) => Boolean(errors[slot])) ?? null;
 }
 
+/**
+ * שגיאות השרת שיש להן מקום גלוי בטופס, והאם יש שגיאה במקום שלא מוצג כרגע.
+ * שגיאה כזו לא נבלעת: הטופס מציג במקומה את שגיאת השמירה הכללית
+ */
+export function splitByHiddenSlots<TSlot extends string>(
+  errors: FormErrors<TSlot>,
+  hiddenSlots: readonly TSlot[],
+): { visibleErrors: FormErrors<TSlot>; hasHiddenErrors: boolean } {
+  const hasHiddenErrors = hiddenSlots.some((slot) => Boolean(errors[slot]));
+  return { visibleErrors: withoutErrors(errors, [...hiddenSlots]), hasHiddenErrors };
+}
+
 /** השגיאות שנשארות אחרי שהמשתמש שינה שדות שקשורים למקומות האלה */
 export function withoutErrors<TSlot extends string>(
   errors: FormErrors<TSlot>,

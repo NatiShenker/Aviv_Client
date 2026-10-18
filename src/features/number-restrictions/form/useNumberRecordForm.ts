@@ -6,7 +6,7 @@ import {
   toValidatedDecision,
   type DecisionValues,
 } from "@/features/records/form/decisionLogic";
-import { findFirstErrorSlot, hasErrors } from "@/features/records/form/formErrors";
+import { findFirstErrorSlot, hasErrors, splitByHiddenSlots } from "@/features/records/form/formErrors";
 import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
 import { toAppError } from "@/infrastructure/errors/appError";
@@ -35,6 +35,7 @@ import {
   completePhoneSearch,
   createInitialNumberRecordState,
   failPhoneSearch,
+  markLookupOutdated,
   openRestrictionPicker,
   phoneToSearchOnOpen,
   rejectInvalidPhone,
@@ -46,7 +47,12 @@ import {
   type NumberRecordFormState,
 } from "./numberRecordFormLogic";
 import { saveNumberRecord } from "./numberRecordSave";
-import { checkNumberRecordSubmission, mapSaveErrorToSlots } from "./numberRecordValidation";
+import {
+  checkNumberRecordSubmission,
+  hiddenNumberRecordErrorSlots,
+  isRestrictionConflict,
+  mapSaveErrorToSlots,
+} from "./numberRecordValidation";
 import { usePermitLookup } from "./usePermitLookup";
 
 type StateTransition = (current: NumberRecordFormState) => NumberRecordFormState;
@@ -159,10 +165,19 @@ export function useNumberRecordForm({
   };
 
   const handleSaveError = (error: unknown, submittedState: NumberRecordFormState) => {
-    const slotErrors = mapSaveErrorToSlots(toAppError(error), submittedState);
-    if (hasErrors(slotErrors)) {
-      showSubmissionErrors(submittedState, slotErrors);
-    } else {
+    const appError = toAppError(error);
+    const stateAfterError = isRestrictionConflict(appError, submittedState)
+      ? markLookupOutdated(submittedState)
+      : submittedState;
+    const slotErrors = mapSaveErrorToSlots(appError, stateAfterError);
+    const { visibleErrors, hasHiddenErrors } = splitByHiddenSlots(
+      slotErrors,
+      hiddenNumberRecordErrorSlots(stateAfterError),
+    );
+    if (hasErrors(visibleErrors)) {
+      showSubmissionErrors(stateAfterError, visibleErrors);
+    }
+    if (hasHiddenErrors || !hasErrors(visibleErrors)) {
       setSaveError(FORM_TEXTS.saveFailed);
     }
   };

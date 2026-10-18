@@ -166,6 +166,14 @@ const VOICE_MESSAGE_SERVER_FIELD_SLOTS: Record<string, VoiceMessageErrorSlot> = 
   approvedFileId: "file",
 };
 
+/** מקומות שגיאה בלי שדה גלוי: בעריכה ההיקף נעול בכרטיס, ובהודעה לכל השיחות אין שדה מספרים */
+export function hiddenVoiceMessageErrorSlots(
+  values: VoiceMessageFormValues,
+  isEditMode: boolean,
+): VoiceMessageErrorSlot[] {
+  return isEditMode || values.scope === "all" ? ["phone"] : [];
+}
+
 export function mapVoiceMessageSaveError(appError: AppError): VoiceMessageFormErrors {
   if (appError.code !== "VALIDATION_ERROR") return {};
   return mapServerFieldErrors(appError.fieldErrors, VOICE_MESSAGE_SERVER_FIELD_SLOTS);

@@ -6,7 +6,7 @@ import {
   toValidatedDecision,
   type DecisionValues,
 } from "@/features/records/form/decisionLogic";
-import { findFirstErrorSlot, hasErrors, withoutErrors } from "@/features/records/form/formErrors";
+import { findFirstErrorSlot, hasErrors, splitByHiddenSlots, withoutErrors } from "@/features/records/form/formErrors";
 import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
 import { toAppError } from "@/infrastructure/errors/appError";
@@ -24,6 +24,7 @@ import {
   buildUpdateVoiceMessageRequest,
   checkVoiceMessageSubmission,
   createInitialVoiceMessageValues,
+  hiddenVoiceMessageErrorSlots,
   mapVoiceMessageSaveError,
   type VoiceMessageErrorSlot,
   type VoiceMessageFormErrors,
@@ -119,11 +120,16 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
     return result.createdIds[0] ?? null;
   };
 
-  const handleSaveError = (error: unknown) => {
+  const handleSaveError = (error: unknown, submittedValues: VoiceMessageFormValues) => {
     const serverErrors = mapVoiceMessageSaveError(toAppError(error));
-    if (hasErrors(serverErrors)) {
-      showErrors(serverErrors);
-    } else {
+    const { visibleErrors, hasHiddenErrors } = splitByHiddenSlots(
+      serverErrors,
+      hiddenVoiceMessageErrorSlots(submittedValues, isEditMode),
+    );
+    if (hasErrors(visibleErrors)) {
+      showErrors(visibleErrors);
+    }
+    if (hasHiddenErrors || !hasErrors(visibleErrors)) {
       setSaveError(FORM_TEXTS.saveFailed);
     }
   };
@@ -149,7 +155,7 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
         onSaved(savedRecordId);
       }
     } catch (error) {
-      handleSaveError(error);
+      handleSaveError(error, submittedValues);
     } finally {
       setIsSaving(false);
     }
