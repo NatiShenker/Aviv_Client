@@ -22,11 +22,11 @@ Prototype source: `client/pages/BlockList.tsx`. Business rules and model: [overv
 ## 3. Layout
 
 1. **HistoryHeader** – title `"הגבלה/היתר לחניך"`; back arrow to `/child/{id}`.
-2. **Toolbar row**
-   - Section title `"הסטוריית הגבלות"` (Restrictions history).
-   - ToolbarSearch: aria-label `"חיפוש הגבלות"`, placeholder `"חיפוש לפי סיבה, גורם או תאריך"` (Search by reason, approver or date).
-   - Sort button `"מיון"`.
-3. **Cards** – one ExpandableRecordCard per restriction.
+2. **HistoryToolbar** ([00 §3.23](../00_foundations.md))
+   - Section title `"היסטוריית הגבלות"` (Restrictions history).
+   - Search field: aria-label `"חיפוש הגבלות"`, placeholder `"חיפוש לפי סיבה, גורם או תאריך"` (Search by reason, approver or date).
+   - Round sort button (aria-label `"מיון"`).
+3. **Cards** – one ExpandableRecordCard per restriction, rendered incrementally.
 4. **EmptyState** – `"לא נמצאו הגבלות"` (No restrictions found).
 5. **StickyActionBar** – primary link `"הגבלה חדשה"` (New restriction) + plus icon → `/child/{id}/block/new`.
 
@@ -60,6 +60,9 @@ Note: in the card the devices value lists **all** device labels joined with `", 
 
 - **Search** matches the trimmed query (substring) against a text built from: reason, details, approver, type label, hours value, devices value, date range (`DD/MM/YY-DD/MM/YY`), start date and end date (`YYYY-MM-DD`). Non-breaking spaces in the type label count as spaces, so `"עד 10 דק'"` matches.
 - **Empty list** and **no search match** both show `"לא נמצאו הגבלות"`.
+- **Sort sheet rows** (field + direction, [00 §3.25](../00_foundations.md)) **(proposed)**: `"תאריך התחלה – מהחדש לישן"` (default), `"תאריך התחלה – מהישן לחדש"`, `"תאריך סיום – מהחדש לישן"`, `"תאריך סיום – מהישן לחדש"`, `"סטטוס – פעילות קודם"`, `"סטטוס – שהסתיימו קודם"`.
+- **Loading:** skeleton cards. **Failure:** `"לא ניתן לטעון את ההגבלות"` **(proposed)** + `"נסה שוב"`.
+- **Permission:** requires the trainee-restriction permission ([02 §7](../02_child_actions.md)).
 
 ---
 
@@ -67,7 +70,7 @@ Note: in the card the devices value lists **all** device labels joined with `", 
 
 | When | Call | Schema |
 |---|---|---|
-| Screen opens; returning from the form | `GET /api/trainees/{traineeId}/restrictions` | Request: `GetTraineeRestrictionsRequest` (`traineeIds: [traineeId]`)<br>Response: `GetTraineeRestrictionsResponse` (`records: TraineeRestrictionRecordDto[]`) |
+| Every time the screen opens (no client cache – the history is always fresh); returning from the form | `POST TraineeRestrictions/GetTraineeRestrictions` *(name is a placeholder – see pending-decisions)* | Request: `GetTraineeRestrictionsRequest` (`traineeIds: [traineeId]`)<br>Response: `GetTraineeRestrictionsResponse` (`records: TraineeRestrictionRecordDto[]`) |
 
 - Search and sort run on the client over the loaded `records` list.
 - Display values come from `TraineeRestrictionRecordDto`: `reason`, `details`, `approver.fullName`, `devices[].name`, `startTime`/`endTime`, `durationMinutes`, `temporalStatus`.

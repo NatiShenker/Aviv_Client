@@ -1,6 +1,7 @@
 import { CATALOG_TEXTS } from "./catalogTexts";
 import ActionControls from "./sections/ActionControls";
 import DateTimeControls from "./sections/DateTimeControls";
+import MobileFormControls from "./sections/MobileFormControls";
 import OverlayControls from "./sections/OverlayControls";
 import SelectionControls from "./sections/SelectionControls";
 import TextControls from "./sections/TextControls";
@@ -18,6 +19,7 @@ export default function ControlsCatalog() {
       <TextControls />
       <SelectionControls />
       <DateTimeControls />
+      <MobileFormControls />
       <OverlayControls />
       <TokenSwatches />
     </main>

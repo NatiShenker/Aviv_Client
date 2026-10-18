@@ -9,3 +9,12 @@ export const SELECTION_TTL_DAYS = 30;
 
 /** לוקאל להשוואת מחרוזות בעברית (מיון לפי שם, אגף ומיקום) */
 export const HEBREW_LOCALE = "he";
+
+/**
+ * יעד ההעלאה של קבצי האסמכתא ב-SharePoint (IpsFileUpload). שני הערכים זמניים:
+ * שם האתר והסביבה עוד לא הוגדרו (ראו pending-decisions)
+ */
+export const SHAREPOINT_UPLOAD_TARGET = {
+  environment: "dev",
+  site: "aviv",
+} as const;

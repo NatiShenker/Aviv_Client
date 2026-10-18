@@ -11,6 +11,7 @@ Everything shared by all screens. Screen files reference the components and patt
 - **Font:** Rubik, weights 400 / 500 / 600 (700 only for the voice message scope titles). Load once globally.
 - **Top spacing:** 50px above the header on every screen (status-bar area).
 - **Mixed direction:** dates, times, ranges, phone numbers and "+N" counters are wrapped in `dir="ltr"` spans so they read left to right inside RTL text.
+- **Address and direct entry:** Aviv's URL is appended to the host's URL: host domain (with the environment prefix) + the host's own route + Aviv's route. The part of the path before Aviv's route is the router base, derived at startup, so every in-app link keeps the host prefix. A direct entry to an inner Aviv route (a link or a page refresh) starts at the children list (the address is replaced, query parameters are kept). Only the controls catalog (`/catalog`, a dev page) opens directly.
 
 ---
 
@@ -65,18 +66,20 @@ Everything shared by all screens. Screen files reference the components and patt
 | Children card | White, radius 19, padding 16, 0.5px border `border-light` |
 | Bottom sheet | Top radius 24, side padding 20, bottom padding 32, grab handle 40×4 |
 | Badge / tag | 20px tall, pill, 8px side padding |
-| Sticky footer | Fixed to the bottom, max 375px, `bg-app`, 12px top padding, bottom padding `max(24px, safe-area-inset-bottom)`. Page content has 108px bottom padding so the last field is never hidden |
+| Sticky footer | Stays at the bottom of the viewport, `bg-app`, 12px top padding, 24px bottom padding. Implemented as `position: sticky` inside the page (not `fixed`), so it moves with the page during the page transition and never hides the last item |
 
 ### 2.4 Motion
 
 | Name | Spec | Used for |
 |---|---|---|
-| `fadeIn` | Opacity 0→1, 200ms ease-out | Sheet backdrop, expanded card content, accordion content, fields and blocks that appear conditionally |
+| `fadeIn` | Opacity 0→1, 200ms ease-out | Sheet backdrop, accordion content, fields and blocks that appear conditionally |
 | `sheetUp` | translateY(100%)→0, 300ms ease-out | Bottom sheets |
-| `searchOpen` | clip-path expanding from the search icon, 200ms ease-out | Toolbar search field. Runs only with `prefers-reduced-motion: no-preference` |
-| Chevron rotate | 180°, 200ms | Accordions, expandable cards, "אפשרויות נוספות" |
+| Card expand | Height 0→content height, while the content fades in and moves down slightly (8px); 300ms ease-out. Collapse runs the same in reverse | Expandable record cards on history screens |
+| Chevron rotate | 180°, 200ms (300ms on expandable cards, in sync with the card expand) | Accordions, expandable cards, "אפשרויות נוספות" |
+| `pageEnterForward` / `pageEnterBack` | translateX(-100%)→0 / translateX(100%)→0, 300ms ease-out. Only the incoming page moves; the outgoing page disappears at once | Navigation between pages: forward enters from the left, back from the right (RTL). No animation on the first page of a visit or on a replace |
+| Form sheet | Slides up on open and down on close. Covers the whole screen: no rounded corners, no grab handle, no drag to close | Create / edit forms open over their history screen instead of navigating sideways. Implemented by `IpsDialog` `fullScreen` + `transition="slide"` |
 
-Production: respect `prefers-reduced-motion` for all animations (the prototype only gates `searchOpen`).
+Production: respect `prefers-reduced-motion` for all animations.
 
 ### 2.5 Icons
 
@@ -91,8 +94,9 @@ Each entry: **structure**, **states**, **used in**.
 
 ### 3.1 Headers
 
-- **HistoryHeader** – back arrow link (aria-label `"חזרה"`) to the actions screen, then the page title. Used in all history screens.
-- **FormHeader** – page title, and on the opposite side a close X link (aria-label `"סגירה ללא שמירה"`, closes without saving) back to the history list. Navigation **replaces** the current history entry. Used in all forms.
+- **HistoryHeader** – back arrow (aria-label `"חזרה"`) to the actions screen, then the page title. Used in all history screens.
+- **FormHeader** – page title, and on the opposite side a close X (aria-label `"סגירה ללא שמירה"`, closes without saving) back to the history list. In production it is the header of the full-height form sheet. Used in all forms.
+- **Back and close navigation:** the back arrow and the form close go **one step back** in the browser history (so the page enters from the "back" side and no duplicate entries pile up). Every inner screen is reached from inside the app (§1, direct entry), so there is always a previous entry.
 
 ### 3.2 Section title and divider
 
@@ -119,6 +123,7 @@ Each entry: **structure**, **states**, **used in**.
 - **Clearable (time only):** when a time has a value, the icon is replaced by an X button (aria-label `"ניקוי {field}"`, e.g. `"ניקוי שעת התחלה"`). Dates have no clear button.
 - **States:** empty, **muted** (a default date the user has not touched yet is shown in `text-secondary`), filled, focused (`action` border), invalid (`error` border, `aria-invalid`).
 - **Limits:** supports `min` / `max` (end date `min` = start date; permit dates bounded by their restriction).
+- **Implemented by** `IpsDatePickerMobile` / `IpsTimePickerMobile` (native `date` / `time`).
 
 ### 3.7 DurationField
 
@@ -127,11 +132,13 @@ Each entry: **structure**, **states**, **used in**.
 - **Width:** half of the content width (first column of a 2-column grid).
 - **States:** empty, filled, focused, invalid.
 - **Used in:** trainee form, number form (inside **LimitTypeSelector**).
+- **Implemented by** `IpsTextFieldMobile` (`inputMode="numeric"`, `suffix`, `endIcon`, `clearButtonLabel`).
 
 ### 3.8 RadioGroup / RadioOption
 
 - **Structure:** container with `role="radiogroup"` and an accessible name. Each option: a native radio (visually hidden) + a 20px circle with `action` border (1px unchecked, 2px checked) and a 10px `action` dot when checked; label 16/24. Options sit in one wrapping row (16px horizontal gap, 8px vertical gap). Keyboard focus shows a ring around the circle.
 - **ScopeOption variant** (voice message): options stacked vertically (16px gap); each has a bold title and a description line below.
+- **Implemented by** `IpsRadioGroupMobile` (the row variant).
 
 ### 3.9 LimitTypeSelector
 
@@ -174,7 +181,7 @@ Each entry: **structure**, **states**, **used in**.
 
 ### 3.14 DetailsTextArea
 
-- FieldLabel `"פירוט"`, textarea 96px tall (3 rows), placeholder `"הוסף פירוט"` (Add details), not resizable.
+- FieldLabel `"פירוט"`, textarea 96px tall (3 rows), placeholder `"הוסף פירוט"` (Add details), not resizable. Implemented by `IpsTextAreaMobile`.
 
 ### 3.15 PhoneInputRow, PhoneNumbersField, PhoneSearchField
 
@@ -187,6 +194,7 @@ Each entry: **structure**, **states**, **used in**.
 
 - FieldLabel `"צירוף קובץ"` + `"*"`. A 42px box that opens the file picker when tapped (aria-label `"צירוף קובץ (חובה)"`). Shows `"העלאת קובץ"` (Upload file) in gray, or the file name in `text-primary`. Trailing upload icon, or X (aria-label `"הסרת הקובץ"`) once a file is chosen.
 - **One file only.** Picking again replaces the file.
+- **Production:** replaced by `IpsFileUpload` with an attached-file row (§4.3) – the user chose the existing library component.
 - **Used in:** all forms.
 
 ### 3.17 Switch
@@ -216,12 +224,16 @@ Each entry: **structure**, **states**, **used in**.
 
 - **Closed:** a button (`aria-expanded`) with RecordIcon, a top line (gray value + badges), a second line with the reason (`"ללא סיבה"` (No reason) when empty, truncated), and a chevron (`chevron` color) that rotates when open.
 - **Open:** DetailGrid, then a full-width outline button `"עריכה"` (Edit) with an edit icon.
+- **Motion:** opening and closing animate smoothly ("Card expand", §2.4). While closed, the content is hidden from screen readers and the keyboard.
 - **Only one card is open at a time**; tapping an open card closes it.
 
-### 3.23 ToolbarSearch
+### 3.23 HistoryToolbar
 
-- A search icon button (aria-label `"חיפוש"`). Tapping it expands a pill search field (34px, white, soft shadow) over the title row. The title becomes visually hidden (kept for screen readers), the search button disappears, and the other toolbar buttons show only their icons.
-- The field gets focus. Its X button (aria-label `"סגירת חיפוש"`) closes the search and clears the query. Blurring an empty field closes it. Escape closes it and returns focus to the search button.
+Same structure and look as the children list header row 2 ([01 §3.1](01_children_list.md)), for uniformity across screens:
+
+- **Row 1:** the section title (`h2`, 18px, weight 500), e.g. `"היסטוריית הגבלות"`.
+- **Row 2:** an always-visible search field (`IpsSearchFieldMobile`, takes the remaining width, clear button `"ניקוי חיפוש"` clears the text) + a round sort button (`IpsIconButton variant="surface"`, sort icon only, aria-label `"מיון"`). Both 44px on a white background, no borders.
+- The search field and the sort button are disabled until the records have loaded.
 - Results filter live as you type (trimmed substring match).
 
 ### 3.24 BottomSheet
@@ -239,7 +251,7 @@ Each entry: **structure**, **states**, **used in**.
 
 ### 3.26 StickyActionBar
 
-- Fixed bottom bar (§2.3). Either one full-width primary button, or two equal columns: outline `"ביטול"` (Cancel, link back to the list, replace) + primary `"שמור"` (Save, submit).
+- Sticky bottom bar (§2.3). Either one full-width primary button, or two equal columns: outline `"ביטול"` (Cancel, link back to the list, replace) + primary `"שמור"` (Save, submit).
 
 ### 3.27 EmptyState
 
@@ -252,8 +264,8 @@ Each entry: **structure**, **states**, **used in**.
 ### 4.1 History screen
 
 1. **HistoryHeader** with the feature title.
-2. **Toolbar row** (17px below the header line, 34px tall): section title (e.g. `"הסטוריית הגבלות"`) + ToolbarSearch + sort button (icon + `"מיון"` label).
-3. **Cards** (13px below the toolbar, 8px apart): ExpandableRecordCard per record.
+2. **HistoryToolbar** (§3.23): section title row, then the search field and sort button row. The header and the toolbar stay in place; only the cards scroll under them.
+3. **Cards** (12px below the toolbar, 8px apart): ExpandableRecordCard per record, rendered incrementally (30 at a time, the next 30 near the end of the list).
 4. **EmptyState** when no record matches (or there are none).
 5. **StickyActionBar** with one primary "create" link (text + plus icon).
 
@@ -287,12 +299,15 @@ Block title `"סיבות והחלטה"`. Identical in every form, except for the
 
 | Order | Field | Component (`ui-library` / External) | Placeholder | Required |
 |---|---|---|---|---|
-| 1 | `"סיבה/הערה"` (Reason/note) | `IpsSelectMobile` (NativeSelect behavior) | `"בחר סיבה"` (prototype: `"הכל"`) | No (Yes in Trainee Restriction `CODE_RESTRICTION`) |
-| 2 | `"פירוט"` (Details) | `IpsTextArea` (DetailsTextArea behavior) | `"הוסף פירוט"` | No |
-| 3 | `"גורם מאשר"` (Approver) | **External 3rd-party Approver MFE** (prototype: SelectField + OptionsSheet) | `"בחר גורם מאשר"` (prototype: `"הכל"`) | Yes |
-| 4 | `"צירוף קובץ"` (File) | `IpsFileUpload` → **Direct upload to SharePoint** (FileField behavior) | `"העלאת קובץ"` | **Yes** – error `"יש לצרף קובץ"` (A file must be attached) |
+| 1 | `"סיבה/הערה"` (Reason/note) | `IpsSelectMobile` (NativeSelect behavior) | `"בחר סיבה"` (prototype: `"הכל"`) | No (**Yes** in Trainee Restriction – `CODE_RESTRICTION`; error `"יש לבחור סיבה"` **(proposed)**) |
+| 2 | `"פירוט"` (Details) | `IpsTextAreaMobile` (DetailsTextArea behavior) | `"הוסף פירוט"` | No |
+| 3 | `"גורם מאשר"` (Approver) | **External 3rd-party Approver MFE** – see below | – | **Yes** – error `"יש לבחור גורם מאשר"` **(proposed)** |
+| 4 | `"צירוף קובץ"` (File) | `IpsFileUpload` → **Direct upload to SharePoint** – see below | – | **Yes** – error `"יש לצרף קובץ"` (A file must be attached) |
 
 Fields 1–3 are stacked 8px apart; the file field is 16px below them. See [OQ-15](https://www.google.com/search?q=README.md%23oq-15).
+
+- **Approver (ApproverField):** the MFE is a full-width search box with its own open results list, and reports the chosen approver through `onSelect`. Once chosen, the field shows the approver's name and role with a `"החלפה"` (Change) button, which shows the MFE again; `"ביטול"` (Cancel) returns to the chosen approver. Until the MFE is integrated, a stand-in with the same contract is used (`src/integrations/approver-mfe`).
+- **File (ApprovalFileField):** without a file, a hint `"בחר קובץ ולחץ 'שמור קבצים' כדי לצרף אותו"` **(proposed)** and `IpsFileUpload` (one file, camera allowed). After the upload the file is registered in the service (to get its `approvedFileId`), and the field shows a file row (icon, name, X `"הסרת הקובץ"`) instead of `IpsFileUpload`. Saving waits while a file uploads. Upload or registration failure: `"העלאת הקובץ נכשלה, נסה שוב"` **(proposed)**.
 
 ## 5. Formats
 
