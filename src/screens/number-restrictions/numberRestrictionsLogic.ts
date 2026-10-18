@@ -95,15 +95,13 @@ export function buildNumberRecordTypeLabel(record: TraineePhoneRecordDto): strin
   return buildDurationTypeLabel(record.durationMinutes, record.type);
 }
 
-export function buildNumberRecordReasonSummary(record: TraineePhoneRecordDto): string {
-  return record.reason || TEXTS.card.noReason;
-}
-
-/** הפרטים בכרטיס פתוח, לפי הסדר בספק 04 history §3.2 (בכל שורה - הפרט הימני ראשון) */
+/**
+ * הפרטים בכרטיס פתוח, לפי הסדר בספק 04 history §3.2 (בכל שורה - הפרט הימני ראשון).
+ * המספר, תגית הסוג והתאריכים כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן
+ */
 export function buildNumberRecordDetails(record: TraineePhoneRecordDto): DetailItem[] {
   const details: DetailItem[] = [
-    { key: "type", label: TEXTS.details.type, value: buildNumberRecordTypeLabel(record) },
-    { key: "dates", label: TEXTS.details.dates, value: buildNumberRecordDateRange(record), isLtr: true },
+    { key: "type", label: TEXTS.details.type, value: buildNumberRecordTypeLabel(record), isFullWidth: true },
   ];
 
   if (record.type === "permit") {

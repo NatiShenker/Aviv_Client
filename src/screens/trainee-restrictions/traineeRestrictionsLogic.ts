@@ -33,15 +33,12 @@ export function restrictionCardDomId(recordId: number): string {
   return `${CARD_DOM_ID_PREFIX}${recordId}`;
 }
 
-export function buildRestrictionReasonSummary(record: TraineeRestrictionRecordDto): string {
-  return record.reason || TEXTS.card.noReason;
-}
-
-/** הפרטים בכרטיס פתוח, לפי הסדר בספק 03 history §3.2 (בכל שורה - הפרט הימני ראשון) */
+/**
+ * הפרטים בכרטיס פתוח, לפי הסדר בספק 03 history §3.2 (בכל שורה - הפרט הימני ראשון).
+ * הסוג והתאריכים כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן
+ */
 export function buildRestrictionDetails(record: TraineeRestrictionRecordDto): DetailItem[] {
   const details: DetailItem[] = [
-    { key: "dates", label: TEXTS.details.dates, value: buildRestrictionDateRange(record), isLtr: true },
-    { key: "type", label: TEXTS.details.type, value: buildRestrictionTypeLabel(record) },
     {
       key: "hours",
       label: TEXTS.details.hours,

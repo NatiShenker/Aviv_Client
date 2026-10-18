@@ -2,7 +2,7 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
   title: "הגבלה/היתר למספר",
 
   toolbar: {
-    sectionTitle: "הסטוריית הגבלות והיתרים",
+    sectionTitle: "היסטוריית הגבלות והיתרים",
     searchLabel: "חיפוש הגבלות והיתרים",
     searchPlaceholder: "חיפוש לפי מספר, סיבה או תאריך",
   },
@@ -16,6 +16,9 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
   card: {
     typeTag: { permit: "היתר", restriction: "הגבלה" },
     activeBadge: { permit: "פעיל", restriction: "פעילה" },
+    // מוצעים - ממתינים לאישור (pending-decisions)
+    createBasedOn: { permit: "צור היתר חדש על בסיס זה", restriction: "צור הגבלה חדשה על בסיס זו" },
+    /** בשורות ההגבלה שעליה יושב היתר (בבוחר ובכרטיס הנעול) */
     noReason: "ללא סיבה",
   },
 
@@ -34,7 +37,6 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
 
   details: {
     type: "סוג",
-    dates: "תאריכים",
     onRestriction: "על הגבלה",
     hours: "שעות מותרות",
     devices: "מכשירים מותרים",
@@ -61,7 +63,12 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
     save: "שמור",
 
     actionType: {
-      title: "סוג הפעולה",
+      title: "הגבלה או היתר",
+      // מוצעים - ממתינים לאישור (pending-decisions)
+      descriptions: {
+        permit: "פתיחת מספר שחסום עבור החניך",
+        restriction: "חסימת מספר אחד או יותר לחניך",
+      },
       phoneHints: {
         permit: "הזן את המספר המלא כדי לאתר את ההגבלות החלות עליו עבור החניך",
         restriction: "הזן מספר אחד או יותר. כל מספר יישמר כהגבלה נפרדת",

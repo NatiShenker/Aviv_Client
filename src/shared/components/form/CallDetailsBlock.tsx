@@ -1,20 +1,9 @@
-import { IpsDatePickerMobile } from "ui-library";
-import type { CallLimitKind, ISODateString } from "@/schemas/common.schema";
-import { formatShortDate } from "@/shared/formatting/dateFormat";
-import type { CallConditionsValues, CallRuleKind, TouchedDates } from "@/shared/restrictions/callConditionsLogic";
-import ErrorText from "./ErrorText";
-import FieldIntro from "./FieldIntro";
+import type { CallLimitKind } from "@/schemas/common.schema";
+import type { CallConditionsValues, CallRuleKind } from "@/shared/restrictions/callConditionsLogic";
+import type { TouchedDates } from "@/shared/restrictions/dateRangeLogic";
+import DateRangeField, { type DateBounds } from "./DateRangeField";
 import FormSection from "./FormSection";
-import { FORM_TEXTS } from "./formTexts";
 import LimitTypeSelector from "./LimitTypeSelector";
-
-const TEXTS = FORM_TEXTS.dateRange;
-
-/** טווח מותר לתאריכים (בהיתר: תקופת ההגבלה שעליה הוא יושב) */
-export interface DateBounds {
-  min: ISODateString;
-  max: ISODateString;
-}
 
 interface CallDetailsBlockProps {
   title: string;
@@ -33,7 +22,10 @@ interface CallDetailsBlockProps {
   onDurationTextChange: (durationText: string) => void;
 }
 
-/** בלוק "פרטי ההגבלה" / "פרטי ההיתר": טווח תאריכים וסוג (ספק 03 form §3.2, ספק 04 form §3.4) */
+/**
+ * בלוק "פרטי ההגבלה" / "פרטי ההיתר": קודם הסוג ואז טווח התאריכים - מה ואז מתי, כמו בכל הפעולות
+ * (ספק 03 form §3.2, ספק 04 form §3.4)
+ */
 export default function CallDetailsBlock({
   title,
   dateRangeDescription,
@@ -48,50 +40,28 @@ export default function CallDetailsBlock({
   onLimitKindChange,
   onDurationTextChange,
 }: CallDetailsBlockProps) {
-  const hasDatesError = Boolean(errors.dates);
-  const endDateMin = values.startDate || dateBounds?.min;
-
   return (
     <FormSection title={title}>
-      <FieldIntro title={TEXTS.title} description={dateRangeDescription} />
-      <div className="mt-2 grid grid-cols-2 gap-2">
-        <IpsDatePickerMobile
-          id={fieldIds.dates}
-          label={TEXTS.startDate}
-          aria-label={TEXTS.startDate}
-          placeholder={TEXTS.placeholder}
-          value={values.startDate}
-          min={dateBounds?.min}
-          max={dateBounds?.max}
-          formatValue={formatShortDate}
-          muted={!touchedDates.startDate}
-          error={hasDatesError}
-          onChange={onStartDateChange}
-        />
-        <IpsDatePickerMobile
-          label={TEXTS.endDate}
-          aria-label={TEXTS.endDate}
-          placeholder={TEXTS.placeholder}
-          value={values.endDate}
-          min={endDateMin || undefined}
-          max={dateBounds?.max}
-          formatValue={formatShortDate}
-          muted={!touchedDates.endDate}
-          error={hasDatesError}
-          onChange={onEndDateChange}
-        />
-      </div>
-      <ErrorText message={errors.dates} />
+      <LimitTypeSelector
+        context={ruleKind}
+        kind={values.limitKind}
+        onKindChange={onLimitKindChange}
+        durationText={values.durationText}
+        onDurationTextChange={onDurationTextChange}
+        durationError={errors.duration}
+        durationInputId={fieldIds.duration}
+      />
 
       <div className="mt-4">
-        <LimitTypeSelector
-          context={ruleKind}
-          kind={values.limitKind}
-          onKindChange={onLimitKindChange}
-          durationText={values.durationText}
-          onDurationTextChange={onDurationTextChange}
-          durationError={errors.duration}
-          durationInputId={fieldIds.duration}
+        <DateRangeField
+          description={dateRangeDescription}
+          values={values}
+          touchedDates={touchedDates}
+          error={errors.dates}
+          dateBounds={dateBounds}
+          startDateInputId={fieldIds.dates}
+          onStartDateChange={onStartDateChange}
+          onEndDateChange={onEndDateChange}
         />
       </div>
     </FormSection>

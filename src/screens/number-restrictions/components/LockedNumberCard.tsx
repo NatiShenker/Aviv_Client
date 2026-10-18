@@ -1,5 +1,5 @@
 import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
-import AppIcon from "@/shared/icons/AppIcon";
+import RecordIconCircle from "@/shared/components/history/RecordIconCircle";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import RestrictionSummaryLines from "./RestrictionSummaryLines";
 
@@ -15,9 +15,7 @@ export default function LockedNumberCard({ record }: LockedNumberCardProps) {
     <div className="py-6">
       <div className="rounded-card border border-divider bg-paper p-4">
         <div className="flex items-center gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-error-soft text-error">
-            <AppIcon name="numberRestriction" />
-          </span>
+          <RecordIconCircle icon="numberRestriction" tone="danger" />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="text-base text-text-primary">
               <span dir="ltr">{record.phoneNumber}</span>

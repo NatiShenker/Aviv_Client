@@ -8,7 +8,8 @@ Prototype source: `client/pages/ExceptionForm.tsx`. Business rules and model: [o
 
 - **Create** a permit for a restricted number, or a restriction on one or more numbers.
 - **Edit** an existing permit or restriction (dates, conditions, decision – not the type, number or underlying restriction).
-- **Create:** `"הוספת הגבלה/היתר"` on the history screen. **Edit:** `"עריכה"` in an open history card.
+- **Create:** `"הוספת הגבלה/היתר"` on the history screen. **Edit:** `"עריכה"` in an open history card (active or future records only).
+- **Create based on an ended record:** `"צור היתר חדש על בסיס זה"` / `"צור הגבלה חדשה על בסיס זו"` in an open card of an ended record (§4.11).
 
 ---
 
@@ -17,7 +18,8 @@ Prototype source: `client/pages/ExceptionForm.tsx`. Business rules and model: [o
 | Mode | Route | Notes |
 |---|---|---|
 | Create | `/child/:id/exception/new` | Opens on type `"היתר למספר מוגבל"` |
-| Edit | `/child/:id/exception/:recordKey/edit` | `recordKey` = record type + ID, e.g. `permit-12` or `restriction-12` (restrictions and permits come from separate tables, so IDs can repeat). Production: load by key; unknown key → redirect to `/child/:id/exception` (replace). Prototype: works only when opened from the list |
+| Create based on | `/child/:id/exception/new?basedOn={recordKey}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
+| Edit | `/child/:id/exception/:recordKey/edit` | `recordKey` = record type + ID, e.g. `permit-12` or `restriction-12` (restrictions and permits come from separate tables, so IDs can repeat). The record is taken from the loaded history; unknown key or an ended record → redirect to `/child/:id/exception` (replace) |
 
 ---
 
@@ -34,11 +36,17 @@ FormHeader – title:
 
 The create title follows the action type selected below. Close X (aria-label `"סגירה ללא שמירה"`).
 
-### 3.2 Block 0 (create only) – `"סוג הפעולה"` (Action type)
+### 3.2 Block 0 (create only) – `"הגבלה או היתר"` (Restriction or permit)
 
-1. **Title** `"סוג הפעולה"` (`h2`).
-2. **Radio** (16px below), labelled by the title: `"היתר למספר מוגבל"` (default) · `"הגבלת מספר"`.
-3. **Number field** (13px below), by type:
+1. **Title** `"הגבלה או היתר"` (`h2`) – renamed from "סוג הפעולה" (decided 2026-10-18), so the form no longer has two "סוג" titles in a row ("כיוון" was rejected: it reads as the call direction).
+2. **Stacked radio** ([00 §3.8](../00_foundations.md)), 16px below, labelled by the title:
+
+| Order | Title | Description **(proposed)** |
+|---|---|---|
+| 1 (default) | `"היתר למספר מוגבל"` | `"פתיחת מספר שחסום עבור החניך"` (Opening a number that is blocked for the trainee) |
+| 2 | `"הגבלת מספר"` | `"חסימת מספר אחד או יותר לחניך"` (Blocking one or more numbers for the trainee) |
+
+3. **Number field** (12px below), by type:
 
 | Type | Component | Hint | Button |
 |---|---|---|---|
@@ -76,12 +84,14 @@ White card, radius 8, padding 16, thin outline, 24px below the header:
 
 ### 3.4 Block 1 – `"פרטי ההיתר"` (Permit details) / `"פרטי ההגבלה"` (Restriction details)
 
-1. **FieldIntro** `"טווח תאריכים"` with description:
+What, then when – the same order in every action form (decided 2026-10-18):
+
+1. **LimitTypeSelector** – permit config (`"סוג ההיתר"`: `"היתר מלא"` / `"היתר עם הגבלת משך"`) or restriction config (`"סוג ההגבלה"`: `"הגבלה מלאה"` / `"הגבלת משך שיחה"`), stacked with the descriptions from [00 §3.9](../00_foundations.md), DurationField, ErrorText – duration.
+2. **FieldIntro** `"טווח תאריכים"` (16px below) with description:
    - Permit: `"ההיתר יחול בתאריכים אלו, בתוך תקופת ההגבלה"` (The permit applies on these dates, within the restriction's period)
    - Restriction: `"ההגבלה תחול בתאריכים אלו בלבד"`
-2. **Date pair** – start (`"בחר תאריך"`, `"תאריך התחלה"`), end (`"תאריך סיום"`). Limits in §4.8.
-3. ErrorText – dates.
-4. **LimitTypeSelector** – permit config (`"סוג ההיתר"`: `"היתר מלא"` / `"היתר עם הגבלת משך"`) or restriction config (`"סוג ההגבלה"`: `"הגבלה מלאה"` / `"הגבלת משך שיחה"`), with the hints from [00 §3.9](https://www.google.com/search?q=..%2F00-foundations.md%2339-limittypeselector), DurationField, ErrorText – duration.
+3. **Date pair** – start (`"בחר תאריך"`, `"תאריך התחלה"`), end (`"תאריך סיום"`). Limits in §4.8.
+4. ErrorText – dates.
 
 ### 3.5 Block 2 – `"הגבלה להיתר"` (Limits on the permit) / `"היתרים להגבלה"` (Permits within the restriction)
 
@@ -93,7 +103,7 @@ White card, radius 8, padding 16, thin outline, 24px below the header:
 
 ### 3.6 Block 3 – `"סיבות והחלטה"`
 
-As in [00 §4.3](https://www.google.com/search?q=..%2F00-foundations.md%2343-reasons--decision-block), with the number reasons list ([00 §6](https://www.google.com/search?q=..%2F00-foundations.md%236-lookup-lists-current-prototype-values)).
+As in [00 §4.3](../00_foundations.md), with the number reasons list ([00 §6](../00_foundations.md)). All four fields are required, the reason too (decided 2026-10-19).
 
 ### 3.7 Footer
 
@@ -209,6 +219,13 @@ Same behavior as the trainee form ([03 form §4.3–4.5](https://www.google.com/
 - **Success:** a permit creates one record; a restriction creates **one record per number** with the same values. Then go to the history list (replace) with the first saved record open.
 - **Production addition:** after a failed submit, scroll to and focus the first field with an error.
 
+### 4.11 Create based on an ended record
+
+As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details from the record; dates, approver and file new. Per type:
+
+- **Restriction:** type `"הגבלת מספר"`, the number as the first chip (more can be added), limit type, minutes, hours and devices from the record. Dates today / tomorrow, muted.
+- **Permit:** type `"היתר למספר מוגבל"`, the number in the search field, and **the search runs immediately**. When the results arrive: if the restriction the ended permit relied on is among them, it is selected; otherwise the usual 0 / 1 / several behavior (§4.3). Whenever a restriction is selected, the permit's limit type, minutes, hours and devices are applied (instead of the reset of §4.5); the dates follow the restriction as usual. Changing the action type drops the copied terms.
+
 ---
 
 ## 5. Validation
@@ -227,6 +244,7 @@ Same behavior as the trainee form ([03 form §4.3–4.5](https://www.google.com/
 | Duration | With option 2: whole number 1–120 | `"יש להזין מספר דקות שלם בין 1 ל-120"` | Submit | Minutes change; limit type changes; a restriction is selected |
 | Hours | Both or none | `"יש לבחור שעת התחלה ושעת סיום"` | Submit (opens accordion) | Either time changes; a restriction is selected |
 | Hours | End > start | `"שעת הסיום חייבת להיות אחרי שעת ההתחלה"` | Submit (opens accordion) | Same |
+| Reason | A reason is chosen (decided 2026-10-19, [00 §4.3](../00_foundations.md)) | `"יש לבחור סיבה"` **(proposed)** | Submit | A reason is chosen |
 | Details | Not empty (spaces only count as empty), [00 §4.3](../00_foundations.md) | `"יש להזין פירוט"` **(proposed)** | Submit | The details change |
 | Approver | An approver is chosen | `"יש לבחור גורם מאשר"` **(proposed)** | Submit | An approver is chosen |
 | File | One file attached | `"יש לצרף קובץ"` | Submit | A file is picked |

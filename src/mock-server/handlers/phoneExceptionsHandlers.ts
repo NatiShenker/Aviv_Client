@@ -34,6 +34,7 @@ import {
   devicesFromIds,
   nextRecordId,
   throwConflict,
+  throwIfEnded,
   throwNotFound,
   toMutationResult,
 } from "./mutationHelpers";
@@ -44,8 +45,6 @@ import { throwIfInvalid, validateConditionsAndDecision, type ConditionsAndDecisi
  * כמו בשרת: עדכון לא משנה רשומה - הקודמת נכבית (LOGI_ACTIVE = 0) ונוספת רשומה פעילה חדשה.
  */
 
-// בהגבלה/היתר למספר הסיבה לא חובה (ספק 00 §4.3)
-const VALIDATION_RULES = { isReasonRequired: false };
 const INVALID_INPUT_MESSAGE = "Phone restriction / permit is invalid";
 
 const PHONE_VALIDATION_MESSAGES = {
@@ -145,7 +144,7 @@ function activePermitsOn(traineeId: number, restrictionId: number, today: ISODat
 export function handleCreateTraineePhoneRestriction(request: MockRequest): CreateTraineePhoneRestrictionResponse {
   const input = request.body as CreateTraineePhoneRestrictionRequest;
   throwIfInvalid(
-    { ...validatePhoneNumbers(input.phoneNumbers), ...validateConditionsAndDecision(input, VALIDATION_RULES) },
+    { ...validatePhoneNumbers(input.phoneNumbers), ...validateConditionsAndDecision(input) },
     INVALID_INPUT_MESSAGE,
   );
 
@@ -168,7 +167,7 @@ export function handleCreateTraineePhoneRestriction(request: MockRequest): Creat
 export function handleUpdateTraineePhoneRestriction(request: MockRequest): UpdateTraineePhoneRestrictionResponse {
   const input = request.body as UpdateTraineePhoneRestrictionRequest;
   const previous = findReplaceableRestriction(input.previousId);
-  throwIfInvalid(validateConditionsAndDecision(input, VALIDATION_RULES), INVALID_INPUT_MESSAGE);
+  throwIfInvalid(validateConditionsAndDecision(input), INVALID_INPUT_MESSAGE);
 
   // המספר נעול בעריכה. מזהה טבלת האב נשמר, כדי שההיתרים שעל ההגבלה יישארו מחוברים אליה
   previous.isActive = false;
@@ -203,6 +202,7 @@ function findReplaceableRestriction(recordId: number): TraineePhoneRestrictionRe
   if (!previous.isActive) {
     throwConflict(`Trainee phone restriction ${recordId} was already replaced`);
   }
+  throwIfEnded(previous, `Trainee phone restriction ${recordId}`);
   return previous;
 }
 
@@ -219,7 +219,7 @@ export function handleCreateTraineePhonePermit(request: MockRequest): CreateTrai
       throwConflict(`Restriction ${input.sourceRestrictionId} is no longer active for trainee ${traineeId}`);
     }
     throwIfInvalid(
-      { ...validateConditionsAndDecision(input, VALIDATION_RULES), ...validatePermitDates(input, sourceRestriction) },
+      { ...validateConditionsAndDecision(input), ...validatePermitDates(input, sourceRestriction) },
       INVALID_INPUT_MESSAGE,
     );
     return buildPermitRecord(input, { id: nextPhoneRecordId("permit"), traineeId, sourceRestriction });
@@ -232,10 +232,10 @@ export function handleCreateTraineePhonePermit(request: MockRequest): CreateTrai
 export function handleUpdateTraineePhonePermit(request: MockRequest): UpdateTraineePhonePermitResponse {
   const input = request.body as UpdateTraineePhonePermitRequest;
   const previous = findReplaceablePermit(input.previousPermitId);
-  // עריכה מותרת גם אחרי שההגבלה הסתיימה (OQ-14); בלי הגבלה נוכחית - העותק שנשמר עם ההיתר
+  // ההיתר עצמו פעיל (נבדק למעלה); אם ההגבלה כבר לא קיימת - העותק שנשמר עם ההיתר
   const sourceRestriction = findSourceRestriction(input.sourceRestrictionId) ?? previous.sourceRestriction;
   throwIfInvalid(
-    { ...validateConditionsAndDecision(input, VALIDATION_RULES), ...validatePermitDates(input, sourceRestriction) },
+    { ...validateConditionsAndDecision(input), ...validatePermitDates(input, sourceRestriction) },
     INVALID_INPUT_MESSAGE,
   );
 
@@ -269,6 +269,7 @@ function findReplaceablePermit(recordId: number): TraineePhonePermitRecordDto {
   if (!previous.isActive) {
     throwConflict(`Trainee phone permit ${recordId} was already replaced`);
   }
+  throwIfEnded(previous, `Trainee phone permit ${recordId}`);
   return previous;
 }
 

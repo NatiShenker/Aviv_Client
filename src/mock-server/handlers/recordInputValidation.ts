@@ -6,14 +6,16 @@ import { MockHandlerError } from "../mockRequest";
 
 // ── ולידציה משותפת להגבלות ולהיתרים: השרת חוזר על כל כללי הטופס (ספק 00 §7, ספק 03-04 form §5) ──
 
-/** השדות המשותפים לכל בקשות השמירה של הגבלות והיתרים */
-export type ConditionsAndDecisionInput = PermittedCallConditionsInput &
-  DecisionApprovalInput & { startDate: ISODateString; endDate: ISODateString };
-
-export interface InputValidationRules {
-  /** חובה בהגבלת חניך; לא חובה בהגבלה/היתר למספר (ספק 00 §4.3) */
-  isReasonRequired: boolean;
+interface DateRangeInput {
+  startDate: ISODateString;
+  endDate: ISODateString;
 }
+
+/** השדות המשותפים לכל בקשות השמירה של הגבלות והיתרים */
+export type ConditionsAndDecisionInput = PermittedCallConditionsInput & DecisionApprovalInput & DateRangeInput;
+
+/** השדות המשותפים לכל בקשות השמירה, גם בלי תנאי שיחה (הודעה לנמען) */
+export type DatesAndDecisionInput = DecisionApprovalInput & DateRangeInput;
 
 const MIN_DURATION_MINUTES = 1;
 const MAX_DURATION_MINUTES = 120;
@@ -31,17 +33,27 @@ export const VALIDATION_MESSAGES = {
 } as const;
 
 /** השגיאות לפי שם השדה בבקשה. אובייקט ריק = הבקשה תקינה */
-export function validateConditionsAndDecision(
-  input: ConditionsAndDecisionInput,
-  { isReasonRequired }: InputValidationRules,
-): Record<string, string> {
-  const fieldErrors: Record<string, string> = {};
+export function validateConditionsAndDecision(input: ConditionsAndDecisionInput): Record<string, string> {
+  return { ...validateConditionsInput(input), ...validateDatesAndDecision(input) };
+}
 
+/** תאריכים והחלטה - לבקשות בלי תנאי שיחה */
+export function validateDatesAndDecision(input: DatesAndDecisionInput): Record<string, string> {
+  return { ...validateDateRangeInput(input), ...validateDecisionInput(input) };
+}
+
+function validateDateRangeInput(input: DateRangeInput): Record<string, string> {
   if (!input.startDate || !input.endDate) {
-    fieldErrors.startDate = VALIDATION_MESSAGES.datesRequired;
-  } else if (input.endDate < input.startDate) {
-    fieldErrors.endDate = VALIDATION_MESSAGES.endBeforeStart;
+    return { startDate: VALIDATION_MESSAGES.datesRequired };
   }
+  if (input.endDate < input.startDate) {
+    return { endDate: VALIDATION_MESSAGES.endBeforeStart };
+  }
+  return {};
+}
+
+function validateConditionsInput(input: PermittedCallConditionsInput): Record<string, string> {
+  const fieldErrors: Record<string, string> = {};
 
   if (input.durationMinutes !== null && !isValidDuration(input.durationMinutes)) {
     fieldErrors.durationMinutes = VALIDATION_MESSAGES.duration;
@@ -55,10 +67,17 @@ export function validateConditionsAndDecision(
     fieldErrors.endTime = VALIDATION_MESSAGES.endTimeBeforeStart;
   }
 
-  if (isReasonRequired && !input.reason) {
+  return fieldErrors;
+}
+
+// כל שדות ההחלטה חובה בכל הבקשות (ספק 00 §4.3)
+function validateDecisionInput(input: DecisionApprovalInput): Record<string, string> {
+  const fieldErrors: Record<string, string> = {};
+
+  if (!input.reason) {
     fieldErrors.reason = VALIDATION_MESSAGES.reasonRequired;
   }
-  // הפירוט חובה בכל הבקשות (ספק 00 §4.3)
+  // פירוט של רווחים בלבד נחשב ריק
   if (!input.details.trim()) {
     fieldErrors.details = VALIDATION_MESSAGES.detailsRequired;
   }

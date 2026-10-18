@@ -5,11 +5,8 @@ import { daysFromToday } from "../mockDates";
 import { INSTITUTES_MOCK_DATA } from "./institutesMockData";
 import { LOCATIONS_MOCK_DATA } from "./locationsMockData";
 
-/** דגלים שלא נגזרים מרשומות אחרות במוק: הודעות (אין עדיין סכמה), יתרה וסלקום (סרביס צד שלישי) */
-export type TraineeStaticFlags = Pick<
-  TraineeActiveStatusFlagsDto,
-  "hasActiveMessage" | "hasActiveInteractiveMessage" | "hasBalance" | "hasCellcomDiscrepancy"
->;
+/** דגלים שלא נגזרים מרשומות אחרות במוק: יתרה וסלקום (סרביס צד שלישי) */
+export type TraineeStaticFlags = Pick<TraineeActiveStatusFlagsDto, "hasBalance" | "hasCellcomDiscrepancy">;
 
 /** חניך כפי שהוא שמור במוק. שאר הדגלים ו-restrictedUntilDate מחושבים ב-handler, כמו בשרת */
 export type TraineeMockRecord = Omit<TraineeListItemDto, "flags" | "restrictedUntilDate"> & {
@@ -41,8 +38,6 @@ interface Distribution {
 }
 
 const STATE_DISTRIBUTION = {
-  activeMessage: { every: 6, offset: 1 },
-  activeInteractiveMessage: { every: 10, offset: 3 },
   cellcomDiscrepancy: { every: 9, offset: 4 },
   withoutLocation: { every: 5, offset: 0 },
 } satisfies Record<string, Distribution>;
@@ -84,8 +79,6 @@ function buildTrainee(institute: InstituteWithWingsDto, index: number): TraineeM
     lastActivityDate: daysFromToday(-(index % LAST_ACTIVITY_WINDOW_DAYS)),
     remainingMinutes,
     staticFlags: {
-      hasActiveMessage: matchesDistribution(index, STATE_DISTRIBUTION.activeMessage),
-      hasActiveInteractiveMessage: matchesDistribution(index, STATE_DISTRIBUTION.activeInteractiveMessage),
       hasBalance: remainingMinutes > 0,
       hasCellcomDiscrepancy: matchesDistribution(index, STATE_DISTRIBUTION.cellcomDiscrepancy),
     },
@@ -98,3 +91,33 @@ function buildInstituteTrainees(institute: InstituteWithWingsDto): TraineeMockRe
 }
 
 export const TRAINEES_MOCK_DATA: TraineeMockRecord[] = INSTITUTES_MOCK_DATA.flatMap(buildInstituteTrainees);
+
+// ── חניכי התצוגה ──
+
+const SHOWCASE_TRAINEE_COUNT = 5;
+const HEBREW_LOCALE = "he";
+// לראשון: יותר מעמוד אחד (30 כרטיסים), יחד עם הרשומות הפעילות
+const SHOWCASE_LONG_HISTORY_COUNT = 34;
+const SHOWCASE_REGULAR_HISTORY_COUNT = 10;
+
+/**
+ * החניכים הראשונים ברשימה במיון ברירת המחדל (שם, א׳–ת׳) של הפנימייה הראשונה - מה שרואים מיד בכניסה.
+ * הם מקבלים היסטוריות מלאות בכל הפעולות; הראשון מביניהם - יותר מעמוד אחד, לבדיקת הטעינה ההדרגתית.
+ * המיון יציב, כמו ברשימה, ולכן חניכים עם אותו שם נשארים בסדר המקורי.
+ */
+export const SHOWCASE_TRAINEES: TraineeMockRecord[] = TRAINEES_MOCK_DATA.filter(
+  (trainee) => trainee.instituteId === INSTITUTES_MOCK_DATA[0].id,
+)
+  .sort((first, second) => first.fullName.localeCompare(second.fullName, HEBREW_LOCALE))
+  .slice(0, SHOWCASE_TRAINEE_COUNT);
+
+/** המקום של החניך בין חניכי התצוגה (0 = הראשון ברשימה), או null כשהוא לא אחד מהם */
+export function showcaseRankOf(trainee: TraineeMockRecord): number | null {
+  const rank = SHOWCASE_TRAINEES.findIndex((showcaseTrainee) => showcaseTrainee.id === trainee.id);
+  return rank === -1 ? null : rank;
+}
+
+/** כמה רשומות שהסתיימו מקבל חניך תצוגה בכל פעולה: הראשון - יותר מעמוד אחד (30) */
+export function showcaseEndedRecordCount(rank: number): number {
+  return rank === 0 ? SHOWCASE_LONG_HISTORY_COUNT : SHOWCASE_REGULAR_HISTORY_COUNT;
+}

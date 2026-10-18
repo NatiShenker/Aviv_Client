@@ -4,7 +4,7 @@ import CallDetailsBlock from "@/shared/components/form/CallDetailsBlock";
 import DecisionBlock from "@/shared/components/form/DecisionBlock";
 import PermittedConditionsBlock from "@/shared/components/form/PermittedConditionsBlock";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import { RESTRICTION_DECISION_RULES, RESTRICTION_FIELD_IDS } from "../restrictionFormLogic";
+import { RESTRICTION_FIELD_IDS } from "../restrictionFormLogic";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import type { RestrictionForm as RestrictionFormState } from "../useRestrictionForm";
 
@@ -75,7 +75,6 @@ export default function RestrictionForm({ form, devices, wings, reasons }: Restr
         }}
         errors={{ reason: errors.reason, details: errors.details, approver: errors.approver, file: errors.file }}
         reasons={reasons}
-        isReasonRequired={RESTRICTION_DECISION_RULES.isReasonRequired}
         fieldIds={DECISION_FIELD_IDS}
         onChange={form.changeDecision}
         onFileUploadingChange={form.setIsFileUploading}

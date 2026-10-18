@@ -7,9 +7,9 @@ import type {
 } from "@/schemas/common.schema";
 import type { DeviceDto } from "@/schemas/organization.schema";
 import { FORM_TEXTS } from "@/shared/components/form/formTexts";
-import { addDaysToIsoDate } from "@/shared/dates/isoDate";
 import { formatTimeRange } from "@/shared/formatting/dateFormat";
 import { CALL_CONDITIONS_TEXTS } from "./callConditionsTexts";
+import { createDefaultDateRange } from "./dateRangeLogic";
 
 /*
  * תנאי השיחה המשותפים להגבלות ולהיתרים: תאריכים, סוג (מלא / הגבלת משך), שעות ומכשירים מותרים.
@@ -43,34 +43,28 @@ export type PermittedCondition = "hours" | "devices";
 /** אילו אקורדיונים של התנאים פתוחים */
 export type OpenConditions = Record<PermittedCondition, boolean>;
 
-/** תאריך שהמשתמש עוד לא שינה מוצג באפור (ספק 00 §4.2) */
-export interface TouchedDates {
-  startDate: boolean;
-  endDate: boolean;
-}
+/** תנאי השיחה בלי התאריכים: הסוג, המשך, השעות והמכשירים */
+export type CallTermsValues = Omit<CallConditionsValues, "startDate" | "endDate">;
 
 /** רשומה שמורה: תנאי השיחה והתאריכים */
 export type DatedCallConditions = PermittedCallConditionsDto & { startDate: ISODateString; endDate: ISODateString };
 
-const NEXT_DAY_OFFSET = 1;
+/** סוג מלא, בלי משך, שעות ומכשירים */
+export const EMPTY_CALL_TERMS: CallTermsValues = {
+  limitKind: "full",
+  durationText: "",
+  startTime: "",
+  endTime: "",
+  deviceIds: [],
+};
 
 /** רשומה חדשה: היום עד מחר, סוג מלא, בלי שעות ומכשירים (ספק 00 §4.2) */
 export function createNewConditionsValues(today: ISODateString): CallConditionsValues {
-  return {
-    startDate: today,
-    endDate: addDaysToIsoDate(today, NEXT_DAY_OFFSET),
-    limitKind: "full",
-    durationText: "",
-    startTime: "",
-    endTime: "",
-    deviceIds: [],
-  };
+  return { ...createDefaultDateRange(today), ...EMPTY_CALL_TERMS };
 }
 
-export function conditionsValuesFromRecord(record: DatedCallConditions): CallConditionsValues {
+export function callTermsFromRecord(record: PermittedCallConditionsDto): CallTermsValues {
   return {
-    startDate: record.startDate,
-    endDate: record.endDate,
     limitKind: record.durationMinutes === null ? "full" : "limited",
     durationText: record.durationMinutes === null ? "" : String(record.durationMinutes),
     startTime: record.startTime ?? "",
@@ -79,38 +73,33 @@ export function conditionsValuesFromRecord(record: DatedCallConditions): CallCon
   };
 }
 
+export function conditionsValuesFromRecord(record: DatedCallConditions): CallConditionsValues {
+  return { startDate: record.startDate, endDate: record.endDate, ...callTermsFromRecord(record) };
+}
+
 export const CLOSED_CONDITIONS: OpenConditions = { hours: false, devices: false };
 
-/** אקורדיון שיש בו ערכים נפתח כשרשומה נפתחת לעריכה (ספק 00 §3.10) */
-export function openConditionsForRecord(record: PermittedCallConditionsDto | null): OpenConditions {
-  if (!record) return CLOSED_CONDITIONS;
+/** אקורדיון שיש בו ערכים פתוח (למשל אחרי שתנאים הועתקו מרשומה) */
+export function openConditionsForTerms(terms: CallTermsValues): OpenConditions {
   return {
-    hours: Boolean(record.startTime || record.endTime),
-    devices: record.devices.length > 0,
+    hours: Boolean(terms.startTime || terms.endTime),
+    devices: terms.deviceIds.length > 0,
   };
 }
 
-/** בעריכה התאריכים מוצגים רגיל; ברשומה חדשה ברירות המחדל באפור עד שהמשתמש משנה אותן */
-export function touchedDatesFor(isExistingRecord: boolean): TouchedDates {
-  return { startDate: isExistingRecord, endDate: isExistingRecord };
+/** אקורדיון שיש בו ערכים נפתח כשרשומה נפתחת לעריכה (ספק 00 §3.10) */
+export function openConditionsForRecord(record: PermittedCallConditionsDto | null): OpenConditions {
+  return record ? openConditionsForTerms(callTermsFromRecord(record)) : CLOSED_CONDITIONS;
 }
 
-// ── ולידציה (ספק 03 form §5, ספק 04 form §5) ──
+// ── ולידציה (ספק 03 form §5, ספק 04 form §5). התאריכים - ב-dateRangeLogic ──
 
 const MIN_DURATION_MINUTES = 1;
 const MAX_DURATION_MINUTES = 120;
 const DIGITS_ONLY = /^\d+$/;
 
-type DateRangeValues = Pick<CallConditionsValues, "startDate" | "endDate">;
 type DurationValues = Pick<CallConditionsValues, "limitKind" | "durationText">;
 type HoursValues = Pick<CallConditionsValues, "startTime" | "endTime">;
-
-export function validateDateRange({ startDate, endDate }: DateRangeValues): string | undefined {
-  if (!startDate || !endDate) return TEXTS.validation.datesRequired;
-  // תאריכי YYYY-MM-DD מסודרים נכון גם בהשוואת מחרוזות
-  if (endDate < startDate) return TEXTS.validation.endBeforeStart;
-  return undefined;
-}
 
 export function validateDuration({ limitKind, durationText }: DurationValues): string | undefined {
   if (limitKind !== "limited") return undefined;

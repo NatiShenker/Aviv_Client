@@ -33,6 +33,7 @@ interface LimitTypeSelectorProps {
 
 /**
  * בחירת סוג ההגבלה / ההיתר: מלא, או עם משך מרבי לכל שיחה (ספק 00 §3.9).
+ * כל אפשרות מציגה את ההשלכה שלה, כדי שאפשר יהיה להשוות לפני הבחירה.
  * שדה המשך מופיע רק בסוג השני. הערך שהוקלד נשמר גם כשחוזרים לסוג המלא, אבל לא נשלח (ההחלטה בטופס).
  */
 export default function LimitTypeSelector({
@@ -62,11 +63,15 @@ export default function LimitTypeSelector({
     setShouldFocusDuration(value === "limited");
   };
 
-  const options = LIMIT_KINDS.map((limitKind) => ({ value: limitKind, label: texts[limitKind].label }));
+  const options = LIMIT_KINDS.map((limitKind) => ({
+    value: limitKind,
+    label: texts[limitKind].label,
+    description: texts[limitKind].hint,
+  }));
 
   return (
     <div>
-      <FieldIntro title={texts.title} description={texts[kind].hint} />
+      <FieldIntro title={texts.title} />
       <div className="mt-2">
         <IpsRadioGroupMobile aria-label={texts.title} options={options} value={kind} onChange={handleKindChange} />
       </div>

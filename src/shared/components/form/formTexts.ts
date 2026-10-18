@@ -60,7 +60,7 @@ export const FORM_TEXTS = {
 
   decision: {
     title: "סיבות והחלטה",
-    reasonLabel: "סיבה/הערה",
+    reasonLabel: "סיבה",
     reasonPlaceholder: "בחר סיבה",
     reasonsLoadFailed: "לא ניתן לטעון את רשימת הסיבות",
     detailsLabel: "פירוט",

@@ -4,7 +4,12 @@ import { daysFromToday } from "../mockDates";
 import { DEVICES_MOCK_DATA } from "./devicesMockData";
 import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
 import { TRAINEE_RESTRICTION_REASONS_MOCK_DATA } from "./reasonsMockData";
-import { TRAINEES_MOCK_DATA, type TraineeMockRecord } from "./traineesMockData";
+import {
+  TRAINEES_MOCK_DATA,
+  showcaseEndedRecordCount,
+  showcaseRankOf,
+  type TraineeMockRecord,
+} from "./traineesMockData";
 
 interface PermittedHours {
   startTime: TimeString;
@@ -98,9 +103,26 @@ const ENDED_RESTRICTION_VARIANTS: RestrictionTerms[] = [
   { durationMinutes: 20, permittedHours: null, permittedDeviceCount: 0, details: "" },
 ];
 
-// החניך הראשון (גם הראשון במיון ברירת המחדל) מקבל היסטוריה ארוכה מעמוד אחד, לבדיקת הטעינה ההדרגתית
-const LONG_HISTORY_TRAINEE_INDEX = 0;
-const LONG_HISTORY_ENDED_COUNT = 40;
+// ── חניכי התצוגה (הראשונים ברשימה): הגבלה פעילה ועתידית, והיסטוריה מלאה ──
+const SHOWCASE_CURRENT_SCHEDULES: (RestrictionTerms & RestrictionDates)[] = [
+  {
+    durationMinutes: 10,
+    startDaysFromToday: -3,
+    endDaysFromToday: 12,
+    permittedHours: { startTime: "17:00", endTime: "19:00" },
+    permittedDeviceCount: 1,
+    details: "הגבלת משך זמנית, עד לשיחת המשוב.",
+  },
+  {
+    durationMinutes: null,
+    startDaysFromToday: 14,
+    endDaysFromToday: 21,
+    permittedHours: null,
+    permittedDeviceCount: 0,
+    details: "",
+  },
+];
+
 // כעשירית מהחניכים בלי הגבלות שהסתיימו (חלקם בלי הגבלות בכלל), לבדיקת מצב ריק
 const WITHOUT_ENDED_HISTORY: Distribution = { every: 10, offset: 9 };
 const MAX_REGULAR_ENDED_COUNT = 4;
@@ -114,9 +136,10 @@ function matchesDistribution(index: number, { every, offset }: Distribution): bo
   return index % every === offset;
 }
 
-function endedRestrictionCount(traineeIndex: number): number {
-  if (traineeIndex === LONG_HISTORY_TRAINEE_INDEX) {
-    return LONG_HISTORY_ENDED_COUNT;
+function endedRestrictionCount(trainee: TraineeMockRecord, traineeIndex: number): number {
+  const showcaseRank = showcaseRankOf(trainee);
+  if (showcaseRank !== null) {
+    return showcaseEndedRecordCount(showcaseRank);
   }
   if (matchesDistribution(traineeIndex, WITHOUT_ENDED_HISTORY)) {
     return 0;
@@ -143,11 +166,13 @@ interface RestrictionSeed {
 }
 
 function seedsForTrainee(trainee: TraineeMockRecord, traineeIndex: number): RestrictionSeed[] {
-  const currentSeeds = CURRENT_RESTRICTION_SCHEDULES.filter((schedule) =>
-    matchesDistribution(traineeIndex, schedule.appliesTo),
-  ).map((schedule) => ({ trainee, terms: schedule, dates: schedule }));
+  const currentSchedules = [
+    ...CURRENT_RESTRICTION_SCHEDULES.filter((schedule) => matchesDistribution(traineeIndex, schedule.appliesTo)),
+    ...(showcaseRankOf(trainee) !== null ? SHOWCASE_CURRENT_SCHEDULES : []),
+  ];
+  const currentSeeds = currentSchedules.map((schedule) => ({ trainee, terms: schedule, dates: schedule }));
 
-  const endedSeeds = Array.from({ length: endedRestrictionCount(traineeIndex) }, (_, order) => ({
+  const endedSeeds = Array.from({ length: endedRestrictionCount(trainee, traineeIndex) }, (_, order) => ({
     trainee,
     terms: ENDED_RESTRICTION_VARIANTS[(traineeIndex + order) % ENDED_RESTRICTION_VARIANTS.length],
     dates: endedRestrictionDates(order),

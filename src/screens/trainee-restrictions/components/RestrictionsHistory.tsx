@@ -75,6 +75,7 @@ export default function RestrictionsHistory({ traineeId, header }: RestrictionsH
       isOpen={openRecordId === record.id}
       onToggle={() => toggleRecord(record.id)}
       onEdit={() => navigate(ROUTES.editTraineeRestriction(traineeId, record.id))}
+      onCreateBasedOn={() => navigate(ROUTES.newTraineeRestriction(traineeId, record.id))}
     />
   );
 
@@ -135,7 +136,7 @@ interface RestrictionFormSlotProps {
 // הטופס נשאר mounted לאורך כל המסך, כדי שייסגר באנימציה גם כשהכתובת חוזרת להיסטוריה
 function RestrictionFormSlot({ traineeId, restrictions, onSaved }: RestrictionFormSlotProps) {
   const closeForm = useNavigateBack();
-  const { openTarget, editRecord } = useHistoryFormTarget({
+  const { openTarget, editRecord, basedOnRecord } = useHistoryFormTarget({
     formTarget: useRestrictionFormRoute(),
     records: restrictions,
     matchesRecordRef: (record, recordId) => record.id === recordId,
@@ -152,6 +153,7 @@ function RestrictionFormSlot({ traineeId, restrictions, onSaved }: RestrictionFo
       target={openTarget}
       traineeId={traineeId}
       editRecord={editRecord}
+      basedOnRecord={basedOnRecord}
       onClose={closeForm}
       onSaved={handleSaved}
     />

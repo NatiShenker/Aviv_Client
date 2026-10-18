@@ -28,29 +28,30 @@ Prototype source: `client/pages/BlockList.tsx`. Business rules and model: [overv
    - Round sort button (aria-label `"מיון"`).
 3. **Cards** – one ExpandableRecordCard per restriction, rendered incrementally.
 4. **EmptyState** – `"לא נמצאו הגבלות"` (No restrictions found).
-5. **StickyActionBar** – primary link `"הגבלה חדשה"` (New restriction) + plus icon → `/child/{id}/block/new`.
+5. **StickyActionBar** – primary button `"הוספת הגבלה"` (Add restriction) + plus icon → `/child/{id}/block/new` (decided 2026-10-18, like the other history screens).
 
 ### 3.1 Card – closed
+
+What, then when ([00 §3.22](../00_foundations.md), decided 2026-10-18):
 
 | Part | Content |
 |---|---|
 | Icon | RecordIcon, circle with slash, red |
-| Top line | Date range `DD/MM/YY-DD/MM/YY` (LTR, 16/20 gray) + StatusBadge `"פעילה"` / `"הסתיים"` |
-| Second line | Reason label, or `"ללא סיבה"` (truncated) |
+| Title line (16/20, `text-primary`, truncated) | Type label ([overview §3.1](03_trainee_restriction_overview.md)), e.g. `"הגבלת משך שיחה – עד 15 דק'"` |
+| Meta line (16/20 gray) | Date range `DD/MM/YY-DD/MM/YY` (LTR) + StatusBadge `"פעילה"` / `"הסתיים"` |
 | End | Chevron |
 
 ### 3.2 Card – open
 
-DetailGrid, two columns, in this order (right column first):
+DetailGrid, two columns, in this order (right column first). The type and dates are already in the card summary, so they are not repeated:
 
 | Row | Right | Left |
 |---|---|---|
-| 1 | `"תאריכים"` (Dates) – range, LTR | `"סוג ההגבלה"` (Restriction type) – type label ([overview §3.1](overview.md#31-type-label)) |
-| 2 | `"שעות מותרות"` (Permitted hours) – hours value ([overview §3.2](overview.md#32-open-by-default-rule)); LTR when hours are set | `"מכשירים מותרים"` (Permitted devices) – devices value |
-| 3 | `"סיבה"` (Reason) – label or `"לא צוין"` (Not specified) | `"גורם מאשר"` (Approver) – label or `"לא צוין"` |
-| 4 | `"פירוט"` (Details) – full width, **only when not empty** | |
+| 1 | `"שעות מותרות"` (Permitted hours) – hours value ([overview §3.2](03_trainee_restriction_overview.md)); LTR when hours are set | `"מכשירים מותרים"` (Permitted devices) – devices value |
+| 2 | `"סיבה"` (Reason) – label or `"לא צוין"` (Not specified) | `"גורם מאשר"` (Approver) – label or `"לא צוין"` |
+| 3 | `"פירוט"` (Details) – full width, **only when not empty** | |
 
-Below the grid: outline button `"עריכה"` (Edit) with edit icon.
+Below the grid: outline button `"עריכה"` (Edit) with edit icon – or, on an ended record, `"צור הגבלה חדשה על בסיס זו"` **(proposed)** with a copy icon (an ended record cannot be edited, [00 §3.22](../00_foundations.md)).
 
 Note: like the form summary ([form.md §4.5](form.md#45-permits-block-accordions)), the card shows one device by its label and more as `"{n} מכשירים"` – an institute can have many devices (decided 2026-10-18).
 

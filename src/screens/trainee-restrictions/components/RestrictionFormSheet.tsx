@@ -7,6 +7,7 @@ import FormSheet from "@/shared/components/FormSheet";
 import FormSheetFooter from "@/shared/components/form/FormSheetFooter";
 import { useAsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useFormSheetSession } from "@/shared/hooks/useFormSheetSession";
+import { resolveFormStartingPoint } from "@/shared/navigation/formStartingPoint";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import type { RestrictionFormTarget } from "../useRestrictionFormRoute";
 import { useRestrictionForm } from "../useRestrictionForm";
@@ -21,8 +22,10 @@ interface RestrictionFormSheetProps {
   /** הטופס שהכתובת מבקשת. null = הטופס סגור */
   target: RestrictionFormTarget | null;
   traineeId: number;
-  /** בעריכה: הרשומה מתוך ההיסטוריה שנטענה (הטופס נפתח לעריכה רק כשהיא קיימת) */
+  /** בעריכה: הרשומה מתוך ההיסטוריה שנטענה (הטופס נפתח לעריכה רק כשהיא קיימת ופעילה) */
   editRecord: TraineeRestrictionRecordDto | null;
+  /** ביצירה על בסיס רשומה שהסתיימה: הרשומה שהערכים נלקחים ממנה */
+  basedOnRecord: TraineeRestrictionRecordDto | null;
   onClose: () => void;
   onSaved: (savedRecordId: number) => void;
 }
@@ -42,7 +45,15 @@ interface RestrictionFormDialogProps extends Omit<RestrictionFormSheetProps, "ta
   target: RestrictionFormTarget | null;
 }
 
-function RestrictionFormDialog({ isOpen, target, traineeId, editRecord, onClose, onSaved }: RestrictionFormDialogProps) {
+function RestrictionFormDialog({
+  isOpen,
+  target,
+  traineeId,
+  editRecord,
+  basedOnRecord,
+  onClose,
+  onSaved,
+}: RestrictionFormDialogProps) {
   const { selectedInstitute } = useInstitutes();
   // המכשירים נטענו כבר ברקע אחרי רשימת החניכים; הסיבות נשמרות אחרי הטעינה הראשונה
   const devices = useAsyncResource({
@@ -57,8 +68,9 @@ function RestrictionFormDialog({ isOpen, target, traineeId, editRecord, onClose,
   });
 
   const isEditMode = target?.mode === "edit";
-  // הערכים נקבעים מהרשומה כשהטופס נפתח. אחרי שמירה ההיסטוריה נטענת מחדש, והטופס נשאר כפי שהיה עד שנסגר
-  const form = useRestrictionForm({ traineeId, record: isEditMode ? editRecord : null, reasons, onSaved });
+  // הערכים נקבעים כשהטופס נפתח. אחרי שמירה ההיסטוריה נטענת מחדש, והטופס נשאר כפי שהיה עד שנסגר
+  const startingPoint = resolveFormStartingPoint(target, editRecord, basedOnRecord);
+  const form = useRestrictionForm({ traineeId, startingPoint, reasons, onSaved });
 
   return (
     <FormSheet
@@ -71,6 +83,7 @@ function RestrictionFormDialog({ isOpen, target, traineeId, editRecord, onClose,
           saveLabel={TEXTS.save}
           saveError={form.saveError}
           isBusy={form.isSaving || form.isFileUploading}
+          onCancel={onClose}
         />
       }
     >

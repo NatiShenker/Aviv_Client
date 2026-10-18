@@ -32,12 +32,20 @@ export const SERVICE_ENDPOINTS = {
     /** PUT: מכבה את ההיתר הקודם ויוצר היתר פעיל חדש */
     updateTraineePhonePermit: "PhoneExceptions/UpdateTraineePhonePermit",
   },
+  voiceMessages: {
+    /** כל ההודעות לנמען של החניך (ספק 05 history §6) */
+    getTraineeVoiceMessages: "VoiceMessages/GetTraineeVoiceMessages",
+    createTraineeVoiceMessage: "VoiceMessages/CreateTraineeVoiceMessage",
+    /** PUT: מכבה את הרשומה הקודמת ויוצר רשומה פעילה חדשה */
+    updateTraineeVoiceMessage: "VoiceMessages/UpdateTraineeVoiceMessage",
+  },
   devices: {
     getInstituteDevices: "Devices/GetInstituteDevices",
   },
   lookups: {
     getTraineeRestrictionReasons: "Lookups/GetTraineeRestrictionReasons",
     getPhoneExceptionReasons: "Lookups/GetPhoneExceptionReasons",
+    getVoiceMessageReasons: "Lookups/GetVoiceMessageReasons",
   },
   files: {
     /** רישום קובץ שהועלה ל-SharePoint, כדי לקבל את המזהה שלו (IDNT_APPROVED_FILE) */

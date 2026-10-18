@@ -8,6 +8,7 @@ import type {
 import { TRAINEE_PHONE_RECORDS_MOCK_DATA } from "../data/traineePhoneRecordsMockData";
 import { MISSING_PHOTO_URL, TRAINEE_PHOTOS_MOCK_DATA } from "../data/traineePhotosMockData";
 import { TRAINEE_RESTRICTIONS_MOCK_DATA } from "../data/traineeRestrictionsMockData";
+import { TRAINEE_VOICE_MESSAGES_MOCK_DATA } from "../data/traineeVoiceMessagesMockData";
 import { TRAINEES_MOCK_DATA, type TraineeMockRecord } from "../data/traineesMockData";
 import { isTodayInRange } from "../mockDates";
 import type { MockRequest } from "../mockRequest";
@@ -45,6 +46,9 @@ function toTraineeListItem(record: TraineeMockRecord): TraineeListItemDto {
   const activePhoneRecords = TRAINEE_PHONE_RECORDS_MOCK_DATA.filter(
     (phoneRecord) => phoneRecord.traineeId === record.id && isActiveToday(phoneRecord),
   );
+  const activeVoiceMessages = TRAINEE_VOICE_MESSAGES_MOCK_DATA.filter(
+    (voiceMessage) => voiceMessage.traineeId === record.id && isActiveToday(voiceMessage),
+  );
 
   return {
     ...traineeFields,
@@ -54,6 +58,9 @@ function toTraineeListItem(record: TraineeMockRecord): TraineeListItemDto {
       hasActiveMinutesRestriction: activeRestrictions.some((restriction) => restriction.durationMinutes !== null),
       hasActivePhoneRestriction: activePhoneRecords.some((phoneRecord) => phoneRecord.type === "restriction"),
       hasActivePhonePermit: activePhoneRecords.some((phoneRecord) => phoneRecord.type === "permit"),
+      // "הודעה רגילה" מושמעת פעם אחת; "אינטראקטיבית" היא ההודעה החוזרת
+      hasActiveMessage: activeVoiceMessages.some((voiceMessage) => !voiceMessage.repeatDuringCall),
+      hasActiveInteractiveMessage: activeVoiceMessages.some((voiceMessage) => voiceMessage.repeatDuringCall),
       ...staticFlags,
     },
   };
