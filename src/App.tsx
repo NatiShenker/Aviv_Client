@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { IpsThemeProvider, IpsToastProvider } from "ui-library";
 import ControlsCatalog from "./catalog/ControlsCatalog";
 import { InstitutesProvider } from "./context/institutes/InstitutesProvider";
+import NumberRestrictionsScreen from "./screens/number-restrictions/NumberRestrictionsScreen";
 import TraineeActionsScreen from "./screens/trainee-actions/TraineeActionsScreen";
 import TraineeRestrictionsScreen from "./screens/trainee-restrictions/TraineeRestrictionsScreen";
 import TraineesListScreen from "./screens/trainees-list/TraineesListScreen";
@@ -19,6 +20,7 @@ export default function App() {
               <Route path={ROUTE_PATTERNS.catalog} element={<ControlsCatalog />} />
               <Route path={ROUTE_PATTERNS.traineeActions} element={<TraineeActionsScreen />} />
               <Route path={ROUTE_PATTERNS.traineeRestrictions} element={<TraineeRestrictionsScreen />} />
+              <Route path={ROUTE_PATTERNS.numberRestrictions} element={<NumberRestrictionsScreen />} />
             </Routes>
           </InstitutesProvider>
         </AppErrorBoundary>

@@ -40,6 +40,7 @@ The sketches were built to be self-contained, not maintainable. Do not carry ove
 - **Spacing and font sizes** use Tailwind's default scales (4px spacing unit; `text-xs`…`text-2xl`), which match the library's scale.
 - **Token precedence**: when a role exists both in the library and in the sketches, the library value wins. Sketch-only roles are in the provisional block of `tokens.css`; similar sketch shades were merged. A binding tokens file will replace them.
 - **Library controls keep their own styling.** MUI's styles are not in a CSS layer, so they win over Tailwind utilities. Do not try to restyle a control with Tailwind classes; use Tailwind only for layout around it.
+- **Surfaces and controls** (one rule for every screen): a card on the page background is white with **no border**; a card on a white surface (inside a form sheet) gets a 1px `divider` border; anything the user types into or operates (fields, the search field, toolbar icon buttons) is **outlined**. Radii follow the library tokens by role: cards `rounded-card`, fields `rounded-input`, buttons `rounded-base`.
 - **RTL**: the app is Hebrew-only and right-to-left. Prefer logical utilities (`ms-*`, `me-*`, `ps-*`, `pe-*`, `start-*`, `end-*`, `text-start`) over physical ones (`ml-*`, `left-*`, `text-right`). Wrap LTR content such as phone numbers and date ranges in `dir="ltr"`.
 - **Font**: Rubik, with Heebo as fallback, loaded by `index.html`, the same as the library.
 

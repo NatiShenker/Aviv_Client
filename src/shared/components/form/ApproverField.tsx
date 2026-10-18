@@ -60,7 +60,7 @@ interface SelectedApproverProps {
 
 function SelectedApprover({ approver, onChangeClick }: SelectedApproverProps) {
   return (
-    <div className="flex items-center justify-between gap-2 rounded-base border border-divider bg-paper py-2 ps-3 pe-1">
+    <div className="flex items-center justify-between gap-2 rounded-input border border-grey-300 bg-paper py-2 ps-3 pe-1">
       <div className="min-w-0">
         <p className="truncate text-base text-text-primary">{approver.fullName}</p>
         {approver.roleTitle && <p className="truncate text-sm text-text-muted">{approver.roleTitle}</p>}

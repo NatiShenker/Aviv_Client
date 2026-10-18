@@ -138,10 +138,11 @@ All rules run on submit.
 | Hours | Both times or none | `"יש לבחור שעת התחלה ושעת סיום"` (Pick a start time and an end time) | Either time changes or is cleared |
 | Hours | End time > start time | `"שעת הסיום חייבת להיות אחרי שעת ההתחלה"` (End time must be after start time) | Either time changes or is cleared |
 | Reason | A reason is chosen (`CODE_RESTRICTION`, [00 §4.3](../00_foundations.md)) | `"יש לבחור סיבה"` **(proposed)** | A reason is chosen |
+| Details | Not empty (spaces only count as empty) | `"יש להזין פירוט"` **(proposed)** | The details change |
 | Approver | An approver is chosen | `"יש לבחור גורם מאשר"` **(proposed)** | An approver is chosen |
 | File | One file attached | `"יש לצרף קובץ"` (A file must be attached) | A file is attached |
 
-Only one message per slot is shown (the first failing rule). Details and devices have no rules. Reason and approver are required (decided 2026-10-18, closing this part of [OQ-15](https://www.google.com/search?q=..%2FREADME.md%23oq-15)).
+Only one message per slot is shown (the first failing rule). Devices have no rules. Reason, details and approver are required (decided 2026-10-18, closing this part of [OQ-15](https://www.google.com/search?q=..%2FREADME.md%23oq-15)).
 
 ---
 

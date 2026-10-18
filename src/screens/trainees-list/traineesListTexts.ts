@@ -19,10 +19,8 @@ export const TRAINEES_LIST_TEXTS = {
   },
 
   card: {
-    nameSeparator: " | ",
     activeBadge: "פעיל",
     restrictedUntil: "מוגבל עד",
-    wing: (wingName: string) => `אגף ${wingName}`,
     locationSeparator: ", ",
     minutes: (minutes: number) => `${minutes} דקות`,
     cellcomDiscrepancy: "קיים פער בנתונים בסלקום",
@@ -72,8 +70,9 @@ export const TRAINEES_LIST_TEXTS = {
     options: {
       nameAscending: "שם – א׳ עד ת׳",
       nameDescending: "שם – ת׳ עד א׳",
-      dateDescending: "תאריך אחרון – מהחדש לישן",
-      dateAscending: "תאריך אחרון – מהישן לחדש",
+      // מוצעים - ממתינים לאישור (pending-decisions). "הגבלה" כאן היא הגבלה לחניך, לא הגבלה למספר
+      statusRestrictedFirst: "סטטוס – עם הגבלה לחניך קודם",
+      statusActiveFirst: "סטטוס – פעילים קודם",
       minutesDescending: "יתרת דקות – מהגבוהה לנמוכה",
       minutesAscending: "יתרת דקות – מהנמוכה לגבוהה",
       wingAscending: "אגף – א׳ עד ת׳",

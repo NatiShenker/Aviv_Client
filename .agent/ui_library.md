@@ -36,6 +36,9 @@ The organization's shared React component library: `Ips*` components (wrapping M
   - **Evaluate every part of the control** (trigger area, label, chevron, picker, helper text) against native first. MUI enters only for a part that native cannot fully cover; otherwise an `Ips*Mobile` uses no MUI components (the theme's styling engine is fine).
 - **Mobile look and behavior:** while the app is mobile-only, every library control a screen uses must look and behave like a mobile control (touch-sized, mobile patterns, no desktop chrome), native or not. It does not have to be the most modern look, but it must clearly read as mobile. If an existing control does not, adapt it in the library (a mobile variant or an `Ips*Mobile` control).
 - **Modifying the UI Library (Sensitive Action):** Creating a new `Ips*Mobile` / `Ips*` control or modifying an existing one in `../ui-library` triggers the architect's self-review protocol (`<architect_review>` in `CLAUDE.md`).
+- **Changing the design of an existing control:** first check whether Aviv created it (the `Ips*Mobile` controls and the variants added on branch `AVIV` – see the library's git history) or whether it existed in the library before.
+  - **Created by Aviv:** its design may be changed relatively freely (still with `<architect_review>`).
+  - **Existed before:** change it only with a serious justification – a shared need, not a local preference. For a one-off need, override that specific point where the control is used (through the control's own styling props, e.g. `sx`), and leave the control unchanged.
 - **Infrastructure Git Workflow:** Any changes to `../ui-library` must be performed on a dedicated branch named `AVIV`.
 - **No Autonomous Git Commands:** Do not execute Git commands or create Pull Requests (PRs) for library changes on your own. Implement the changes locally, ask the user to verify that they function correctly and meet UX standards, and—only after the user's approval—provide the specific Git commands for the user to execute.
 - Use a control's own props (`variant`, `size`, `color`, `error`, `helperText`, …) for its appearance. Tailwind classes do not override control styles (see `design.md`).
@@ -46,8 +49,8 @@ The organization's shared React component library: `Ips*` components (wrapping M
 | Sketch element | Library Control / Strategy | Notes |
 |---|---|---|
 | Primary and outlined buttons, bottom CTA, edit button | `IpsButton` | `variant`, `fullWidth`, `startIcon`/`endIcon`, `loading`. Mobile primary actions (sheet / form footers): `size="large"` (48px). |
-| Back, close, toolbar icons | `IpsIconButton` | Requires `icon`; add `aria-label`. In a mobile toolbar next to a field: `variant="surface"` (44px white circle). |
-| Search field | `IpsSearchFieldMobile` (available) | Native `<input type="search">` pill, 44px, borderless; pass `clearButtonLabel`. |
+| Back, close, toolbar icons | `IpsIconButton` | Requires `icon`; add `aria-label`. In a mobile toolbar next to a field: `variant="surface"` (44px white square, outlined like the fields, button radius). |
+| Search field | `IpsSearchFieldMobile` (available) | Native `<input type="search">`, 44px, outlined like the other mobile fields (field radius); pass `clearButtonLabel`. |
 | Phone input, duration input | `IpsTextFieldMobile` (available) | Native `<input>`, 16px (no iOS zoom). `inputMode="tel"` / `"numeric"`, `suffix` (unit after the value), `endIcon`, `clearButtonLabel`. `IpsTextField` uses 14px and zooms on iOS. |
 | Details text | `IpsTextAreaMobile` (available) | Native `<textarea>`, full width, 16px, `rows` (default 3), not resizable. `IpsTextArea` has a fixed 288px width and 14px text. |
 | Reason select, institute selector | `IpsSelectMobile` (native `<select>`, available) or `IpsSelect` | Prefer native OS picker on mobile (`IpsSelectMobile`) per Mobile Native-First rule. `onChange` returns the option's original value type. `variant="plain"` (text + chevron) for a context selector in a header row. |

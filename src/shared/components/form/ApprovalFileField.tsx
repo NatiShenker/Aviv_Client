@@ -94,7 +94,7 @@ interface AttachedFileProps {
 
 function AttachedFile({ fileName, onRemove }: AttachedFileProps) {
   return (
-    <div className="flex h-11 items-center gap-2 rounded-base border border-divider bg-paper ps-3">
+    <div className="flex h-11 items-center gap-2 rounded-input border border-grey-300 bg-paper ps-3">
       <AppIcon name="file" className="shrink-0 text-text-muted" />
       <span className="min-w-0 flex-1 truncate text-base text-text-primary">{fileName}</span>
       <IpsIconButton icon={<AppIcon name="close" />} aria-label={TEXTS.removeFile} onClick={onRemove} />

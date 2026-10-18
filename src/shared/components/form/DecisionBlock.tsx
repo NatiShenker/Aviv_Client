@@ -18,6 +18,7 @@ export interface DecisionValues {
 
 export interface DecisionErrors {
   reason?: string;
+  details?: string;
   approver?: string;
   file?: string;
 }
@@ -25,6 +26,7 @@ export interface DecisionErrors {
 /** מזהי השדות, כדי שהטופס יוכל להעביר פוקוס לשדה הראשון עם שגיאה */
 export interface DecisionFieldIds {
   reason: string;
+  details: string;
   approver: string;
   file: string;
 }
@@ -33,6 +35,8 @@ interface DecisionBlockProps {
   values: DecisionValues;
   errors: DecisionErrors;
   reasons: AsyncResource<LookupItem<number>[]>;
+  /** חובה בהגבלת חניך; לא חובה בהגבלה/היתר למספר (ספק 00 §4.3) */
+  isReasonRequired: boolean;
   fieldIds: DecisionFieldIds;
   onChange: (update: Partial<DecisionValues>) => void;
   onFileUploadingChange: (isUploading: boolean) => void;
@@ -43,6 +47,7 @@ export default function DecisionBlock({
   values,
   errors,
   reasons,
+  isReasonRequired,
   fieldIds,
   onChange,
   onFileUploadingChange,
@@ -58,7 +63,7 @@ export default function DecisionBlock({
             id={fieldIds.reason}
             label={TEXTS.reasonLabel}
             placeholder={TEXTS.reasonPlaceholder}
-            required
+            required={isReasonRequired}
             options={reasonOptions}
             value={values.reasonId}
             onChange={(reasonId) => onChange({ reasonId: Number(reasonId) })}
@@ -72,11 +77,16 @@ export default function DecisionBlock({
           )}
         </div>
 
+        {/* הפירוט חובה בכל הטפסים (ספק 00 §4.3) */}
         <IpsTextAreaMobile
+          id={fieldIds.details}
           label={TEXTS.detailsLabel}
           placeholder={TEXTS.detailsPlaceholder}
+          required
           value={values.details}
           onChange={(details) => onChange({ details })}
+          error={Boolean(errors.details)}
+          helperText={errors.details}
         />
 
         <ApproverField

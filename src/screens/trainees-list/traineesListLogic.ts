@@ -6,17 +6,13 @@ import {
   type TraineeListItemDto,
   type TraineeSortField,
 } from "@/schemas/trainees.schema";
+import { ORGANIZATION_TEXTS } from "@/shared/organization/organizationTexts";
 import type { TraineeSortOption } from "./traineesListOptions";
 import { TRAINEES_LIST_TEXTS } from "./traineesListTexts";
 
-/** השם המוצג בכרטיס: "שם מלא | קוד חניך" */
-export function buildTraineeDisplayName(trainee: TraineeListItemDto): string {
-  return `${trainee.fullName}${TRAINEES_LIST_TEXTS.card.nameSeparator}${trainee.traineeCode}`;
-}
-
 /** המיקום שמוצג בכרטיס: "אגף X", ואחריו המיקום באגף כשיש */
 export function buildTraineeLocationLabel(trainee: TraineeListItemDto): string {
-  const wingLabel = TRAINEES_LIST_TEXTS.card.wing(trainee.wing.name);
+  const wingLabel = ORGANIZATION_TEXTS.wing(trainee.wing.name);
   if (!trainee.location) {
     return wingLabel;
   }
@@ -58,6 +54,11 @@ export function keepLocationsOfWings(
   return selectedLocationIds.filter((locationId) => availableLocationIds.has(locationId));
 }
 
+/** לחניך יש הגבלה פעילה לחניך - התגית "מוגבל עד" בכרטיס (OQ-03) */
+export function isTraineeRestricted(trainee: TraineeListItemDto): boolean {
+  return Boolean(trainee.restrictedUntilDate);
+}
+
 export function filterAndSortTrainees(
   trainees: TraineeListItemDto[],
   filters: TraineeListFiltersState,
@@ -66,16 +67,19 @@ export function filterAndSortTrainees(
   const directionFactor = sort.direction === "asc" ? 1 : -1;
   return trainees
     .filter((trainee) => matchesTraineeFilters(trainee, filters))
-    .sort((first, second) => directionFactor * compareTraineesBy(sort.field, first, second));
+    .sort((first, second) => {
+      const bySortField = directionFactor * compareTraineesBy(sort.field, first, second);
+      // בשוויון - לפי השם, תמיד מא׳ עד ת׳
+      return bySortField !== 0 ? bySortField : compareHebrew(first.fullName, second.fullName);
+    });
 }
 
 function compareTraineesBy(field: TraineeSortField, first: TraineeListItemDto, second: TraineeListItemDto): number {
   switch (field) {
     case "name":
       return compareHebrew(first.fullName, second.fullName);
-    case "date":
-      // תאריכי YYYY-MM-DD מסודרים נכון גם בהשוואת מחרוזות
-      return first.lastActivityDate.localeCompare(second.lastActivityDate);
+    case "status":
+      return Number(isTraineeRestricted(first)) - Number(isTraineeRestricted(second));
     case "minutes":
       return first.remainingMinutes - second.remainingMinutes;
     case "wing":

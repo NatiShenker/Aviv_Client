@@ -33,8 +33,7 @@ export const TRAINEE_ACTION_ITEMS: TraineeActionItem[] = [
     label: ITEM_TEXTS.numberRestriction,
     icon: "numberRestriction",
     permissionId: PERMISSION_IDS.numberRestriction,
-    // המסך (ספק 04) עדיין לא נבנה
-    buildPath: null,
+    buildPath: ROUTES.numberRestrictions,
   },
   {
     key: "voiceMessage",

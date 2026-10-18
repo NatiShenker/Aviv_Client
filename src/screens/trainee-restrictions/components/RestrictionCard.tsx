@@ -1,11 +1,11 @@
 import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
 import ExpandableRecordCard from "@/shared/components/history/ExpandableRecordCard";
+import { isRecordActive } from "@/shared/components/history/historySort";
 import RecordStatusBadge from "@/shared/components/history/RecordStatusBadge";
 import {
   buildRestrictionDateRange,
   buildRestrictionDetails,
   buildRestrictionReasonSummary,
-  isRestrictionActive,
   restrictionCardDomId,
 } from "../traineeRestrictionsLogic";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
@@ -30,7 +30,7 @@ export default function RestrictionCard({ record, isOpen, onToggle, onEdit }: Re
             {buildRestrictionDateRange(record)}
           </span>
           <RecordStatusBadge
-            isActive={isRestrictionActive(record)}
+            isActive={isRecordActive(record)}
             activeLabel={TRAINEE_RESTRICTIONS_TEXTS.card.activeBadge}
           />
         </>

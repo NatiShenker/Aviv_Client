@@ -1,8 +1,9 @@
 import type { ISODateString } from "@/schemas/common.schema";
 import type { TraineeListItemDto } from "@/schemas/trainees.schema";
-import { formatDayMonth, formatShortDate } from "@/shared/formatting/dateFormat";
+import { formatDayMonth } from "@/shared/formatting/dateFormat";
 import AppIcon from "@/shared/icons/AppIcon";
-import { buildTraineeDisplayName, buildTraineeLocationLabel } from "../traineesListLogic";
+import { buildTraineeDisplayName } from "@/shared/trainee/traineeDisplay";
+import { buildTraineeLocationLabel } from "../traineesListLogic";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
 import TraineePhoto from "./TraineePhoto";
 
@@ -19,11 +20,8 @@ export default function TraineeCard({ trainee }: TraineeCardProps) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-start gap-3">
           <TraineePhoto traineeId={trainee.id} />
-          <div className="flex min-w-0 flex-col gap-1 pt-1">
+          <div className="min-w-0 pt-1">
             <h2 className="truncate text-sm font-medium text-text-primary">{buildTraineeDisplayName(trainee)}</h2>
-            <p className="text-xs text-text-muted">
-              <span dir="ltr">{formatShortDate(trainee.lastActivityDate)}</span>
-            </p>
           </div>
         </div>
         <StatusBadge restrictedUntilDate={trainee.restrictedUntilDate ?? null} />

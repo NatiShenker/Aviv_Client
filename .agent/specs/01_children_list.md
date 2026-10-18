@@ -46,11 +46,11 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 
 | Position (RTL) | Element | Details |
 |---|---|---|
-| Right, takes the remaining width | Search field | Always visible (`IpsSearchFieldMobile`: a borderless white pill with a search icon and a clear button `"ניקוי חיפוש"`). aria-label `"חיפוש חניכים"`, placeholder `"חיפוש לפי שם או מספר"`. Filters live as you type |
+| Right, takes the remaining width | Search field | Always visible (`IpsSearchFieldMobile`: a white field outlined like the form fields, with a search icon and a clear button `"ניקוי חיפוש"`). aria-label `"חיפוש חניכים"`, placeholder `"חיפוש לפי שם או מספר"`. Filters live as you type |
 | Left | Filter button | Filter icon only. When any filter group is not `"הכל"`, a small dot in the primary color shows on the icon, and the accessible name becomes `"סינון, יש סינון פעיל"` |
 | Left | Sort button | Sort icon only, aria-label `"מיון"` |
 
-- The row is uniform: the search field and both buttons are 44px tall on a white background, with no borders. The buttons are round (`IpsIconButton variant="surface"`).
+- The row is uniform: the search field and both buttons are 44px tall, white, and outlined like the form fields ([00 §2.3](00_foundations.md)). The buttons are squares with the button radius (`IpsIconButton variant="surface"`).
 - The search field and both buttons are disabled until the list has loaded.
 
 ### 3.1a Institute selector
@@ -71,7 +71,7 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 
 1. **Top row**
    - **Right:** photo 60×60 (radius 6, cover), loaded from the trainee photo call (§6.2) only for rendered cards. When it fails to load (no photo): gradient placeholder with a white person icon.
-   - **Next to the photo:** name (14/17, weight 500, one line), e.g. `"יוסי כהן | 012453"` (name | personal number); below it the date `DD/MM/YY` (12/14, gray).
+   - **Next to the photo:** name (14/17, weight 500, one line), e.g. `"יוסי כהן | 012453"` (name | personal number). No date (removed 2026-10-18).
    - **Left:** status badge (pill, 12/14, 6px dot):
      - Active: `"פעיל"` – bg `#e7ffef`, text `#15833a`, dot `#22c55e`.
      - Restricted: `"מוגבל עד {DD/MM}"` (Restricted until) – bg `#ffe8e8`, text `#d4262b`, dot `#ff3b3b`.
@@ -107,7 +107,7 @@ BottomSheet titled `"סינון"`, filtering trainees via `matchesTraineeFilters
 
 SortSheet titled `"מיון"`: one row per field **and** direction (`IpsRadioListMobile`), no separate direction row. The selected row is bold, in the primary color, with a check icon. Rows:
 
-`"שם – א׳ עד ת׳"`, `"שם – ת׳ עד א׳"`, `"תאריך אחרון – מהחדש לישן"` (default), `"תאריך אחרון – מהישן לחדש"`, `"יתרת דקות – מהגבוהה לנמוכה"`, `"יתרת דקות – מהנמוכה לגבוהה"`, `"אגף – א׳ עד ת׳"`, `"אגף – ת׳ עד א׳"`, `"מיקום באגף – א׳ עד ת׳"`, `"מיקום באגף – ת׳ עד א׳"`.
+`"שם – א׳ עד ת׳"` (default), `"שם – ת׳ עד א׳"`, `"סטטוס – עם הגבלה לחניך קודם"`, `"סטטוס – פעילים קודם"` **(proposed labels)**, `"יתרת דקות – מהגבוהה לנמוכה"`, `"יתרת דקות – מהנמוכה לגבוהה"`, `"אגף – א׳ עד ת׳"`, `"אגף – ת׳ עד א׳"`, `"מיקום באגף – א׳ עד ת׳"`, `"מיקום באגף – ת׳ עד א׳"`.
 
 ---
 
@@ -115,7 +115,7 @@ SortSheet titled `"מיון"`: one row per field **and** direction (`IpsRadioLis
 
 ### 4.1 Defaults
 
-- Search empty; every filter group `"הכל"` (except the wing, which is restored from storage when available, §2); sort `"תאריך אחרון – מהחדש לישן"`.
+- Search empty; every filter group `"הכל"` (except the wing, which is restored from storage when available, §2); sort `"שם – א׳ עד ת׳"`.
 
 ### 4.2 Search
 
@@ -132,8 +132,10 @@ SortSheet titled `"מיון"`: one row per field **and** direction (`IpsRadioLis
 | Option | Compares |
 |---|---|
 | `"שם"` | Display name, Hebrew locale order |
-| `"תאריך אחרון"` | The card date |
-| `"זמן שהייה"` | The minutes value ([OQ-07](https://www.google.com/search?q=README.md%23oq-07)) |
+| `"סטטוס"` | Whether the trainee has an active **trainee restriction** (the `"מוגבל עד"` badge, `restrictedUntilDate`) – not a number restriction |
+| `"יתרת דקות"` | The minutes value ([OQ-07](https://www.google.com/search?q=README.md%23oq-07)) |
+
+- Ties in any sort are broken by name, always `א׳ עד ת׳`.
 
 ---
 

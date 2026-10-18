@@ -11,4 +11,16 @@ export const HISTORY_TEXTS = {
   drawers: {
     close: "סגירה",
   },
+  // תוויות המיון מוצעות - ממתינות לאישור (pending-decisions)
+  sort: {
+    startDateDescending: "תאריך התחלה – מהחדש לישן",
+    startDateAscending: "תאריך התחלה – מהישן לחדש",
+    endDateDescending: "תאריך סיום – מהחדש לישן",
+    endDateAscending: "תאריך סיום – מהישן לחדש",
+    statusActiveFirst: "סטטוס – פעילות קודם",
+    statusEndedFirst: "סטטוס – שהסתיימו קודם",
+  },
+  states: {
+    retry: "נסה שוב",
+  },
 } as const;

@@ -42,7 +42,7 @@ export default function ExpandableRecordCard({
   onEdit,
 }: ExpandableRecordCardProps) {
   return (
-    <article id={id} className="rounded-base border border-divider bg-paper p-4">
+    <article id={id} className="rounded-card bg-paper p-4">
       <button type="button" aria-expanded={isOpen} onClick={onToggle} className="flex w-full items-center gap-3 text-start">
         <span className={`flex size-11 shrink-0 items-center justify-center rounded-full ${ICON_TONE_CLASS[iconTone]}`}>
           <AppIcon name={icon} />

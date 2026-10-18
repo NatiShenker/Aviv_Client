@@ -11,6 +11,9 @@ export type MockScenarioKey =
   | "locations"
   | "traineeRestrictions"
   | "saveTraineeRestriction"
+  | "phoneRecords"
+  | "phoneRestrictionsLookup"
+  | "savePhoneRecord"
   | "devices"
   | "reasons"
   | "approvers"
@@ -47,6 +50,9 @@ const ALL_SCENARIO_KEYS: MockScenarioKey[] = [
   "locations",
   "traineeRestrictions",
   "saveTraineeRestriction",
+  "phoneRecords",
+  "phoneRestrictionsLookup",
+  "savePhoneRecord",
   "devices",
   "reasons",
   "approvers",

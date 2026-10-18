@@ -43,7 +43,7 @@ export default function TraineeActionsMenu({ traineeId }: TraineeActionsMenuProp
       return (
         <>
           {hasActions && (
-            <MenuSection title={TEXTS.sections.actions} items={menu.actionItems} traineeId={traineeId} bordered />
+            <MenuSection title={TEXTS.sections.actions} items={menu.actionItems} traineeId={traineeId} />
           )}
           {hasActions && hasAdditionalInfo && <div className="mx-4 mt-6 border-t border-divider" />}
           {hasAdditionalInfo && (
@@ -51,7 +51,6 @@ export default function TraineeActionsMenu({ traineeId }: TraineeActionsMenuProp
               title={TEXTS.sections.additionalInfo}
               items={menu.additionalInfoItems}
               traineeId={traineeId}
-              bordered={false}
               isTitleEmphasized
             />
           )}
@@ -65,12 +64,11 @@ interface MenuSectionProps {
   title: string;
   items: TraineeMenuItem[];
   traineeId: number;
-  bordered: boolean;
   /** כותרת "מידע נוסף" מודגשת (ספק 02 §3.3) */
   isTitleEmphasized?: boolean;
 }
 
-function MenuSection({ title, items, traineeId, bordered, isTitleEmphasized = false }: MenuSectionProps) {
+function MenuSection({ title, items, traineeId, isTitleEmphasized = false }: MenuSectionProps) {
   return (
     <section className="mt-7 px-5">
       <h2 className={`text-base ${isTitleEmphasized ? "font-medium" : ""}`}>{title}</h2>
@@ -81,7 +79,6 @@ function MenuSection({ title, items, traineeId, bordered, isTitleEmphasized = fa
               label={item.label}
               icon={item.icon}
               to={item.buildPath ? item.buildPath(traineeId) : null}
-              bordered={bordered}
             />
           </li>
         ))}
@@ -99,7 +96,7 @@ function MenuSkeleton() {
         <div className="h-5 w-16 rounded-sm bg-grey-100" />
         <div className="mt-3 flex flex-col gap-1">
           {SKELETON_ROW_KEYS.map((key) => (
-            <div key={key} className="h-15 rounded-base bg-paper" />
+            <div key={key} className="h-15 rounded-card bg-paper" />
           ))}
         </div>
       </div>

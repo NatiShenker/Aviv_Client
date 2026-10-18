@@ -1,34 +1,36 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { IpsButton } from "ui-library";
 import { ROUTES } from "@/routes";
 import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
+import HistoryCardsList from "@/shared/components/history/HistoryCardsList";
 import HistorySortDrawer from "@/shared/components/history/HistorySortDrawer";
+import {
+  DEFAULT_HISTORY_SORT_OPTION,
+  HISTORY_SORT_ROWS,
+  findHistorySortOption,
+} from "@/shared/components/history/historySort";
 import HistoryToolbar from "@/shared/components/history/HistoryToolbar";
 import PinnedPageTop from "@/shared/components/PinnedPageTop";
 import StickyActionBar from "@/shared/components/StickyActionBar";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { useHistoryFormTarget } from "@/shared/hooks/useHistoryFormTarget";
+import { useRevealSavedRecord } from "@/shared/hooks/useRevealSavedRecord";
 import AppIcon from "@/shared/icons/AppIcon";
 import { useNavigateBack } from "@/shared/navigation/useNavigateBack";
-import { filterAndSortRestrictions } from "../traineeRestrictionsLogic";
-import {
-  DEFAULT_RESTRICTION_SORT_OPTION,
-  RESTRICTION_SORT_OPTIONS,
-  findRestrictionSortOption,
-} from "../traineeRestrictionsOptions";
+import { filterAndSortRestrictions, restrictionCardDomId } from "../traineeRestrictionsLogic";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import { useRestrictionFormRoute } from "../useRestrictionFormRoute";
-import { useRevealSavedRecord } from "../useRevealSavedRecord";
 import { useTraineeRestrictionsData } from "../useTraineeRestrictionsData";
+import RestrictionCard from "./RestrictionCard";
 import RestrictionFormSheet from "./RestrictionFormSheet";
-import RestrictionsList from "./RestrictionsList";
 
 const TEXTS = TRAINEE_RESTRICTIONS_TEXTS;
 
-const SORT_ROWS = RESTRICTION_SORT_OPTIONS.map((option) => ({ value: option.key, label: option.label }));
-
 // הפניה קבועה, כדי שרשימה ריקה לא תיחשב "רשימה חדשה" בכל רינדור
 const NO_RECORDS: TraineeRestrictionRecordDto[] = [];
+
+const getRecordKey = (record: TraineeRestrictionRecordDto) => record.id;
 
 interface RestrictionsHistoryProps {
   traineeId: number;
@@ -44,7 +46,7 @@ export default function RestrictionsHistory({ traineeId, header }: RestrictionsH
   const navigate = useNavigate();
   const restrictions = useTraineeRestrictionsData(traineeId);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sort, setSort] = useState(DEFAULT_RESTRICTION_SORT_OPTION);
+  const [sort, setSort] = useState(DEFAULT_HISTORY_SORT_OPTION);
   const [isSortOpen, setIsSortOpen] = useState(false);
   // רק כרטיס אחד פתוח בכל רגע
   const [openRecordId, setOpenRecordId] = useState<number | null>(null);
@@ -63,9 +65,18 @@ export default function RestrictionsHistory({ traineeId, header }: RestrictionsH
   // אחרי שמירה: ההיסטוריה נטענת מחדש, והרשומה שנשמרה פתוחה וגלויה (ספק 00 §4.1)
   const handleSaved = (savedRecordId: number) => {
     setOpenRecordId(savedRecordId);
-    revealSavedRecord(savedRecordId);
+    revealSavedRecord(restrictionCardDomId(savedRecordId));
     restrictions.reload();
   };
+
+  const renderCard = (record: TraineeRestrictionRecordDto) => (
+    <RestrictionCard
+      record={record}
+      isOpen={openRecordId === record.id}
+      onToggle={() => toggleRecord(record.id)}
+      onEdit={() => navigate(ROUTES.editTraineeRestriction(traineeId, record.id))}
+    />
+  );
 
   return (
     <>
@@ -82,20 +93,20 @@ export default function RestrictionsHistory({ traineeId, header }: RestrictionsH
         />
       </PinnedPageTop>
 
-      <RestrictionsList
-        restrictions={restrictions}
+      <HistoryCardsList
+        records={restrictions}
         visibleRecords={visibleRecords}
-        openRecordId={openRecordId}
-        onToggleRecord={toggleRecord}
-        onEditRecord={(recordId) => navigate(ROUTES.editTraineeRestriction(traineeId, recordId))}
+        getRecordKey={getRecordKey}
+        renderCard={renderCard}
+        texts={TEXTS.states}
       />
 
       <HistorySortDrawer
         open={isSortOpen}
         onClose={() => setIsSortOpen(false)}
-        rows={SORT_ROWS}
+        rows={HISTORY_SORT_ROWS}
         selectedValue={sort.key}
-        onChange={(key) => setSort(findRestrictionSortOption(key))}
+        onChange={(key) => setSort(findHistorySortOption(key))}
       />
 
       <StickyActionBar>
@@ -123,23 +134,13 @@ interface RestrictionFormSlotProps {
 
 // הטופס נשאר mounted לאורך כל המסך, כדי שייסגר באנימציה גם כשהכתובת חוזרת להיסטוריה
 function RestrictionFormSlot({ traineeId, restrictions, onSaved }: RestrictionFormSlotProps) {
-  const navigate = useNavigate();
-  const formTarget = useRestrictionFormRoute();
-  const historyPath = ROUTES.traineeRestrictions(traineeId);
   const closeForm = useNavigateBack();
-
-  // בעריכה הרשומה נלקחת מההיסטוריה שכבר נטענה, והטופס נפתח רק כשהיא קיימת
-  const editRecordId = formTarget?.mode === "edit" ? formTarget.recordId : null;
-  const editRecord = restrictions.data?.find((record) => record.id === editRecordId) ?? null;
-  const isEditRecordMissing = editRecordId !== null && restrictions.status === "success" && editRecord === null;
-  const openTarget = editRecordId !== null && editRecord === null ? null : formTarget;
-
-  // רשומה לא קיימת (למשל כתובת ישנה): חזרה להיסטוריה במקום הכתובת הנוכחית (ספק 03 form §2)
-  useEffect(() => {
-    if (isEditRecordMissing) {
-      navigate(historyPath, { replace: true });
-    }
-  }, [isEditRecordMissing, navigate, historyPath]);
+  const { openTarget, editRecord } = useHistoryFormTarget({
+    formTarget: useRestrictionFormRoute(),
+    records: restrictions,
+    matchesRecordRef: (record, recordId) => record.id === recordId,
+    historyPath: ROUTES.traineeRestrictions(traineeId),
+  });
 
   const handleSaved = (savedRecordId: number) => {
     onSaved(savedRecordId);

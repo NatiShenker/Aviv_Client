@@ -121,7 +121,8 @@ export interface TraineeListFiltersState {
   balance: BalanceFilter;
 }
 
-export type TraineeSortField = "name" | "date" | "minutes" | "wing" | "location";
+/** שדות המיון ברשימה (בקליינט). "status" = יש לחניך הגבלה פעילה לחניך, או לא */
+export type TraineeSortField = "name" | "status" | "minutes" | "wing" | "location";
 export type SortDirection = "asc" | "desc";
 
 /**

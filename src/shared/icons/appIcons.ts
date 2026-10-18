@@ -2,6 +2,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
+import CheckIcon from "@mui/icons-material/Check";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import CloseIcon from "@mui/icons-material/Close";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -13,6 +14,7 @@ import KeyboardVoiceOutlinedIcon from "@mui/icons-material/KeyboardVoiceOutlined
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import PersonIcon from "@mui/icons-material/Person";
+import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
 import TimerOutlinedIcon from "@mui/icons-material/TimerOutlined";
@@ -40,7 +42,9 @@ export type AppIconName =
   | "clock"
   | "add"
   | "edit"
-  | "file";
+  | "file"
+  | "phone"
+  | "check";
 
 /*
  * רישום האייקונים של האפליקציה - המקום היחיד שמגדיר מאיפה כל אייקון מגיע.
@@ -69,4 +73,6 @@ export const APP_ICONS: Record<AppIconName, AppIconSource> = {
   add: AddIcon,
   edit: EditOutlinedIcon,
   file: InsertDriveFileOutlinedIcon,
+  phone: PhoneOutlinedIcon,
+  check: CheckIcon,
 };

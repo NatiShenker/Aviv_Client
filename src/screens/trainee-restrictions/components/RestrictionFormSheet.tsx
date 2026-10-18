@@ -1,10 +1,10 @@
-import { IpsButton } from "ui-library";
 import { useInstitutes } from "@/context/institutes/InstitutesProvider";
+import type { WingDto } from "@/schemas/organization.schema";
 import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
 import { getCachedInstituteDevices, getInstituteDevices } from "@/services/devicesService";
 import { getCachedTraineeRestrictionReasons, getTraineeRestrictionReasons } from "@/services/reasonsService";
 import FormSheet from "@/shared/components/FormSheet";
-import ErrorText from "@/shared/components/form/ErrorText";
+import FormSheetFooter from "@/shared/components/form/FormSheetFooter";
 import { useAsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useFormSheetSession } from "@/shared/hooks/useFormSheetSession";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
@@ -14,6 +14,8 @@ import RestrictionForm, { RESTRICTION_FORM_ID } from "./RestrictionForm";
 
 const TEXTS = TRAINEE_RESTRICTIONS_TEXTS.form;
 const REASONS_REQUEST_KEY = "traineeRestrictionReasons";
+// הפניה קבועה, כדי שרשימה ריקה לא תיחשב "רשימה חדשה" בכל רינדור
+const NO_WINGS: WingDto[] = [];
 
 interface RestrictionFormSheetProps {
   /** הטופס שהכתובת מבקשת. null = הטופס סגור */
@@ -64,35 +66,20 @@ function RestrictionFormDialog({ isOpen, target, traineeId, editRecord, onClose,
       title={isEditMode ? TEXTS.editTitle : TEXTS.createTitle}
       onClose={onClose}
       actions={
-        <SaveFooter saveError={form.saveError} isBusy={form.isSaving || form.isFileUploading} />
+        <FormSheetFooter
+          formId={RESTRICTION_FORM_ID}
+          saveLabel={TEXTS.save}
+          saveError={form.saveError}
+          isBusy={form.isSaving || form.isFileUploading}
+        />
       }
     >
-      <RestrictionForm form={form} devices={devices} reasons={reasons} />
+      <RestrictionForm
+        form={form}
+        devices={devices}
+        wings={selectedInstitute?.wings ?? NO_WINGS}
+        reasons={reasons}
+      />
     </FormSheet>
-  );
-}
-
-interface SaveFooterProps {
-  saveError?: string;
-  /** בזמן שמירה או העלאת קובץ - השמירה מחכה (ספק 03 form §7) */
-  isBusy: boolean;
-}
-
-// שגיאת שמירה כללית מעל הכפתור, בתוך הפוטר (ספק 03 form §7)
-function SaveFooter({ saveError, isBusy }: SaveFooterProps) {
-  return (
-    <div className="flex w-full flex-col gap-2">
-      <ErrorText message={saveError} />
-      <IpsButton
-        type="submit"
-        form={RESTRICTION_FORM_ID}
-        variant="contained"
-        size="large"
-        fullWidth
-        loading={isBusy}
-      >
-        {TEXTS.save}
-      </IpsButton>
-    </div>
   );
 }
