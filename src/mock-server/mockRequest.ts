@@ -10,7 +10,7 @@ export interface MockRequest {
   url: string;
   /** פרמטרים של GET */
   params?: unknown;
-  /** גוף של POST */
+  /** גוף של POST / PUT */
   body?: unknown;
   config?: AxiosRequestConfig;
 }

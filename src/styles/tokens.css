@@ -1,5 +1,5 @@
 /*
- * טוקני העיצוב של אביב — המקור היחיד לצבעים, רדיוסים ופונט ב-Tailwind.
+ * טוקני העיצוב של אביב — המקור היחיד לצבעים, רדיוסים, פונט ותנועה ב-Tailwind.
  * ערכי ברירת המחדל של Tailwind לצבעים ולרדיוסים מאופסים, כדי שרק הטוקנים כאן יהיו זמינים.
  * כשתפקיד קיים גם בספריית הפקדים וגם בסקיצות — ערך הספרייה קובע.
  */
@@ -58,4 +58,32 @@
 	--color-primary-soft: #e0ebff;
 	--color-success-soft: #e7ffef;
 	--color-error-soft: #fef2f2;
+
+	/*
+	 * תנועה: כניסת עמוד מהצד. קדימה העמוד נכנס משמאל וחזרה מימין (מראה RTL).
+	 * רק העמוד הנכנס זז; משך ועקומה כמו המגירה התחתונה (ספק 00 §2.4)
+	 */
+	--animate-page-enter-forward: page-enter-forward 300ms ease-out;
+	--animate-page-enter-back: page-enter-back 300ms ease-out;
+
+	@keyframes page-enter-forward {
+		from {
+			transform: translateX(-100%);
+		}
+	}
+
+	@keyframes page-enter-back {
+		from {
+			transform: translateX(100%);
+		}
+	}
+
+	/* שדה שמופיע לפי בחירה, כמו משך השיחה ב"הגבלת משך שיחה" (ספק 00 §2.4) */
+	--animate-fade-in: fade-in 200ms ease-out;
+
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+	}
 }

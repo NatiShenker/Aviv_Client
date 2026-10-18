@@ -22,10 +22,10 @@ Prototype source: `client/pages/VoiceMessageList.tsx`. Rules and model: [overvie
 ## 3. Layout
 
 1. **HistoryHeader** – title `"הודעה קולית"` (Voice message); back arrow to `/child/{id}`.
-2. **Toolbar row**
+2. **HistoryToolbar** ([00 §3.23](../00_foundations.md))
    - Section title `"הסטוריית הודעות קוליות"` (Voice messages history).
-   - ToolbarSearch: aria-label `"חיפוש הודעות קוליות"`, placeholder `"חיפוש לפי מספר, סיבה או תאריך"`.
-   - Sort button `"מיון"`.
+   - Search field: aria-label `"חיפוש הודעות קוליות"`, placeholder `"חיפוש לפי מספר, סיבה או תאריך"`.
+   - Round sort button (aria-label `"מיון"`).
 3. **Cards** – one ExpandableRecordCard per voice message.
 4. **EmptyState** – `"לא נמצאו הודעות קוליות"` (No voice messages found).
 5. **StickyActionBar** – primary link `"הוספת הודעה קולית חדשה"` (Add new voice message) + plus icon → `/child/{id}/voice-message/new`.

@@ -48,19 +48,21 @@ The organization's shared React component library: `Ips*` components (wrapping M
 | Primary and outlined buttons, bottom CTA, edit button | `IpsButton` | `variant`, `fullWidth`, `startIcon`/`endIcon`, `loading`. Mobile primary actions (sheet / form footers): `size="large"` (48px). |
 | Back, close, toolbar icons | `IpsIconButton` | Requires `icon`; add `aria-label`. In a mobile toolbar next to a field: `variant="surface"` (44px white circle). |
 | Search field | `IpsSearchFieldMobile` (available) | Native `<input type="search">` pill, 44px, borderless; pass `clearButtonLabel`. |
-| Phone input, duration input | `IpsTextField` (or a future `IpsTextFieldMobile`) | `inputMode="tel"` / `inputMode="numeric"`. Check against the mobile look-and-behavior rule before use. |
-| Details text | `IpsTextArea` | Note fixed width gap below; adjust in `ui-library` if full-width is needed. |
+| Phone input, duration input | `IpsTextFieldMobile` (available) | Native `<input>`, 16px (no iOS zoom). `inputMode="tel"` / `"numeric"`, `suffix` (unit after the value), `endIcon`, `clearButtonLabel`. `IpsTextField` uses 14px and zooms on iOS. |
+| Details text | `IpsTextAreaMobile` (available) | Native `<textarea>`, full width, 16px, `rows` (default 3), not resizable. `IpsTextArea` has a fixed 288px width and 14px text. |
 | Reason select, institute selector | `IpsSelectMobile` (native `<select>`, available) or `IpsSelect` | Prefer native OS picker on mobile (`IpsSelectMobile`) per Mobile Native-First rule. `onChange` returns the option's original value type. `variant="plain"` (text + chevron) for a context selector in a header row. |
 | Multi-select (devices, wing/location filters) | `IpsMultiSelectMobile` (available) | Native `<select multiple>` on a real iPhone/iPad; `IpsSelect multiple` elsewhere (Android, desktop, devtools emulation). `allOptionLabel` adds an explicit "הכל" option. |
 | Grouped options (any select) | `group` on `IpsSelectOption` | Native `<optgroup>` / menu subheaders, in all select controls. |
 | Single choice from a list of rows (sort options) | `IpsRadioListMobile` (available) | Native radios as full-width rows; selected row bold with a check. |
-| Date range | `IpsDatePickerMobile` (native `date`) or `IpsDatePicker` | Native mobile date picker avoids the English locale issue of `IpsDatePicker` and gives native OS UX. |
-| Hour range | `IpsTimePickerMobile` (native `time`) or `IpsTimePicker` | Native mobile time picker avoids `Moment` overhead and gives native OS UX. |
-| Approver picker | **External 3rd-party Approver MFE** (or `OptionsSheet` in simulation) | In production, approver selection is handled via a 3rd-party MFE. |
+| Single choice between a few options side by side (limit type) | `IpsRadioGroupMobile` (available) | Native radios behind drawn 20px circles, one wrapping row. |
+| Date range | `IpsDatePickerMobile` (available) | Native `date` under the field box; `formatValue`, `min`/`max`, `muted`. Avoids the English locale issue of `IpsDatePicker`. |
+| Hour range | `IpsTimePickerMobile` (available) | Native `time` under the field box; `clearButtonLabel` turns the clock icon into a clear X. No `Moment`. |
+| Approver picker | **External 3rd-party Approver MFE** | Imported only through `src/integrations/approver-mfe/ApproverPicker` (a stand-in until the MFE arrives). Wrapped by the app's `ApproverField`. |
 | Repeat toggle | `IpsSwitch` | |
 | Filter chips (few fixed options) | `IpsPillSelect` | Single or `multiple`. `label` for the group title; `allowDeselect={false}` when the group always keeps a value (e.g. "הכל"). On mobile `size="large"` (44px). |
 | Bottom sheets (sort, filter) | `IpsDrawer` | `anchor="bottom"`: grab handle, drag down to close, height up to 90%. Pass `closeButtonLabel="סגירה"`. |
+| Form sheet (create / edit) | `IpsDialog` | `fullScreen` + `transition="slide"` + `rtl`; header through `renderHeader` (Hebrew close label, touch-sized X). Use the app's `FormSheet`. |
 | Expandable record card | Custom app card or `IpsAccordion` | Must match the UX behavior specified in `00-foundations.md §3.22`. |
 | Save and error feedback | `useToast` | |
 | Confirmations | `IpsDialog` | |
-| Required attachment | `IpsFileUpload` | Uploads directly from the client to SharePoint. |
+| Required attachment | `IpsFileUpload` | Uploads directly from the client to SharePoint after its own "שמור קבצים". Wrapped by the app's `ApprovalFileField` (one file, attached-file row). |

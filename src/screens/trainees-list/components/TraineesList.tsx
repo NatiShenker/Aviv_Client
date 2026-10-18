@@ -85,7 +85,7 @@ function TraineeCards({ trainees, restoredVisibleCount, onVisibleCountChange }: 
 
   return (
     <>
-      <ul className="mt-4 flex flex-col gap-3 px-5">
+      <ul className="flex flex-col gap-3 px-5">
         {visibleItems.map((trainee) => (
           <li key={trainee.id}>
             <Link to={ROUTES.traineeActions(trainee.id)} className="block">
@@ -101,7 +101,7 @@ function TraineeCards({ trainees, restoredVisibleCount, onVisibleCountChange }: 
 
 function LoadingSkeleton() {
   return (
-    <div role="status" className="mt-4 flex flex-col gap-3 px-5">
+    <div role="status" className="flex flex-col gap-3 px-5">
       <span className="sr-only">{TEXTS.loadingList}</span>
       {SKELETON_CARD_KEYS.map((key) => (
         <TraineeCardSkeleton key={key} />

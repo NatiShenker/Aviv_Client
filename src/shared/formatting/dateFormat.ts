@@ -1,4 +1,4 @@
-import type { ISODateString } from "@/schemas/common.schema";
+import type { ISODateString, TimeString } from "@/schemas/common.schema";
 
 const DATE_PARTS_SEPARATOR = "-";
 const DISPLAY_SEPARATOR = "/";
@@ -19,4 +19,16 @@ export function formatShortDate(isoDate: ISODateString): string {
 export function formatDayMonth(isoDate: ISODateString): string {
   const { month, day } = splitIsoDate(isoDate);
   return [day, month].join(DISPLAY_SEPARATOR);
+}
+
+const RANGE_SEPARATOR = "-";
+
+/** טווח תאריכים DD/MM/YY-DD/MM/YY (ספק 00 §5). מוצג LTR, ולכן תאריך ההתחלה משמאל */
+export function formatDateRange(startDate: ISODateString, endDate: ISODateString): string {
+  return [formatShortDate(startDate), formatShortDate(endDate)].join(RANGE_SEPARATOR);
+}
+
+/** טווח שעות HH:mm-HH:mm (ספק 00 §5). מוצג LTR */
+export function formatTimeRange(startTime: TimeString, endTime: TimeString): string {
+  return [startTime, endTime].join(RANGE_SEPARATOR);
 }

@@ -13,4 +13,21 @@ export const SERVICE_ENDPOINTS = {
   locations: {
     getLocationsAndVirtualLocations: "Locations/GetLocationsAndVirtualLocations",
   },
+  // מכאן והלאה - שמות זמניים, הפעולות עדיין לא הוגדרו בסרביס (ראו pending-decisions)
+  traineeRestrictions: {
+    getTraineeRestrictions: "TraineeRestrictions/GetTraineeRestrictions",
+    createTraineeRestriction: "TraineeRestrictions/CreateTraineeRestriction",
+    /** PUT: מכבה את הרשומה הקודמת ויוצר רשומה פעילה חדשה */
+    updateTraineeRestriction: "TraineeRestrictions/UpdateTraineeRestriction",
+  },
+  devices: {
+    getInstituteDevices: "Devices/GetInstituteDevices",
+  },
+  lookups: {
+    getTraineeRestrictionReasons: "Lookups/GetTraineeRestrictionReasons",
+  },
+  files: {
+    /** רישום קובץ שהועלה ל-SharePoint, כדי לקבל את המזהה שלו (IDNT_APPROVED_FILE) */
+    registerApprovedFile: "Files/RegisterApprovedFile",
+  },
 } as const;

@@ -1,16 +1,28 @@
 import type { HttpMethod } from "@/infrastructure/http/httpClient";
+import { APPROVER_STAND_IN_ENDPOINTS } from "@/integrations/approver-mfe/approversStandInService";
+import type { ApproverRef, FileAttachmentRef, LookupItem, MutationResultDto } from "@/schemas/common.schema";
 import type {
+  GetInstituteDevicesResponse,
   GetInstitutesAndWingsResponse,
   GetLocationsAndVirtualLocationsResponse,
   GetPermissionsForInstituteResponse,
 } from "@/schemas/organization.schema";
+import type { GetTraineeRestrictionsResponse } from "@/schemas/trainee-restrictions.schema";
 import type { GetTraineesResponse } from "@/schemas/trainees.schema";
 import { SERVICE_ENDPOINTS } from "@/services/serviceEndpoints";
+import { handleSearchApprovers } from "./handlers/approverStandInHandlers";
+import { handleRegisterApprovedFile } from "./handlers/filesHandlers";
 import {
   handleGetInstitutesAndWings,
   handleGetPermissionsForInstitute,
 } from "./handlers/institutionsHandlers";
 import { handleGetLocationsAndVirtualLocations } from "./handlers/locationsHandlers";
+import { handleGetInstituteDevices, handleGetTraineeRestrictionReasons } from "./handlers/lookupsHandlers";
+import {
+  handleCreateTraineeRestriction,
+  handleGetTraineeRestrictions,
+  handleUpdateTraineeRestriction,
+} from "./handlers/traineeRestrictionsHandlers";
 import { handleGetTrainees, resolveTraineePhotoUri } from "./handlers/traineesHandlers";
 import type { MockResourceRoute, MockRoute } from "./mockRequest";
 
@@ -44,7 +56,61 @@ const MOCK_ROUTES: MockRoute[] = [
     handle: handleGetLocationsAndVirtualLocations,
     createEmptyResponse: (): GetLocationsAndVirtualLocationsResponse => ({ locations: [] }),
   },
+  {
+    method: "POST",
+    url: SERVICE_ENDPOINTS.traineeRestrictions.getTraineeRestrictions,
+    scenarioKey: "traineeRestrictions",
+    handle: handleGetTraineeRestrictions,
+    createEmptyResponse: (): GetTraineeRestrictionsResponse => ({ records: [] }),
+  },
+  {
+    method: "POST",
+    url: SERVICE_ENDPOINTS.traineeRestrictions.createTraineeRestriction,
+    scenarioKey: "saveTraineeRestriction",
+    handle: handleCreateTraineeRestriction,
+    createEmptyResponse: createEmptyMutationResult,
+  },
+  {
+    method: "PUT",
+    url: SERVICE_ENDPOINTS.traineeRestrictions.updateTraineeRestriction,
+    scenarioKey: "saveTraineeRestriction",
+    handle: handleUpdateTraineeRestriction,
+    createEmptyResponse: createEmptyMutationResult,
+  },
+  {
+    method: "POST",
+    url: SERVICE_ENDPOINTS.devices.getInstituteDevices,
+    scenarioKey: "devices",
+    handle: handleGetInstituteDevices,
+    createEmptyResponse: (): GetInstituteDevicesResponse => ({ devices: [] }),
+  },
+  {
+    method: "GET",
+    url: SERVICE_ENDPOINTS.lookups.getTraineeRestrictionReasons,
+    scenarioKey: "reasons",
+    handle: handleGetTraineeRestrictionReasons,
+    createEmptyResponse: (): LookupItem<number>[] => [],
+  },
+  {
+    method: "POST",
+    url: SERVICE_ENDPOINTS.files.registerApprovedFile,
+    scenarioKey: "approvedFiles",
+    handle: handleRegisterApprovedFile,
+    createEmptyResponse: (): FileAttachmentRef => ({ id: 0, fileName: "" }),
+  },
+  // סימולציה של ה-MFE של הגורם המאשר - יימחק כשה-MFE ישולב
+  {
+    method: "GET",
+    url: APPROVER_STAND_IN_ENDPOINTS.searchApprovers,
+    scenarioKey: "approvers",
+    handle: handleSearchApprovers,
+    createEmptyResponse: (): ApproverRef[] => [],
+  },
 ];
+
+function createEmptyMutationResult(): MutationResultDto {
+  return { createdIds: [], requestUid: "", syncStatus: "pending", records: [] };
+}
 
 // משאבים שהדפדפן טוען ישירות מהכתובת (למשל ב-src של תמונה)
 const MOCK_RESOURCE_ROUTES: MockResourceRoute[] = [
