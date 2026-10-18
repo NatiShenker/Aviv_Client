@@ -14,9 +14,13 @@ import ExceptionList from "./pages/ExceptionList";
 import ExceptionForm from "./pages/ExceptionForm";
 import VoiceMessageList from "./pages/VoiceMessageList";
 import VoiceMessageForm from "./pages/VoiceMessageForm";
+import DesktopChildrenList from "./pages/desktop/DesktopChildrenList";
 import NotFound from "./pages/NotFound";
+import { useIsDesktop } from "./hooks/use-desktop";
 
 const queryClient = new QueryClient();
+
+const Home = () => (useIsDesktop() ? <DesktopChildrenList /> : <ChildrenList />);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -25,7 +29,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<ChildrenList />} />
+          <Route path="/" element={<Home />} />
           <Route path="/child/:id" element={<ChildDetails />} />
           <Route path="/child/:id/block" element={<BlockList />} />
           <Route path="/child/:id/block/new" element={<BlockForm />} />
