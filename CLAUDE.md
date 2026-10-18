@@ -25,7 +25,7 @@ The UI is in Hebrew only and is laid out right-to-left (RTL).
 ## Sources of Truth
 
 - This file holds only top-level goals and standing rules. Screen, design, data and schema details live in dedicated files; do not copy them here. All guidance files are written in English.
-- **Conflict Resolution (Prompt vs. Guidelines):** If an explicit instruction in the user's immediate prompt contradicts a rule defined in `CLAUDE.md`, `.agent/design.md`, `.agent/ui-library.md`, or a screen SPEC, you MUST HALT. 
+- **Conflict Resolution (Prompt vs. Guidelines):** If an explicit instruction in the user's immediate prompt contradicts a rule defined in `CLAUDE.md`, `.agent/design.md`, `.agent/ui_library.md`, or a screen SPEC, you MUST HALT. 
 - DO NOT blindly follow the user's prompt, and DO NOT silently ignore the written rules. 
 - Instead, immediately output: "**⚠️ Conflict Detected:**" followed by a clear explanation of how the prompt contradicts the specific written document. Ask the user for explicit permission to override the rule or wait for a corrected instruction.
 - `reference/` and `config/` are read-only. Do not create, change or delete anything in them without explicit instruction for that specific change.

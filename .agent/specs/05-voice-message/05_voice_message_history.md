@@ -21,7 +21,7 @@ Prototype source: `client/pages/VoiceMessageList.tsx` (superseded where this spe
 
 ## 3. Layout
 
-1. **HistoryHeader** – title `"הודעה קולית לנמען"`; back arrow to `/child/{id}`.
+1. **HistoryHeader** – title `"הודעה קולית לנמען"`; back arrow one step back to the actions screen ([00 §3.1](../00_foundations.md)).
 2. **HistoryToolbar** ([00 §3.23](../00_foundations.md))
    - Section title `"היסטוריית הודעות לנמען"` (Messages history).
    - Search field: aria-label `"חיפוש הודעות לנמען"`, placeholder `"חיפוש לפי מספר, סיבה או תאריך"`.

@@ -1,5 +1,6 @@
 import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
 import RecordIconCircle from "@/shared/components/history/RecordIconCircle";
+import { isAllCallsMessage } from "../voiceMessagesLogic";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 
 const FORM_TEXTS = VOICE_MESSAGES_TEXTS.form;
@@ -11,7 +12,7 @@ interface LockedScopeCardProps {
 
 /** בעריכה, במקום בחירת ההיקף: המספר (או "בכל השיחות") נעול (כמו הכרטיס הנעול בספק 04 form §3.3) */
 export default function LockedScopeCard({ record }: LockedScopeCardProps) {
-  const isAllCalls = record.phoneNumber === null;
+  const isAllCalls = isAllCallsMessage(record);
 
   return (
     <div className="rounded-card border border-divider bg-paper p-4">

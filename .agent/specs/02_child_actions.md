@@ -7,7 +7,7 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 ## 1. Purpose & entry points
 
 - The hub for one trainee: entry to the three management features and to additional information.
-- **Entry points:** tapping a card on the children list ([01](01-children-list.md)); the back arrow on any of the three history screens.
+- **Entry points:** tapping a card on the children list ([01](01_children_list.md)); the back arrow on any of the three history screens.
 - **Navigation:** a regular page – it enters sideways (forward from the left, back from the right), like every page. Forms open as full-height bottom sheets ([00 §2.4](00_foundations.md)).
 
 ---
@@ -16,7 +16,7 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 
 - **Route:** `/child/:id`
 - **`id`:** trainee ID.
-- **Unknown ID:** the not-found screen is shown ([OQ-21](README.md#oq-21)).
+- **Unknown ID:** the not-found screen is shown ([OQ-21](../pending-decisions.md#oq-21)).
 
 ---
 
@@ -24,7 +24,7 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 
 ### 3.1 Header (side padding 16px)
 
-- **Right:** back arrow link to `/` (aria-label `"חזרה"`).
+- **Right:** back arrow, one step back to the children list (aria-label `"חזרה"`, [00 §3.1](00_foundations.md)).
 - **Next to it (16px gap):** the trainee's full name and personal number as `h1`, 20/24, weight 500, in the same format as the children card: `"יוסי כהן | 012453"` (decided 2026-10-18).
 - **Divider:** 17px below, 1px `#ededed`, 16px side margins.
 
@@ -35,8 +35,8 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 
 | Order | Label | Icon | Opens |
 |---|---|---|---|
-| 1 | `"הגבלה/היתר לחניך"` (Trainee restriction/permit) | Circle with a slash | `/child/{id}/block` – [03 history](03-trainee-restriction/history.md) |
-| 2 | `"הגבלה/היתר למספר"` (Number restriction/permit) | Open lock | `/child/{id}/exception` – [04 history](04-number-restriction/history.md) |
+| 1 | `"הגבלה/היתר לחניך"` (Trainee restriction/permit) | Circle with a slash | `/child/{id}/block` – [03 history](03-trainee-restriction/03_trainee_restriction_history.md) |
+| 2 | `"הגבלה/היתר למספר"` (Number restriction/permit) | Open lock | `/child/{id}/exception` – [04 history](04-number-restriction/04_number_restriction_history.md) |
 | 3 | `"הודעה קולית לנמען"` (Voice message to the recipient – decided 2026-10-18) | Microphone with plus | `/child/{id}/voice-message` – [05 history](05-voice-message/05_voice_message_history.md) |
 
 - **Permissions:** the menu is built from the permission IDs returned by `GetPermissionsForInstitution` for the selected institute, and is the same for every trainee. Each action has its own permission ID; a row is shown only when the user has it. The section (title included) is hidden when no action is permitted.
@@ -46,7 +46,7 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 
 - **Divider** 24px below the actions (same style as §3.1).
 - **Title** `"מידע נוסף"` (Additional information), 16/20, weight 500, 23px below the divider.
-- **One row**, 15px below: `"היסטוריית דקות"` (Minutes history; the spelling "היסטוריית" is used on every screen – decided 2026-10-18), clock icon, same row style. It has no destination ([OQ-08](README.md#oq-08)), so it is shown disabled.
+- **One row**, 15px below: `"היסטוריית דקות"` (Minutes history; the spelling "היסטוריית" is used on every screen – decided 2026-10-18), clock icon, same row style. It has no destination ([OQ-08](../pending-decisions.md#oq-08)), so it is shown disabled.
 - **Permission:** the whole section (divider, title and rows) requires one general permission ID.
 
 ---
@@ -63,7 +63,7 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 | State | Behavior |
 |---|---|
 | Trainee loading | Back arrow and the menu are shown; the title is empty until the name arrives |
-| Trainee not found (or invalid ID) | Under the header: `"החניך לא נמצא"` **(proposed)** – until the not-found screen is designed ([OQ-21](README.md#oq-21)) |
+| Trainee not found (or invalid ID) | Under the header: `"החניך לא נמצא"` **(proposed)** – until the not-found screen is designed ([OQ-21](../pending-decisions.md#oq-21)) |
 | Trainee failed | The title stays empty; the menu still works. A retry is not needed on this screen |
 | Permissions loading | Skeleton of three rows |
 | Permissions failed | `"לא ניתן לטעון את ההרשאות לפנימייה"` + `"נסה שוב"` (reloads the permissions) |

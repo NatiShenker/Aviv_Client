@@ -1,5 +1,5 @@
 import { matchPath } from "react-router-dom";
-import { ROUTE_PATTERNS } from "@/routes";
+import { BASED_ON_QUERY_PARAM, ROUTE_PATTERNS } from "@/routes";
 
 /*
  * הכתובת של אביב משורשרת לכתובת המארח:
@@ -15,6 +15,9 @@ const INNER_ROUTE_PATTERNS = Object.values(ROUTE_PATTERNS).filter((pattern) => p
 
 // דף הבדיקה של הפקדים נפתח רק מכתובת ישירה, ולכן הוא היחיד שנשאר בכניסה ישירה
 const DIRECT_ENTRY_ALLOWED_PATTERNS = [ROUTE_PATTERNS.catalog];
+
+// פרמטרים שיש להם משמעות רק בנתיב פנימי, ולכן נמחקים יחד איתו בכניסה ישירה
+const INNER_ROUTE_QUERY_PARAMS = [BASED_ON_QUERY_PARAM];
 
 interface AppLocation {
   /** הקידומת של המארח, למשל "/host/aviv". "/" כשאביב בשורש */
@@ -44,10 +47,21 @@ export function splitAppLocation(pathname: string): AppLocation {
   return { basePath: joinSegments(segments), avivPath: ROOT_PATH };
 }
 
+/** פרמטרי הכתובת בלי אלה של הנתיב הפנימי. כשאין כאלה, הטקסט נשאר בדיוק כפי שהיה */
+function withoutInnerRouteParams(search: string): string {
+  const params = new URLSearchParams(search);
+  const innerParamsFound = INNER_ROUTE_QUERY_PARAMS.filter((param) => params.has(param));
+  if (innerParamsFound.length === 0) return search;
+
+  innerParamsFound.forEach((param) => params.delete(param));
+  const remainingParams = params.toString();
+  return remainingParams === "" ? "" : `?${remainingParams}`;
+}
+
 /**
  * נקרא פעם אחת בעליית האפליקציה, לפני הראוטר. מחזיר את הבסיס של הראוטר (basename).
  * כניסה ישירה (קישור או רענון) לכתובת פנימית מתחילה ממסך הפתיחה: הכתובת מוחלפת בבסיס,
- * בלי רשומה נוספת בהיסטוריה. פרמטרי הכתובת (למשל תרחישי המוק) נשמרים.
+ * בלי רשומה נוספת בהיסטוריה. פרמטרי הכתובת (למשל תרחישי המוק) נשמרים, חוץ מאלה של הנתיב הפנימי.
  */
 export function prepareAppEntry(): string {
   const { basePath, avivPath } = splitAppLocation(window.location.pathname);
@@ -55,7 +69,8 @@ export function prepareAppEntry(): string {
     avivPath === ROOT_PATH || DIRECT_ENTRY_ALLOWED_PATTERNS.some((pattern) => matchPath(pattern, avivPath) !== null);
 
   if (!isEntryAllowed) {
-    window.history.replaceState(null, "", `${basePath}${window.location.search}${window.location.hash}`);
+    const entrySearch = withoutInnerRouteParams(window.location.search);
+    window.history.replaceState(null, "", `${basePath}${entrySearch}${window.location.hash}`);
   }
   return basePath;
 }

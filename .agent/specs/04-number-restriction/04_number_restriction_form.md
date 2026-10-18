@@ -1,6 +1,6 @@
 # 04 – Number restriction / permit – Form
 
-Prototype source: `client/pages/ExceptionForm.tsx`. Business rules and model: [overview.md](https://www.google.com/search?q=overview.md). Pattern: [00 §4.2](https://www.google.com/search?q=..%2F00-foundations.md%2342-form-screen).
+Prototype source: `client/pages/ExceptionForm.tsx`. Business rules and model: [overview.md](04_number_restriction_overview.md). Pattern: [00 §4.2](../00_foundations.md#42-form-screen).
 
 ---
 
@@ -72,7 +72,7 @@ White card, radius 8, outline 1px `action` when it is the selected restriction, 
 |---|---|
 | Line 1 | (padding 16) Scope label (16/20, weight 500): `"הגבלה ארצית"` / `"הגבלת פנימייה – {institute}"` (several institutes joined with `", "`) / `"הגבלה לחניך"` |
 | Line 2 | (14/18 gray, 4px below) date range (LTR) + `" · "` + reason, or `"ללא סיבה"` |
-| Line 3 | Only when this trainee has existing permits on it (14/18 navy, 4px below): `"היתרים קיימים לחניך: {summary}"`, several joined with `"; "`. Summary format: [overview §3](https://www.google.com/search?q=overview.md%233-derived-display-values), e.g. `"16:00-19:00 · עד 15 דק'"` |
+| Line 3 | Only when this trainee has existing permits on it (14/18 navy, 4px below): `"היתרים קיימים לחניך: {summary}"`, several joined with `"; "`. Summary format: [overview §3](04_number_restriction_overview.md#3-derived-display-values), e.g. `"16:00-19:00 · עד 15 דק'"` |
 | Choose row | Only while choosing (§4.4): a 0.5px line, then a 44px+ row with the text button `"בחירה"` + chevron (pointing left) at the end. Accessible name `"בחירה: {scope label}, {range}"`. On the currently selected restriction (after `"החלפה"`) the row shows `"נבחרה"` + check icon instead, not tappable |
 
 ### 3.3 Edit mode – locked number card (instead of block 0)
@@ -90,7 +90,7 @@ What, then when – the same order in every action form (decided 2026-10-18):
 2. **FieldIntro** `"טווח תאריכים"` (16px below) with description:
    - Permit: `"ההיתר יחול בתאריכים אלו, בתוך תקופת ההגבלה"` (The permit applies on these dates, within the restriction's period)
    - Restriction: `"ההגבלה תחול בתאריכים אלו בלבד"`
-3. **Date pair** – start (`"בחר תאריך"`, `"תאריך התחלה"`), end (`"תאריך סיום"`). Limits in §4.8.
+3. **Date pair** – start (`"תאריך התחלה"`), end (`"תאריך סיום"`). Limits in §4.8.
 4. ErrorText – dates.
 
 ### 3.5 Block 2 – `"הגבלה להיתר"` (Limits on the permit) / `"היתרים להגבלה"` (Permits within the restriction)
@@ -99,7 +99,7 @@ What, then when – the same order in every action form (decided 2026-10-18):
    - Permit (both types): `"ברירת מחדל – פתוח כל היום ובכל המכשירים"` (Default – open all day on all devices)
    - Restriction, `"הגבלה מלאה"`: `"ללא היתרים – חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח"`
    - Restriction, `"הגבלת משך שיחה"`: `"ללא הגדרה – מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה"`
-2. **ConditionAccordion `"שעות מותרות"`** and **`"מכשירים מותרים"`** – identical to the trainee form ([03 form §3.3](https://www.google.com/search?q=..%2F03-trainee-restriction%2Fform.md%2333-block-2--%D7%94%D7%99%D7%AA%D7%A8%D7%99%D7%9D-%D7%9C%D7%94%D7%92%D7%91%D7%9C%D7%94-permits-within-the-restriction)), including content hints and ErrorText – hours.
+2. **ConditionAccordion `"שעות מותרות"`** and **`"מכשירים מותרים"`** – identical to the trainee form ([03 form §3.3](../03-trainee-restriction/03_trainee_restriction_form.md#33-block-2--היתרים-להגבלה-permits-within-the-restriction)), including content hints and ErrorText – hours.
 
 ### 3.6 Block 3 – `"סיבות והחלטה"`
 
@@ -107,7 +107,7 @@ As in [00 §4.3](../00_foundations.md), with the number reasons list ([00 §6](.
 
 ### 3.7 Footer
 
-StickyActionBar, two columns: outline `"ביטול"` (link to the history list, replace) and primary submit `"שמור"`.
+StickyActionBar, two columns: outline `"ביטול"` (one step back to the history list, [00 §3.1](../00_foundations.md)) and primary submit `"שמור"`.
 
 ### 3.8 Visibility of blocks 1–3
 
@@ -162,8 +162,8 @@ StickyActionBar, two columns: outline `"ביטול"` (link to the history list, 
 | 2+ results, one selected | `"ההגבלה שעליה יחול ההיתר"` | – | **Only the selected card** | `"החלפה"` | – |
 | 2+ results, reopened with `"החלפה"` | `"בחר את ההגבלה שעליה יחול ההיתר"` | `"נמצאו {n} הגבלות החלות על המספר עבור החניך"` | All | `"ביטול"` – back to the current selection, nothing changes | `"בחירה"`, and `"נבחרה"` on the current one |
 
-- Card order: national → institute → trainee, then start date ascending ([overview §2.7](https://www.google.com/search?q=overview.md%2327-which-restrictions-the-permit-lookup-returns)).
-- The existing-permits line is information only; it does not block creating another permit ([OQ-12](https://www.google.com/search?q=..%2FREADME.md%23oq-12)).
+- Card order: national → institute → trainee, then start date ascending ([overview §2.7](04_number_restriction_overview.md#27-which-restrictions-the-permit-lookup-returns)).
+- The existing-permits line is information only; it does not block creating another permit ([OQ-12](../../pending-decisions.md#oq-12)).
 
 ### 4.5 Permit – selecting a restriction
 
@@ -194,12 +194,12 @@ StickyActionBar, two columns: outline `"ביטול"` (link to the history list, 
 | Permit (create and edit) | `min` = restriction start, `max` = restriction end | `min` = chosen start (or restriction start), `max` = restriction end |
 | Restriction | No limits | `min` = start |
 
-- A permit's start can be earlier than today, as long as it is inside the restriction ([OQ-14](https://www.google.com/search?q=..%2FREADME.md%23oq-14)).
+- A permit's start can be earlier than today, as long as it is inside the restriction ([OQ-14](../../pending-decisions.md#oq-14)).
 - Changing either date clears the dates error.
 
 ### 4.9 Limit type, minutes, accordions
 
-Same behavior as the trainee form ([03 form §4.3–4.5](https://www.google.com/search?q=..%2F03-trainee-restriction%2Fform.md%2343-type-selector)), with these differences for a **permit**:
+Same behavior as the trainee form ([03 form §4.3–4.5](../03-trainee-restriction/03_trainee_restriction_form.md#43-type-selector)), with these differences for a **permit**:
 
 - Option labels and hints are the permit ones.
 - Accordion summaries are always "open by default": unset hours → `"כל היום"`, unset devices → `"כל המכשירים"` (never `"לא הוגדרו"`).
@@ -216,7 +216,7 @@ Same behavior as the trainee form ([03 form §4.3–4.5](https://www.google.com/
 | Edit | All rules in §5 (no number or restriction checks) |
 
 - An hours error opens the hours accordion.
-- **Success:** a permit creates one record; a restriction creates **one record per number** with the same values. Then go to the history list (replace) with the first saved record open.
+- **Success:** a permit creates one record; a restriction creates **one record per number** with the same values. Then go one step back to the history list with the first saved record open.
 - **Production addition:** after a failed submit, scroll to and focus the first field with an error.
 
 ### 4.11 Create based on an ended record
@@ -279,8 +279,11 @@ As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details 
 | `durationMinutes` | Duration |
 | `startTime`, `endTime` | Hours (opens the accordion) |
 | `deviceIds` | Under the devices accordion row (opens it) |
+| `reason`, `reasonCode` | Reason |
+| `details` | Details |
+| `approverId` | Approver |
 | `approvedFileId` | File |
-| `409 CONFLICT` on a permit | Restriction slot: `"ההגבלה שנבחרה אינה פעילה עוד. יש לחפש שוב"` (The selected restriction is no longer active. Search again) **(proposed)** |
+| `409 CONFLICT` when creating a permit | Restriction slot: `"ההגבלה שנבחרה אינה פעילה עוד. יש לחפש שוב"` (The selected restriction is no longer active. Search again) **(proposed)** |
 
 ---
 
@@ -288,7 +291,7 @@ As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details 
 
 | State | Behavior |
 |---|---|
-| Edit – loading / 404 | As in the trainee form ([03 form §7](https://www.google.com/search?q=..%2F03-trainee-restriction%2Fform.md%237-loading--errors-proposed--not-in-the-prototype)) |
+| Edit – loading / 404 | As in the trainee form ([03 form §7](../03-trainee-restriction/03_trainee_restriction_form.md#7-loading--errors-proposed--not-in-the-prototype)) |
 | Searching | `"חיפוש"` disabled until the response arrives |
 | Search failed | Phone slot: `"החיפוש נכשל, נסה שוב"` (Search failed, try again) **(proposed)**; the input keeps its value and the button is enabled again |
 | File upload, saving, save failure | As in the trainee form |

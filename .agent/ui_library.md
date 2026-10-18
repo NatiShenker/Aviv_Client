@@ -22,7 +22,7 @@ The organization's shared React component library: `Ips*` components (wrapping M
 
 ## App root
 
-- `IpsThemeProvider` provides the theme, the RTL Emotion cache, `CssBaseline` and `dir`. It is safe to nest inside a Shell that has its own.
+- `IpsThemeProvider` provides the theme, the RTL Emotion cache, `CssBaseline` and `dir`. Nested inside a Shell that has its own provider, it reuses the Emotion cache but still renders `CssBaseline`, whose global `html` / `body` styles apply to the Shell page (see the desktop readiness backlog in `pending-decisions.md`).
 - `IpsToastProvider` enables `useToast()`.
 - Both are set once in `src/App.tsx`. Do not add another MUI `ThemeProvider`, Emotion cache or `CssBaseline`.
 
@@ -65,7 +65,7 @@ The organization's shared React component library: `Ips*` components (wrapping M
 | Filter chips (few fixed options) | `IpsPillSelect` | Single or `multiple`. `label` for the group title; `allowDeselect={false}` when the group always keeps a value (e.g. "הכל"). On mobile `size="large"` (44px). |
 | Bottom sheets (sort, filter) | `IpsDrawer` | `anchor="bottom"`: grab handle, drag down to close, height up to 90%. Pass `closeButtonLabel="סגירה"`. |
 | Form sheet (create / edit) | `IpsDialog` | `fullScreen` + `transition="slide"` + `rtl`; header through `renderHeader` (Hebrew close label, touch-sized X). Use the app's `FormSheet`. |
-| Expandable record card | Custom app card or `IpsAccordion` | Must match the UX behavior specified in `00-foundations.md §3.22`. |
+| Expandable record card | Custom app card or `IpsAccordion` | Must match the UX behavior specified in `00_foundations.md §3.22`. |
 | Save and error feedback | `useToast` | |
 | Confirmations | `IpsDialog` | |
 | Required attachment | `IpsFileUpload` | Uploads directly from the client to SharePoint after its own "שמור קבצים". Wrapped by the app's `ApprovalFileField` (one file, attached-file row). |

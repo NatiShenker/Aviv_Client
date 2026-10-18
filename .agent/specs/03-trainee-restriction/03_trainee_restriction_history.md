@@ -1,6 +1,6 @@
 # 03 – Trainee restriction – History
 
-Prototype source: `client/pages/BlockList.tsx`. Business rules and model: [overview.md](overview.md). Pattern: [00 §4.1](../00-foundations.md#41-history-screen).
+Prototype source: `client/pages/BlockList.tsx`. Business rules and model: [overview.md](03_trainee_restriction_overview.md). Pattern: [00 §4.1](../00_foundations.md#41-history-screen).
 
 ---
 
@@ -13,15 +13,15 @@ Prototype source: `client/pages/BlockList.tsx`. Business rules and model: [overv
 
 ## 2. Route & parameters
 
-- **Route:** `/child/:id/block` (legacy slug, [OQ-19](../README.md#oq-19))
+- **Route:** `/child/:id/block` (legacy slug, [OQ-19](../../pending-decisions.md#oq-19))
 - **`id`:** trainee ID. Unknown trainee → not-found screen (production).
-- **After save (production):** the form passes the saved record ID (navigation state or a query parameter such as `?saved={recordId}`); the list opens that card, then clears the parameter so back/forward does not re-apply it.
+- **After save:** the list reloads and opens the saved record. The ID passes from the form to the list in memory, not in the URL.
 
 ---
 
 ## 3. Layout
 
-1. **HistoryHeader** – title `"הגבלה/היתר לחניך"`; back arrow to `/child/{id}`.
+1. **HistoryHeader** – title `"הגבלה/היתר לחניך"`; back arrow one step back to the actions screen ([00 §3.1](../00_foundations.md)).
 2. **HistoryToolbar** ([00 §3.23](../00_foundations.md))
    - Section title `"היסטוריית הגבלות"` (Restrictions history).
    - Search field: aria-label `"חיפוש הגבלות"`, placeholder `"חיפוש לפי סיבה, גורם או תאריך"` (Search by reason, approver or date).
@@ -53,7 +53,7 @@ DetailGrid, two columns, in this order (right column first). The type and dates 
 
 Below the grid: outline button `"עריכה"` (Edit) with edit icon – or, on an ended record, `"צור הגבלה חדשה על בסיס זו"` **(proposed)** with a copy icon (an ended record cannot be edited, [00 §3.22](../00_foundations.md)).
 
-Note: like the form summary ([form.md §4.5](form.md#45-permits-block-accordions)), the card shows one device by its label and more as `"{n} מכשירים"` – an institute can have many devices (decided 2026-10-18).
+Note: like the form summary ([form.md §4.5](03_trainee_restriction_form.md#45-permits-block-accordions)), the card shows one device by its label and more as `"{n} מכשירים"` – an institute can have many devices (decided 2026-10-18).
 
 ---
 

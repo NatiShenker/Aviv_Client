@@ -1,27 +1,11 @@
 import type { ISODateString, TemporalStatus } from "@/schemas/common.schema";
+import { addDaysToIsoDate, todayIsoDate } from "@/shared/dates/isoDate";
 
 // תאריכי המוק מחושבים יחסית להיום, כדי שרשומה "פעילה" תישאר פעילה בכל יום שמריצים את האפליקציה
 
-const DATE_PART_DIGITS = 2;
-
-// לפי השעון המקומי ולא UTC, אחרת סביב חצות "היום" זז ביום
-function toIsoDate(date: Date): ISODateString {
-  const year = date.getFullYear();
-  // getMonth מתחיל מ-0
-  const month = String(date.getMonth() + 1).padStart(DATE_PART_DIGITS, "0");
-  const day = String(date.getDate()).padStart(DATE_PART_DIGITS, "0");
-  return `${year}-${month}-${day}`;
-}
-
-export function todayIsoDate(): ISODateString {
-  return toIsoDate(new Date());
-}
-
 /** תאריך בהפרש ימים מהיום: שלילי = עבר, חיובי = עתיד */
 export function daysFromToday(days: number): ISODateString {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return toIsoDate(date);
+  return addDaysToIsoDate(todayIsoDate(), days);
 }
 
 /** תאריך ושעה מלאים (ISO), עבור שדות audit כמו createdAt */

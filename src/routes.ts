@@ -37,8 +37,6 @@ function withBasedOn(createPath: string, basedOnRef?: number | string): string {
 
 /** בניית כתובות לניווט */
 export const ROUTES = {
-  root: ROUTE_PATTERNS.root,
-  catalog: ROUTE_PATTERNS.catalog,
   traineeActions: (traineeId: number) => `/child/${traineeId}`,
   traineeRestrictions: (traineeId: number) => `/child/${traineeId}/block`,
   newTraineeRestriction: (traineeId: number, basedOnRecordId?: number) =>

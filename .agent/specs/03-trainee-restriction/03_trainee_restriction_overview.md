@@ -2,7 +2,7 @@
 
 Prototype sources: `client/pages/BlockList.tsx`, `client/pages/BlockForm.tsx`, `client/lib/restrictions.ts`.
 
-Screens: [history.md](https://www.google.com/search?q=history.md) · [form.md](https://www.google.com/search?q=form.md)
+Screens: [history.md](03_trainee_restriction_history.md) · [form.md](03_trainee_restriction_form.md)
 
 ---
 
@@ -49,15 +49,15 @@ What the trainee can do during the restriction's date range:
 ### 2.4 Record rules
 
 - Each save creates or updates **one record**.
-- The hours window is the same every day of the date range. Hours are both set or both empty; end must be after start on the same day ([OQ-13](https://www.google.com/search?q=..%2FREADME.md%23oq-13)).
-- Status: **active** while `endDate >= today`, otherwise **ended** ([OQ-01](https://www.google.com/search?q=..%2FREADME.md%23oq-01)).
-- Records cannot be cancelled or deleted in this version ([OQ-02](https://www.google.com/search?q=..%2FREADME.md%23oq-02)).
+- The hours window is the same every day of the date range. Hours are both set or both empty; end must be after start on the same day ([OQ-13](../../pending-decisions.md#oq-13)).
+- Status: **active** while `endDate >= today`, otherwise **ended** ([OQ-01](../../pending-decisions.md#oq-01)).
+- Records cannot be cancelled or deleted in this version ([OQ-02](../../pending-decisions.md#oq-02)).
 
 ---
 
 ## 3. Derived display values
 
-Used by the history card ([history.md](https://www.google.com/search?q=history.md)) and by the accordion summaries in the form ([form.md](https://www.google.com/search?q=form.md)).
+Used by the history card ([history.md](03_trainee_restriction_history.md)) and by the accordion summaries in the form ([form.md](03_trainee_restriction_form.md)).
 
 ### 3.1 Type label
 

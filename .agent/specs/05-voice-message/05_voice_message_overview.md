@@ -29,9 +29,9 @@ The message plays on **all calls** or only on calls to **selected numbers**. A *
 | Children list flags | `hasActiveMessage` = an active regular message today; `hasActiveInteractiveMessage` = an active repeating message today ("interactive" in the schema is the repeating message) |
 | Dates | Required; end ≥ start |
 | Hours / devices | None – the message plays all day on every device within its dates (decided 2026-10-18; the prototype's "אפשרויות נוספות" was removed) |
-| Duplicates | Not checked: the same number may have overlapping messages, and a number may have a message while an all-calls message is active ([OQ-23](../README.md#oq-23)) |
+| Duplicates | Not checked: the same number may have overlapping messages, and a number may have a message while an all-calls message is active ([OQ-23](../../pending-decisions.md#oq-23)) |
 | File | Exactly one, required |
-| Status | Active while `endDate >= today`, else ended ([OQ-01](../README.md#oq-01)) |
+| Status | Active while `endDate >= today`, else ended ([OQ-01](../../pending-decisions.md#oq-01)) |
 
 ---
 
