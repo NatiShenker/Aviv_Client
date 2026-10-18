@@ -1,4 +1,4 @@
-import { AVIV_CLIENT_ID } from "@/constants/appConstants";
+import { AVIV_CLIENT_ID } from "@/appConstants";
 import type { WingLocationDto } from "@/schemas/organization.schema";
 
 interface LocationFlags {

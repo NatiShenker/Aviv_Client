@@ -4,21 +4,26 @@ Binding guidance for the shared infrastructure every screen uses. Read it with `
 
 ## Folder layout
 
-- `src/screens/<screen>/` — one folder per screen: the `*Screen.tsx` composition, `components/`, its hooks, and one `*Logic.ts`, `*Options.ts` and `*Texts.ts` file.
-- `src/context/<domain>/` — app-wide context shared by screens (e.g. the selected institute).
-- `src/services/` — one file per controller, plus `serviceEndpoints.ts`.
-- `src/infrastructure/` — http, api, errors, storage. `src/shared/` — hooks, components, icons, formatting used by several screens.
+- `src/` root — the app-level files: `bootstrap.tsx` (entry), `App.tsx` (providers and routes), `routes.ts`, `appConstants.ts`.
+- `src/shells/mobile/` — the mobile page shell: page root, header, pinned top, sticky action bar, the full-screen form sheet, the mobile navigation (`navigation/`) and the window hooks (`hooks/`). A desktop shell will sit next to it.
+- `src/features/<feature>/` — one folder per feature: the `*Screen.tsx` composition, its components and hooks, and its `*Logic.ts`, `*Options.ts` and `*Texts.ts` files.
+  - The record features (trainee restrictions, number restrictions, voice messages) split into `history/` and `form/`; a file used by both stays at the feature root. Other features keep their components in `components/`.
+  - `features/records/` — the building blocks the record features share (spec 00 §3–§4): `history/` and `form/`.
+  - `features/institutes/` — the selected institute, wings and permissions. `features/trainee/` — the trainee of the current route and its display name.
+- `src/shared/` — generic code with no domain knowledge: hooks, small components, form primitives, icons, formatting, dates.
+- `src/services/` — one file per controller, plus `serviceEndpoints.ts`. `src/infrastructure/` — http, api, errors, storage.
 - `src/mock-server/` — the simulated service.
+- **Dependency direction:** `shared` imports nothing from `features`, `shells` or the root files (except `appConstants.ts`); `shells` import nothing from `features`.
 - A small component used by one parent stays a private component in the parent's file. A separate file is only for a component with its own responsibility or state.
 
 ## Server access
 
 - Requests go to Aviv_Service unless stated otherwise. Endpoints are `Controller/Action` strings in `src/services/serviceEndpoints.ts`.
-- The internal HTTP library is used as `initHttpClient()` once at startup (`bootstrap.tsx`), then `http().get(url, { params })` / `http().post(url, body)`. Responses and errors are axios-shaped.
+- The internal HTTP library is used as `initHttpClient()` once at startup (`src/bootstrap.tsx`), then `http().get(url, { params })` / `http().post(url, body)`. Responses and errors are axios-shaped.
 - Until the library is available, `src/infrastructure/http` simulates it. Its `index.ts` is the only swap point for the real library.
 - Services call the server only through `serviceClient` (`src/infrastructure/api`). It extracts `data` and turns every failure into an `AppError`. View components call services, never `http()` or `serviceClient`.
 - A resource the browser loads directly (e.g. an image in `src`) gets its URL from `serviceClient.buildServiceUrl(url, params)`, which uses `http().getUri`.
-- `clientIds` is always `[AVIV_CLIENT_ID]` (`src/constants/appConstants.ts`).
+- `clientIds` is always `[AVIV_CLIENT_ID]` (`src/appConstants.ts`).
 - User and institute identity come from the internal `shared-types` library. Simulate it in the first screen that needs it.
 
 ## Errors

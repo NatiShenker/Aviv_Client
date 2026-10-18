@@ -1,4 +1,4 @@
-import { AVIV_CLIENT_ID } from "@/constants/appConstants";
+import { AVIV_CLIENT_ID } from "@/appConstants";
 import { createQueryCache, idsKey } from "@/infrastructure/api/queryCache";
 import { serviceClient } from "@/infrastructure/api/serviceClient";
 import type {

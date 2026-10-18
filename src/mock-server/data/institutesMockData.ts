@@ -1,4 +1,4 @@
-import { AVIV_CLIENT_ID } from "@/constants/appConstants";
+import { AVIV_CLIENT_ID } from "@/appConstants";
 import type { InstituteWithWingsDto } from "@/schemas/organization.schema";
 
 // פנימייה א' - רשימה ארוכה (בדיקת טעינה הדרגתית), ב' - קצרה, ג' - בלי חניכים (מצב ריק טבעי).

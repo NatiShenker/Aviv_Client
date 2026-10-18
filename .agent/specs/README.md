@@ -30,13 +30,13 @@ Development specs for the trainee-calls management app (mobile web, Hebrew, RTL)
 
 The same concept has a product name (the UI and the specs), a client name (routes and feature folders) and a server name. Layers that mirror the server (schemas, services, endpoints, mock server) use the server names; the feature and UI layers use the product and client names.
 
-| Concept | UI name | Spec | Route | Feature folder (`src/screens`) | Server and schema names |
+| Concept | UI name | Spec | Route | Feature folder (`src/features`) | Server and schema names |
 |---|---|---|---|---|---|
 | Trainee ("child" in the sketches) | חניך | 01, 02 | `/child/:traineeId` | `trainees-list`, `trainee-actions` | `Trainees/…`, `TraineeListItemDto` |
 | Trainee restriction ("block" in the sketches) | הגבלה/היתר לחניך | 03 | `/child/:traineeId/block` | `trainee-restrictions` | `TraineeRestrictions/…`, `TraineeRestrictionRecordDto` |
 | Number restriction or permit ("exception" in the sketches). One record is a "number record": a restriction or a permit | הגבלה/היתר למספר | 04 | `/child/:traineeId/exception` | `number-restrictions` | `PhoneExceptions/…`, `TraineePhoneRecordDto`, `phone-exceptions.schema.ts`; trainee flag group `phoneException` |
 | Voice message ("recipient message" in the trainee flags) | הודעה קולית לנמען | 05 | `/child/:traineeId/voice-message` | `voice-messages` | `VoiceMessages/…`, `TraineeVoiceMessageRecordDto` |
-| Institute ("institution" on the server) | פנימייה | 01 | – | `context/institutes` | `Institutions/…`, `organization.schema.ts` |
+| Institute ("institution" on the server) | פנימייה | 01 | – | `institutes` | `Institutions/…`, `organization.schema.ts` |
 | Wing / location in a wing | אגף / מיקום באגף | 01 | – | – | `WingDto`, `WingLocationDto` |
 
 ---

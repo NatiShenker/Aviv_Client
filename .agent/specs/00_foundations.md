@@ -11,7 +11,7 @@ Everything shared by all screens. Screen files reference the components and patt
 - **Font:** Rubik, weights 400 / 500 / 600. Load once globally.
 - **Top spacing:** 50px above the header on every screen (status-bar area).
 - **Mixed direction:** dates, times, ranges, phone numbers and "+N" counters are wrapped in `dir="ltr"` spans so they read left to right inside RTL text.
-- **Address and direct entry:** Aviv's URL is appended to the host's URL: host domain (with the environment prefix) + the host's own route + Aviv's route. The part of the path before Aviv's route is the router base, derived at startup, so every in-app link keeps the host prefix. A direct entry to an inner Aviv route (a link or a page refresh) starts at the children list (the address is replaced; query parameters such as the mock scenarios are kept, but `basedOn`, which belongs to the create route, is removed). Only the controls catalog (`/catalog`, a dev page) opens directly.
+- **Address and direct entry:** Aviv's URL is appended to the host's URL: host domain (with the environment prefix) + the host's own route + Aviv's route. The part of the path before Aviv's route is the router base, derived at startup, so every in-app link keeps the host prefix. A direct entry to an inner Aviv route (a link or a page refresh) starts at the children list (the address is replaced; query parameters such as the mock scenarios are kept, but `basedOn`, which belongs to the create route, is removed).
 
 ---
 

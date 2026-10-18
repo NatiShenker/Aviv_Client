@@ -8,7 +8,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { registerGlobalErrorHandlers } from "./infrastructure/errors/errorReporting";
 import { initHttpClient } from "./infrastructure/http";
-import { prepareAppEntry } from "./shared/navigation/appEntry";
+import { prepareAppEntry } from "./shells/mobile/navigation/appEntry";
 
 // נקודת כניסה למצב העצמאי: iframe במובייל וטאבלט. במצב MFE בדסקטופ הראוטר ייקבע בנפרד.
 const ROOT_ELEMENT_ID = "root";
