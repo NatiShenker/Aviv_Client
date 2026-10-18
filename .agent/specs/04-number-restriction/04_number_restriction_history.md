@@ -22,10 +22,10 @@ Prototype source: `client/pages/ExceptionList.tsx`. Business rules and model: [o
 ## 3. Layout
 
 1. **HistoryHeader** – title `"הגבלה/היתר למספר"`; back arrow to `/child/{id}`.
-2. **Toolbar row**
+2. **HistoryToolbar** ([00 §3.23](../00_foundations.md))
    - Section title `"הסטוריית הגבלות והיתרים"` (Restrictions and permits history).
-   - ToolbarSearch: aria-label `"חיפוש הגבלות והיתרים"`, placeholder `"חיפוש לפי מספר, סיבה או תאריך"` (Search by number, reason or date).
-   - Sort button `"מיון"`.
+   - Search field: aria-label `"חיפוש הגבלות והיתרים"`, placeholder `"חיפוש לפי מספר, סיבה או תאריך"` (Search by number, reason or date).
+   - Round sort button (aria-label `"מיון"`).
 3. **Cards** – one ExpandableRecordCard per record (each permit and each restriction separately).
 4. **EmptyState** – `"לא נמצאו הגבלות או היתרים"` (No restrictions or permits found).
 5. **StickyActionBar** – primary link `"הוספת הגבלה/היתר"` (Add restriction/permit) + plus icon → `/child/{id}/exception/new`.

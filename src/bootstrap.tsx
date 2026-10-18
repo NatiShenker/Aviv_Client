@@ -8,12 +8,15 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { registerGlobalErrorHandlers } from "./infrastructure/errors/errorReporting";
 import { initHttpClient } from "./infrastructure/http";
+import { prepareAppEntry } from "./shared/navigation/appEntry";
 
 // נקודת כניסה למצב העצמאי: iframe במובייל וטאבלט. במצב MFE בדסקטופ הראוטר ייקבע בנפרד.
 const ROOT_ELEMENT_ID = "root";
 
 registerGlobalErrorHandlers();
 initHttpClient();
+// הקידומת של המארח (בסיס הראוטר). כניסה ישירה לכתובת פנימית מוחלפת כאן במסך הפתיחה
+const appBasePath = prepareAppEntry();
 
 const rootElement = document.getElementById(ROOT_ELEMENT_ID);
 if (!rootElement) {
@@ -22,7 +25,7 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <BrowserRouter basename={appBasePath} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <App />
     </BrowserRouter>
   </StrictMode>,

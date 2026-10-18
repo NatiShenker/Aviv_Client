@@ -1,0 +1,98 @@
+import { useEffect, useRef, useState } from "react";
+import { IpsRadioGroupMobile, IpsTextFieldMobile, type IpsRadioGroupMobileValue } from "ui-library";
+import type { CallLimitKind } from "@/schemas/common.schema";
+import AppIcon from "@/shared/icons/AppIcon";
+import ErrorText from "./ErrorText";
+import FieldIntro from "./FieldIntro";
+import { FORM_TEXTS } from "./formTexts";
+
+const DURATION_TEXTS = FORM_TEXTS.duration;
+const DIGITS_ONLY = /\D/g;
+// ספק 00 §3.7: עד 3 ספרות
+const DURATION_MAX_LENGTH = 3;
+
+/** "restriction" בהגבלות, "permit" בהיתרים - משנה רק את הטקסטים (ספק 00 §3.9) */
+export type LimitTypeContext = "restriction" | "permit";
+
+const LIMIT_KINDS: CallLimitKind[] = ["full", "limited"];
+
+function isLimitKind(value: IpsRadioGroupMobileValue): value is CallLimitKind {
+  return LIMIT_KINDS.includes(value as CallLimitKind);
+}
+
+interface LimitTypeSelectorProps {
+  context: LimitTypeContext;
+  kind: CallLimitKind;
+  onKindChange: (kind: CallLimitKind) => void;
+  durationText: string;
+  /** מקבל רק ספרות */
+  onDurationTextChange: (durationText: string) => void;
+  durationError?: string;
+  /** מזהה שדה המשך, כדי שאפשר יהיה להעביר אליו פוקוס כשיש בו שגיאה */
+  durationInputId: string;
+}
+
+/**
+ * בחירת סוג ההגבלה / ההיתר: מלא, או עם משך מרבי לכל שיחה (ספק 00 §3.9).
+ * שדה המשך מופיע רק בסוג השני. הערך שהוקלד נשמר גם כשחוזרים לסוג המלא, אבל לא נשלח (ההחלטה בטופס).
+ */
+export default function LimitTypeSelector({
+  context,
+  kind,
+  onKindChange,
+  durationText,
+  onDurationTextChange,
+  durationError,
+  durationInputId,
+}: LimitTypeSelectorProps) {
+  const texts = FORM_TEXTS.limitType[context];
+  const durationInputRef = useRef<HTMLInputElement>(null);
+  // הפוקוס עובר לשדה המשך רק כשהמשתמש החליף סוג - לא כשרשומה קיימת נפתחת לעריכה
+  const [shouldFocusDuration, setShouldFocusDuration] = useState(false);
+
+  useEffect(() => {
+    if (shouldFocusDuration && kind === "limited") {
+      durationInputRef.current?.focus();
+      setShouldFocusDuration(false);
+    }
+  }, [shouldFocusDuration, kind]);
+
+  const handleKindChange = (value: IpsRadioGroupMobileValue) => {
+    if (!isLimitKind(value)) return;
+    onKindChange(value);
+    setShouldFocusDuration(value === "limited");
+  };
+
+  const options = LIMIT_KINDS.map((limitKind) => ({ value: limitKind, label: texts[limitKind].label }));
+
+  return (
+    <div>
+      <FieldIntro title={texts.title} description={texts[kind].hint} />
+      <div className="mt-2">
+        <IpsRadioGroupMobile aria-label={texts.title} options={options} value={kind} onChange={handleKindChange} />
+      </div>
+
+      {kind === "limited" && (
+        <div className="mt-3 grid grid-cols-2 gap-2 motion-safe:animate-fade-in">
+          <IpsTextFieldMobile
+            ref={durationInputRef}
+            id={durationInputId}
+            label={DURATION_TEXTS.label}
+            required
+            inputMode="numeric"
+            autoComplete="off"
+            maxLength={DURATION_MAX_LENGTH}
+            placeholder={DURATION_TEXTS.placeholder}
+            suffix={DURATION_TEXTS.unit}
+            endIcon={<AppIcon name="timer" />}
+            clearButtonLabel={DURATION_TEXTS.clear}
+            value={durationText}
+            onChange={(text) => onDurationTextChange(text.replace(DIGITS_ONLY, ""))}
+            error={Boolean(durationError)}
+          />
+        </div>
+      )}
+      <ErrorText message={durationError} />
+    </div>
+  );
+}

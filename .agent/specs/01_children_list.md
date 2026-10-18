@@ -33,7 +33,7 @@ Side padding 20px, 50px top spacing, 40px bottom padding.
 
 ### 3.1 Header (two rows)
 
-No row may overflow the screen width (320px and up).
+No row may overflow the screen width (320px and up). The header (both rows) stays in place; only the cards scroll under it.
 
 **Row 1:**
 

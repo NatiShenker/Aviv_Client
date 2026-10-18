@@ -4,7 +4,18 @@
  */
 
 /** שם קבוצת הנתונים שאפשר לכוון אליה תרחיש */
-export type MockScenarioKey = "institutes" | "permissions" | "trainees" | "locations";
+export type MockScenarioKey =
+  | "institutes"
+  | "permissions"
+  | "trainees"
+  | "locations"
+  | "traineeRestrictions"
+  | "saveTraineeRestriction"
+  | "devices"
+  | "reasons"
+  | "approvers"
+  | "approvedFiles"
+  | "sharePointUpload";
 
 export interface MockScenarios {
   delayMs: number;
@@ -29,7 +40,19 @@ const QUERY_PARAMS = {
 const DEFAULT_DELAY_MS = 700;
 const KEYS_SEPARATOR = ",";
 const TRUE_VALUE = "true";
-const ALL_SCENARIO_KEYS: MockScenarioKey[] = ["institutes", "permissions", "trainees", "locations"];
+const ALL_SCENARIO_KEYS: MockScenarioKey[] = [
+  "institutes",
+  "permissions",
+  "trainees",
+  "locations",
+  "traineeRestrictions",
+  "saveTraineeRestriction",
+  "devices",
+  "reasons",
+  "approvers",
+  "approvedFiles",
+  "sharePointUpload",
+];
 
 export function readMockScenarios(search: string): MockScenarios {
   const params = new URLSearchParams(search);

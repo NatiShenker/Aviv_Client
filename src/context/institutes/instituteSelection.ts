@@ -23,6 +23,18 @@ export function resolveInitialInstituteId(
   return null;
 }
 
+/** הפנימייה הנבחרת: מה שהמשתמש בחר בביקור הזה, ואם עוד לא בחר - הבחירה ההתחלתית */
+export function resolveSelectedInstitute(
+  institutes: InstituteWithWingsDto[] | null,
+  chosenInstituteId: number | null,
+): InstituteWithWingsDto | null {
+  if (!institutes) {
+    return null;
+  }
+  const selectedInstituteId = chosenInstituteId ?? resolveInitialInstituteId(institutes, readStoredInstituteId());
+  return institutes.find((institute) => institute.id === selectedInstituteId) ?? null;
+}
+
 function isInstituteId(value: unknown): value is number {
   return typeof value === "number";
 }

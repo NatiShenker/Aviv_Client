@@ -3,6 +3,8 @@ import { useInstitutes } from "@/context/institutes/InstitutesProvider";
 import InstitutesStateGate from "@/context/institutes/InstitutesStateGate";
 import type { WingLocationDto } from "@/schemas/organization.schema";
 import type { TraineeListItemDto } from "@/schemas/trainees.schema";
+import AppPage from "@/shared/components/AppPage";
+import PinnedPageTop from "@/shared/components/PinnedPageTop";
 import { useWindowScrollRestoration } from "@/shared/hooks/useWindowScrollRestoration";
 import TraineesFilterDrawer from "./components/TraineesFilterDrawer";
 import TraineesList from "./components/TraineesList";
@@ -21,11 +23,11 @@ const NO_LOCATIONS: WingLocationDto[] = [];
 /** מסך הבית: רשימת החניכים בפנימייה הנבחרת (ספק 01) */
 export default function TraineesListScreen() {
   return (
-    <main dir="rtl" lang="he" className="min-h-screen bg-background pb-10 pt-12 text-text-primary">
+    <AppPage className="pb-10">
       <InstitutesStateGate>
         <TraineesListContent />
       </InstitutesStateGate>
-    </main>
+    </AppPage>
   );
 }
 
@@ -52,14 +54,16 @@ function TraineesListContent() {
 
   return (
     <>
-      <TraineesListHeader
-        searchQuery={listFilters.filters.searchQuery}
-        onSearchQueryChange={listFilters.setSearchQuery}
-        isFilterActive={listFilters.isFilterActive}
-        areToolsDisabled={trainees.status !== "success"}
-        onFilterClick={() => setOpenDrawer("filter")}
-        onSortClick={() => setOpenDrawer("sort")}
-      />
+      <PinnedPageTop>
+        <TraineesListHeader
+          searchQuery={listFilters.filters.searchQuery}
+          onSearchQueryChange={listFilters.setSearchQuery}
+          isFilterActive={listFilters.isFilterActive}
+          areToolsDisabled={trainees.status !== "success"}
+          onFilterClick={() => setOpenDrawer("filter")}
+          onSortClick={() => setOpenDrawer("sort")}
+        />
+      </PinnedPageTop>
 
       <TraineesList
         hasSelectedInstitute={selectedInstitute !== null}

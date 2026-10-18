@@ -3,7 +3,7 @@ import { TOAST_TYPES, useToast } from "ui-library";
 import type { InstituteWithWingsDto } from "@/schemas/organization.schema";
 import { getInstitutesAndWings, getPermissionsForInstitute } from "@/services/institutesService";
 import { useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
-import { readStoredInstituteId, resolveInitialInstituteId, storeInstituteId } from "./instituteSelection";
+import { resolveSelectedInstitute, storeInstituteId } from "./instituteSelection";
 import { INSTITUTES_TEXTS } from "./institutesTexts";
 
 interface InstitutesContextValue {
@@ -32,21 +32,17 @@ export function InstitutesProvider({ children }: InstitutesProviderProps) {
     load: getInstitutesAndWings,
     isEmpty: isEmptyList,
   });
-  const [selectedInstituteId, setSelectedInstituteId] = useState<number | null>(null);
+  // בחירה של המשתמש בביקור הזה. עד שהוא בוחר - הבחירה ההתחלתית (השמורה, או הפנימייה היחידה)
+  const [chosenInstituteId, setChosenInstituteId] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (institutes.status === "success" && institutes.data) {
-      setSelectedInstituteId(resolveInitialInstituteId(institutes.data, readStoredInstituteId()));
-    }
-  }, [institutes.status, institutes.data]);
-
+  // נגזר בזמן הרינדור ולא ב-effect, כדי שמסך חניך שנפתח מקישור יקבל את הפנימייה כבר ברינדור הראשון
   const selectedInstitute = useMemo(
-    () => institutes.data?.find((institute) => institute.id === selectedInstituteId) ?? null,
-    [institutes.data, selectedInstituteId],
+    () => resolveSelectedInstitute(institutes.data, chosenInstituteId),
+    [institutes.data, chosenInstituteId],
   );
 
   const selectInstitute = useCallback((instituteId: number) => {
-    setSelectedInstituteId(instituteId);
+    setChosenInstituteId(instituteId);
     storeInstituteId(instituteId);
   }, []);
 

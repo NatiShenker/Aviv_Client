@@ -14,10 +14,12 @@ Prototype source: `client/pages/BlockForm.tsx`. Business rules and model: [overv
 
 ## 2. Route & parameters
 
+- **Presentation:** a full-height bottom sheet over the history screen ([00 §2.4](../00_foundations.md)). The route opens and closes it, so browser back closes it too. Close goes one step back in history ([00 §3.1](../00_foundations.md)).
+
 | Mode | Route | Notes |
 |---|---|---|
 | Create | `/child/:id/block/new` | |
-| Edit | `/child/:id/block/:recordId/edit` | Production: load the record by ID. Unknown ID (404) → redirect to `/child/:id/block` (replace). Prototype: works only when opened from the list; a direct URL redirects to the list |
+| Edit | `/child/:id/block/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists. Unknown ID (e.g. a record replaced by a newer version) → redirect to `/child/:id/block` (replace). A direct URL starts at the app start ([00 §1](../00_foundations.md)) |
 
 ---
 
@@ -53,7 +55,9 @@ FormHeader – title `"הגבלה חדשה"` (create) or `"עריכת הגבלה
 
 ### 3.4 Block 3 – `"סיבות והחלטה"` (Reasons & decision)
 
-As in [00 §4.3](https://www.google.com/search?q=..%2F00-foundations.md%2343-reasons--decision-block), with the trainee-restriction reasons list ([00 §6](https://www.google.com/search?q=..%2F00-foundations.md%236-lookup-lists-current-prototype-values)).
+As in [00 §4.3](https://www.google.com/search?q=..%2F00-foundations.md%2343-reasons--decision-block), with the trainee-restriction reasons list ([00 §6](https://www.google.com/search?q=..%2F00-foundations.md%236-lookup-lists-current-prototype-values)). Reason and approver are required here. The approver field (MFE + selected-approver card with `"החלפה"`) and the file field (`IpsFileUpload` + attached-file row) are described in 00 §4.3.
+
+- **Edit:** the record stores the reason's name, so the reason is selected in the list by name ([pending-decisions](../../pending-decisions.md)).
 
 ### 3.5 Footer
 
@@ -133,9 +137,11 @@ All rules run on submit.
 | Duration | Only with `"הגבלת משך שיחה"`: whole number 1–120 | `"יש להזין מספר דקות שלם בין 1 ל-120"` (Enter a whole number of minutes between 1 and 120) | Minutes change, or the type changes |
 | Hours | Both times or none | `"יש לבחור שעת התחלה ושעת סיום"` (Pick a start time and an end time) | Either time changes or is cleared |
 | Hours | End time > start time | `"שעת הסיום חייבת להיות אחרי שעת ההתחלה"` (End time must be after start time) | Either time changes or is cleared |
-| File | One file attached | `"יש לצרף קובץ"` (A file must be attached) | A file is picked |
+| Reason | A reason is chosen (`CODE_RESTRICTION`, [00 §4.3](../00_foundations.md)) | `"יש לבחור סיבה"` **(proposed)** | A reason is chosen |
+| Approver | An approver is chosen | `"יש לבחור גורם מאשר"` **(proposed)** | An approver is chosen |
+| File | One file attached | `"יש לצרף קובץ"` (A file must be attached) | A file is attached |
 
-Only one message per slot is shown (the first failing rule). Reason, details, approver and devices have no rules ([OQ-15](https://www.google.com/search?q=..%2FREADME.md%23oq-15)).
+Only one message per slot is shown (the first failing rule). Details and devices have no rules. Reason and approver are required (decided 2026-10-18, closing this part of [OQ-15](https://www.google.com/search?q=..%2FREADME.md%23oq-15)).
 
 ---
 

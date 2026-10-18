@@ -29,6 +29,11 @@ export function configureMockServer(): void {
   activeScenarios = readMockScenarios(window.location.search);
 }
 
+/** התרחישים הפעילים, גם לסימולציות שלא עוברות דרך http() (למשל ההעלאה ל-SharePoint) */
+export function getActiveMockScenarios(): MockScenarios {
+  return activeScenarios;
+}
+
 /** המקבילה של getUri: כתובת שהדפדפן טוען ישירות (למשל תמונה). כתובת בלי נתיב מוק מוחזרת כמו שהיא */
 export function resolveMockResourceUri(url: string, params: unknown): string {
   const resourceRoute = findMockResourceRoute(url);

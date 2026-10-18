@@ -6,4 +6,6 @@ export const INSTITUTES_TEXTS = {
   noPermittedInstitutes: "אין לך הרשאה לאף פנימייה",
   retry: "נסה שוב",
   permissionsLoadFailed: "לא ניתן לטעון את ההרשאות לפנימייה",
+  // מוצע - ממתין לאישור (pending-decisions)
+  noPermissionForAction: "אין לך הרשאה לפעולה זו",
 } as const;

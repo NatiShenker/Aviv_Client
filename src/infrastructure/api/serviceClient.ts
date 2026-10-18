@@ -26,6 +26,15 @@ export const serviceClient = {
     }
   },
 
+  async put<TResponse>(url: string, body: unknown): Promise<TResponse> {
+    try {
+      const response = await http().put<TResponse>(url, body);
+      return response.data;
+    } catch (error) {
+      throw toReportedAppError(error, url);
+    }
+  },
+
   /** הכתובת המלאה של פעולה בסרביס, למשל משאב שמוצג ישירות ב-src של תמונה */
   buildServiceUrl(url: string, params?: object): string {
     return http().getUri({ url, params });

@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import type { InstituteWithWingsDto, WingLocationDto } from "@/schemas/organization.schema";
+import { prefetchInstituteDevices } from "@/services/devicesService";
 import type { TraineeListItemDto } from "@/schemas/trainees.schema";
 import {
   getCachedLocations,
@@ -40,6 +42,13 @@ export function useTraineesListData(institute: InstituteWithWingsDto | null): Tr
     load: (selectedInstituteId) => getLocationsAndVirtualLocations(locationsQueryFor(selectedInstituteId)),
     readCache: (selectedInstituteId) => getCachedLocations(locationsQueryFor(selectedInstituteId)),
   });
+
+  // המכשירים נטענים ברקע מיד אחרי החניכים, כדי שהטפסים ייפתחו איתם (ספק 00 §6)
+  useEffect(() => {
+    if (trainees.status === "success" && instituteId !== null) {
+      prefetchInstituteDevices(instituteId);
+    }
+  }, [trainees.status, instituteId]);
 
   return { trainees, locations };
 }
