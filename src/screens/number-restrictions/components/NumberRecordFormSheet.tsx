@@ -7,6 +7,7 @@ import FormSheet from "@/shared/components/FormSheet";
 import FormSheetFooter from "@/shared/components/form/FormSheetFooter";
 import { useAsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useFormSheetSession } from "@/shared/hooks/useFormSheetSession";
+import { editedRecordOf, resolveFormStartingPoint } from "@/shared/navigation/formStartingPoint";
 import { buildFormTitle } from "../numberRecordFormLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import { useNumberRecordForm } from "../useNumberRecordForm";
@@ -21,8 +22,10 @@ interface NumberRecordFormSheetProps {
   /** הטופס שהכתובת מבקשת. null = הטופס סגור */
   target: NumberRecordFormTarget | null;
   traineeId: number;
-  /** בעריכה: הרשומה מתוך ההיסטוריה שנטענה (הטופס נפתח לעריכה רק כשהיא קיימת) */
+  /** בעריכה: הרשומה מתוך ההיסטוריה שנטענה (הטופס נפתח לעריכה רק כשהיא קיימת ופעילה) */
   editRecord: TraineePhoneRecordDto | null;
+  /** ביצירה על בסיס רשומה שהסתיימה: הרשומה שהערכים נלקחים ממנה */
+  basedOnRecord: TraineePhoneRecordDto | null;
   onClose: () => void;
   onSaved: (savedRecordKey: string) => void;
 }
@@ -47,6 +50,7 @@ function NumberRecordFormDialog({
   target,
   traineeId,
   editRecord,
+  basedOnRecord,
   onClose,
   onSaved,
 }: NumberRecordFormDialogProps) {
@@ -64,9 +68,9 @@ function NumberRecordFormDialog({
     readCache: getCachedPhoneExceptionReasons,
   });
 
-  // הערכים נקבעים מהרשומה כשהטופס נפתח. אחרי שמירה ההיסטוריה נטענת מחדש, והטופס נשאר כפי שהיה עד שנסגר
-  const record = target?.mode === "edit" ? editRecord : null;
-  const form = useNumberRecordForm({ traineeId, instituteId, record, reasons, onSaved });
+  // הערכים נקבעים כשהטופס נפתח. אחרי שמירה ההיסטוריה נטענת מחדש, והטופס נשאר כפי שהיה עד שנסגר
+  const startingPoint = resolveFormStartingPoint(target, editRecord, basedOnRecord);
+  const form = useNumberRecordForm({ traineeId, instituteId, startingPoint, reasons, onSaved });
 
   return (
     <FormSheet
@@ -85,7 +89,7 @@ function NumberRecordFormDialog({
     >
       <NumberRecordForm
         form={form}
-        editRecord={record}
+        editRecord={editedRecordOf(startingPoint)}
         devices={devices}
         wings={selectedInstitute?.wings ?? NO_WINGS}
         reasons={reasons}

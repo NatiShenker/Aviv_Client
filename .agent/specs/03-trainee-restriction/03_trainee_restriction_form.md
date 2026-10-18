@@ -7,8 +7,9 @@ Prototype source: `client/pages/BlockForm.tsx`. Business rules and model: [overv
 ## 1. Purpose & entry points
 
 - Create a new trainee restriction, or edit an existing one.
-- **Create:** `"הגבלה חדשה"` on the history screen.
-- **Edit:** `"עריכה"` inside an open history card.
+- **Create:** `"הוספת הגבלה"` on the history screen.
+- **Edit:** `"עריכה"` inside an open history card (active or future records only).
+- **Create based on an ended record:** `"צור הגבלה חדשה על בסיס זו"` inside an open card of an ended record (§4.9).
 
 ---
 
@@ -19,7 +20,8 @@ Prototype source: `client/pages/BlockForm.tsx`. Business rules and model: [overv
 | Mode | Route | Notes |
 |---|---|---|
 | Create | `/child/:id/block/new` | |
-| Edit | `/child/:id/block/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists. Unknown ID (e.g. a record replaced by a newer version) → redirect to `/child/:id/block` (replace). A direct URL starts at the app start ([00 §1](../00_foundations.md)) |
+| Create based on | `/child/:id/block/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
+| Edit | `/child/:id/block/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/child/:id/block` (replace). A direct URL starts at the app start ([00 §1](../00_foundations.md)) |
 
 ---
 
@@ -33,12 +35,12 @@ FormHeader – title `"הגבלה חדשה"` (create) or `"עריכת הגבלה
 
 ### 3.2 Block 1 – `"פרטי ההגבלה"` (Restriction details)
 
-1. **FieldIntro** `"טווח תאריכים"` (Date range) / `"ההגבלה תחול בתאריכים אלו בלבד"` (The restriction applies on these dates only).
-2. **Date pair** (PickerInput × 2): start (label `"בחר תאריך"`, aria-label `"תאריך התחלה"`), end (no label, aria-label `"תאריך סיום"`, `min` = start date). Placeholder `"--/--/--"`.
-3. ErrorText – dates.
-4. **LimitTypeSelector – restriction** (16px below), see [00 §3.9](https://www.google.com/search?q=..%2F00-foundations.md%2339-limittypeselector):
-   - FieldIntro `"סוג ההגבלה"` (Restriction type) + hint by selection
-   - ErrorText – duration.
+What, then when – the same order in every action form (decided 2026-10-18):
+
+1. **LimitTypeSelector – restriction**, see [00 §3.9](../00_foundations.md): title `"סוג ההגבלה"` (Restriction type) and stacked options, each with its description; DurationField; ErrorText – duration.
+2. **FieldIntro** `"טווח תאריכים"` (Date range) / `"ההגבלה תחול בתאריכים אלו בלבד"` (The restriction applies on these dates only), 16px below.
+3. **Date pair** (PickerInput × 2): start (label `"בחר תאריך"`, aria-label `"תאריך התחלה"`), end (no label, aria-label `"תאריך סיום"`, `min` = start date). Placeholder `"--/--/--"`.
+4. ErrorText – dates.
 
 ### 3.3 Block 2 – `"היתרים להגבלה"` (Permits within the restriction)
 
@@ -61,7 +63,7 @@ As in [00 §4.3](https://www.google.com/search?q=..%2F00-foundations.md%2343-rea
 
 ### 3.5 Footer
 
-StickyActionBar with one full-width primary submit button `"שמור הגבלה"` (Save restriction) – in both modes ([OQ-17](https://www.google.com/search?q=..%2FREADME.md%23oq-17)).
+StickyActionBar, two columns: outline `"ביטול"` (closes without saving) and primary submit `"שמור"` – the same in every form ([OQ-17](../README.md#oq-17), closed 2026-10-18).
 
 ---
 
@@ -91,7 +93,7 @@ The screen scrolls to the top on open.
 
 ### 4.3 Type selector
 
-- Switching to `"הגבלת משך שיחה"`: the DurationField fades in and receives focus; the type hint, the block 2 hint and both accordion summaries update immediately (before any minutes are typed).
+- Switching to `"הגבלת משך שיחה"`: the DurationField fades in and receives focus; the block 2 hint and both accordion summaries update immediately (before any minutes are typed). Each option shows its own description all the time.
 - Switching back to `"הגבלה מלאה"`: the field hides; its value is kept in case the user switches again, but the record is saved **without** a duration.
 - Changing the type clears the duration error.
 
@@ -110,7 +112,7 @@ The screen scrolls to the top on open.
 
 - Changing or clearing either time clears the hours error.
 
-### 4.7 Submit (`"שמור הגבלה"`)
+### 4.7 Submit (`"שמור"`)
 
 1. Run all rules in §5 and show every error at once.
 2. If there is an hours error, open the hours accordion.
@@ -122,7 +124,11 @@ The screen scrolls to the top on open.
 
 ### 4.8 Close
 
-- The header X goes to the history list (replace) without saving or confirming ([OQ-16](https://www.google.com/search?q=..%2FREADME.md%23oq-16)).
+- The header X and `"ביטול"` go back to the history list without saving or confirming ([OQ-16](https://www.google.com/search?q=..%2FREADME.md%23oq-16)).
+
+### 4.9 Create based on an ended record
+
+As in [00 §4.2](../00_foundations.md): title `"הגבלה חדשה"`; type, minutes, hours and devices from the record (accordions with values open); reason (matched by name) and details from the record; dates today / tomorrow, muted; approver and file empty. Saving creates a new record (`POST`); the ended record is not changed.
 
 ---
 
@@ -191,13 +197,13 @@ Only one message per slot is shown (the first failing rule). Devices have no rul
 
 ## 9. Acceptance criteria
 
-1. **Given** create mode, **then** the title is `"הגבלה חדשה"`, the dates are today and tomorrow in gray, the type is `"הגבלה מלאה"` with hint `"השיחות חסומות, למעט ההיתרים שיוגדרו למטה"`, the block 2 hint is `"ללא היתרים – חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח"`, and both accordions are closed showing `"לא הוגדרו"`.
-2. **When** the user selects `"הגבלת משך שיחה"`, **then** the minutes field appears and is focused, the hint becomes `"השיחות מותרות, עד משך מרבי לכל שיחה"`, the block 2 hint becomes `"ללא הגדרה – מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה"`, and the summaries become `"כל היום"` and `"כל המכשירים"`.
+1. **Given** create mode, **then** the title is `"הגבלה חדשה"`, the type selector comes before the dates, the dates are today and tomorrow in gray, the type is `"הגבלה מלאה"` (its description `"השיחות חסומות, למעט ההיתרים שיוגדרו למטה"`, the other option's `"השיחות מותרות, עד משך מרבי לכל שיחה"`), the block 2 hint is `"ללא היתרים – חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח"`, and both accordions are closed showing `"לא הוגדרו"`.
+2. **When** the user selects `"הגבלת משך שיחה"`, **then** the minutes field appears and is focused, the block 2 hint becomes `"ללא הגדרה – מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה"`, and the summaries become `"כל היום"` and `"כל המכשירים"`.
 3. **Given** `"הגבלת משך שיחה"` with empty minutes, **when** the user saves, **then** `"יש להזין מספר דקות שלם בין 1 ל-120"` is shown and nothing is saved.
 4. **Given** minutes `"0"` or `"121"`, **when** the user saves, **then** the same duration error is shown.
 5. **When** the user types letters in the minutes field, **then** they do not appear.
 6. **Given** minutes `"15"`, **when** the user switches to `"הגבלה מלאה"` and back, **then** `"15"` is still there.
-7. **Given** minutes `"15"` and type `"הגבלה מלאה"`, **when** saved, **then** the record has no duration and its card shows `"הגבלה מלאה"`.
+7. **Given** minutes `"15"` and type `"הגבלה מלאה"`, **when** saved, **then** the record has no duration and its card title shows `"הגבלה מלאה"`.
 8. **Given** only a start time, **when** the user saves, **then** the hours accordion opens and shows `"יש לבחור שעת התחלה ושעת סיום"`.
 9. **Given** an hours error, **when** the user closes the hours accordion, **then** the error stays visible under the accordion row.
 10. **Given** start 18:00 and end 16:00, **when** the user saves, **then** `"שעת הסיום חייבת להיות אחרי שעת ההתחלה"` is shown.
@@ -207,5 +213,5 @@ Only one message per slot is shown (the first failing rule). Devices have no rul
 14. **Given** an end date before the start date (possible only by editing the start date afterwards), **when** saved, **then** `"תאריך הסיום לא יכול להיות לפני תאריך ההתחלה"` is shown.
 15. **Given** a valid form, **when** the user saves, **then** the history list opens with the new record open and its details match the form.
 16. **Given** edit of a record with 15 minutes and hours 16:00–18:00, **then** the title is `"עריכת הגבלה"`, the type is `"הגבלת משך שיחה"`, the minutes show `15` without focus, the hours accordion is open and the devices accordion is closed.
-17. **When** the user taps the header X, **then** the history list opens and nothing is saved.
+17. **When** the user taps the header X or `"ביטול"`, **then** the history list opens and nothing is saved.
 18. **Given** an edit URL for an unknown record, **then** the user is redirected to the history list.

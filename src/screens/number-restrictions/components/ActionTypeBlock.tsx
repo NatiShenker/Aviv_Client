@@ -14,7 +14,7 @@ interface ActionTypeBlockProps {
   form: NumberRecordForm;
 }
 
-/** בלוק 0 ביצירה - "סוג הפעולה": היתר או הגבלה, ושדה המספר של כל סוג (ספק 04 form §3.2) */
+/** בלוק 0 ביצירה - "הגבלה או היתר": הבחירה, ושדה המספר של כל סוג (ספק 04 form §3.2) */
 export default function ActionTypeBlock({ form }: ActionTypeBlockProps) {
   const { state } = form;
   const isPermit = state.recordType === "permit";

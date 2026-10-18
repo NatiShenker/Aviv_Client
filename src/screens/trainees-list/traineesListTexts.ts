@@ -40,7 +40,7 @@ export const TRAINEES_LIST_TEXTS = {
       wing: "אגף",
       location: "מיקום באגף",
       traineeRestriction: "הגבלה לחניך",
-      recipientMessage: "הודעה לנמען",
+      recipientMessage: "הודעה קולית לנמען",
       phoneException: "הגבלה/היתר למספר",
       balance: "יתרה",
     },
@@ -48,9 +48,10 @@ export const TRAINEES_LIST_TEXTS = {
       full: "הגבלה מלאה פעילה",
       minutes: "הגבלת דקות פעילה",
     },
+    // "אינטראקטיבית" בסכמה היא ההודעה החוזרת (כל 5 דקות במהלך השיחה)
     recipientMessage: {
-      regular: "הודעה פעילה",
-      interactive: "הודעה אינטראקטיבית פעילה",
+      regular: "הודעה רגילה פעילה",
+      interactive: "הודעה חוזרת פעילה",
     },
     phoneException: {
       restriction: "הגבלה למספר פעילה",

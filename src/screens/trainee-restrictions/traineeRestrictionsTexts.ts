@@ -9,12 +9,11 @@ export const TRAINEE_RESTRICTIONS_TEXTS = {
 
   card: {
     activeBadge: "פעילה",
-    noReason: "ללא סיבה",
+    // מוצע - ממתין לאישור (pending-decisions)
+    createBasedOn: "צור הגבלה חדשה על בסיס זו",
   },
 
   details: {
-    dates: "תאריכים",
-    type: "סוג ההגבלה",
     hours: "שעות מותרות",
     devices: "מכשירים מותרים",
     reason: "סיבה",
@@ -30,12 +29,12 @@ export const TRAINEE_RESTRICTIONS_TEXTS = {
     noResults: "לא נמצאו הגבלות",
   },
 
-  newRestriction: "הגבלה חדשה",
+  newRestriction: "הוספת הגבלה",
 
   form: {
     createTitle: "הגבלה חדשה",
     editTitle: "עריכת הגבלה",
-    save: "שמור הגבלה",
+    save: "שמור",
 
     detailsBlock: {
       title: "פרטי ההגבלה",

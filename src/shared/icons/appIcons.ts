@@ -5,6 +5,7 @@ import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
 import CheckIcon from "@mui/icons-material/Check";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import CloseIcon from "@mui/icons-material/Close";
+import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -42,6 +43,7 @@ export type AppIconName =
   | "clock"
   | "add"
   | "edit"
+  | "copy"
   | "file"
   | "phone"
   | "check";
@@ -72,6 +74,8 @@ export const APP_ICONS: Record<AppIconName, AppIconSource> = {
   clock: AccessTimeIcon,
   add: AddIcon,
   edit: EditOutlinedIcon,
+  // "צור … חדשה על בסיס זו" ברשומה שהסתיימה
+  copy: ContentCopyOutlinedIcon,
   file: InsertDriveFileOutlinedIcon,
   phone: PhoneOutlinedIcon,
   check: CheckIcon,

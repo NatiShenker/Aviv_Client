@@ -57,7 +57,7 @@ The organization's shared React component library: `Ips*` components (wrapping M
 | Multi-select (devices, wing/location filters) | `IpsMultiSelectMobile` (available) | Native `<select multiple>` on a real iPhone/iPad; `IpsSelect multiple` elsewhere (Android, desktop, devtools emulation). `allOptionLabel` adds an explicit "הכל" option. |
 | Grouped options (any select) | `group` on `IpsSelectOption` | Native `<optgroup>` / menu subheaders, in all select controls. |
 | Single choice from a list of rows (sort options) | `IpsRadioListMobile` (available) | Native radios as full-width rows; selected row bold with a check. |
-| Single choice between a few options side by side (limit type) | `IpsRadioGroupMobile` (available) | Native radios behind drawn 20px circles, one wrapping row. |
+| Single choice between a few options (limit type, scope, restriction or permit) | `IpsRadioGroupMobile` (available) | Native radios behind drawn 20px circles, one wrapping row. A `description` on the options stacks them, each with its consequence – used for every choice that defines a record (spec 00 §3.8). |
 | Date range | `IpsDatePickerMobile` (available) | Native `date` under the field box; `formatValue`, `min`/`max`, `muted`. Avoids the English locale issue of `IpsDatePicker`. |
 | Hour range | `IpsTimePickerMobile` (available) | Native `time` under the field box; `clearButtonLabel` turns the clock icon into a clear X. No `Moment`. |
 | Approver picker | **External 3rd-party Approver MFE** | Imported only through `src/integrations/approver-mfe/ApproverPicker` (a stand-in until the MFE arrives). Wrapped by the app's `ApproverField`. |

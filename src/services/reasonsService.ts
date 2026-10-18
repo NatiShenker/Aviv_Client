@@ -7,7 +7,7 @@ import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
 type GetReasonsResponse = LookupItem<number>[];
 
 /** רשימת סיבות לכל פעולה (ספק 00 §6) */
-type ReasonListKey = "traineeRestriction" | "phoneException";
+type ReasonListKey = "traineeRestriction" | "phoneException" | "voiceMessage";
 
 // רשימות הסיבות קבועות, ולכן נשמרות עד רענון הדף
 const reasonsCache = createQueryCache<ReasonListKey, LookupItem<number>[]>((listKey) => listKey);
@@ -34,4 +34,13 @@ export function getPhoneExceptionReasons(): Promise<LookupItem<number>[]> {
 
 export function getCachedPhoneExceptionReasons(): LookupItem<number>[] | null {
   return reasonsCache.get("phoneException");
+}
+
+/** הסיבות של "הודעה קולית לנמען" */
+export function getVoiceMessageReasons(): Promise<LookupItem<number>[]> {
+  return getReasons("voiceMessage", SERVICE_ENDPOINTS.lookups.getVoiceMessageReasons);
+}
+
+export function getCachedVoiceMessageReasons(): LookupItem<number>[] | null {
+  return reasonsCache.get("voiceMessage");
 }

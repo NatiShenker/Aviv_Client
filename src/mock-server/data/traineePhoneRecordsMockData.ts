@@ -11,7 +11,12 @@ import { GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA, GLOBAL_RESTRICTION_IDS } from "./g
 import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
 import { PHONE_EXCEPTION_REASONS_MOCK_DATA } from "./reasonsMockData";
 import { summarizeGlobalRestriction, summarizeTraineeRestriction } from "./sourceRestrictionBuilders";
-import { TRAINEES_MOCK_DATA, type TraineeMockRecord } from "./traineesMockData";
+import {
+  SHOWCASE_TRAINEES,
+  TRAINEES_MOCK_DATA,
+  showcaseEndedRecordCount,
+  type TraineeMockRecord,
+} from "./traineesMockData";
 
 /*
  * רשומות "הגבלה/היתר למספר" של החניכים (ספק 04).
@@ -19,6 +24,7 @@ import { TRAINEES_MOCK_DATA, type TraineeMockRecord } from "./traineesMockData";
  *
  * חניך ההדגמה (הראשון בפנימיית הדר) מקבל את התרחישים של ספק 04 overview §8, ועוד רשומות
  * שמכסות את ערכי התצוגה: הגבלה שהסתיימה, הגבלה עתידית עם שעות ומכשירים, והיתר שהסתיים.
+ * חניכי התצוגה (הראשונים ברשימה) מקבלים היסטוריה מלאה של הגבלות והיתרים, כולל היתר שגם ההגבלה שלו הסתיימה.
  * שאר החניכים מקבלים פיזור קבוע של הגבלה פעילה או היתר פעיל.
  */
 
@@ -195,6 +201,106 @@ const DISTRIBUTED_PERMIT_SEEDS: (PermitSeed & { restrictionId: number })[] = OTH
   reason: reasonFor(index),
 }));
 
+// ── חניכי התצוגה (הראשונים ברשימה): הגבלות והיתרים פעילים, עתידיים ושהסתיימו ──
+
+const SHOWCASE_TERMS_VARIANTS: CallTerms[] = [
+  FULL_TERMS,
+  { ...FULL_TERMS, durationMinutes: 15 },
+  { ...FULL_TERMS, permittedHours: { startTime: "16:00", endTime: "18:00" } },
+  { durationMinutes: 10, permittedHours: null, deviceIds: [1], details: "רק מהטלפון הציבורי באגף." },
+];
+
+// מספר ייחודי לכל הגבלה: קידומת + מקום החניך בין חניכי התצוגה + מספר סידורי
+const SHOWCASE_PHONE_PREFIX = "05031";
+const SHOWCASE_PHONE_ORDER_DIGITS = 4;
+
+// הגבלות שהסתיימו: כל אחת מוקדמת יותר מהקודמת
+const SHOWCASE_LATEST_ENDED_DAYS_AGO = 15;
+const SHOWCASE_DAYS_BETWEEN_ENDED = 20;
+const SHOWCASE_ENDED_LENGTH_DAYS = 7;
+
+// היתרים שהסתיימו על ההגבלה הארצית הכללית (שהתחילה לפני 60 יום) - קצרים, כדי שכולם ייכנסו בתוכה
+const SHOWCASE_LATEST_ENDED_PERMIT_DAYS_AGO = 2;
+const SHOWCASE_DAYS_BETWEEN_ENDED_PERMITS = 3;
+const SHOWCASE_ENDED_PERMIT_LENGTH_DAYS = 1;
+
+function showcasePhone(rank: number, order: number): PhoneString {
+  return `${SHOWCASE_PHONE_PREFIX}${rank}${String(order).padStart(SHOWCASE_PHONE_ORDER_DIGITS, "0")}`;
+}
+
+function showcaseTerms(order: number): CallTerms {
+  return SHOWCASE_TERMS_VARIANTS[order % SHOWCASE_TERMS_VARIANTS.length];
+}
+
+function showcaseRestrictionSeeds(trainee: TraineeMockRecord, rank: number): RestrictionSeed[] {
+  const endedCount = Math.ceil(showcaseEndedRecordCount(rank) / 2);
+  const activeSeed: RestrictionSeed = {
+    trainee,
+    phoneNumber: showcasePhone(rank, 0),
+    startDaysFromToday: -4,
+    endDaysFromToday: 25,
+    terms: FULL_TERMS,
+    reason: reasonFor(rank),
+  };
+  const futureSeed: RestrictionSeed = {
+    trainee,
+    phoneNumber: showcasePhone(rank, 1),
+    startDaysFromToday: 6,
+    endDaysFromToday: 30,
+    terms: showcaseTerms(2),
+    reason: reasonFor(rank + 1),
+  };
+  const currentSeeds = [activeSeed, futureSeed];
+  const endedSeeds = Array.from({ length: endedCount }, (_, order): RestrictionSeed => {
+    const endDaysFromToday = -(SHOWCASE_LATEST_ENDED_DAYS_AGO + order * SHOWCASE_DAYS_BETWEEN_ENDED);
+    return {
+      trainee,
+      phoneNumber: showcasePhone(rank, order + currentSeeds.length),
+      startDaysFromToday: endDaysFromToday - SHOWCASE_ENDED_LENGTH_DAYS,
+      endDaysFromToday,
+      terms: showcaseTerms(order),
+      reason: reasonFor(order),
+    };
+  });
+  return [...currentSeeds, ...endedSeeds];
+}
+
+function showcasePermitSeeds(trainee: TraineeMockRecord, rank: number): (PermitSeed & { restrictionId: number })[] {
+  const endedCount = Math.floor(showcaseEndedRecordCount(rank) / 2);
+  const activeSeed = {
+    trainee,
+    restrictionId: GLOBAL_RESTRICTION_IDS.generalNational,
+    startDaysFromToday: -2,
+    endDaysFromToday: 20,
+    terms: showcaseTerms(1),
+    reason: reasonFor(rank),
+  };
+  // היתר שהסתיים על הגבלה שגם היא הסתיימה - "על בסיס זה" לא ימצא הגבלה פעילה למספר
+  const endedOnEndedRestrictionSeed = {
+    trainee,
+    restrictionId: GLOBAL_RESTRICTION_IDS.demoEndedNational,
+    startDaysFromToday: -30,
+    endDaysFromToday: -20,
+    terms: FULL_TERMS,
+    reason: reasonFor(rank + 2),
+  };
+  const endedSeeds = Array.from({ length: endedCount - 1 }, (_, order) => {
+    const endDaysFromToday = -(SHOWCASE_LATEST_ENDED_PERMIT_DAYS_AGO + order * SHOWCASE_DAYS_BETWEEN_ENDED_PERMITS);
+    return {
+      trainee,
+      restrictionId: GLOBAL_RESTRICTION_IDS.generalNational,
+      startDaysFromToday: endDaysFromToday - SHOWCASE_ENDED_PERMIT_LENGTH_DAYS,
+      endDaysFromToday,
+      terms: showcaseTerms(order + 1),
+      reason: reasonFor(order + 1),
+    };
+  });
+  return [activeSeed, endedOnEndedRestrictionSeed, ...endedSeeds];
+}
+
+const SHOWCASE_RESTRICTION_SEEDS = SHOWCASE_TRAINEES.flatMap((trainee, rank) => showcaseRestrictionSeeds(trainee, rank));
+const SHOWCASE_PERMIT_SEEDS = SHOWCASE_TRAINEES.flatMap((trainee, rank) => showcasePermitSeeds(trainee, rank));
+
 // ── בניית הרשומות ──
 
 const RESTRICTION_NUMBER_ID_BASE = 6000;
@@ -279,13 +385,14 @@ function globalRestrictionSummary(restrictionId: number): SourceRestrictionSumma
 const RESTRICTION_RECORDS: TraineePhoneRestrictionRecordDto[] = [
   ...DEMO_RESTRICTION_SEEDS,
   ...DISTRIBUTED_RESTRICTION_SEEDS,
+  ...SHOWCASE_RESTRICTION_SEEDS,
 ].map((seed, index) => buildRestrictionRecord(seed, index + 1));
 
 // הראשונה ברשימה היא ההגבלה של חניך ההדגמה על DEMO_TRAINEE_RESTRICTION_PHONE
 const DEMO_TRAINEE_RESTRICTION = RESTRICTION_RECORDS[0];
 
 const PERMIT_RECORDS: TraineePhonePermitRecordDto[] = [
-  ...[...DEMO_GLOBAL_PERMIT_SEEDS, ...DISTRIBUTED_PERMIT_SEEDS].map((seed) => ({
+  ...[...DEMO_GLOBAL_PERMIT_SEEDS, ...DISTRIBUTED_PERMIT_SEEDS, ...SHOWCASE_PERMIT_SEEDS].map((seed) => ({
     seed,
     sourceRestriction: globalRestrictionSummary(seed.restrictionId),
   })),

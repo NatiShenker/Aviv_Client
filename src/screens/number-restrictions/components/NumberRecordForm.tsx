@@ -5,12 +5,7 @@ import CallDetailsBlock from "@/shared/components/form/CallDetailsBlock";
 import DecisionBlock from "@/shared/components/form/DecisionBlock";
 import PermittedConditionsBlock from "@/shared/components/form/PermittedConditionsBlock";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import {
-  NUMBER_DECISION_RULES,
-  NUMBER_RECORD_FIELD_IDS,
-  permitDateBounds,
-  shouldShowDetailBlocks,
-} from "../numberRecordFormLogic";
+import { NUMBER_RECORD_FIELD_IDS, permitDateBounds, shouldShowDetailBlocks } from "../numberRecordFormLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import type { NumberRecordForm as NumberRecordFormState } from "../useNumberRecordForm";
 import ActionTypeBlock from "./ActionTypeBlock";
@@ -99,7 +94,6 @@ export default function NumberRecordForm({ form, editRecord, devices, wings, rea
           }}
           errors={{ reason: errors.reason, details: errors.details, approver: errors.approver, file: errors.file }}
           reasons={reasons}
-          isReasonRequired={NUMBER_DECISION_RULES.isReasonRequired}
           fieldIds={DECISION_FIELD_IDS}
           onChange={form.changeDecision}
           onFileUploadingChange={form.setIsFileUploading}

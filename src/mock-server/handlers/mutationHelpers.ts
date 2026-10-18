@@ -1,5 +1,12 @@
 import { HTTP_STATUS } from "@/infrastructure/http/httpStatus";
-import type { DecisionApprovalDto, DecisionApprovalInput, LookupItem, MutationResultDto } from "@/schemas/common.schema";
+import type {
+  DecisionApprovalDto,
+  DecisionApprovalInput,
+  ISODateString,
+  LookupItem,
+  MutationResultDto,
+} from "@/schemas/common.schema";
+import { todayIsoDate } from "../mockDates";
 import { APPROVED_FILES_MOCK_DATA } from "../data/approvedFilesMockData";
 import { APPROVERS_MOCK_DATA } from "../data/approversMockData";
 import { DEVICES_MOCK_DATA } from "../data/devicesMockData";
@@ -47,4 +54,11 @@ export function throwNotFound(message: string): never {
 
 export function throwConflict(message: string): never {
   throw new MockHandlerError(HTTP_STATUS.conflict, { code: "CONFLICT", message });
+}
+
+/** רשומה שהסתיימה לא נערכת - יוצרים רשומה חדשה על בסיסה (ספק 00 §3.22). השרת חוזר על הכלל של הקליינט */
+export function throwIfEnded(record: { endDate: ISODateString }, description: string): void {
+  if (record.endDate < todayIsoDate()) {
+    throwConflict(`${description} has ended and cannot be edited`);
+  }
 }

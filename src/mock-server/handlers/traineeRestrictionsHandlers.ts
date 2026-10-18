@@ -16,13 +16,12 @@ import {
   devicesFromIds,
   nextRecordId,
   throwConflict,
+  throwIfEnded,
   throwNotFound,
   toMutationResult,
 } from "./mutationHelpers";
 import { throwIfInvalid, validateConditionsAndDecision, type ConditionsAndDecisionInput } from "./recordInputValidation";
 
-// בהגבלת חניך הסיבה חובה (ספק 00 §4.3)
-const VALIDATION_RULES = { isReasonRequired: true };
 const INVALID_INPUT_MESSAGE = "Trainee restriction is invalid";
 
 // רק הגרסה הפעילה של כל רשומה (LOGI_ACTIVE = 1). עדכון יוצר רשומה חדשה ומכבה את הקודמת
@@ -37,7 +36,7 @@ export function handleGetTraineeRestrictions(request: MockRequest): GetTraineeRe
 
 export function handleCreateTraineeRestriction(request: MockRequest): CreateTraineeRestrictionResponse {
   const input = request.body as CreateTraineeRestrictionRequest;
-  throwIfInvalid(validateConditionsAndDecision(input, VALIDATION_RULES), INVALID_INPUT_MESSAGE);
+  throwIfInvalid(validateConditionsAndDecision(input), INVALID_INPUT_MESSAGE);
 
   const records = input.traineeIds.map((traineeId) => {
     const id = nextRecordId(TRAINEE_RESTRICTIONS_MOCK_DATA);
@@ -58,7 +57,8 @@ export function handleUpdateTraineeRestriction(request: MockRequest): UpdateTrai
   if (!previous.isActive) {
     throwConflict(`Trainee restriction ${input.previousRestrictionId} was already replaced`);
   }
-  throwIfInvalid(validateConditionsAndDecision(input, VALIDATION_RULES), INVALID_INPUT_MESSAGE);
+  throwIfEnded(previous, `Trainee restriction ${input.previousRestrictionId}`);
+  throwIfInvalid(validateConditionsAndDecision(input), INVALID_INPUT_MESSAGE);
 
   // עדכון לא משנה רשומה: הקודמת נכבית, ונוספת רשומה פעילה חדשה עם אותו מזהה לוגי
   previous.isActive = false;

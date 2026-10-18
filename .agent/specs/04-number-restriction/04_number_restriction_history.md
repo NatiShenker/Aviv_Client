@@ -23,7 +23,7 @@ Prototype source: `client/pages/ExceptionList.tsx`. Business rules and model: [o
 
 1. **HistoryHeader** – title `"הגבלה/היתר למספר"`; back arrow to `/child/{id}`.
 2. **HistoryToolbar** ([00 §3.23](../00_foundations.md))
-   - Section title `"הסטוריית הגבלות והיתרים"` (Restrictions and permits history).
+   - Section title `"היסטוריית הגבלות והיתרים"` (Restrictions and permits history).
    - Search field: aria-label `"חיפוש הגבלות והיתרים"`, placeholder `"חיפוש לפי מספר, סיבה או תאריך"` (Search by number, reason or date).
    - Round sort button (aria-label `"מיון"`).
 3. **Cards** – one ExpandableRecordCard per record (each permit and each restriction separately).
@@ -32,26 +32,28 @@ Prototype source: `client/pages/ExceptionList.tsx`. Business rules and model: [o
 
 ### 3.1 Card – closed
 
+What, then when ([00 §3.22](../00_foundations.md), decided 2026-10-18):
+
 | Part | Content |
 |---|---|
 | Icon | RecordIcon – **open lock, red, the same for every card** (permit or restriction) |
-| Top line | Phone number (LTR, 16/20 gray) + TypeTag `"היתר"` / `"הגבלה"` + StatusBadge (`"פעיל"` for a permit, `"פעילה"` for a restriction, `"הסתיים"` when ended) |
-| Second line | Reason label, or `"ללא סיבה"` |
+| Title line (16/20, `text-primary`) | Phone number (LTR) + TypeTag `"היתר"` / `"הגבלה"` |
+| Meta line (16/20 gray) | Date range (LTR) + StatusBadge (`"פעיל"` for a permit, `"פעילה"` for a restriction, `"הסתיים"` when ended) |
 | End | Chevron |
 
 ### 3.2 Card – open
 
-DetailGrid, two columns (right column first):
+DetailGrid, two columns (right column first). The number, type tag, dates and status are already in the card summary, so they are not repeated:
 
 | Row | Right | Left |
 |---|---|---|
-| 1 | `"סוג"` (Type) – type label, permit or restriction variant ([overview §3](overview.md#3-derived-display-values)) | `"תאריכים"` – range, LTR |
+| 1 | `"סוג"` (Type) – type label, permit or restriction variant ([overview §3](04_number_restriction_overview.md)), full width | |
 | 2 (permits only) | `"על הגבלה"` (On restriction) – `"{scope label} · {range}"`, full width | |
 | 3 | `"שעות מותרות"` – hours value; LTR when set | `"מכשירים מותרים"` – 1 device → its label; more → `"{n} מכשירים"`; or the default value |
 | 4 | `"סיבה"` – label or `"לא צוין"` | `"גורם מאשר"` – label or `"לא צוין"` |
 | 5 | `"פירוט"` – full width, **only when not empty** | |
 
-Below the grid: outline button `"עריכה"` with edit icon.
+Below the grid: outline button `"עריכה"` with edit icon – or, on an ended record, `"צור היתר חדש על בסיס זה"` / `"צור הגבלה חדשה על בסיס זו"` **(proposed)** with a copy icon (an ended record cannot be edited, [00 §3.22](../00_foundations.md)).
 
 **Default values for hours and devices:**
 

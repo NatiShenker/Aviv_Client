@@ -9,17 +9,18 @@ import {
   conditionsValuesFromRecord,
   createNewConditionsValues,
   toConditionsInput,
-  validateDateRange,
   validateDuration,
   validateHours,
   type CallConditionsValues,
 } from "@/shared/restrictions/callConditionsLogic";
+import type { FormStartingPoint } from "@/shared/navigation/formStartingPoint";
+import { createDefaultDateRange, validateDateRange } from "@/shared/restrictions/dateRangeLogic";
 import {
+  createBasedOnDecisionValues,
   createEmptyDecisionValues,
   decisionValuesFromRecord,
   toDecisionInput,
   validateDecision,
-  type DecisionRules,
   type ValidatedDecision,
 } from "@/shared/restrictions/decisionLogic";
 import {
@@ -34,19 +35,27 @@ import {
 
 export interface RestrictionFormValues extends CallConditionsValues, DecisionValues {}
 
-/** ערכי פתיחה: הגבלה חדשה (ספק 03 form §4.1) או עריכה של רשומה קיימת */
+/**
+ * ערכי פתיחה (ספק 03 form §4.1): הגבלה חדשה, עריכה של רשומה, או הגבלה חדשה על בסיס רשומה שהסתיימה -
+ * הסוג והתנאים, הסיבה והפירוט עוברים; התאריכים, הגורם המאשר והקובץ חדשים
+ */
 export function createInitialRestrictionValues(
-  record: TraineeRestrictionRecordDto | null,
+  startingPoint: FormStartingPoint<TraineeRestrictionRecordDto>,
   today: ISODateString,
 ): RestrictionFormValues {
-  if (!record) {
-    return { ...createNewConditionsValues(today), ...createEmptyDecisionValues() };
+  switch (startingPoint.kind) {
+    case "new":
+      return { ...createNewConditionsValues(today), ...createEmptyDecisionValues() };
+    case "edit":
+      return { ...conditionsValuesFromRecord(startingPoint.record), ...decisionValuesFromRecord(startingPoint.record) };
+    case "basedOn":
+      return {
+        ...conditionsValuesFromRecord(startingPoint.record),
+        ...createDefaultDateRange(today),
+        ...createBasedOnDecisionValues(startingPoint.record),
+      };
   }
-  return { ...conditionsValuesFromRecord(record), ...decisionValuesFromRecord(record) };
 }
-
-/** בהגבלת חניך הסיבה חובה (CODE_RESTRICTION, ספק 00 §4.3) */
-export const RESTRICTION_DECISION_RULES: DecisionRules = { isReasonRequired: true };
 
 // ── שגיאות ──
 
@@ -56,8 +65,8 @@ export type RestrictionFormErrors = FormErrors<RestrictionErrorSlot>;
 
 /** מקומות השגיאה בטופס, לפי סדר ההופעה שלהם מלמעלה למטה */
 export const RESTRICTION_ERROR_SLOTS: readonly RestrictionErrorSlot[] = [
-  "dates",
   "duration",
+  "dates",
   "hours",
   "devices",
   "reason",
@@ -83,10 +92,10 @@ export const RESTRICTION_FIELD_IDS: Record<RestrictionErrorSlot, string> = {
 /** כל הכללים רצים יחד, ובכל מקום מוצגת רק השגיאה הראשונה */
 export function validateRestrictionForm(values: RestrictionFormValues): RestrictionFormErrors {
   return removeEmptyErrors<RestrictionErrorSlot>({
-    dates: validateDateRange(values),
     duration: validateDuration(values),
+    dates: validateDateRange(values),
     hours: validateHours(values),
-    ...validateDecision(values, RESTRICTION_DECISION_RULES),
+    ...validateDecision(values),
   });
 }
 

@@ -80,6 +80,7 @@ export default function NumberRestrictionsHistory({ traineeId, header }: NumberR
         isOpen={openRecordKey === recordKey}
         onToggle={() => toggleRecord(recordKey)}
         onEdit={() => navigate(ROUTES.editNumberRecord(traineeId, recordKey))}
+        onCreateBasedOn={() => navigate(ROUTES.newNumberRecord(traineeId, recordKey))}
       />
     );
   };
@@ -141,7 +142,7 @@ interface NumberRecordFormSlotProps {
 // הטופס נשאר mounted לאורך כל המסך, כדי שייסגר באנימציה גם כשהכתובת חוזרת להיסטוריה
 function NumberRecordFormSlot({ traineeId, phoneRecords, onSaved }: NumberRecordFormSlotProps) {
   const closeForm = useNavigateBack();
-  const { openTarget, editRecord } = useHistoryFormTarget({
+  const { openTarget, editRecord, basedOnRecord } = useHistoryFormTarget({
     formTarget: useNumberRecordFormRoute(),
     records: phoneRecords,
     matchesRecordRef: matchesNumberRecordRef,
@@ -158,6 +159,7 @@ function NumberRecordFormSlot({ traineeId, phoneRecords, onSaved }: NumberRecord
       target={openTarget}
       traineeId={traineeId}
       editRecord={editRecord}
+      basedOnRecord={basedOnRecord}
       onClose={closeForm}
       onSaved={handleSaved}
     />

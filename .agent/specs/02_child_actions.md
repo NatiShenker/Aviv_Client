@@ -37,16 +37,16 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 |---|---|---|---|
 | 1 | `"הגבלה/היתר לחניך"` (Trainee restriction/permit) | Circle with a slash | `/child/{id}/block` – [03 history](03-trainee-restriction/history.md) |
 | 2 | `"הגבלה/היתר למספר"` (Number restriction/permit) | Open lock | `/child/{id}/exception` – [04 history](04-number-restriction/history.md) |
-| 3 | `"הוספת הודעה קולית"` (Add voice message) | Microphone with plus | `/child/{id}/voice-message` – [05 history](05-voice-message/history.md) |
+| 3 | `"הודעה קולית לנמען"` (Voice message to the recipient – decided 2026-10-18) | Microphone with plus | `/child/{id}/voice-message` – [05 history](05-voice-message/05_voice_message_history.md) |
 
 - **Permissions:** the menu is built from the permission IDs returned by `GetPermissionsForInstitution` for the selected institute, and is the same for every trainee. Each action has its own permission ID; a row is shown only when the user has it. The section (title included) is hidden when no action is permitted.
-- **Rows without a screen yet** (voice message – until screen 05 is built) are shown disabled.
+- **Rows without a screen** are shown disabled.
 
 ### 3.3 Additional information section
 
 - **Divider** 24px below the actions (same style as §3.1).
 - **Title** `"מידע נוסף"` (Additional information), 16/20, weight 500, 23px below the divider.
-- **One row**, 15px below: `"הסטורית דקות"` (Minutes history), clock icon, same row style. It has no destination ([OQ-08](README.md#oq-08)), so it is shown disabled.
+- **One row**, 15px below: `"היסטוריית דקות"` (Minutes history; the spelling "היסטוריית" is used on every screen – decided 2026-10-18), clock icon, same row style. It has no destination ([OQ-08](README.md#oq-08)), so it is shown disabled.
 - **Permission:** the whole section (divider, title and rows) requires one general permission ID.
 
 ---

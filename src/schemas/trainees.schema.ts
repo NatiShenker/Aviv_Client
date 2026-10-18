@@ -35,7 +35,7 @@ export interface TraineeActiveStatusFlagsDto {
   // d. הודעה לנמען
   /** האם קיימת היום הודעה רגילה פעילה לנמען */
   hasActiveMessage: boolean;
-  /** האם קיימת היום הודעה אינטראקטיבית פעילה לנמען */
+  /** האם קיימת היום הודעה אינטראקטיבית פעילה לנמען ("הודעה חוזרת" - repeatDuringCall ב-voice-messages.schema) */
   hasActiveInteractiveMessage: boolean;
 
   // e. הגבלה/היתר למספר (AVIV_TRAINEE_RESTRICTION_NUMBER / PERMITS)

@@ -7,9 +7,9 @@ export const TRAINEE_ACTIONS_TEXTS = {
   items: {
     traineeRestriction: "הגבלה/היתר לחניך",
     numberRestriction: "הגבלה/היתר למספר",
-    voiceMessage: "הוספת הודעה קולית",
-    // האיות כמו בספק 02 (שונה מ"הסטוריית" - ראו OQ-08)
-    minutesHistory: "הסטורית דקות",
+    voiceMessage: "הודעה קולית לנמען",
+    // "היסטוריית" בכל המסכים (הוחלט 2026-10-18)
+    minutesHistory: "היסטוריית דקות",
   },
 
   states: {

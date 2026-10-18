@@ -12,11 +12,11 @@ import { todayIsoDate } from "@/shared/dates/isoDate";
 import { focusField } from "@/shared/dom/focusField";
 import { isValidPhone, normalizePhone } from "@/shared/formatting/phoneFormat";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/shared/navigation/formStartingPoint";
 import type { PermittedCondition } from "@/shared/restrictions/callConditionsLogic";
 import { decisionErrorSlotsFor, findReasonIdByName, toValidatedDecision } from "@/shared/restrictions/decisionLogic";
 import { findFirstErrorSlot, hasErrors } from "@/shared/restrictions/formErrors";
 import {
-  NUMBER_DECISION_RULES,
   NUMBER_RECORD_ERROR_SLOTS,
   NUMBER_RECORD_FIELD_IDS,
   RESTRICTION_PICKER_HEADING_ID,
@@ -31,9 +31,9 @@ import {
   completePhoneSearch,
   createInitialNumberRecordState,
   failPhoneSearch,
-  keepRecordReasonWhenUnchosen,
   mapSaveErrorToSlots,
   openRestrictionPicker,
+  phoneToSearchOnOpen,
   rejectInvalidPhone,
   removeAddedPhone,
   restrictSearchedNumber,
@@ -52,16 +52,24 @@ interface UseNumberRecordFormOptions {
   traineeId: number;
   /** הפנימייה של החניך, לחיפוש ההגבלות הפנימייתיות */
   instituteId: number | null;
-  /** הרשומה שבעריכה, או null ביצירה. ערכי הטופס נקבעים ממנה כשהטופס נפתח */
-  record: TraineePhoneRecordDto | null;
+  /** רשומה חדשה, עריכה, או רשומה חדשה על בסיס רשומה שהסתיימה. ערכי הטופס נקבעים ממנה כשהטופס נפתח */
+  startingPoint: FormStartingPoint<TraineePhoneRecordDto>;
   reasons: AsyncResource<LookupItem<number>[]>;
   /** אחרי שמירה מוצלחת, עם המפתח של הרשומה הראשונה שנשמרה */
   onSaved: (savedRecordKey: string) => void;
 }
 
 /** המצב וההתנהגות של טופס ההגבלה / ההיתר למספר (ספק 04 form §4) */
-export function useNumberRecordForm({ traineeId, instituteId, record, reasons, onSaved }: UseNumberRecordFormOptions) {
-  const [state, setState] = useState(() => createInitialNumberRecordState(record, todayIsoDate()));
+export function useNumberRecordForm({
+  traineeId,
+  instituteId,
+  startingPoint,
+  reasons,
+  onSaved,
+}: UseNumberRecordFormOptions) {
+  const editedRecord = editedRecordOf(startingPoint);
+  const sourceRecord = sourceRecordOf(startingPoint);
+  const [state, setState] = useState(() => createInitialNumberRecordState(startingPoint, todayIsoDate()));
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | undefined>(undefined);
   const [isFileUploading, setIsFileUploading] = useState(false);
@@ -79,13 +87,23 @@ export function useNumberRecordForm({ traineeId, instituteId, record, reasons, o
   // הרשומה שמורה עם שם הסיבה: כשרשימת הסיבות מגיעה, הסיבה נבחרת בה לפי השם
   useEffect(() => {
     const reasonList = reasons.data;
-    if (!record || !reasonList) return;
+    if (!sourceRecord || !reasonList) return;
     setState((current) =>
       current.values.reasonId !== null
         ? current
-        : { ...current, values: { ...current.values, reasonId: findReasonIdByName(reasonList, record.reason) } },
+        : { ...current, values: { ...current.values, reasonId: findReasonIdByName(reasonList, sourceRecord.reason) } },
     );
-  }, [record, reasons.data]);
+  }, [sourceRecord, reasons.data]);
+
+  // היתר על בסיס היתר שהסתיים: המספר נבדק מיד כשהטופס נפתח.
+  // בכל הרכבה מחדש החיפוש רץ שוב, כי ניקוי ההרכבה מבטל את החיפוש הקודם (usePermitLookup)
+  const [phoneToSearch] = useState(() => phoneToSearchOnOpen(state));
+  // רק בפתיחת הטופס - ולכן בלי תלויות
+  useEffect(() => {
+    if (phoneToSearch) {
+      searchNumber(phoneToSearch);
+    }
+  }, []);
 
   // אחרי שהמסך התעדכן (שגיאות הוצגו, אקורדיון נפתח, הרשימה נסגרה) - פוקוס וגלילה לשדה
   useEffect(() => {
@@ -107,8 +125,7 @@ export function useNumberRecordForm({ traineeId, instituteId, record, reasons, o
   };
 
   // ספק 04 form §4.3: ריק - כלום; לא תקין - שגיאה בלי חיפוש; תקין - חיפוש
-  const searchPhone = () => {
-    const phone: PhoneString = normalizePhone(state.phoneDraft);
+  function searchNumber(phone: PhoneString) {
     if (!phone) return;
     if (!isValidPhone(phone)) {
       update(rejectInvalidPhone);
@@ -116,7 +133,9 @@ export function useNumberRecordForm({ traineeId, instituteId, record, reasons, o
     }
     update((current) => startPhoneSearch(current, phone));
     permitLookup.search(phone);
-  };
+  }
+
+  const searchPhone = () => searchNumber(normalizePhone(state.phoneDraft));
 
   const restrictNumber = () => {
     permitLookup.cancel();
@@ -131,14 +150,9 @@ export function useNumberRecordForm({ traineeId, instituteId, record, reasons, o
   // ── שמירה (ספק 04 form §4.10) ──
 
   const saveRecord = async (submittedState: NumberRecordFormState) => {
-    const validatedDecision = toValidatedDecision(submittedState.values, reasons.data ?? [], NUMBER_DECISION_RULES);
-    if (!validatedDecision) return null;
-    return saveNumberRecord({
-      state: submittedState,
-      decision: keepRecordReasonWhenUnchosen(validatedDecision, record),
-      traineeId,
-      record,
-    });
+    const decision = toValidatedDecision(submittedState.values, reasons.data ?? []);
+    if (!decision) return null;
+    return saveNumberRecord({ state: submittedState, decision, traineeId, record: editedRecord });
   };
 
   const handleSaveError = (error: unknown, submittedState: NumberRecordFormState) => {

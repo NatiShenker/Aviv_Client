@@ -8,7 +8,7 @@ Everything shared by all screens. Screen files reference the components and patt
 
 - **Mobile web**, Hebrew, right-to-left: every screen root has `dir="rtl"` and `lang="he"`.
 - **Content width:** max 375px, centered. The app background (`#f6f8fe`) fills the viewport.
-- **Font:** Rubik, weights 400 / 500 / 600 (700 only for the voice message scope titles). Load once globally.
+- **Font:** Rubik, weights 400 / 500 / 600. Load once globally.
 - **Top spacing:** 50px above the header on every screen (status-bar area).
 - **Mixed direction:** dates, times, ranges, phone numbers and "+N" counters are wrapped in `dir="ltr"` spans so they read left to right inside RTL text.
 - **Address and direct entry:** Aviv's URL is appended to the host's URL: host domain (with the environment prefix) + the host's own route + Aviv's route. The part of the path before Aviv's route is the router base, derived at startup, so every in-app link keeps the host prefix. A direct entry to an inner Aviv route (a link or a page refresh) starts at the children list (the address is replaced, query parameters are kept). Only the controls catalog (`/catalog`, a dev page) opens directly.
@@ -102,8 +102,8 @@ Each entry: **structure**, **states**, **used in**.
 
 ### 3.3 FieldIntro
 
-- **Structure:** title (14/18, `text-primary`) and a one-line description (14/18, or 12/15 in the **compact** variant, `text-secondary`). The description is truncated with an ellipsis; the full text is in a tooltip (`title` attribute).
-- **Used in:** date range, limit type, voice message hours and devices.
+- **Structure:** title (14/18, `text-primary`) and an optional one-line description (14/18, or 12/15 in the **compact** variant, `text-secondary`). The description is truncated with an ellipsis; the full text is in a tooltip (`title` attribute). Without a description it is the title of a stacked radio group.
+- **Used in:** date range; title of the limit type and voice message scope groups.
 
 ### 3.4 FieldLabel
 
@@ -135,15 +135,15 @@ Each entry: **structure**, **states**, **used in**.
 ### 3.8 RadioGroup / RadioOption
 
 - **Structure:** container with `role="radiogroup"` and an accessible name. Each option: a native radio (visually hidden) + a 20px circle with `action` border (1px unchecked, 2px checked) and a 10px `action` dot when checked; label 16/24. Options sit in one wrapping row (16px horizontal gap, 8px vertical gap). Keyboard focus shows a ring around the circle.
-- **ScopeOption variant** (voice message): options stacked vertically (16px gap); each has a bold title and a description line below.
-- **Implemented by** `IpsRadioGroupMobile` (the row variant).
+- **Stacked variant – choices that define the record** (decided 2026-10-18): every option has a description, so the consequence of each option is visible before choosing. Options are stacked one per row (16px gap): title 16/24 weight 500, description 14/18 `text-secondary` below it; the whole option is tappable, and the description is read after the radio's name. **No asterisk** – a radio group always has a value. The option that reveals a dependent field is **last**, and the field appears right below the group. Used for: `"הגבלה או היתר"` (04), `"סוג ההגבלה"` / `"סוג ההיתר"` (03, 04, via LimitTypeSelector), `"היקף ההפעלה"` (05).
+- **Implemented by** `IpsRadioGroupMobile` (a `description` on the options switches it to the stacked variant).
 
 ### 3.9 LimitTypeSelector
 
-- **Structure:** FieldIntro (title + a hint that changes with the selection) → RadioGroup with two options → DurationField (only when the duration option is selected) → ErrorText for the duration.
+- **Structure:** FieldIntro title → stacked RadioGroup (§3.8) with two options, each with its description → DurationField (only when the duration option is selected) → ErrorText for the duration.
 - **Configurations:**
 
-| Context | Title | Option 1 (default) | Hint 1 | Option 2 | Hint 2 |
+| Context | Title | Option 1 (default) | Description 1 | Option 2 | Description 2 |
 |---|---|---|---|---|---|
 | Restriction | `"סוג ההגבלה"` | `"הגבלה מלאה"` | `"השיחות חסומות, למעט ההיתרים שיוגדרו למטה"` | `"הגבלת משך שיחה"` | `"השיחות מותרות, עד משך מרבי לכל שיחה"` |
 | Permit | `"סוג ההיתר"` | `"היתר מלא"` | `"השיחות מותרות ללא הגבלת משך"` | `"היתר עם הגבלת משך"` | `"השיחות מותרות, עד משך מרבי לכל שיחה"` |
@@ -176,7 +176,7 @@ Each entry: **structure**, **states**, **used in**.
 - **Desktop:** a plain click toggles one option (no Ctrl/Cmd needed). **Mobile:** the OS multi-select picker.
 - FieldLabel `"בחר מכשיר"` (Pick a device).
 - **Devices are grouped by wing** (native `optgroup` / menu subheaders), in the institute's wing order, because an institute can have many devices. The group heading is `"אגף {name}"`, or just the name for a virtual wing (e.g. `"מיקומים שונים"`). **No `"הכל"` option** – nothing selected means all devices are allowed.
-- **Used in:** permitted devices, voice message devices.
+- **Used in:** permitted devices.
 
 ### 3.14 DetailsTextArea
 
@@ -198,12 +198,13 @@ Each entry: **structure**, **states**, **used in**.
 
 ### 3.17 Switch
 
-- 48×24 track (`action` when on, `divider` when off), 20px white knob that slides. `role="switch"`, `aria-checked`. Label text next to it; the label is clickable.
-- **Used in:** voice form `"חזרה במהלך השיחה"`.
+- 48×24 track (`action` when on, `divider` when off), 20px white knob inside it that slides. `role="switch"`, `aria-checked`.
+- **A settings row** (decided 2026-10-19): full width – the label (and an optional gray line below it, read as the switch's description) on the right, the switch at the far left. The label is clickable.
+- **Used in:** voice form `"הודעה חוזרת"`. Implemented by `IpsSwitch`, sized at the usage (`sx`) – the control existed in the library before Aviv.
 
 ### 3.18 StatusBadge
 
-- History lists: `"פעילה"` (restriction, voice message) or `"פעיל"` (permit) on `success-soft` / `success`; `"הסתיים"` (ended) on `muted-soft` / `divider`.
+- History lists: `"פעילה"` (restriction, message) or `"פעיל"` (permit) on `success-soft` / `success`; `"הסתיים"` (ended) on `muted-soft` / `divider`. Shown next to the date range in the card's meta line (§3.22).
 - The children list has its own badge, see [01](https://www.google.com/search?q=01-children-list.md).
 
 ### 3.19 TypeTag
@@ -221,8 +222,11 @@ Each entry: **structure**, **states**, **used in**.
 
 ### 3.22 ExpandableRecordCard
 
-- **Closed:** a button (`aria-expanded`) with RecordIcon, a top line (gray value + badges), a second line with the reason (`"ללא סיבה"` (No reason) when empty, truncated), and a chevron (`chevron` color) that rotates when open.
-- **Open:** DetailGrid, then a full-width outline button `"עריכה"` (Edit) with an edit icon.
+- **Information order, every action** (decided 2026-10-18): **what → when → conditions → why and who** – the same order as the form.
+- **Closed:** a button (`aria-expanded`) with RecordIcon, a **title line** (16/20, `text-primary`, truncated) with what the record does – trainee restriction: its type label; number record: the number + TypeTag; message: the number or `"כל השיחות"` – a **meta line** (16/20 gray) with when – the date range (LTR) + StatusBadge – and a chevron (`chevron` color) that rotates when open. The reason is not in the closed card.
+- **Open:** DetailGrid with only what the two summary lines do not already show (they stay visible above it), in the form's order; then a full-width outline button:
+  - **Active or future record:** `"עריכה"` (Edit) with an edit icon.
+  - **Ended record** (decided 2026-10-19, closing the edit part of [OQ-14](README.md#oq-14)): an ended record **cannot be edited**. The button is `"צור … חדשה על בסיס זו"` (Create a new … based on this, worded per record type – **proposed**) with a copy icon, and opens the create form prefilled from the record (§4.2).
 - **Motion:** opening and closing animate smoothly ("Card expand", §2.4). While closed, the content is hidden from screen readers and the keyboard.
 - **Only one card is open at a time**; tapping an open card closes it.
 
@@ -250,7 +254,7 @@ Same structure and look as the children list header row 2 ([01 §3.1](01_childre
 
 ### 3.26 StickyActionBar
 
-- Sticky bottom bar (§2.3). Either one full-width primary button, or two equal columns: outline `"ביטול"` (Cancel, link back to the list, replace) + primary `"שמור"` (Save, submit).
+- Sticky bottom bar (§2.3). On a history screen: one full-width primary "create" button. In every form: two equal columns, outline `"ביטול"` (Cancel, closes without saving) + primary `"שמור"` (Save, submit) ([OQ-17](README.md#oq-17), closed 2026-10-18).
 
 ### 3.27 EmptyState
 
@@ -273,7 +277,8 @@ Rules shared by all history screens:
 - **Default sort:** start date, descending. Options: `"תאריך התחלה"` (start date), `"תאריך סיום"` (end date), `"סטטוס"` (status: active vs ended, ties broken by start date).
 - **Search** matches a text built from the record's visible values (listed per screen). Case-sensitive substring; non-breaking spaces count as spaces.
 - **After save:** the list shows the saved record **open**. If several were saved at once, the first one is open.
-- **Edit:** the "עריכה" button opens the form in edit mode for that record.
+- **Edit:** the "עריכה" button opens the form in edit mode for that record – only an active or future record. An edit URL of an ended record goes back to the history list (replace), like an unknown record.
+- **Create based on:** on an ended record, the button opens the create form based on it (§4.2).
 - The screen scrolls to the top when it opens.
 
 ### 4.2 Form screen
@@ -291,6 +296,7 @@ Rules shared by all forms:
 - **Close / cancel** goes back to the list without saving and without confirmation ([OQ-16](https://www.google.com/search?q=README.md%23oq-16)).
 - **New record defaults:** start date = today, end date = tomorrow, both shown **muted** until changed. They are real values and are saved as is.
 - **Edit:** all fields load from the record; dates are not muted; accordions that contain values start open.
+- **Create based on an ended record** (decided 2026-10-19): the create route with `?basedOn={record}` (e.g. `/child/1/block/new?basedOn=12`; in the number form the record key, `permit-12`). The form opens in create mode with: **what** the record does (type, duration, hours, devices, number, scope, repeat), the **reason** (matched by name when the list arrives) and the **details**. The **dates** are the new-record defaults (today–tomorrow, muted); **approver and file are empty** – a new decision needs a new approval. A source that is not found opens a plain create form. Per-form details are in each form spec.
 
 ### 4.3 Reasons & decision block
 
@@ -298,7 +304,7 @@ Block title `"סיבות והחלטה"`. Identical in every form, except for the
 
 | Order | Field | Component (`ui-library` / External) | Placeholder | Required |
 |---|---|---|---|---|
-| 1 | `"סיבה/הערה"` (Reason/note) | `IpsSelectMobile` (NativeSelect behavior) | `"בחר סיבה"` (prototype: `"הכל"`) | No (**Yes** in Trainee Restriction – `CODE_RESTRICTION`; error `"יש לבחור סיבה"` **(proposed)**) |
+| 1 | `"סיבה/הערה"` (Reason/note) | `IpsSelectMobile` (NativeSelect behavior) | `"בחר סיבה"` (prototype: `"הכל"`) | **Yes** in every form (decided 2026-10-19) – error `"יש לבחור סיבה"` **(proposed)** |
 | 2 | `"פירוט"` (Details) | `IpsTextAreaMobile` (DetailsTextArea behavior) | `"הוסף פירוט"` | **Yes** in every form (decided 2026-10-18) – error `"יש להזין פירוט"` **(proposed)**. Only spaces count as empty |
 | 3 | `"גורם מאשר"` (Approver) | **External 3rd-party Approver MFE** – see below | – | **Yes** – error `"יש לבחור גורם מאשר"` **(proposed)** |
 | 4 | `"צירוף קובץ"` (File) | `IpsFileUpload` → **Direct upload to SharePoint** – see below | – | **Yes** – error `"יש לצרף קובץ"` (A file must be attached) |
@@ -331,13 +337,13 @@ In production each lookup item is typed as `LookupItem<number> { id: number; nam
 - **Reasons:**
   - **Trainee restriction:** `"הפרת משמעת"`, `"שימוש לא תקין בטלפון"`, `"בקשת גורם טיפולי"`, `"בקשת הורים"`, `"אחר"`.
   - **Number restriction / permit:** `"מורשה לזמן מוגבל"`, `"קשר עם בן משפחה"`, `"קשר עם גורם טיפולי"`, `"בקשת הורים"`, `"אחר"`.
-  - **Voice message:** `"זיהוי מקור השיחה"`, `"בקשת הורים"`, `"בקשת גורם טיפולי"`, `"הנחיית הנהלה"`, `"אחר"`.
+  - **Voice message to the recipient:** `"זיהוי מקור השיחה"`, `"בקשת הורים"`, `"בקשת גורם טיפולי"`, `"הנחיית הנהלה"`, `"אחר"`.
 
 ---
 
 ## 7. API & Schema conventions
 
-Full TypeScript contracts live in `common.schema.ts`, `organization.schema.ts`, `trainees.schema.ts`, `trainee-restrictions.schema.ts`, `phone-exceptions.schema.ts`, and `voice-messages.schema.ts`:
+Full TypeScript contracts live in `common.schema.ts`, `organization.schema.ts`, `trainees.schema.ts`, `trainee-restrictions.schema.ts`, `phone-exceptions.schema.ts`, and `voice-messages.schema.ts` (the last one approximate, drafted in the client – see pending-decisions):
 
 - **Style:** JSON over HTTP to Aviv_Service in `Controller/Action` form (e.g. `Institutions/GetInstitutionsAndWings`), through the internal HTTP client. Queries may use `POST` when they send arrays of IDs. The `/api/...` paths in the feature specs (03–05) are older placeholders until those endpoints are defined.
 - **IDs:** `number`.

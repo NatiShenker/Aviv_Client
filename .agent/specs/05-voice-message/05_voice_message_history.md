@@ -1,67 +1,65 @@
-# 05 – Voice message – History
+# 05 – Voice message to the recipient – History
 
-Prototype source: `client/pages/VoiceMessageList.tsx`. Rules and model: [overview.md](overview.md). Pattern: [00 §4.1](../00-foundations.md#41-history-screen).
+Prototype source: `client/pages/VoiceMessageList.tsx` (superseded where this spec differs). Rules and model: [overview.md](05_voice_message_overview.md). Pattern: [00 §4.1](../00_foundations.md).
 
 ---
 
 ## 1. Purpose & entry points
 
-- Lists the trainee's voice messages (active and ended); search, sort, expand, edit, create.
-- **Entry points:** `"הוספת הודעה קולית"` on the actions screen; returning from the form.
+- Lists the trainee's voice messages (active and ended), one card per record – an all-calls message or one number; search, sort, expand, edit, create.
+- **Entry points:** `"הודעה קולית לנמען"` on the actions screen; returning from the form.
 
 ---
 
 ## 2. Route & parameters
 
 - **Route:** `/child/:id/voice-message`
-- **`id`:** trainee ID. Unknown trainee → not-found screen (production).
-- **After save (production):** the form passes the saved record ID; the list opens that card, then clears it.
+- **`id`:** trainee ID. Unknown trainee → `"החניך לא נמצא"` under the header.
+- **After save:** the list reloads and opens the first saved record.
 
 ---
 
 ## 3. Layout
 
-1. **HistoryHeader** – title `"הודעה קולית"` (Voice message); back arrow to `/child/{id}`.
+1. **HistoryHeader** – title `"הודעה קולית לנמען"`; back arrow to `/child/{id}`.
 2. **HistoryToolbar** ([00 §3.23](../00_foundations.md))
-   - Section title `"הסטוריית הודעות קוליות"` (Voice messages history).
-   - Search field: aria-label `"חיפוש הודעות קוליות"`, placeholder `"חיפוש לפי מספר, סיבה או תאריך"`.
-   - Round sort button (aria-label `"מיון"`).
-3. **Cards** – one ExpandableRecordCard per voice message.
-4. **EmptyState** – `"לא נמצאו הודעות קוליות"` (No voice messages found).
-5. **StickyActionBar** – primary link `"הוספת הודעה קולית חדשה"` (Add new voice message) + plus icon → `/child/{id}/voice-message/new`.
+   - Section title `"היסטוריית הודעות לנמען"` (Messages history).
+   - Search field: aria-label `"חיפוש הודעות לנמען"`, placeholder `"חיפוש לפי מספר, סיבה או תאריך"`.
+   - Sort button (aria-label `"מיון"`).
+3. **Cards** – one ExpandableRecordCard per record.
+4. **EmptyState** – `"לא נמצאו הודעות לנמען"` (No messages found).
+5. **StickyActionBar** – primary button `"הוספת הודעה לנמען"` (Add message) + plus icon → `/child/{id}/voice-message/new`.
 
 ### 3.1 Card – closed
 
 | Part | Content |
 |---|---|
-| Icon | RecordIcon – microphone, blue (`#e0ebff` circle, `#006aff` stroke) |
-| Top line (16/20 gray) | Scope summary + StatusBadge `"פעילה"` / `"הסתיים"` |
-| Scope summary | All calls → `"כל השיחות"` (All calls). Selected → the first number (LTR), and when there are more, `"+{n}"` (LTR; screen readers hear `"ועוד {n} מספרים"` – and {n} more numbers) |
-| Second line | Reason label, or `"ללא סיבה"` |
+| Icon | RecordIcon – microphone, blue |
+| Title line (16/20, `text-primary`) | The number (LTR), or `"כל השיחות"` (All calls) |
+| Meta line (16/20 gray) | Date range (LTR) + StatusBadge `"פעילה"` / `"הסתיים"` |
 | End | Chevron |
 
 ### 3.2 Card – open
 
-DetailGrid, two columns (right column first):
+DetailGrid, two columns (right column first). The number, dates and status are already in the card summary, so they are not repeated:
 
 | Row | Right | Left |
 |---|---|---|
-| 1 | `"תאריכים"` – range, LTR | `"שעות"` (Hours) – `"HH:mm-HH:mm"` (LTR) when both are set, else `"כל היום"` |
-| 2 | `"היקף ההפעלה"` (Activation scope) – `"בכל השיחות"` (On all calls), or the numbers one per line (LTR) | `"חזרה במהלך השיחה"` (Repeat during call) – `"כן"` (Yes) / `"לא"` (No) |
-| 3 | `"סיבה"` – label or `"לא צוין"` | `"מכשירים"` (Devices) – labels joined with `", "`, or `"כל המכשירים"` |
-| 4 | `"גורם מאשר"` – label or `"לא צוין"` | – |
-| 5 | `"פירוט"` – full width, **only when not empty** | |
+| 1 | `"הודעה חוזרת"` (Repeating message) – `"כן"` / `"לא"`, full width | |
+| 2 | `"סיבה"` – label or `"לא צוין"` | `"גורם מאשר"` – label or `"לא צוין"` |
+| 3 | `"פירוט"` – full width, **only when not empty** | |
 
-Below the grid: outline button `"עריכה"` with edit icon.
-
-Note: this card uses the labels `"שעות"` and `"מכשירים"` (not "מותרות/מותרים"), because here they define when the message plays ([overview §2](overview.md#2-business-rules)).
+Below the grid: outline button `"עריכה"` with edit icon – or, on an ended record, `"צור הודעה חדשה על בסיס זו"` **(proposed)** with a copy icon (an ended record cannot be edited, [00 §3.22](../00_foundations.md)).
 
 ---
 
 ## 4. Behavior & states
 
-- **Search** matches the trimmed query (substring) against: `"כל השיחות"` (all-calls records only), each number, reason, details, approver, each device label, date range (`DD/MM/YY-DD/MM/YY`), start and end dates (`YYYY-MM-DD`). Hours are not searchable.
-- **Empty list** and **no search match** both show `"לא נמצאו הודעות קוליות"`.
+- **Search** matches the trimmed query (substring) against: the number, or `"כל השיחות"` (all-calls records only), `"הודעה חוזרת"` (repeating records only), reason, details, approver, date range (`DD/MM/YY-DD/MM/YY`), start and end dates (`YYYY-MM-DD`).
+- **Sort sheet rows** – shared by every history screen ([03 history §4](../03-trainee-restriction/03_trainee_restriction_history.md)).
+- **Empty list** and **no search match** both show `"לא נמצאו הודעות לנמען"`.
+- **Loading:** skeleton cards, `"טוען הודעות לנמען…"` **(proposed)**. **Failure:** `"לא ניתן לטעון את ההודעות לנמען"` **(proposed)** + `"נסה שוב"`.
+- **Permission:** requires the voice-message permission ([02 §7](../02_child_actions.md)).
 - The screen scrolls to the top when opened.
 
 ---
@@ -70,6 +68,6 @@ Note: this card uses the labels `"שעות"` and `"מכשירים"` (not "מות
 
 | When | Call | Schema |
 |---|---|---|
-| Screen opens; returning from the form | `GET /api/trainees/{traineeId}/voice-messages` | Request: `GetTraineeVoiceMessagesRequest` (`traineeIds: [traineeId]`)<br>Response: `GetTraineeVoiceMessagesResponse` (`records: TraineeVoiceMessageRecordDto[]`) |
+| Every time the screen opens (no client cache); returning from the form | `POST VoiceMessages/GetTraineeVoiceMessages` *(placeholder)* | Request: `GetTraineeVoiceMessagesRequest` (`traineeIds: [traineeId]`)<br>Response: `GetTraineeVoiceMessagesResponse` (`records: TraineeVoiceMessageRecordDto[]`) |
 
 - Search and sort run on the client over `records`.

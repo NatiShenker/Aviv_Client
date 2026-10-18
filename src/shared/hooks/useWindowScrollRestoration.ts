@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 /**
  * שחזור הגלילה בחזרה למסך: מדווח על כל שינוי גלילה, ומחזיר אותה פעם אחת למקום השמור
@@ -22,9 +22,15 @@ export function useWindowScrollRestoration(
     }
   }, [isContentReady, savedScrollY]);
 
-  useEffect(() => {
+  // המאזין יורד, והמקום האחרון נשמר, כבר כשהמסך מתחיל לצאת - לפני שהתוכן שלו מוסר ולפני שהמסך הבא נבנה.
+  // הניווט רץ כ-transition, ולכן ניקוי רגיל (useEffect) היה קורה רק אחרי שהמסך הבא גלל לראש הדף,
+  // והמאזין היה שומר את הגלילה הזו במקום המקום האמיתי ברשימה
+  useLayoutEffect(() => {
     const reportScroll = () => onScrollChangeRef.current(window.scrollY);
     window.addEventListener("scroll", reportScroll, { passive: true });
-    return () => window.removeEventListener("scroll", reportScroll);
+    return () => {
+      window.removeEventListener("scroll", reportScroll);
+      reportScroll();
+    };
   }, []);
 }

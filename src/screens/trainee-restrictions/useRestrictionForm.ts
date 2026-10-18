@@ -8,15 +8,12 @@ import { FORM_TEXTS } from "@/shared/components/form/formTexts";
 import { todayIsoDate } from "@/shared/dates/isoDate";
 import { focusField } from "@/shared/dom/focusField";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import {
-  openConditionsForRecord,
-  touchedDatesFor,
-  type PermittedCondition,
-} from "@/shared/restrictions/callConditionsLogic";
+import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/shared/navigation/formStartingPoint";
+import { openConditionsForRecord, type PermittedCondition } from "@/shared/restrictions/callConditionsLogic";
+import { touchedDatesFor } from "@/shared/restrictions/dateRangeLogic";
 import { decisionErrorSlotsFor, findReasonIdByName, toValidatedDecision } from "@/shared/restrictions/decisionLogic";
 import { findFirstErrorSlot, hasErrors, withoutErrors } from "@/shared/restrictions/formErrors";
 import {
-  RESTRICTION_DECISION_RULES,
   RESTRICTION_ERROR_SLOTS,
   RESTRICTION_FIELD_IDS,
   buildCreateRestrictionRequest,
@@ -31,19 +28,21 @@ import {
 
 interface UseRestrictionFormOptions {
   traineeId: number;
-  /** הרשומה שבעריכה, או null בהגבלה חדשה. ערכי הטופס נקבעים ממנה כשהטופס נפתח */
-  record: TraineeRestrictionRecordDto | null;
+  /** הגבלה חדשה, עריכה, או הגבלה חדשה על בסיס רשומה שהסתיימה. ערכי הטופס נקבעים ממנה כשהטופס נפתח */
+  startingPoint: FormStartingPoint<TraineeRestrictionRecordDto>;
   reasons: AsyncResource<LookupItem<number>[]>;
   /** אחרי שמירה מוצלחת, עם מזהה הרשומה שנשמרה */
   onSaved: (savedRecordId: number) => void;
 }
 
 /** המצב וההתנהגות של טופס ההגבלה (ספק 03 form §4) */
-export function useRestrictionForm({ traineeId, record, reasons, onSaved }: UseRestrictionFormOptions) {
-  const [values, setValues] = useState(() => createInitialRestrictionValues(record, todayIsoDate()));
+export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved }: UseRestrictionFormOptions) {
+  const editedRecord = editedRecordOf(startingPoint);
+  const sourceRecord = sourceRecordOf(startingPoint);
+  const [values, setValues] = useState(() => createInitialRestrictionValues(startingPoint, todayIsoDate()));
   const [errors, setErrors] = useState<RestrictionFormErrors>({});
-  const [touchedDates, setTouchedDates] = useState(() => touchedDatesFor(record !== null));
-  const [openConditions, setOpenConditions] = useState(() => openConditionsForRecord(record));
+  const [touchedDates, setTouchedDates] = useState(() => touchedDatesFor(editedRecord !== null));
+  const [openConditions, setOpenConditions] = useState(() => openConditionsForRecord(sourceRecord));
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | undefined>(undefined);
   const [isFileUploading, setIsFileUploading] = useState(false);
@@ -52,11 +51,13 @@ export function useRestrictionForm({ traineeId, record, reasons, onSaved }: UseR
   // הרשומה שמורה עם שם הסיבה: כשרשימת הסיבות מגיעה, הסיבה נבחרת בה לפי השם
   useEffect(() => {
     const reasonList = reasons.data;
-    if (!record || !reasonList) return;
+    if (!sourceRecord || !reasonList) return;
     setValues((current) =>
-      current.reasonId !== null ? current : { ...current, reasonId: findReasonIdByName(reasonList, record.reason) },
+      current.reasonId !== null
+        ? current
+        : { ...current, reasonId: findReasonIdByName(reasonList, sourceRecord.reason) },
     );
-  }, [record, reasons.data]);
+  }, [sourceRecord, reasons.data]);
 
   // אחרי שהשגיאות הוצגו (ואקורדיון שיש בו שגיאה נפתח) - פוקוס וגלילה לשדה השגוי הראשון
   useEffect(() => {
@@ -80,11 +81,11 @@ export function useRestrictionForm({ traineeId, record, reasons, onSaved }: UseR
   };
 
   const saveRestriction = async (formValues: RestrictionFormValues): Promise<number | null> => {
-    const decision = toValidatedDecision(formValues, reasons.data ?? [], RESTRICTION_DECISION_RULES);
+    const decision = toValidatedDecision(formValues, reasons.data ?? []);
     if (!decision) return null;
 
-    const result = record
-      ? await updateTraineeRestriction(buildUpdateRestrictionRequest(formValues, decision, record))
+    const result = editedRecord
+      ? await updateTraineeRestriction(buildUpdateRestrictionRequest(formValues, decision, editedRecord))
       : await createTraineeRestriction(buildCreateRestrictionRequest(formValues, decision, traineeId));
     return result.createdIds[0] ?? null;
   };

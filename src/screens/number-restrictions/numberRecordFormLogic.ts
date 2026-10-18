@@ -11,32 +11,40 @@ import type {
   UpdateTraineePhonePermitRequest,
   UpdateTraineePhoneRestrictionRequest,
 } from "@/schemas/phone-exceptions.schema";
-import type { DateBounds } from "@/shared/components/form/CallDetailsBlock";
+import type { DateBounds } from "@/shared/components/form/DateRangeField";
 import type { DecisionValues } from "@/shared/components/form/DecisionBlock";
 import { FORM_TEXTS } from "@/shared/components/form/formTexts";
 import { commitPendingPhone, tryAddPhone } from "@/shared/components/form/phone/phoneNumbersLogic";
 import { formatDateRange } from "@/shared/formatting/dateFormat";
 import { normalizePhone } from "@/shared/formatting/phoneFormat";
+import type { FormStartingPoint } from "@/shared/navigation/formStartingPoint";
 import {
   CLOSED_CONDITIONS,
+  EMPTY_CALL_TERMS,
+  callTermsFromRecord,
   conditionsValuesFromRecord,
   createNewConditionsValues,
   openConditionsForRecord,
+  openConditionsForTerms,
   toConditionsInput,
-  touchedDatesFor,
-  validateDateRange,
   validateDuration,
   validateHours,
   type CallConditionsValues,
+  type CallTermsValues,
   type OpenConditions,
-  type TouchedDates,
 } from "@/shared/restrictions/callConditionsLogic";
 import {
+  createDefaultDateRange,
+  touchedDatesFor,
+  validateDateRange,
+  type TouchedDates,
+} from "@/shared/restrictions/dateRangeLogic";
+import {
+  createBasedOnDecisionValues,
   createEmptyDecisionValues,
   decisionValuesFromRecord,
   toDecisionInput,
   validateDecision,
-  type DecisionRules,
   type ValidatedDecision,
 } from "@/shared/restrictions/decisionLogic";
 import {
@@ -60,6 +68,12 @@ export type NumberFormMode = "create" | "edit";
 
 export interface NumberRecordFormValues extends CallConditionsValues, DecisionValues {}
 
+/** התנאים של היתר שהסתיים, וההגבלה שהוא נשען עליה - כדי לבחור בה שוב אם היא עדיין חלה */
+export interface CopiedPermitTerms {
+  terms: CallTermsValues;
+  preferredRestrictionId: number;
+}
+
 /** חיפוש ההגבלות של מספר, ביצירת היתר */
 export interface PermitLookup {
   status: "idle" | "searching" | "done";
@@ -81,6 +95,8 @@ export interface NumberRecordFormState {
   selectedRestriction: SourceRestrictionSummaryDto | null;
   /** רשימת ההגבלות פתוחה לבחירה. כל עוד היא פתוחה, בלוקים 1–3 מוסתרים */
   isPickerOpen: boolean;
+  /** היתר חדש על בסיס היתר שהסתיים: התנאים שיוחלו כשתיבחר הגבלה. null = התנאים מתאפסים בבחירה */
+  copiedPermitTerms: CopiedPermitTerms | null;
   values: NumberRecordFormValues;
   touchedDates: TouchedDates;
   openConditions: OpenConditions;
@@ -97,8 +113,8 @@ export type NumberRecordFormErrors = FormErrors<NumberRecordErrorSlot>;
 export const NUMBER_RECORD_ERROR_SLOTS: readonly NumberRecordErrorSlot[] = [
   "phone",
   "restriction",
-  "dates",
   "duration",
+  "dates",
   "hours",
   "devices",
   "reason",
@@ -124,41 +140,96 @@ export const NUMBER_RECORD_FIELD_IDS: Record<NumberRecordErrorSlot, string> = {
 /** כותרת בוחר ההגבלה - מקבלת פוקוס אחרי בחירה, כדי שקורא מסך ידע שהבחירה נקלטה */
 export const RESTRICTION_PICKER_HEADING_ID = "number-record-restriction-heading";
 
-/** בהגבלה/היתר למספר הסיבה לא חובה (ספק 00 §4.3) */
-export const NUMBER_DECISION_RULES: DecisionRules = { isReasonRequired: false };
-
 // ── מצב הפתיחה (ספק 04 form §4.1) ──
 
 const IDLE_LOOKUP: PermitLookup = { status: "idle", searchedPhone: null, results: [] };
 
-/** יצירה: היתר, שדה טלפון ריק, היום עד מחר. עריכה: הכל מהרשומה, והסוג והמספר נעולים */
+const COMMON_INITIAL_STATE = {
+  phoneDraft: "",
+  addedPhones: [],
+  lookup: IDLE_LOOKUP,
+  selectedRestriction: null,
+  isPickerOpen: false,
+  copiedPermitTerms: null,
+  errors: {},
+};
+
+/**
+ * יצירה: היתר, שדה טלפון ריק, היום עד מחר. עריכה: הכל מהרשומה, והסוג והמספר נעולים.
+ * על בסיס רשומה שהסתיימה: אותו סוג ומספר, התנאים, הסיבה והפירוט; התאריכים, הגורם המאשר והקובץ חדשים
+ */
 export function createInitialNumberRecordState(
-  record: TraineePhoneRecordDto | null,
+  startingPoint: FormStartingPoint<TraineePhoneRecordDto>,
   today: ISODateString,
 ): NumberRecordFormState {
-  const commonState = { phoneDraft: "", addedPhones: [], lookup: IDLE_LOOKUP, isPickerOpen: false, errors: {} };
+  switch (startingPoint.kind) {
+    case "new":
+      return {
+        ...COMMON_INITIAL_STATE,
+        mode: "create",
+        recordType: "permit",
+        values: { ...createNewConditionsValues(today), ...createEmptyDecisionValues() },
+        touchedDates: touchedDatesFor(false),
+        openConditions: CLOSED_CONDITIONS,
+      };
+    case "edit": {
+      const { record } = startingPoint;
+      return {
+        ...COMMON_INITIAL_STATE,
+        mode: "edit",
+        recordType: record.type,
+        selectedRestriction: record.type === "permit" ? record.sourceRestriction : null,
+        values: { ...conditionsValuesFromRecord(record), ...decisionValuesFromRecord(record) },
+        touchedDates: touchedDatesFor(true),
+        openConditions: openConditionsForRecord(record),
+      };
+    }
+    case "basedOn":
+      return createBasedOnState(startingPoint.record, today);
+  }
+}
 
-  if (!record) {
+/**
+ * הגבלה: המספר כבר ברשימה והתנאים מועתקים. היתר: המספר בשדה החיפוש (החיפוש רץ כשהטופס נפתח),
+ * והתנאים מוחלים כשתיבחר הגבלה - אותה הגבלה אם היא עדיין חלה
+ */
+function createBasedOnState(record: TraineePhoneRecordDto, today: ISODateString): NumberRecordFormState {
+  const createState = {
+    ...COMMON_INITIAL_STATE,
+    mode: "create" as const,
+    recordType: record.type,
+    touchedDates: touchedDatesFor(false),
+  };
+
+  if (record.type === "restriction") {
     return {
-      ...commonState,
-      mode: "create",
-      recordType: "permit",
-      selectedRestriction: null,
-      values: { ...createNewConditionsValues(today), ...createEmptyDecisionValues() },
-      touchedDates: touchedDatesFor(false),
-      openConditions: CLOSED_CONDITIONS,
+      ...createState,
+      addedPhones: [record.phoneNumber],
+      values: {
+        ...callTermsFromRecord(record),
+        ...createDefaultDateRange(today),
+        ...createBasedOnDecisionValues(record),
+      },
+      openConditions: openConditionsForRecord(record),
     };
   }
 
   return {
-    ...commonState,
-    mode: "edit",
-    recordType: record.type,
-    selectedRestriction: record.type === "permit" ? record.sourceRestriction : null,
-    values: { ...conditionsValuesFromRecord(record), ...decisionValuesFromRecord(record) },
-    touchedDates: touchedDatesFor(true),
-    openConditions: openConditionsForRecord(record),
+    ...createState,
+    phoneDraft: record.phoneNumber,
+    copiedPermitTerms: {
+      terms: callTermsFromRecord(record),
+      preferredRestrictionId: record.sourceRestriction.restrictionId,
+    },
+    values: { ...createNewConditionsValues(today), ...createBasedOnDecisionValues(record) },
+    openConditions: CLOSED_CONDITIONS,
   };
+}
+
+/** היתר על בסיס היתר שהסתיים: המספר שהחיפוש שלו רץ מיד כשהטופס נפתח, או null */
+export function phoneToSearchOnOpen(state: NumberRecordFormState): PhoneString | null {
+  const shouldSearch = state.mode === "create" && state.recordType === "permit" && state.copiedPermitTerms !== null;
+  return shouldSearch ? normalizePhone(state.phoneDraft) : null;
 }
 
 function pickDecisionValues({ reasonId, details, approver, approvedFile }: DecisionValues): DecisionValues {
@@ -174,7 +245,7 @@ export function changeRecordType(
   today: ISODateString,
 ): NumberRecordFormState {
   if (recordType === state.recordType) return state;
-  const freshState = createInitialNumberRecordState(null, today);
+  const freshState = createInitialNumberRecordState({ kind: "new" }, today);
   return { ...freshState, recordType, values: { ...freshState.values, ...pickDecisionValues(state.values) } };
 }
 
@@ -224,7 +295,10 @@ function isCurrentSearch(state: NumberRecordFormState, phone: PhoneString): bool
   return state.lookup.status === "searching" && state.lookup.searchedPhone === phone;
 }
 
-/** 0 תוצאות - הודעה; אחת - נבחרת אוטומטית; כמה - הרשימה נפתחת בלי בחירה */
+/**
+ * 0 תוצאות - הודעה; אחת - נבחרת אוטומטית; כמה - הרשימה נפתחת בלי בחירה.
+ * בהיתר על בסיס היתר שהסתיים, ההגבלה שההיתר הקודם נשען עליה נבחרת אם היא עדיין חלה
+ */
 export function completePhoneSearch(
   state: NumberRecordFormState,
   phone: PhoneString,
@@ -235,6 +309,12 @@ export function completePhoneSearch(
   if (!isCurrentSearch(state, phone)) return state;
 
   const searchedState: NumberRecordFormState = { ...state, lookup: { status: "done", searchedPhone: phone, results } };
+  const preferredRestriction = results.find(
+    (restriction) => restriction.restrictionId === state.copiedPermitTerms?.preferredRestrictionId,
+  );
+  if (preferredRestriction) {
+    return chooseRestriction(searchedState, preferredRestriction, today);
+  }
   if (results.length === 1) {
     return chooseRestriction(searchedState, results[0], today);
   }
@@ -265,7 +345,8 @@ export function removeAddedPhone(state: NumberRecordFormState, phone: PhoneStrin
 
 /**
  * בחירה באותה הגבלה רק סוגרת את הרשימה. בחירה ראשונה או בהגבלה אחרת: התאריכים מתחילת ההגבלה
- * (או מהיום, המאוחר מביניהם) ועד סופה, והתנאים מתאפסים. "סיבות והחלטה" לא משתנים.
+ * (או מהיום, המאוחר מביניהם) ועד סופה, והתנאים מתאפסים - או, בהיתר על בסיס היתר שהסתיים,
+ * מקבלים את התנאים שהועתקו. "סיבות והחלטה" לא משתנים.
  */
 export function chooseRestriction(
   state: NumberRecordFormState,
@@ -277,22 +358,14 @@ export function chooseRestriction(
   }
 
   const startDate = restriction.startDate > today ? restriction.startDate : today;
+  const terms = state.copiedPermitTerms?.terms ?? EMPTY_CALL_TERMS;
   return {
     ...state,
     selectedRestriction: restriction,
     isPickerOpen: false,
-    values: {
-      ...state.values,
-      startDate,
-      endDate: restriction.endDate,
-      limitKind: "full",
-      durationText: "",
-      startTime: "",
-      endTime: "",
-      deviceIds: [],
-    },
+    values: { ...state.values, startDate, endDate: restriction.endDate, ...terms },
     touchedDates: touchedDatesFor(true),
-    openConditions: CLOSED_CONDITIONS,
+    openConditions: openConditionsForTerms(terms),
     errors: withoutErrors(state.errors, ["restriction", "dates", "duration", "hours", "devices"]),
   };
 }
@@ -406,7 +479,7 @@ function validateRecordRules(state: NumberRecordFormState): NumberRecordFormErro
     dates: validateDateRange(values) ?? validatePermitDatesInsideRestriction(state),
     duration: validateDuration(values),
     hours: validateHours(values),
-    ...validateDecision(values, NUMBER_DECISION_RULES),
+    ...validateDecision(values),
   });
 }
 
@@ -440,18 +513,6 @@ export function mapSaveErrorToSlots(appError: AppError, state: NumberRecordFormS
 }
 
 // ── שמירה: בניית הבקשות (ספק 04 form §6.1) ──
-
-/**
- * בעריכה, סיבה שלא נמצאה ברשימה (למשל כי הרשימה לא נטענה) נשמרת כמו שהייתה ברשומה,
- * כי הסיבה לא חובה ואין לה שגיאה שתתריע על כך.
- */
-export function keepRecordReasonWhenUnchosen(
-  decision: ValidatedDecision,
-  record: TraineePhoneRecordDto | null,
-): ValidatedDecision {
-  if (!record || decision.reasonId !== null) return decision;
-  return { ...decision, reasonName: record.reason };
-}
 
 type DatesAndConditionsInput = PermittedCallConditionsInput & { startDate: ISODateString; endDate: ISODateString };
 

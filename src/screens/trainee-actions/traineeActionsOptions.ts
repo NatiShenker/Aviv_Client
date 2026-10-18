@@ -40,8 +40,7 @@ export const TRAINEE_ACTION_ITEMS: TraineeActionItem[] = [
     label: ITEM_TEXTS.voiceMessage,
     icon: "voiceMessage",
     permissionId: PERMISSION_IDS.voiceMessage,
-    // המסך (ספק 05) עדיין לא נבנה
-    buildPath: null,
+    buildPath: ROUTES.voiceMessages,
   },
 ];
 

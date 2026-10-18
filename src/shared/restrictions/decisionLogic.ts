@@ -3,14 +3,9 @@ import type { DecisionErrors, DecisionValues } from "@/shared/components/form/De
 import { FORM_TEXTS } from "@/shared/components/form/formTexts";
 
 /*
- * "סיבות והחלטה" (ספק 00 §4.3): זהה בכל הטפסים, חוץ מרשימת הסיבות והאם הסיבה חובה.
- * הפירוט, הגורם המאשר והקובץ תמיד חובה.
+ * "סיבות והחלטה" (ספק 00 §4.3): זהה בכל הטפסים, חוץ מרשימת הסיבות.
+ * כל ארבעת השדות חובה בכל הטפסים - סיבה, פירוט, גורם מאשר וקובץ (הוחלט 2026-10-19).
  */
-
-export interface DecisionRules {
-  /** חובה בהגבלת חניך (CODE_RESTRICTION); לא חובה בהגבלה/היתר למספר */
-  isReasonRequired: boolean;
-}
 
 /** רשומה חדשה: אין עדיין סיבה, פירוט, גורם מאשר או קובץ */
 export function createEmptyDecisionValues(): DecisionValues {
@@ -33,10 +28,23 @@ export function decisionValuesFromRecord(record: DecisionApprovalDto): DecisionV
   };
 }
 
-export function validateDecision(values: DecisionValues, { isReasonRequired }: DecisionRules): DecisionErrors {
+/**
+ * רשומה חדשה על בסיס רשומה שהסתיימה: הסיבה (לפי השם, כשהרשימה מגיעה) והפירוט עוברים;
+ * הגורם המאשר והקובץ ריקים, כי החלטה חדשה צריכה אישור חדש
+ */
+export function createBasedOnDecisionValues(record: DecisionApprovalDto): DecisionValues {
+  return {
+    reasonId: null,
+    details: record.details,
+    approver: null,
+    approvedFile: null,
+  };
+}
+
+export function validateDecision(values: DecisionValues): DecisionErrors {
   const validationTexts = FORM_TEXTS.validation;
   return {
-    reason: isReasonRequired && values.reasonId === null ? validationTexts.reasonRequired : undefined,
+    reason: values.reasonId === null ? validationTexts.reasonRequired : undefined,
     // פירוט של רווחים בלבד נחשב ריק
     details: values.details.trim() === "" ? validationTexts.detailsRequired : undefined,
     approver: values.approver === null ? validationTexts.approverRequired : undefined,
@@ -61,21 +69,15 @@ export function decisionErrorSlotsFor(update: Partial<DecisionValues>): Decision
 
 /** "סיבות והחלטה" אחרי ולידציה: השדות החובה מלאים */
 export interface ValidatedDecision {
-  /** null = לא נבחרה סיבה (מותר כשהסיבה לא חובה) */
-  reasonId: number | null;
+  reasonId: number;
   reasonName: string;
   approverId: number;
   approvedFileId: number;
 }
 
 /** השדות של "סיבות והחלטה" לשליחה, או null אם שדה חובה עדיין ריק */
-export function toValidatedDecision(
-  values: DecisionValues,
-  reasons: LookupItem<number>[],
-  { isReasonRequired }: DecisionRules,
-): ValidatedDecision | null {
-  if (values.approver === null || values.approvedFile === null) return null;
-  if (isReasonRequired && values.reasonId === null) return null;
+export function toValidatedDecision(values: DecisionValues, reasons: LookupItem<number>[]): ValidatedDecision | null {
+  if (values.reasonId === null || values.approver === null || values.approvedFile === null) return null;
 
   const reasonName = reasons.find((reason) => reason.id === values.reasonId)?.name ?? "";
   return {
@@ -89,7 +91,7 @@ export function toValidatedDecision(
 export function toDecisionInput(details: string, decision: ValidatedDecision): DecisionApprovalInput {
   return {
     reason: decision.reasonName,
-    reasonCode: decision.reasonId ?? undefined,
+    reasonCode: decision.reasonId,
     details,
     approverId: decision.approverId,
     approvedFileId: decision.approvedFileId,

@@ -35,19 +35,16 @@ interface DecisionBlockProps {
   values: DecisionValues;
   errors: DecisionErrors;
   reasons: AsyncResource<LookupItem<number>[]>;
-  /** חובה בהגבלת חניך; לא חובה בהגבלה/היתר למספר (ספק 00 §4.3) */
-  isReasonRequired: boolean;
   fieldIds: DecisionFieldIds;
   onChange: (update: Partial<DecisionValues>) => void;
   onFileUploadingChange: (isUploading: boolean) => void;
 }
 
-/** הבלוק האחרון בכל טופס: סיבה, פירוט, גורם מאשר וצירוף קובץ (ספק 00 §4.3) */
+/** הבלוק האחרון בכל טופס: סיבה, פירוט, גורם מאשר וצירוף קובץ - כולם חובה (ספק 00 §4.3) */
 export default function DecisionBlock({
   values,
   errors,
   reasons,
-  isReasonRequired,
   fieldIds,
   onChange,
   onFileUploadingChange,
@@ -63,7 +60,7 @@ export default function DecisionBlock({
             id={fieldIds.reason}
             label={TEXTS.reasonLabel}
             placeholder={TEXTS.reasonPlaceholder}
-            required={isReasonRequired}
+            required
             options={reasonOptions}
             value={values.reasonId}
             onChange={(reasonId) => onChange({ reasonId: Number(reasonId) })}

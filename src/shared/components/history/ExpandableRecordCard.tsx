@@ -5,51 +5,54 @@ import AppIcon from "@/shared/icons/AppIcon";
 import type { AppIconName } from "@/shared/icons/appIcons";
 import DetailGrid, { type DetailItem } from "./DetailGrid";
 import { HISTORY_TEXTS } from "./historyTexts";
-
-/** צבע עיגול האייקון: אדום להגבלות והיתרים, כחול להודעות קוליות (ספק 00 §3.20) */
-export type RecordIconTone = "danger" | "info";
-
-const ICON_TONE_CLASS: Record<RecordIconTone, string> = {
-  danger: "bg-error-soft text-error",
-  info: "bg-primary-soft text-primary",
-};
+import RecordIconCircle, { type RecordIconTone } from "./RecordIconCircle";
 
 interface ExpandableRecordCardProps {
   /** מזהה ה-DOM של הכרטיס, למשל כדי לגלול אליו אחרי שמירה */
   id?: string;
   icon: AppIconName;
   iconTone: RecordIconTone;
-  /** השורה העליונה בכרטיס סגור (למשל טווח התאריכים ותגית הסטטוס) */
-  summaryTop: ReactNode;
-  /** השורה השנייה (למשל הסיבה). נחתכת כשהיא ארוכה */
-  summaryText: string;
+  /** השורה הראשית - מה הרשומה עושה (למשל סוג ההגבלה, או המספר). טקסט ארוך נחתך */
+  summaryTitle: ReactNode;
+  /** שורת המשנה - מתי (טווח התאריכים ותגית הסטטוס) */
+  summaryMeta: ReactNode;
+  /** הפרטים בכרטיס פתוח: רק מה שלא מופיע כבר בשתי השורות, בסדר של הטופס */
   details: DetailItem[];
   isOpen: boolean;
   onToggle: () => void;
+  /** רשומה שהסתיימה לא נערכת; במקום "עריכה" אפשר ליצור רשומה חדשה על בסיסה */
+  isEnded: boolean;
   onEdit: () => void;
+  /** למשל "צור הגבלה חדשה על בסיס זו" */
+  createBasedOnLabel: string;
+  onCreateBasedOn: () => void;
 }
 
-/** כרטיס רשומה בהיסטוריה: סגור - תקציר; פתוח - כל הפרטים וכפתור "עריכה" (ספק 00 §3.22) */
+/**
+ * כרטיס רשומה בהיסטוריה: סגור - מה ומתי; פתוח - שאר הפרטים, וכפתור "עריכה" או "צור … על בסיס זו" (ספק 00 §3.22).
+ * שתי שורות התקציר נשארות גלויות גם כשהכרטיס פתוח, ולכן הפרטים לא חוזרים עליהן.
+ */
 export default function ExpandableRecordCard({
   id,
   icon,
   iconTone,
-  summaryTop,
-  summaryText,
+  summaryTitle,
+  summaryMeta,
   details,
   isOpen,
   onToggle,
+  isEnded,
   onEdit,
+  createBasedOnLabel,
+  onCreateBasedOn,
 }: ExpandableRecordCardProps) {
   return (
     <article id={id} className="rounded-card bg-paper p-4">
       <button type="button" aria-expanded={isOpen} onClick={onToggle} className="flex w-full items-center gap-3 text-start">
-        <span className={`flex size-11 shrink-0 items-center justify-center rounded-full ${ICON_TONE_CLASS[iconTone]}`}>
-          <AppIcon name={icon} />
-        </span>
+        <RecordIconCircle icon={icon} tone={iconTone} />
         <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="flex items-center gap-2">{summaryTop}</span>
-          <span className="truncate text-base text-text-primary">{summaryText}</span>
+          <span className="flex min-w-0 items-center gap-2 text-base text-text-primary">{summaryTitle}</span>
+          <span className="flex min-w-0 items-center gap-2 text-base text-text-muted">{summaryMeta}</span>
         </span>
         {/* החץ מסתובב יחד עם פתיחת התוכן */}
         <AppIcon
@@ -62,9 +65,15 @@ export default function ExpandableRecordCard({
         <div className="pt-4">
           <DetailGrid items={details} />
           <div className="mt-4">
-            <IpsButton variant="outlined" size="large" fullWidth endIcon={<AppIcon name="edit" />} onClick={onEdit}>
-              {HISTORY_TEXTS.card.edit}
-            </IpsButton>
+            {isEnded ? (
+              <IpsButton variant="outlined" size="large" fullWidth endIcon={<AppIcon name="copy" />} onClick={onCreateBasedOn}>
+                {createBasedOnLabel}
+              </IpsButton>
+            ) : (
+              <IpsButton variant="outlined" size="large" fullWidth endIcon={<AppIcon name="edit" />} onClick={onEdit}>
+                {HISTORY_TEXTS.card.edit}
+              </IpsButton>
+            )}
           </div>
         </div>
       </Collapsible>

@@ -93,7 +93,7 @@ BottomSheet titled `"סינון"`, filtering trainees via `matchesTraineeFilters
 | **a** | `"אגף"` (Wing) | **Multi-select** (`IpsMultiSelectMobile`): an explicit `"הכל"` option first, then the institute's wings (`InstituteWithWingsDto.wings`) | `trainee.wing.id` |
 | **b** | `"מיקום באגף"` (Location in wing) | **Multi-select**: `"הכל"` first, then the locations of the selected wings (of the whole institute when no wing is selected), **grouped by wing** (native `optgroup` / menu subheaders). Disabled with a status text while locations load or after they fail (+ `"נסה שוב"`) | `trainee.location?.id` |
 | **c** | `"הגבלה לחניך"` (Trainee restriction) | `"הכל"` (default), `"הגבלה מלאה פעילה"`, `"הגבלת דקות פעילה"`, `"ללא"` | `flags.hasActiveFullRestriction`, `flags.hasActiveMinutesRestriction` |
-| **d** | `"הודעה לנמען"` (Recipient message) | `"הכל"` (default), `"הודעה פעילה"`, `"הודעה אינטראקטיבית פעילה"`, `"ללא"` | `flags.hasActiveMessage`, `flags.hasActiveInteractiveMessage` |
+| **d** | `"הודעה קולית לנמען"` (Voice message to the recipient) | `"הכל"` (default), `"הודעה רגילה פעילה"` (active regular message), `"הודעה חוזרת פעילה"` (active repeating message – "interactive" in the schema, [05 overview §2](05-voice-message/05_voice_message_overview.md)), `"ללא"` | `flags.hasActiveMessage`, `flags.hasActiveInteractiveMessage` |
 | **e** | `"הגבלה/היתר למספר"` (Phone exception) | `"הכל"` (default), `"הגבלה למספר פעילה"`, `"היתר למספר פעיל"`, `"ללא"` | `flags.hasActivePhoneRestriction`, `flags.hasActivePhonePermit` |
 | **f** | `"יתרה"` (Balance) | `"הכל"` (default), `"קיימת יתרה"`, `"ללא יתרה"` | `flags.hasBalance` |
 
