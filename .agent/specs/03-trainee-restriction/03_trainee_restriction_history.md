@@ -75,3 +75,17 @@ Note: like the form summary ([form.md §4.5](03_trainee_restriction_form.md#45-p
 
 - Search and sort run on the client over the loaded `records` list.
 - Display values come from `TraineeRestrictionRecordDto`: `reason`, `details`, `approver.fullName`, `devices[].name`, `startTime`/`endTime`, `durationMinutes`, `temporalStatus`.
+
+---
+
+## 8. Desktop (Aviv's container ≥ 1024px)
+
+The history opens in the trainee drawer, in the desktop history pattern of [00 §4.4](../00_foundations.md#44-desktop-history-and-form-in-the-trainee-drawer) (decided 2026-10-19):
+
+- **Top row:** back to the actions, the action selector showing `"הגבלה/היתר לחניך"`, and at the end the create button `"הוספת הגבלה"`.
+- **Toolbar:**
+  - the section title `"היסטוריית הגבלות"`;
+  - the search, with this screen's label and placeholder (§3);
+  - the `"מיון"` select, with the rows of §4.
+- **Cards, search, sort, states and permission:** as in §3–§4.
+- **Card actions:** `"עריכה"` and `"צור הגבלה חדשה על בסיס זו"` open the form as a layer over the history ([form §8](03_trainee_restriction_form.md)).

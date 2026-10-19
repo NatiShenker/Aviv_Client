@@ -70,3 +70,64 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 | No permitted item | `"אין לך הרשאה לפעולות על חניכים בפנימייה זו"` **(proposed)** |
 
 - **Direct link to an action screen without its permission:** the screen shows `"אין לך הרשאה לפעולה זו"` **(proposed)** under its header.
+
+---
+
+## 8. Desktop (Aviv's container ≥ 1024px)
+
+Desktop phase 2 (decided 2026-10-19). On desktop the trainee's screens – this actions screen, the histories and the forms of 03–05 – open in a side drawer over the trainees list ([01 §8](01_children_list.md)). They work like the mobile screens; the layout and the controls differ ([design.md](../design.md) › Desktop layout). The desktop sketch (`pages/desktop/ChildDrawer.tsx`) gives the spirit; where it differs, this section wins.
+
+### 8.1 Entry from the list
+
+- The whole trainee card opens the drawer on the actions screen. It is a transparent button over the card, named `"פתיחת הפעולות של {name | code}"` **(proposed)**, so the card itself stays as on mobile.
+- Card states:
+  - hover: `border-strong` frame and a pointer cursor;
+  - keyboard focus: a ring;
+  - the trainee whose drawer is open: `primary` frame.
+- The sketch's ⋮ menu on the card (direct access to the actions) is deferred ([pending-decisions](../pending-decisions.md)).
+
+### 8.2 The drawer
+
+- **Shape:** a modal drawer from the end side of the screen (left, in RTL), a fixed 480px wide, over a dark overlay. The list behind is inert.
+- **State:** in memory only, so the address does not change. The browser's Back leaves Aviv's screen. Crossing below the 1024px breakpoint closes the drawer and drops an open form without asking.
+- **Every opening** starts at the actions screen.
+
+### 8.3 Header (fixed on every screen)
+
+- The trainee photo (48px), and `"{name} | {code}"` as the drawer's title (18px, weight 500; it also names the drawer).
+- The card's status badge (`"פעיל"` / `"מוגבל עד DD/MM"`, [01](01_children_list.md)).
+- At the end, an X `"סגירה"` **(proposed)**.
+- The trainee comes from the trainees list that is already loaded. A trainee who is no longer in the list shows `"החניך לא נמצא"` under the header.
+
+### 8.4 Actions screen
+
+The sections of §3.2–§3.3: `"פעולות"` with the permitted actions, and `"מידע נוסף"` with `"היסטוריית דקות"` disabled ([OQ-08](../pending-decisions.md#oq-08)). The sketch's tabs are not used.
+
+- The rows sit on the drawer's white surface, so they get a 1px `divider` frame (`border-strong` on hover).
+- An action opens its history screen in the drawer ([00 §4.4](00_foundations.md)).
+- The permission states are those of §7.
+
+### 8.5 Navigation and focus
+
+- The screens change inside the drawer, and each new screen starts at its top.
+- After a screen change, focus moves to the new screen, so a screen reader announces it.
+- Focus stays inside the drawer.
+- **Escape** closes the drawer, except:
+  - inside a text field, where it belongs to the field (e.g. to clear the search);
+  - inside an open list or calendar, which it closes.
+- **Closing** returns focus to the trainee's card. If the card is no longer shown (e.g. it moved in a status sort), focus goes to the cards area.
+
+### 8.6 Closing with unsaved changes
+
+- Clicking the overlay, pressing Escape or the drawer's X while the open form has a changed field opens a dialog first:
+  - title `"לצאת בלי לשמור?"`, text `"השינויים בטופס לא יישמרו."`;
+  - on the right, `"המשך עריכה"`: outlined, and it gets the initial focus, as the least destructive action;
+  - on the left, `"יציאה בלי שמירה"`: contained, in the error color;
+  - all texts **(proposed)**.
+- Escape or the overlay in the dialog keeps editing.
+- A form that was opened but not changed closes without asking.
+- The form's own X and `"ביטול"` go back to the history without asking, on both layouts ([OQ-16](../pending-decisions.md#oq-16)).
+
+### 8.7 After a save
+
+The trainees list behind the drawer refreshes silently ([01 §8.2](01_children_list.md)), so the header's status badge is up to date too.

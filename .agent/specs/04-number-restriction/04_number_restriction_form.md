@@ -296,3 +296,27 @@ As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details 
 | Searching | `"חיפוש"` disabled until the response arrives |
 | Search failed | Phone slot: `"החיפוש נכשל, נסה שוב"` (Search failed, try again) **(proposed)**; the input keeps its value and the button is enabled again |
 | File upload, saving, save failure | As in the trainee form |
+
+---
+
+## 8. Desktop (Aviv's container ≥ 1024px)
+
+The form opens as a layer over the history in the trainee drawer ([00 §4.4](../00_foundations.md#44-desktop-history-and-form-in-the-trainee-drawer), decided 2026-10-19). The title, blocks, behavior, validation and errors are those of §3–§7, with the desktop controls. The one exception is choosing the restriction of a new permit (§8.1).
+
+- **Edit of an unavailable record** (replaced by a newer version, or ended) closes the layer and stays on the history. This is the desktop counterpart of the redirect in §2.
+- **Close:** the X and `"ביטול"` go back to the history without confirmation. Closing the whole drawer while the form has changes asks first ([02 §8.6](../02_child_actions.md)).
+
+### 8.1 Choosing the restriction – radio cards
+
+A desktop deviation from §3.2.1, decided by the user on 2026-10-19. On mobile a card is never chosen by accident while scrolling, which is why it has its separate "בחירה" row; with a mouse that risk does not exist.
+
+- **Cards:** every restriction is a radio card that is clickable as a whole, and there is no "בחירה" row.
+  - The card's title is the scope label. Under it come the date range · reason line and, when there are any, the existing permits line (§3.2.1, lines 1–3).
+  - The checked card has a `primary` frame.
+  - The group is named by the picker title and described by its hint.
+- **States:** the states, titles, hints and the `"החלפה"` / `"ביטול"` heading buttons are those of §4.4. Choosing collapses the list to the chosen card (§4.5).
+- **Mouse:** a click chooses at once. Focus then moves to the picker title (§4.5).
+- **Keyboard:** the arrows move between the cards and only mark one, so the user can go over all of them without the list collapsing. Choosing happens in one of two ways:
+  - **Enter** chooses the marked card, and focus moves to the picker title.
+  - **Leaving the list** (e.g. Tab) chooses the marked card, and focus stays where the user moved it.
+- **Rendering:** all the cards render at once, with no incremental rendering. These lists are short (the restrictions on one number for one trainee), and arrow navigation needs every option.

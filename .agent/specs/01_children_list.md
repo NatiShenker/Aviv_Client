@@ -196,10 +196,11 @@ The page fills the viewport. Top to bottom:
 - **Filter, search and sort** behave as on mobile (§4): every choice applies at once.
 - **`"נקה מסננים ({n})"`:** `n` is the number of filter groups that are not `"הכל"`. It resets all six groups – including the stored wing filter – but not the search and not the sort. Disabled (not hidden) when no group is active, and then shown without the count.
 - **Tools disabled** (filters, clear, search, sort) until the list has loaded, as on mobile.
-- **Cards are not interactive** in phase 1; the actions drawer comes in phase 2.
-- **Incremental rendering:** 30 cards, then 30 more when the end of the scroll area is reached.
+- **Cards open the trainee drawer** (phase 2, [02 §8](02_child_actions.md)): the whole card is clickable. On hover it gets a `border-strong` frame and a pointer cursor; the card of the trainee whose drawer is open gets a `primary` frame.
+- **Incremental rendering:** 30 cards, then 30 more when the end of the scroll area is reached. The count starts again from 30 only when the search, the filters or the sort change.
+- **After a save in the drawer** (phase 2, decided 2026-10-19): the list refreshes **silently**. There is no skeleton: the current cards stay until the new data arrives, and the number of cards shown and the scroll position are kept. A failed refresh keeps the current list ([pending-decisions](../pending-decisions.md)).
 - **Returning:** the search, filters and sort are kept until a page reload (as on mobile). The scroll position is **not** restored on desktop.
-- **Crossing the 1024px breakpoint** shows the other layout with the same search, filters and sort. An inner mobile page (and an open form) closes without saving, and the address becomes the list.
+- **Crossing the 1024px breakpoint** shows the other layout with the same search, filters and sort. An inner mobile page (and an open form) closes without saving, and the address becomes the list. On desktop, an open drawer closes too.
 
 ### 8.3 States
 

@@ -77,3 +77,17 @@ Below the grid: outline button `"עריכה"` with edit icon – or, on an ended
 
 - Search and sort run on the client over `records`.
 - Display values come from `TraineePhoneRecordDto` (`TraineePhoneRestrictionRecordDto | TraineePhonePermitRecordDto`); `"על הגבלה"` uses `record.sourceRestriction` (joined by the server from `AVIV_RESTRICTION_NUMBER`).
+
+---
+
+## 8. Desktop (Aviv's container ≥ 1024px)
+
+The history opens in the trainee drawer, in the desktop history pattern of [00 §4.4](../00_foundations.md#44-desktop-history-and-form-in-the-trainee-drawer) (decided 2026-10-19):
+
+- **Top row:** back to the actions, the action selector showing `"הגבלה/היתר למספר"`, and at the end the create button `"הוספת הגבלה/היתר"`.
+- **Toolbar:**
+  - the section title `"היסטוריית הגבלות והיתרים"`;
+  - the search, with this screen's label and placeholder (§3);
+  - the `"מיון"` select, with the rows of the history screens ([03 history §4](../03-trainee-restriction/03_trainee_restriction_history.md)).
+- **Cards, search, sort, states and permission:** as in §3–§4.
+- **Card actions:** `"עריכה"` and the "create based on" buttons open the form as a layer over the history ([form §8](04_number_restriction_form.md)).
