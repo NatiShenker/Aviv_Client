@@ -27,6 +27,8 @@ export interface VoiceMessageFormSession {
   title: string;
   formProps: VoiceMessageFormProps;
   saveProps: FormSaveProps;
+  /** המשתמש שינה ערך מאז שהטופס נפתח */
+  hasUserChanges: boolean;
 }
 
 /**
@@ -55,5 +57,6 @@ export function useVoiceMessageFormSession({
       saveError: form.saveError,
       isBusy: form.isSaving || form.isFileUploading,
     },
+    hasUserChanges: form.hasUserChanges,
   };
 }

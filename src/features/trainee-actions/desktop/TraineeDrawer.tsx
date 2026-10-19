@@ -9,6 +9,8 @@ import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
 import AppIcon from "@/shared/icons/AppIcon";
 import { DRAWER_SIDE_GUTTER_CLASS } from "@/shells/desktop/drawerSpacing";
 import SideDrawer from "@/shells/desktop/SideDrawer";
+import UnsavedChangesDialog from "@/shells/desktop/UnsavedChangesDialog";
+import { UnsavedChangesReporter } from "@/shells/desktop/unsavedChanges";
 import { TRAINEE_ACTIONS_TEXTS } from "../traineeActionsTexts";
 import DrawerActionScreen from "./DrawerActionScreen";
 import DrawerActionsScreen from "./DrawerActionsScreen";
@@ -23,29 +25,68 @@ interface TraineeDrawerProps {
   /** החניך מתוך רשימת החניכים. null = הוא כבר לא ברשימה */
   trainee: TraineeListItemDto | null;
   onClose: () => void;
+  /** אחרי כל שמירה בטופס שבמגירה - למשל כדי שרשימת החניכים שמאחור תתעדכן */
+  onRecordSaved: () => void;
+  /** בסוף אנימציית הסגירה */
+  onExited: () => void;
 }
 
 /**
  * מגירת החניך בדסקטופ: כותרת קבועה עם החניך, ומתחתיה מסך הפעולות או המסך של פעולה (ספק 02 ואילך).
- * המגירה עצמה נשארת mounted, כדי שגם הפתיחה הראשונה תונפש; התוכן מתחיל מחדש בכל פתיחה
+ * המגירה עצמה נשארת mounted, כדי שגם הפתיחה הראשונה תונפש; התוכן מתחיל מחדש בכל פתיחה.
+ * סגירה (רקע, Escape, X) כשבטופס הפתוח יש שינויים שואלת קודם; X ו"ביטול" של הטופס עצמו לא (OQ-16)
  */
-export default function TraineeDrawer({ isOpen, openingKey, trainee, onClose }: TraineeDrawerProps) {
+export default function TraineeDrawer({
+  isOpen,
+  openingKey,
+  trainee,
+  onClose,
+  onRecordSaved,
+  onExited,
+}: TraineeDrawerProps) {
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = useState(false);
+
+  const requestClose = () => {
+    if (hasUnsavedChanges) {
+      setIsLeaveConfirmOpen(true);
+      return;
+    }
+    onClose();
+  };
+
+  const leaveWithoutSaving = () => {
+    setIsLeaveConfirmOpen(false);
+    onClose();
+  };
+
   return (
-    <SideDrawer
-      open={isOpen}
-      onRequestClose={onClose}
-      renderHeader={({ titleId, requestClose }) => (
-        <TraineeDrawerHeader trainee={trainee} titleId={titleId} onClose={requestClose} />
-      )}
-    >
-      {trainee === null ? (
-        <div className={DRAWER_SIDE_GUTTER_CLASS}>
-          <ScreenStateMessage message={TRAINEE_TEXTS.notFound} />
-        </div>
-      ) : (
-        <TraineeDrawerScreens key={openingKey} trainee={trainee} />
-      )}
-    </SideDrawer>
+    <>
+      <SideDrawer
+        open={isOpen}
+        onRequestClose={requestClose}
+        onExited={onExited}
+        renderHeader={({ titleId, requestClose: requestCloseFromHeader }) => (
+          <TraineeDrawerHeader trainee={trainee} titleId={titleId} onClose={requestCloseFromHeader} />
+        )}
+      >
+        {trainee === null ? (
+          <div className={DRAWER_SIDE_GUTTER_CLASS}>
+            <ScreenStateMessage message={TRAINEE_TEXTS.notFound} />
+          </div>
+        ) : (
+          <UnsavedChangesReporter onChange={setHasUnsavedChanges}>
+            <TraineeDrawerScreens key={openingKey} trainee={trainee} onRecordSaved={onRecordSaved} />
+          </UnsavedChangesReporter>
+        )}
+      </SideDrawer>
+
+      <UnsavedChangesDialog
+        open={isLeaveConfirmOpen}
+        onKeepEditing={() => setIsLeaveConfirmOpen(false)}
+        onLeaveWithoutSaving={leaveWithoutSaving}
+      />
+    </>
   );
 }
 
@@ -70,8 +111,13 @@ function TraineeDrawerHeader({ trainee, titleId, onClose }: TraineeDrawerHeaderP
   );
 }
 
+interface TraineeDrawerScreensProps {
+  trainee: TraineeListItemDto;
+  onRecordSaved: () => void;
+}
+
 // המעבר בין המסכים שבתוך המגירה. מתחיל תמיד במסך הפעולות
-function TraineeDrawerScreens({ trainee }: { trainee: TraineeListItemDto }) {
+function TraineeDrawerScreens({ trainee, onRecordSaved }: TraineeDrawerScreensProps) {
   const [screen, setScreen] = useState<TraineeDrawerScreen>(ACTIONS_SCREEN);
   // בפתיחה הפוקוס בכותרת המגירה; רק מעבר מסך מעביר אותו למסך החדש
   const [hasNavigated, setHasNavigated] = useState(false);
@@ -96,6 +142,7 @@ function TraineeDrawerScreens({ trainee }: { trainee: TraineeListItemDto }) {
         trainee={trainee}
         onBack={() => navigate(ACTIONS_SCREEN)}
         onSwitchAction={(actionKey) => navigate({ name: "history", actionKey })}
+        onRecordSaved={onRecordSaved}
       />
     </DrawerScreenRegion>
   );

@@ -1,6 +1,6 @@
-import { IpsDatePickerMobile } from "ui-library";
 import ErrorText from "@/shared/components/form/ErrorText";
 import FieldIntro from "@/shared/components/form/FieldIntro";
+import { useFormControls } from "@/shared/form-controls/FormControlsProvider";
 import { formatShortDate } from "@/shared/formatting/dateFormat";
 import type { DateBounds, DateRangeValues, TouchedDates } from "./dateRangeLogic";
 import { FORM_TEXTS } from "./formTexts";
@@ -32,6 +32,7 @@ export default function DateRangeField({
   onStartDateChange,
   onEndDateChange,
 }: DateRangeFieldProps) {
+  const { DateField } = useFormControls();
   const hasError = Boolean(error);
   const endDateMin = values.startDate || dateBounds?.min;
 
@@ -39,7 +40,7 @@ export default function DateRangeField({
     <div>
       <FieldIntro title={TEXTS.title} description={description} />
       <div className="mt-2 grid grid-cols-2 gap-2">
-        <IpsDatePickerMobile
+        <DateField
           id={startDateInputId}
           label={TEXTS.startDate}
           aria-label={TEXTS.startDate}
@@ -52,7 +53,7 @@ export default function DateRangeField({
           error={hasError}
           onChange={onStartDateChange}
         />
-        <IpsDatePickerMobile
+        <DateField
           label={TEXTS.endDate}
           aria-label={TEXTS.endDate}
           placeholder={TEXTS.placeholder}

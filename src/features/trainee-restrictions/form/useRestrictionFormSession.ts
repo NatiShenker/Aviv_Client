@@ -30,6 +30,8 @@ export interface RestrictionFormSession {
   title: string;
   formProps: RestrictionFormProps;
   saveProps: FormSaveProps;
+  /** המשתמש שינה ערך מאז שהטופס נפתח */
+  hasUserChanges: boolean;
 }
 
 /**
@@ -59,5 +61,6 @@ export function useRestrictionFormSession({
       saveError: form.saveError,
       isBusy: form.isSaving || form.isFileUploading,
     },
+    hasUserChanges: form.hasUserChanges,
   };
 }

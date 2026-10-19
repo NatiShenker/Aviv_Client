@@ -42,7 +42,7 @@ function VoiceMessageFormDialog({ isOpen, onClose, ...sessionOptions }: VoiceMes
       open={isOpen}
       title={formSession.title}
       onClose={onClose}
-      actions={<FormFooter {...formSession.saveProps} onCancel={onClose} />}
+      actions={<FormFooter {...formSession.saveProps} onCancel={onClose} buttonSize="large" />}
     >
       <VoiceMessageForm {...formSession.formProps} />
     </FormSheet>

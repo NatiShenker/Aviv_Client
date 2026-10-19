@@ -15,6 +15,8 @@ interface SideDrawerProps {
   open: boolean;
   /** בקשה לסגור: לחיצה על הרקע, Escape או ה-X. מי שמחזיק את המגירה מחליט אם לסגור */
   onRequestClose: () => void;
+  /** בסוף אנימציית הסגירה, אחרי שהפוקוס חזר לאלמנט שפתח את המגירה */
+  onExited?: () => void;
   /** הכותרת הקבועה. titleId - למזהה של הכותרת, requestClose - לכפתור הסגירה */
   renderHeader: (context: IpsDrawerRenderContext) => ReactNode;
   /** התוכן ממלא את הגובה שמתחת לכותרת. כל מסך קובע בעצמו איזה חלק בו נגלל */
@@ -25,7 +27,7 @@ interface SideDrawerProps {
  * מגירה מודאלית מצד הסוף של המסך (שמאל, ב-RTL), מעל שכבה כהה. הפוקוס נשאר בתוכה,
  * ובסגירה הוא חוזר לאלמנט שפתח אותה
  */
-export default function SideDrawer({ open, onRequestClose, renderHeader, children }: SideDrawerProps) {
+export default function SideDrawer({ open, onRequestClose, onExited, renderHeader, children }: SideDrawerProps) {
   const handleClose = (reason: IpsDrawerCloseReason) => {
     // Escape בתוך שדה טקסט שייך לשדה (למשל לניקוי חיפוש), ולא סוגר את המגירה
     if (reason === "escapeKeyDown" && isTextEntryElement(document.activeElement)) {
@@ -42,6 +44,7 @@ export default function SideDrawer({ open, onRequestClose, renderHeader, childre
       size={SIDE_DRAWER_WIDTH_PX}
       renderHeader={renderHeader}
       sx={CONTENT_AREA_SX}
+      SlideProps={{ onExited }}
     >
       {children}
     </IpsDrawer>

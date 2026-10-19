@@ -33,6 +33,8 @@ export interface NumberRecordFormSession {
   title: string;
   formProps: Omit<NumberRecordFormProps, "RestrictionOptionsList">;
   saveProps: FormSaveProps;
+  /** המשתמש שינה ערך מאז שהטופס נפתח */
+  hasUserChanges: boolean;
 }
 
 /**
@@ -69,5 +71,6 @@ export function useNumberRecordFormSession({
       saveError: form.saveError,
       isBusy: form.isSaving || form.isFileUploading,
     },
+    hasUserChanges: form.hasUserChanges,
   };
 }

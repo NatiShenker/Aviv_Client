@@ -1,23 +1,38 @@
 import { useState, type ReactNode } from "react";
 import DrawerHistoryLayout from "@/features/records/history/desktop/DrawerHistoryLayout";
 import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
+import DrawerFormHost from "@/shells/desktop/DrawerFormHost";
 import type { NumberRecordFormTarget } from "../form/useNumberRecordFormRoute";
 import NumberRecordCard from "../history/NumberRecordCard";
 import { useNumberRestrictionsHistory } from "../history/useNumberRestrictionsHistory";
 import { buildNumberRecordKey, numberRecordRefOf } from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
+import NumberRecordDrawerForm from "./NumberRecordDrawerForm";
 
 interface NumberRestrictionsDrawerHistoryProps {
   traineeId: number;
   /** חזרה ושם הפעולה, בתחילת השורה העליונה */
   navigation: ReactNode;
+  /** אחרי שמירה - למשל כדי שרשימת החניכים שמאחור תתעדכן */
+  onRecordSaved: () => void;
 }
 
-/** ההגבלות וההיתרים של החניך למספרים במגירה (ספק 04 history, פריסת דסקטופ) */
-export default function NumberRestrictionsDrawerHistory({ traineeId, navigation }: NumberRestrictionsDrawerHistoryProps) {
+/** ההגבלות וההיתרים של החניך למספרים במגירה, וטופס ההגבלה / ההיתר מעליה (ספק 04, פריסת דסקטופ) */
+export default function NumberRestrictionsDrawerHistory({
+  traineeId,
+  navigation,
+  onRecordSaved,
+}: NumberRestrictionsDrawerHistoryProps) {
   const { phoneRecords, history } = useNumberRestrictionsHistory(traineeId);
   // הטופס שנפתח מעל ההיסטוריה. בזכרון בלבד, כמו כל המגירה
-  const [, setFormTarget] = useState<NumberRecordFormTarget | null>(null);
+  const [formTarget, setFormTarget] = useState<NumberRecordFormTarget | null>(null);
+
+  // אחרי שמירה: חזרה להיסטוריה, עם הרשומה הראשונה שנשמרה פתוחה (ספק 04 history §2)
+  const handleSaved = (savedRecordKey: string) => {
+    setFormTarget(null);
+    history.showSavedRecord(savedRecordKey);
+    onRecordSaved();
+  };
 
   const renderCard = (record: TraineePhoneRecordDto) => {
     const recordKey = buildNumberRecordKey(record);
@@ -32,15 +47,27 @@ export default function NumberRestrictionsDrawerHistory({ traineeId, navigation 
     );
   };
 
-  return (
-    <DrawerHistoryLayout
-      navigation={navigation}
-      texts={NUMBER_RESTRICTIONS_TEXTS}
-      records={phoneRecords}
-      history={history}
-      getRecordKey={buildNumberRecordKey}
-      renderCard={renderCard}
-      onCreate={() => setFormTarget({ mode: "create", basedOnRef: null })}
+  const formLayer = formTarget && (
+    <NumberRecordDrawerForm
+      target={formTarget}
+      traineeId={traineeId}
+      phoneRecords={phoneRecords}
+      onClose={() => setFormTarget(null)}
+      onSaved={handleSaved}
     />
+  );
+
+  return (
+    <DrawerFormHost formLayer={formLayer}>
+      <DrawerHistoryLayout
+        navigation={navigation}
+        texts={NUMBER_RESTRICTIONS_TEXTS}
+        records={phoneRecords}
+        history={history}
+        getRecordKey={buildNumberRecordKey}
+        renderCard={renderCard}
+        onCreate={() => setFormTarget({ mode: "create", basedOnRef: null })}
+      />
+    </DrawerFormHost>
   );
 }

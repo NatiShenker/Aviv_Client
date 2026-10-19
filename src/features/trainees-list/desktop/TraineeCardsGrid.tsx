@@ -18,6 +18,9 @@ const CARD_FRAME_CLASS = "rounded-card border";
 const CARD_BORDER_CLASS = "border-divider hover:border-border-strong";
 const ACTIVE_CARD_BORDER_CLASS = "border-primary";
 
+/** אזור הכרטיסים - הפוקוס חוזר אליו כשהכרטיס שפתח את המגירה כבר לא מוצג */
+export const TRAINEE_CARDS_REGION_ID = "trainee-cards-region";
+
 interface TraineeCardsGridProps {
   hasSelectedInstitute: boolean;
   trainees: AsyncResource<TraineeListItemDto[]>;
@@ -27,6 +30,8 @@ interface TraineeCardsGridProps {
   activeTraineeId: number | null;
   /** לחיצה על כרטיס פותחת את מגירת הפעולות של החניך */
   onOpenTrainee: (traineeId: number) => void;
+  /** מה מתחיל את הרשימה שוב מ-30 הכרטיסים הראשונים (חיפוש, סינון, מיון) - ולא רענון של אותה רשימה */
+  resetVisibleCountOn: readonly unknown[];
 }
 
 /**
@@ -39,9 +44,11 @@ export default function TraineeCardsGrid({
   visibleTrainees,
   activeTraineeId,
   onOpenTrainee,
+  resetVisibleCountOn,
 }: TraineeCardsGridProps) {
   return (
     <div
+      id={TRAINEE_CARDS_REGION_ID}
       tabIndex={0}
       role="region"
       aria-label={TRAINEES_LIST_TEXTS.cardsRegionLabel}
@@ -53,20 +60,26 @@ export default function TraineeCardsGrid({
         visibleTrainees={visibleTrainees}
         loadingContent={<LoadingGrid />}
         renderCards={(traineesToShow) => (
-          <CardsGrid trainees={traineesToShow} activeTraineeId={activeTraineeId} onOpenTrainee={onOpenTrainee} />
+          <CardsGrid
+            trainees={traineesToShow}
+            activeTraineeId={activeTraineeId}
+            onOpenTrainee={onOpenTrainee}
+            resetVisibleCountOn={resetVisibleCountOn}
+          />
         )}
       />
     </div>
   );
 }
 
-type CardsGridProps = Pick<TraineeCardsGridProps, "activeTraineeId" | "onOpenTrainee"> & {
+type CardsGridProps = Pick<TraineeCardsGridProps, "activeTraineeId" | "onOpenTrainee" | "resetVisibleCountOn"> & {
   trainees: TraineeListItemDto[];
 };
 
-// טעינה הדרגתית: 30 כרטיסים בהתחלה, ועוד 30 בכל הגעה לסוף הרשימה. בלי שחזור מיקום בדסקטופ
-function CardsGrid({ trainees, activeTraineeId, onOpenTrainee }: CardsGridProps) {
-  const { visibleItems, hasMore, showMore } = useIncrementalList(trainees);
+// טעינה הדרגתית: 30 כרטיסים בהתחלה, ועוד 30 בכל הגעה לסוף הרשימה. בלי שחזור מיקום בדסקטופ.
+// רענון שקט של אותה רשימה (אחרי שמירה במגירה) שומר את הכרטיסים שכבר מוצגים
+function CardsGrid({ trainees, activeTraineeId, onOpenTrainee, resetVisibleCountOn }: CardsGridProps) {
+  const { visibleItems, hasMore, showMore } = useIncrementalList(trainees, { resetOn: resetVisibleCountOn });
 
   return (
     <>

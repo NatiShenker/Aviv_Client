@@ -19,6 +19,7 @@ import type { DrawerActionKey } from "./traineeDrawerScreens";
 interface DrawerActionHistoryProps {
   trainee: TraineeListItemDto;
   navigation: ReactNode;
+  onRecordSaved: () => void;
 }
 
 interface DrawerActionView {
@@ -33,22 +34,27 @@ const DRAWER_ACTION_VIEWS: Record<DrawerActionKey, DrawerActionView> = {
   traineeRestriction: {
     permissionId: PERMISSION_IDS.traineeRestriction,
     loadingLabel: TRAINEE_RESTRICTIONS_TEXTS.states.loading,
-    renderHistory: ({ trainee, navigation }) => (
-      <RestrictionsDrawerHistory traineeId={trainee.id} navigation={navigation} />
+    renderHistory: ({ trainee, navigation, onRecordSaved }) => (
+      <RestrictionsDrawerHistory traineeId={trainee.id} navigation={navigation} onRecordSaved={onRecordSaved} />
     ),
   },
   numberRestriction: {
     permissionId: PERMISSION_IDS.numberRestriction,
     loadingLabel: NUMBER_RESTRICTIONS_TEXTS.states.loading,
-    renderHistory: ({ trainee, navigation }) => (
-      <NumberRestrictionsDrawerHistory traineeId={trainee.id} navigation={navigation} />
+    renderHistory: ({ trainee, navigation, onRecordSaved }) => (
+      <NumberRestrictionsDrawerHistory traineeId={trainee.id} navigation={navigation} onRecordSaved={onRecordSaved} />
     ),
   },
   voiceMessage: {
     permissionId: PERMISSION_IDS.voiceMessage,
     loadingLabel: VOICE_MESSAGES_TEXTS.states.loading,
-    renderHistory: ({ trainee, navigation }) => (
-      <VoiceMessagesDrawerHistory traineeId={trainee.id} navigation={navigation} />
+    renderHistory: ({ trainee, navigation, onRecordSaved }) => (
+      <VoiceMessagesDrawerHistory
+        traineeId={trainee.id}
+        traineeFullName={trainee.fullName}
+        navigation={navigation}
+        onRecordSaved={onRecordSaved}
+      />
     ),
   },
 };
@@ -58,19 +64,27 @@ interface DrawerActionScreenProps {
   trainee: TraineeListItemDto;
   onBack: () => void;
   onSwitchAction: (actionKey: DrawerActionKey) => void;
+  /** אחרי שמירה בטופס של הפעולה */
+  onRecordSaved: () => void;
 }
 
 /**
  * מסך של פעולה במגירה: ההיסטוריה שלה, או - לפני שההרשאות נטענו או בלי הרשאה - השורה העליונה והמצב (ספק 02 §7).
  * החזרה ומחליף הפעולה זמינים בכל מצב
  */
-export default function DrawerActionScreen({ actionKey, trainee, onBack, onSwitchAction }: DrawerActionScreenProps) {
+export default function DrawerActionScreen({
+  actionKey,
+  trainee,
+  onBack,
+  onSwitchAction,
+  onRecordSaved,
+}: DrawerActionScreenProps) {
   const view = DRAWER_ACTION_VIEWS[actionKey];
   const permission = usePermissionCheck(view.permissionId);
   const navigation = <DrawerActionNavigation actionKey={actionKey} onBack={onBack} onSwitchAction={onSwitchAction} />;
 
   if (permission.status === "granted") {
-    return <>{view.renderHistory({ trainee, navigation })}</>;
+    return <>{view.renderHistory({ trainee, navigation, onRecordSaved })}</>;
   }
 
   return (

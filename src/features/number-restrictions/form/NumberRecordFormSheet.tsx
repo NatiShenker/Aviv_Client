@@ -42,7 +42,7 @@ function NumberRecordFormDialog({ isOpen, onClose, ...sessionOptions }: NumberRe
       open={isOpen}
       title={formSession.title}
       onClose={onClose}
-      actions={<FormFooter {...formSession.saveProps} onCancel={onClose} />}
+      actions={<FormFooter {...formSession.saveProps} onCancel={onClose} buttonSize="large" />}
     >
       {/* במובייל בוחרים הגבלה בכפתור "בחירה" בכל כרטיס (ספק 04 form §3.2.1) */}
       <NumberRecordForm {...formSession.formProps} RestrictionOptionsList={RestrictionOptionCards} />

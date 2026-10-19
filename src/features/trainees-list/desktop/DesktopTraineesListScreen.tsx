@@ -4,11 +4,12 @@ import { useInstitutes } from "@/features/institutes/InstitutesProvider";
 import InstitutesStateGate from "@/features/institutes/InstitutesStateGate";
 import TraineeDrawer from "@/features/trainee-actions/desktop/TraineeDrawer";
 import { useTraineeDrawer } from "@/features/trainee-actions/desktop/useTraineeDrawer";
+import { focusField } from "@/shared/dom/focusField";
 import DesktopPage from "@/shells/desktop/DesktopPage";
 import { forgetTraineesListPosition } from "../traineesListMemory";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
 import { useTraineesListState } from "../useTraineesListState";
-import TraineeCardsGrid from "./TraineeCardsGrid";
+import TraineeCardsGrid, { TRAINEE_CARDS_REGION_ID } from "./TraineeCardsGrid";
 import TraineesFiltersPanel from "./TraineesFiltersPanel";
 import TraineesResultsToolbar from "./TraineesResultsToolbar";
 
@@ -35,6 +36,14 @@ function DesktopTraineesListContent() {
   useEffect(() => {
     forgetTraineesListPosition();
   }, []);
+
+  // בסגירת המגירה הפוקוס חוזר לכרטיס שפתח אותה. אם הכרטיס כבר לא מוצג (למשל זז במיון אחרי שמירה),
+  // הפוקוס חוזר לאזור הכרטיסים, כדי שהמקלדת תמשיך מהרשימה ולא מתחילת העמוד
+  const keepFocusInList = () => {
+    if (document.activeElement === document.body) {
+      focusField(TRAINEE_CARDS_REGION_ID);
+    }
+  };
 
   return (
     <>
@@ -75,14 +84,18 @@ function DesktopTraineesListContent() {
           visibleTrainees={listFilters.visibleTrainees}
           activeTraineeId={traineeDrawer.openTraineeId}
           onOpenTrainee={traineeDrawer.openDrawer}
+          resetVisibleCountOn={[listFilters.filters, listFilters.sort]}
         />
       </div>
 
+      {/* שמירה במגירה משנה נתונים שהרשימה מציגה (למשל "מוגבל עד"), ולכן הרשימה מתרעננת מיד - בשקט, בלי שלד */}
       <TraineeDrawer
         isOpen={traineeDrawer.drawer?.isOpen ?? false}
         openingKey={traineeDrawer.drawer?.openingKey ?? 0}
         trainee={drawerTrainee}
         onClose={traineeDrawer.closeDrawer}
+        onRecordSaved={trainees.refreshInBackground}
+        onExited={keepFocusInList}
       />
     </>
   );

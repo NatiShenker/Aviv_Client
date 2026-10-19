@@ -1,7 +1,8 @@
-import { IpsRadioGroupMobile, type IpsRadioGroupMobileValue } from "ui-library";
 import PhoneNumbersField from "@/features/records/form/phone/PhoneNumbersField";
 import PhoneSearchField from "@/features/records/form/phone/PhoneSearchField";
 import FormSection from "@/shared/components/form/FormSection";
+import type { FieldOptionValue } from "@/shared/form-controls/formControls";
+import { useFormControls } from "@/shared/form-controls/FormControlsProvider";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import { NUMBER_RECORD_FIELD_IDS, canSearchPhone } from "./numberRecordFormLogic";
 import { RECORD_TYPE_OPTIONS, isNumberRecordType } from "./numberRestrictionsOptions";
@@ -19,10 +20,11 @@ interface ActionTypeBlockProps {
 
 /** בלוק 0 ביצירה - "הגבלה או היתר": הבחירה, ושדה המספר של כל סוג (ספק 04 form §3.2) */
 export default function ActionTypeBlock({ form, RestrictionOptionsList }: ActionTypeBlockProps) {
+  const { RadioGroupField } = useFormControls();
   const { state } = form;
   const isPermit = state.recordType === "permit";
 
-  const handleTypeChange = (value: IpsRadioGroupMobileValue) => {
+  const handleTypeChange = (value: FieldOptionValue) => {
     if (isNumberRecordType(value)) {
       form.changeType(value);
     }
@@ -30,7 +32,7 @@ export default function ActionTypeBlock({ form, RestrictionOptionsList }: Action
 
   return (
     <FormSection title={TEXTS.title}>
-      <IpsRadioGroupMobile
+      <RadioGroupField
         aria-label={TEXTS.title}
         options={RECORD_TYPE_OPTIONS}
         value={state.recordType}

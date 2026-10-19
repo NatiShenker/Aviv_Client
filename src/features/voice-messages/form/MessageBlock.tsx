@@ -1,8 +1,9 @@
-import { IpsRadioGroupMobile, type IpsRadioGroupMobileValue } from "ui-library";
 import PhoneNumbersField from "@/features/records/form/phone/PhoneNumbersField";
 import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
 import FieldIntro from "@/shared/components/form/FieldIntro";
 import FormSection from "@/shared/components/form/FormSection";
+import type { FieldOptionValue } from "@/shared/form-controls/formControls";
+import { useFormControls } from "@/shared/form-controls/FormControlsProvider";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 import LockedScopeCard from "./LockedScopeCard";
 import type { VoiceMessageFormController } from "./useVoiceMessageForm";
@@ -40,9 +41,10 @@ function MessageContentBox({ traineeFullName }: { traineeFullName: string }) {
 
 /** "היקף ההפעלה", ושדה המספרים מתחת לאפשרות שפותחת אותו */
 function ScopeSelector({ form }: { form: VoiceMessageFormController }) {
+  const { RadioGroupField } = useFormControls();
   const { values, errors } = form;
 
-  const handleScopeChange = (value: IpsRadioGroupMobileValue) => {
+  const handleScopeChange = (value: FieldOptionValue) => {
     if (isVoiceMessageScope(value)) {
       form.changeScope(value);
     }
@@ -52,7 +54,7 @@ function ScopeSelector({ form }: { form: VoiceMessageFormController }) {
     <div>
       <FieldIntro title={TEXTS.scopeTitle} />
       <div className="mt-2">
-        <IpsRadioGroupMobile
+        <RadioGroupField
           aria-label={TEXTS.scopeTitle}
           options={SCOPE_OPTIONS}
           value={values.scope}

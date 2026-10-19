@@ -51,6 +51,7 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | undefined>(undefined);
   const [isFileUploading, setIsFileUploading] = useState(false);
+  const [hasUserChanges, setHasUserChanges] = useState(false);
   const focusAfterRender = useFocusAfterRender();
 
   // הרשומה שמורה עם שם הסיבה: כשרשימת הסיבות מגיעה, הסיבה נבחרת בה לפי השם
@@ -64,9 +65,11 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
     );
   }, [sourceRecord, reasons.data]);
 
+  // שינויים של המשתמש עוברים כאן (או ב"הוסף" מספר). בחירת הסיבה לפי השם, כשהרשימה מגיעה, לא נחשבת שינוי
   const changeValues = (update: Partial<VoiceMessageFormValues>, clearedSlots: VoiceMessageErrorSlot[] = []) => {
     setValues((current) => ({ ...current, ...update }));
     setErrors((current) => withoutErrors(current, clearedSlots));
+    setHasUserChanges(true);
   };
 
   const showErrors = (nextErrors: VoiceMessageFormErrors) => {
@@ -94,6 +97,7 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
       return;
     }
     setValues(outcome.values);
+    setHasUserChanges(true);
   };
 
   const removePhone = (phone: PhoneString) => {
@@ -161,6 +165,8 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
     isSaving,
     isFileUploading,
     saveError,
+    /** המשתמש שינה ערך מאז שהטופס נפתח - כדי לשאול לפני שהטופס נסגר בלי כוונה */
+    hasUserChanges,
     submit,
     setIsFileUploading,
     changeScope,

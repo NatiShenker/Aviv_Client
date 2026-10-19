@@ -1,6 +1,7 @@
-import { IpsButton, IpsSelectMobile, IpsTextAreaMobile } from "ui-library";
+import { IpsButton } from "ui-library";
 import type { LookupItem } from "@/schemas/common.schema";
 import FormSection from "@/shared/components/form/FormSection";
+import { useFormControls } from "@/shared/form-controls/FormControlsProvider";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import ApprovalFileField from "./ApprovalFileField";
 import ApproverField from "./ApproverField";
@@ -35,6 +36,7 @@ export default function DecisionBlock({
   onChange,
   onFileUploadingChange,
 }: DecisionBlockProps) {
+  const { SelectField, TextAreaField } = useFormControls();
   const reasonOptions = (reasons.data ?? []).map((reason) => ({ value: reason.id, label: reason.name }));
   const hasReasonsFailed = reasons.status === "error";
 
@@ -42,7 +44,7 @@ export default function DecisionBlock({
     <FormSection title={TEXTS.title}>
       <div className="flex flex-col gap-2">
         <div>
-          <IpsSelectMobile
+          <SelectField
             id={fieldIds.reason}
             label={TEXTS.reasonLabel}
             placeholder={TEXTS.reasonPlaceholder}
@@ -61,7 +63,7 @@ export default function DecisionBlock({
         </div>
 
         {/* הפירוט חובה בכל הטפסים (ספק 00 §4.3) */}
-        <IpsTextAreaMobile
+        <TextAreaField
           id={fieldIds.details}
           label={TEXTS.detailsLabel}
           placeholder={TEXTS.detailsPlaceholder}

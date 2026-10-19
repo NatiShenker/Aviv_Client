@@ -5,7 +5,7 @@ import ErrorText from "@/shared/components/form/ErrorText";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import { NUMBER_RECORD_FIELD_IDS, RESTRICTION_PICKER_HEADING_ID } from "./numberRecordFormLogic";
 import { buildRestrictionPickerView } from "./restrictionPickerLogic";
-import type { NumberRecordFormController } from "./useNumberRecordForm";
+import type { ChooseRestrictionOptions, NumberRecordFormController } from "./useNumberRecordForm";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.picker;
 
@@ -18,7 +18,8 @@ export interface RestrictionOptionsListProps {
   isChoosing: boolean;
   /** מזהה הרמז שמעל הרשימה, כשהוא מוצג - מתאר את הרשימה לקורא מסך */
   hintId?: string;
-  onChoose: (restriction: SourceRestrictionSummaryDto) => void;
+  /** בלי options - הפוקוס עובר לכותרת הבוחר אחרי הבחירה */
+  onChoose: (restriction: SourceRestrictionSummaryDto, options?: ChooseRestrictionOptions) => void;
 }
 
 export type RestrictionOptionsListComponent = ComponentType<RestrictionOptionsListProps>;

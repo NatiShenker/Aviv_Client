@@ -41,7 +41,7 @@ function RestrictionFormDialog({ isOpen, onClose, ...sessionOptions }: Restricti
       open={isOpen}
       title={formSession.title}
       onClose={onClose}
-      actions={<FormFooter {...formSession.saveProps} onCancel={onClose} />}
+      actions={<FormFooter {...formSession.saveProps} onCancel={onClose} buttonSize="large" />}
     >
       <RestrictionForm {...formSession.formProps} />
     </FormSheet>

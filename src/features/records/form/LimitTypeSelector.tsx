@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { IpsRadioGroupMobile, IpsTextFieldMobile, type IpsRadioGroupMobileValue } from "ui-library";
 import type { CallLimitKind } from "@/schemas/common.schema";
 import ErrorText from "@/shared/components/form/ErrorText";
 import FieldIntro from "@/shared/components/form/FieldIntro";
+import type { FieldOptionValue } from "@/shared/form-controls/formControls";
+import { useFormControls } from "@/shared/form-controls/FormControlsProvider";
 import AppIcon from "@/shared/icons/AppIcon";
 import type { CallRuleKind } from "./callConditionsLogic";
 import { FORM_TEXTS } from "./formTexts";
@@ -14,7 +15,7 @@ const DURATION_MAX_LENGTH = 3;
 
 const LIMIT_KINDS: CallLimitKind[] = ["full", "limited"];
 
-function isLimitKind(value: IpsRadioGroupMobileValue): value is CallLimitKind {
+function isLimitKind(value: FieldOptionValue): value is CallLimitKind {
   return LIMIT_KINDS.includes(value as CallLimitKind);
 }
 
@@ -45,6 +46,7 @@ export default function LimitTypeSelector({
   durationError,
   durationInputId,
 }: LimitTypeSelectorProps) {
+  const { RadioGroupField, TextField } = useFormControls();
   const texts = FORM_TEXTS.limitType[context];
   const durationInputRef = useRef<HTMLInputElement>(null);
   // הפוקוס עובר לשדה המשך רק כשהמשתמש החליף סוג - לא כשרשומה קיימת נפתחת לעריכה
@@ -57,7 +59,7 @@ export default function LimitTypeSelector({
     }
   }, [shouldFocusDuration, kind]);
 
-  const handleKindChange = (value: IpsRadioGroupMobileValue) => {
+  const handleKindChange = (value: FieldOptionValue) => {
     if (!isLimitKind(value)) return;
     onKindChange(value);
     setShouldFocusDuration(value === "limited");
@@ -73,12 +75,12 @@ export default function LimitTypeSelector({
     <div>
       <FieldIntro title={texts.title} />
       <div className="mt-2">
-        <IpsRadioGroupMobile aria-label={texts.title} options={options} value={kind} onChange={handleKindChange} />
+        <RadioGroupField aria-label={texts.title} options={options} value={kind} onChange={handleKindChange} />
       </div>
 
       {kind === "limited" && (
         <div className="mt-3 grid grid-cols-2 gap-2 motion-safe:animate-fade-in">
-          <IpsTextFieldMobile
+          <TextField
             ref={durationInputRef}
             id={durationInputId}
             label={DURATION_TEXTS.label}
