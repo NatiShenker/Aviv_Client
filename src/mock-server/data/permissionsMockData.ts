@@ -1,4 +1,4 @@
-import { PERMISSION_IDS } from "@/context/institutes/permissionIds";
+import { PERMISSION_IDS } from "@/features/institutes/permissionIds";
 
 // בשלב הזה המשתמש מקבל הרשאות מלאות בכל פנימייה. לבדיקת "אין הרשאה" - mockEmpty=permissions
 const ALL_PERMISSION_IDS: number[] = Object.values(PERMISSION_IDS);

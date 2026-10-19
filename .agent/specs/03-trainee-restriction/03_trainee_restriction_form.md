@@ -1,6 +1,6 @@
 # 03 – Trainee restriction – Form
 
-Prototype source: `client/pages/BlockForm.tsx`. Business rules and model: [overview.md](https://www.google.com/search?q=overview.md). Pattern: [00 §4.2](https://www.google.com/search?q=..%2F00-foundations.md%2342-form-screen).
+Prototype source: `client/pages/BlockForm.tsx`. Business rules and model: [overview.md](03_trainee_restriction_overview.md). Pattern: [00 §4.2](../00_foundations.md#42-form-screen).
 
 ---
 
@@ -19,9 +19,9 @@ Prototype source: `client/pages/BlockForm.tsx`. Business rules and model: [overv
 
 | Mode | Route | Notes |
 |---|---|---|
-| Create | `/child/:id/block/new` | |
-| Create based on | `/child/:id/block/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
-| Edit | `/child/:id/block/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/child/:id/block` (replace). A direct URL starts at the app start ([00 §1](../00_foundations.md)) |
+| Create | `/trainee/:id/trainee-restriction/new` | |
+| Create based on | `/trainee/:id/trainee-restriction/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
+| Edit | `/trainee/:id/trainee-restriction/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/trainee/:id/trainee-restriction` (replace). A direct URL starts at the app start ([00 §1](../00_foundations.md)) |
 
 ---
 
@@ -39,7 +39,7 @@ What, then when – the same order in every action form (decided 2026-10-18):
 
 1. **LimitTypeSelector – restriction**, see [00 §3.9](../00_foundations.md): title `"סוג ההגבלה"` (Restriction type) and stacked options, each with its description; DurationField; ErrorText – duration.
 2. **FieldIntro** `"טווח תאריכים"` (Date range) / `"ההגבלה תחול בתאריכים אלו בלבד"` (The restriction applies on these dates only), 16px below.
-3. **Date pair** (PickerInput × 2): start (label `"בחר תאריך"`, aria-label `"תאריך התחלה"`), end (no label, aria-label `"תאריך סיום"`, `min` = start date). Placeholder `"--/--/--"`.
+3. **Date pair** (PickerInput × 2): start (label `"תאריך התחלה"`), end (label `"תאריך סיום"`, `min` = start date). Placeholder `"--/--/--"`.
 4. ErrorText – dates.
 
 ### 3.3 Block 2 – `"היתרים להגבלה"` (Permits within the restriction)
@@ -49,7 +49,7 @@ What, then when – the same order in every action form (decided 2026-10-18):
    - `"הגבלת משך שיחה"` → `"ללא הגדרה – מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה"` (Nothing set – allowed all day on all devices, within the chosen duration)
 2. **ConditionAccordion `"שעות מותרות"`** (Permitted hours), 8px below:
    - Row summary: see §4.5.
-   - Content: hint 12/15 `"השיחות יותרו רק בשעות אלו, בכל יום בטווח התאריכים"` (Calls will be allowed only in these hours, every day in the date range); time pair (8px below): start (label `"בחר שעה"`, aria-label `"שעת התחלה"`), end (aria-label `"שעת סיום"`), placeholder `"--:--"`, both clearable.
+   - Content: hint 12/15 `"השיחות יותרו רק בשעות אלו, בכל יום בטווח התאריכים"` (Calls will be allowed only in these hours, every day in the date range); time pair (8px below): start (label `"שעת התחלה"`), end (label `"שעת סיום"`), placeholder `"--:--"`, both clearable.
    - ErrorText – hours (at the bottom of the accordion, visible open or closed).
 3. **ConditionAccordion `"מכשירים מותרים"`** (Permitted devices):
    - Row summary: see §4.5.
@@ -57,13 +57,13 @@ What, then when – the same order in every action form (decided 2026-10-18):
 
 ### 3.4 Block 3 – `"סיבות והחלטה"` (Reasons & decision)
 
-As in [00 §4.3](https://www.google.com/search?q=..%2F00-foundations.md%2343-reasons--decision-block), with the trainee-restriction reasons list ([00 §6](https://www.google.com/search?q=..%2F00-foundations.md%236-lookup-lists-current-prototype-values)). Reason and approver are required here. The approver field (MFE + selected-approver card with `"החלפה"`) and the file field (`IpsFileUpload` + attached-file row) are described in 00 §4.3.
+As in [00 §4.3](../00_foundations.md#43-reasons--decision-block), with the trainee-restriction reasons list ([00 §6](../00_foundations.md#6-lookup-lists--external-sources)). Reason and approver are required here. The approver field (MFE + selected-approver card with `"החלפה"`) and the file field (`IpsFileUpload` + attached-file row) are described in 00 §4.3.
 
 - **Edit:** the record stores the reason's name, so the reason is selected in the list by name ([pending-decisions](../../pending-decisions.md)).
 
 ### 3.5 Footer
 
-StickyActionBar, two columns: outline `"ביטול"` (closes without saving) and primary submit `"שמור"` – the same in every form ([OQ-17](../README.md#oq-17), closed 2026-10-18).
+StickyActionBar, two columns: outline `"ביטול"` (closes without saving) and primary submit `"שמור"` – the same in every form ([OQ-17](../../pending-decisions.md#oq-17), closed 2026-10-18).
 
 ---
 
@@ -87,7 +87,7 @@ The screen scrolls to the top on open.
 ### 4.2 Dates
 
 - A muted default date turns to normal color once the user changes it.
-- The end-date picker cannot go before the start date (`min`). The start date has no minimum ([OQ-14](https://www.google.com/search?q=..%2FREADME.md%23oq-14)).
+- The end-date picker cannot go before the start date (`min`). The start date has no minimum ([OQ-14](../../pending-decisions.md#oq-14)).
 - Start = end is allowed (one-day restriction).
 - Changing either date clears the dates error.
 
@@ -106,7 +106,7 @@ The screen scrolls to the top on open.
 | `"שעות מותרות"` | If a start **or** end time is set: `"{start}-{end}"` (LTR), with `"--:--"` for a missing side, e.g. `16:00---:--`. Otherwise `"כל היום"` when open by default, else `"לא הוגדרו"` |
 | `"מכשירים מותרים"` | 1 device → its label; 2+ → `"{n} מכשירים"`; none → `"כל המכשירים"` when open by default, else `"לא הוגדרו"` |
 
-**Open by default** (in the form) = type is `"הגבלת משך שיחה"`, **or** both hours are set, **or** at least one device is selected ([overview §3.2](https://www.google.com/search?q=overview.md%2332-open-by-default-rule)).
+**Open by default** (in the form) = type is `"הגבלת משך שיחה"`, **or** both hours are set, **or** at least one device is selected ([overview §3.2](03_trainee_restriction_overview.md#32-open-by-default-rule)).
 
 **Content behavior:**
 
@@ -118,13 +118,13 @@ The screen scrolls to the top on open.
 2. If there is an hours error, open the hours accordion.
 3. If there are errors, stop (nothing is saved).
 4. Otherwise build the input (`CreateTraineeRestrictionRequest` / `UpdateTraineeRestrictionRequest`): `durationMinutes` = the minutes when the type is `"הגבלת משך שיחה"`, else `null`; `startTime` / `endTime` = `null` when both times are empty.
-5. Create (`POST`) or update (`PUT`), then go to the history list (replace) with the saved record open.
+5. Create (`POST`) or update (`PUT`), then go one step back to the history list with the saved record open ([00 §4.2](../00_foundations.md)).
 
 **Production addition:** after a failed submit, scroll to and focus the first field with an error.
 
 ### 4.8 Close
 
-- The header X and `"ביטול"` go back to the history list without saving or confirming ([OQ-16](https://www.google.com/search?q=..%2FREADME.md%23oq-16)).
+- The header X and `"ביטול"` go back to the history list without saving or confirming ([OQ-16](../../pending-decisions.md#oq-16)).
 
 ### 4.9 Create based on an ended record
 
@@ -148,7 +148,7 @@ All rules run on submit.
 | Approver | An approver is chosen | `"יש לבחור גורם מאשר"` **(proposed)** | An approver is chosen |
 | File | One file attached | `"יש לצרף קובץ"` (A file must be attached) | A file is attached |
 
-Only one message per slot is shown (the first failing rule). Devices have no rules. Reason, details and approver are required (decided 2026-10-18, closing this part of [OQ-15](https://www.google.com/search?q=..%2FREADME.md%23oq-15)).
+Only one message per slot is shown (the first failing rule). Devices have no rules. Reason, details and approver are required (decided 2026-10-18, closing this part of [OQ-15](../../pending-decisions.md#oq-15)).
 
 ---
 
@@ -163,7 +163,7 @@ Only one message per slot is shown (the first failing rule). Devices have no rul
 | Type + minutes | `durationMinutes: number \| null` (`null` for `"הגבלה מלאה"`) |
 | Start / end time | `startTime: TimeString \| null`, `endTime: TimeString \| null` |
 | Devices | `deviceIds: number[]` |
-| `"סיבה/הערה"` | `reason: string`, `reasonCode?: number` |
+| `"סיבה"` | `reason: string`, `reasonCode?: number` |
 | `"פירוט"` | `details: string` |
 | `"גורם מאשר"` | `approverId: number` (selected via 3rd-party Approver MFE) |
 | `"צירוף קובץ"` | `approvedFileId: number` (uploaded directly to SharePoint) |
@@ -176,6 +176,9 @@ Only one message per slot is shown (the first failing rule). Devices have no rul
 | `durationMinutes` | Duration |
 | `startTime`, `endTime` | Hours (also opens the hours accordion) |
 | `deviceIds` | Shown under the devices accordion row (opens it) |
+| `reason`, `reasonCode` | Reason |
+| `details` | Details |
+| `approverId` | Approver |
 | `approvedFileId` | File |
 
 ---
@@ -184,9 +187,9 @@ Only one message per slot is shown (the first failing rule). Devices have no rul
 
 | State | Behavior |
 |---|---|
-| Edit – loading the record | Header is shown; blocks render once the record arrives |
+| Edit – loading the record | The form opens only once the history has loaded and the record is found in it (§2); until then the history shows its own loading state |
 | Edit – 404 | Redirect to the history list |
-| Lookups failed | The affected select shows only its placeholder; submit still works for fields that do not need it |
+| Lookups failed | Under the field: `"לא ניתן לטעון את רשימת הסיבות"` / `"לא ניתן לטעון את המכשירים"` + `"נסה שוב"` **(proposed)**. The reason is required, so saving waits for the reasons list |
 | File uploading | The field shows the file name; submit waits for the upload to finish |
 | File upload failed | The field clears; file slot shows `"העלאת הקובץ נכשלה, נסה שוב"` (File upload failed, try again) **(proposed)** |
 | Saving | Submit button disabled until the response arrives (prevents double save) |

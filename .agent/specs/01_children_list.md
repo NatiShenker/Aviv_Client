@@ -6,7 +6,7 @@ Prototype source: `client/pages/ChildrenList.tsx`.
 
 ## 1. Purpose & entry points
 
-- The app's home screen: the list of trainees in the institute, with search, filter and sort. Tapping a trainee opens their actions screen ([02](https://www.google.com/search?q=02-child-actions.md)).
+- The app's home screen: the list of trainees in the institute, with search, filter and sort. Tapping a trainee opens their actions screen ([02](02_child_actions.md)).
 - **Entry points:** app launch; the back arrow on the actions screen.
 
 ---
@@ -17,7 +17,7 @@ Prototype source: `client/pages/ChildrenList.tsx`.
 - **Parameters:** none. Search, filter and sort state are not kept in the URL.
 - **Returning to the list** from another screen (e.g. back from a trainee) shows it as the user left it, until the page is reloaded:
   - The search, every filter group and the sort.
-  - The loaded list itself, with no new load (`"נסה שוב"` always reloads from the server).
+  - The loaded list itself, with no new load (`"נסה שוב"` always reloads from the server). Exception: a save in an action screen changes the trainee flags, so the list loads again; the search, filters, sort and position are still restored.
   - The number of cards already shown, and the scroll position.
 - **After a page reload** everything resets, except the persisted selections below.
 - **Persisted selections (local storage, 30 days from the last selection):**
@@ -63,7 +63,7 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 
 ### 3.2 Cards list
 
-12px below the header, 12px between cards. Each card is a link to `/child/{id}`.
+12px below the header, 12px between cards. Each card is a link to `/trainee/{id}`.
 
 - **Incremental rendering:** the first 30 cards are rendered. When the user scrolls near the end, the next 30 are added. Any change to the search, filters, sort or institute starts again from the first 30.
 
@@ -119,7 +119,7 @@ SortSheet titled `"מיון"`: one row per field **and** direction (`IpsRadioLis
 
 ### 4.2 Search
 
-- Matches trainees whose **display name contains the trimmed query**. The personal number is matched only because it is part of the display name ([OQ-06](https://www.google.com/search?q=README.md%23oq-06)).
+- Matches trainees whose **name or trainee code contains the trimmed query** (two separate fields, [OQ-06](../pending-decisions.md#oq-06), closed). The card shows them as `"{name} | {code}"`.
 
 ### 4.3 Filter
 
@@ -133,7 +133,7 @@ SortSheet titled `"מיון"`: one row per field **and** direction (`IpsRadioLis
 |---|---|
 | `"שם"` | Display name, Hebrew locale order |
 | `"סטטוס"` | Whether the trainee has an active **trainee restriction** (the `"מוגבל עד"` badge, `restrictedUntilDate`) – not a number restriction |
-| `"יתרת דקות"` | The minutes value ([OQ-07](https://www.google.com/search?q=README.md%23oq-07)) |
+| `"יתרת דקות"` | The minutes value ([OQ-07](../pending-decisions.md#oq-07)) |
 
 - Ties in any sort are broken by name, always `א׳ עד ת׳`.
 

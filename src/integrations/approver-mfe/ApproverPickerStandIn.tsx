@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { IpsButton, IpsRadioListMobile, IpsSearchFieldMobile, type IpsRadioListMobileValue } from "ui-library";
 import type { ApproverRef } from "@/schemas/common.schema";
-import { useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { isEmptyList, useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { searchApprovers } from "./approversStandInService";
 import { APPROVER_STAND_IN_TEXTS } from "./approverStandInTexts";
 import type { ApproverPickerProps } from "./approverPickerContract";
 
 const TEXTS = APPROVER_STAND_IN_TEXTS;
-
-const isEmptyList = (list: unknown[]) => list.length === 0;
 
 function approverLabel(approver: ApproverRef): string {
   return approver.roleTitle ? `${approver.fullName}${TEXTS.roleSeparator}${approver.roleTitle}` : approver.fullName;

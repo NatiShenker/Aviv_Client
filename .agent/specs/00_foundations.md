@@ -7,11 +7,11 @@ Everything shared by all screens. Screen files reference the components and patt
 ## 1. Platform
 
 - **Mobile web**, Hebrew, right-to-left: every screen root has `dir="rtl"` and `lang="he"`.
-- **Content width:** max 375px, centered. The app background (`#f6f8fe`) fills the viewport.
+- **Content width:** the full width of the frame, with no fixed width; every screen fits 320px without horizontal scroll ([design.md](../design.md)). The app background (`#f6f8fe`) fills the viewport.
 - **Font:** Rubik, weights 400 / 500 / 600. Load once globally.
 - **Top spacing:** 50px above the header on every screen (status-bar area).
 - **Mixed direction:** dates, times, ranges, phone numbers and "+N" counters are wrapped in `dir="ltr"` spans so they read left to right inside RTL text.
-- **Address and direct entry:** Aviv's URL is appended to the host's URL: host domain (with the environment prefix) + the host's own route + Aviv's route. The part of the path before Aviv's route is the router base, derived at startup, so every in-app link keeps the host prefix. A direct entry to an inner Aviv route (a link or a page refresh) starts at the children list (the address is replaced, query parameters are kept). Only the controls catalog (`/catalog`, a dev page) opens directly.
+- **Address and direct entry:** Aviv's URL is appended to the host's URL: host domain (with the environment prefix) + the host's own route + Aviv's route. The part of the path before Aviv's route is the router base, derived at startup, so every in-app link keeps the host prefix. A direct entry to an inner Aviv route (a link or a page refresh) starts at the children list (the address is replaced; query parameters such as the mock scenarios are kept, but `basedOn`, which belongs to the create route, is removed).
 
 ---
 
@@ -116,7 +116,7 @@ Each entry: **structure**, **states**, **used in**.
 ### 3.6 PickerInput (date / time)
 
 - **Structure:** optional FieldLabel above; a 42px box with the formatted value (or a placeholder) and a trailing icon (calendar / clock). An invisible native `date`/`time` input covers the whole box, so tapping anywhere opens the native picker.
-- **Pairs:** start and end sit side by side in a 2-column grid. Only the first of the pair has a label: `"בחר תאריך"` (Pick a date) or `"בחר שעה"` (Pick a time).
+- **Pairs:** start and end sit side by side in a 2-column grid. Each field has its own label (decided 2026-10-19): `"תאריך התחלה"` / `"תאריך סיום"` (dates), `"שעת התחלה"` / `"שעת סיום"` (times).
 - **Placeholders:** `"--/--/--"` (date), `"--:--"` (time).
 - **Clearable (time only):** when a time has a value, the icon is replaced by an X button (aria-label `"ניקוי {field}"`, e.g. `"ניקוי שעת התחלה"`). Dates have no clear button.
 - **States:** empty, **muted** (a default date the user has not touched yet is shown in `text-secondary`), filled, focused (`action` border), invalid (`error` border, `aria-invalid`).
@@ -168,7 +168,7 @@ Each entry: **structure**, **states**, **used in**.
 ### 3.11 NativeSelect
 
 - Native single `select`, 42px, chevron on the left. The first option is the placeholder (empty value). Text is gray while empty, `text-primary` once chosen.
-- **Used in:** `"סיבה/הערה"` (reason).
+- **Used in:** `"סיבה"` (reason).
 
 ### 3.12 NativeMultiSelect
 
@@ -205,7 +205,7 @@ Each entry: **structure**, **states**, **used in**.
 ### 3.18 StatusBadge
 
 - History lists: `"פעילה"` (restriction, message) or `"פעיל"` (permit) on `success-soft` / `success`; `"הסתיים"` (ended) on `muted-soft` / `divider`. Shown next to the date range in the card's meta line (§3.22).
-- The children list has its own badge, see [01](https://www.google.com/search?q=01-children-list.md).
+- The children list has its own badge, see [01](01_children_list.md).
 
 ### 3.19 TypeTag
 
@@ -226,7 +226,7 @@ Each entry: **structure**, **states**, **used in**.
 - **Closed:** a button (`aria-expanded`) with RecordIcon, a **title line** (16/20, `text-primary`, truncated) with what the record does – trainee restriction: its type label; number record: the number + TypeTag; message: the number or `"כל השיחות"` – a **meta line** (16/20 gray) with when – the date range (LTR) + StatusBadge – and a chevron (`chevron` color) that rotates when open. The reason is not in the closed card.
 - **Open:** DetailGrid with only what the two summary lines do not already show (they stay visible above it), in the form's order; then a full-width outline button:
   - **Active or future record:** `"עריכה"` (Edit) with an edit icon.
-  - **Ended record** (decided 2026-10-19, closing the edit part of [OQ-14](README.md#oq-14)): an ended record **cannot be edited**. The button is `"צור … חדשה על בסיס זו"` (Create a new … based on this, worded per record type – **proposed**) with a copy icon, and opens the create form prefilled from the record (§4.2).
+  - **Ended record** (decided 2026-10-19, closing the edit part of [OQ-14](../pending-decisions.md#oq-14)): an ended record **cannot be edited**. The button is `"צור … חדשה על בסיס זו"` (Create a new … based on this, worded per record type – **proposed**) with a copy icon, and opens the create form prefilled from the record (§4.2).
 - **Motion:** opening and closing animate smoothly ("Card expand", §2.4). While closed, the content is hidden from screen readers and the keyboard.
 - **Only one card is open at a time**; tapping an open card closes it.
 
@@ -250,11 +250,11 @@ Same structure and look as the children list header row 2 ([01 §3.1](01_childre
 
 - BottomSheet titled `"מיון"` (Sort). One 56px row per sort option, where every option is a field **and** a direction (e.g. `"שם – א׳ עד ת׳"`). There is no separate direction row.
 - Rows are separated by a line. The selected row is bold, in the primary color, with a check icon. Implemented by `IpsRadioListMobile` (native radios).
-- Changes apply immediately; the sheet stays open until closed.
+- Choosing a row applies the sort and closes the sheet (decided 2026-10-19). Tapping the row that is already selected changes nothing, so the sheet stays open; the X, the backdrop and dragging down close it.
 
 ### 3.26 StickyActionBar
 
-- Sticky bottom bar (§2.3). On a history screen: one full-width primary "create" button. In every form: two equal columns, outline `"ביטול"` (Cancel, closes without saving) + primary `"שמור"` (Save, submit) ([OQ-17](README.md#oq-17), closed 2026-10-18).
+- Sticky bottom bar (§2.3). On a history screen: one full-width primary "create" button. In every form: two equal columns, outline `"ביטול"` (Cancel, closes without saving) + primary `"שמור"` (Save, submit) ([OQ-17](../pending-decisions.md#oq-17), closed 2026-10-18).
 
 ### 3.27 EmptyState
 
@@ -292,11 +292,11 @@ Rules shared by all forms:
 - The screen scrolls to the top when it opens.
 - **Validation runs on submit** and shows all errors at once. Exception: the phone "add" and "search" actions check the number immediately.
 - **Each error disappears** as soon as the user changes a field it relates to (listed per form).
-- **On success:** save, then go to the history list (replacing the form in browser history), with the saved record open.
-- **Close / cancel** goes back to the list without saving and without confirmation ([OQ-16](https://www.google.com/search?q=README.md%23oq-16)).
+- **On success:** save, then go one step back to the history list (like closing, §3.1), with the saved record open. The form URL stays as a "forward" entry: going forward opens an empty create form, or redirects an edit URL of the replaced record to the list.
+- **Close / cancel** goes back to the list without saving and without confirmation ([OQ-16](../pending-decisions.md#oq-16)).
 - **New record defaults:** start date = today, end date = tomorrow, both shown **muted** until changed. They are real values and are saved as is.
 - **Edit:** all fields load from the record; dates are not muted; accordions that contain values start open.
-- **Create based on an ended record** (decided 2026-10-19): the create route with `?basedOn={record}` (e.g. `/child/1/block/new?basedOn=12`; in the number form the record key, `permit-12`). The form opens in create mode with: **what** the record does (type, duration, hours, devices, number, scope, repeat), the **reason** (matched by name when the list arrives) and the **details**. The **dates** are the new-record defaults (today–tomorrow, muted); **approver and file are empty** – a new decision needs a new approval. A source that is not found opens a plain create form. Per-form details are in each form spec.
+- **Create based on an ended record** (decided 2026-10-19): the create route with `?basedOn={record}` (e.g. `/trainee/1/trainee-restriction/new?basedOn=12`; in the number form the record key, `permit-12`). The form opens in create mode with: **what** the record does (type, duration, hours, devices, number, scope, repeat), the **reason** (matched by name when the list arrives) and the **details**. The **dates** are the new-record defaults (today–tomorrow, muted); **approver and file are empty** – a new decision needs a new approval. A source that is not found opens a plain create form. Per-form details are in each form spec.
 
 ### 4.3 Reasons & decision block
 
@@ -304,12 +304,12 @@ Block title `"סיבות והחלטה"`. Identical in every form, except for the
 
 | Order | Field | Component (`ui-library` / External) | Placeholder | Required |
 |---|---|---|---|---|
-| 1 | `"סיבה/הערה"` (Reason/note) | `IpsSelectMobile` (NativeSelect behavior) | `"בחר סיבה"` (prototype: `"הכל"`) | **Yes** in every form (decided 2026-10-19) – error `"יש לבחור סיבה"` **(proposed)** |
+| 1 | `"סיבה"` (Reason) | `IpsSelectMobile` (NativeSelect behavior) | `"בחר סיבה"` (prototype: `"הכל"`) | **Yes** in every form (decided 2026-10-19) – error `"יש לבחור סיבה"` **(proposed)** |
 | 2 | `"פירוט"` (Details) | `IpsTextAreaMobile` (DetailsTextArea behavior) | `"הוסף פירוט"` | **Yes** in every form (decided 2026-10-18) – error `"יש להזין פירוט"` **(proposed)**. Only spaces count as empty |
 | 3 | `"גורם מאשר"` (Approver) | **External 3rd-party Approver MFE** – see below | – | **Yes** – error `"יש לבחור גורם מאשר"` **(proposed)** |
 | 4 | `"צירוף קובץ"` (File) | `IpsFileUpload` → **Direct upload to SharePoint** – see below | – | **Yes** – error `"יש לצרף קובץ"` (A file must be attached) |
 
-Fields 1–3 are stacked 8px apart; the file field is 16px below them. See [OQ-15](https://www.google.com/search?q=README.md%23oq-15).
+Fields 1–3 are stacked 8px apart; the file field is 16px below them. See [OQ-15](../pending-decisions.md#oq-15).
 
 - **Approver (ApproverField):** the MFE is a full-width search box with its own open results list, and reports the chosen approver through `onSelect`. Once chosen, the field shows the approver's name and role with a `"החלפה"` (Change) button, which shows the MFE again; `"ביטול"` (Cancel) returns to the chosen approver. Until the MFE is integrated, a stand-in with the same contract is used (`src/integrations/approver-mfe`).
 - **File (ApprovalFileField):** without a file, a hint `"בחר קובץ ולחץ 'שמור קבצים' כדי לצרף אותו"` **(proposed)** and `IpsFileUpload` (one file, camera allowed). After the upload the file is registered in the service (to get its `approvedFileId`), and the field shows a file row (icon, name, X `"הסרת הקובץ"`) instead of `IpsFileUpload`. Saving waits while a file uploads. Upload or registration failure: `"העלאת הקובץ נכשלה, נסה שוב"` **(proposed)**.
@@ -324,7 +324,7 @@ Fields 1–3 are stacked 8px apart; the file field is 16px below them. See [OQ-1
 | Time range | `HH:mm-HH:mm` | LTR |
 | Duration | `"עד X דק'"` (up to X min) | Inside type labels the spaces are non-breaking so the value never wraps |
 | Devices summary | 1 device → its name; more → `"{n} מכשירים"` | Used in accordion summaries and permit summaries |
-| Phone | As entered, after normalization | Normalization: remove spaces, parentheses and hyphens. Valid: `^0\d{8,9}$` (landline 9 digits, mobile 10). See [OQ-20](https://www.google.com/search?q=README.md%23oq-20) |
+| Phone | As entered, after normalization | Normalization: remove spaces, parentheses and hyphens. Valid: `^0\d{8,9}$` (landline 9 digits, mobile 10). See [OQ-20](../pending-decisions.md#oq-20) |
 
 ---
 

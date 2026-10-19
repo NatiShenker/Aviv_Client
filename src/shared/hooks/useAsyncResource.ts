@@ -11,6 +11,11 @@ export interface AsyncResource<TData> {
   reload: () => void;
 }
 
+/** בדיקת "ריק" לתשובה שהיא רשימה (לאפשרות isEmpty) */
+export function isEmptyList(list: unknown[]): boolean {
+  return list.length === 0;
+}
+
 type RequestKey = string | number;
 
 interface UseAsyncResourceOptions<TKey extends RequestKey, TData> {

@@ -18,9 +18,9 @@ Prototype source: `client/pages/VoiceMessageForm.tsx` (superseded where this spe
 
 | Mode | Route | Notes |
 |---|---|---|
-| Create | `/child/:id/voice-message/new` | |
-| Create based on | `/child/:id/voice-message/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
-| Edit | `/child/:id/voice-message/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/child/:id/voice-message` (replace) |
+| Create | `/trainee/:id/voice-message/new` | |
+| Create based on | `/trainee/:id/voice-message/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
+| Edit | `/trainee/:id/voice-message/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/trainee/:id/voice-message` (replace) |
 
 ---
 
@@ -50,7 +50,7 @@ FormHeader – `"הודעה לנמען חדשה"` (New message) or `"עריכת 
 ### 3.3 Block 2 – `"פרטי ההודעה"` (Message details)
 
 1. **Switch row** ([00 §3.17](../00_foundations.md)): full width – on the right the label `"הודעה חוזרת"` (Repeating message) with the line `"ההודעה תושמע שוב כל 5 דקות, כל עוד השיחה פעילה"` (The message plays again every 5 minutes while the call is active) under it; the 48×24 switch at the far left. Default off. A switch, not a radio: the choice usually stays off and needs no conscious decision.
-2. **Date range** (16px below): FieldIntro `"טווח תאריכים"` / `"ההודעה תופעל בתאריכים אלו בלבד"` (The message plays on these dates only); date pair – start (`"בחר תאריך"`, `"תאריך התחלה"`), end (`"תאריך סיום"`, `min` = start); ErrorText – dates.
+2. **Date range** (16px below): FieldIntro `"טווח תאריכים"` / `"ההודעה תופעל בתאריכים אלו בלבד"` (The message plays on these dates only); date pair – start (`"תאריך התחלה"`), end (`"תאריך סיום"`, `min` = start); ErrorText – dates.
 
 ### 3.4 Block 3 – `"סיבות והחלטה"`
 
@@ -60,7 +60,7 @@ As in [00 §4.3](../00_foundations.md), with the voice message reasons list ([00
 
 ### 3.5 Footer
 
-StickyActionBar, two columns: outline `"ביטול"` and primary submit `"שמור"` – the same in every form ([OQ-17](../README.md#oq-17), closed).
+StickyActionBar, two columns: outline `"ביטול"` and primary submit `"שמור"` – the same in every form ([OQ-17](../../pending-decisions.md#oq-17), closed).
 
 ---
 
@@ -90,7 +90,7 @@ StickyActionBar, two columns: outline `"ביטול"` and primary submit `"שמו
 
 1. Run all rules in §5; on create with `"רק במספרים נבחרים"` also handle the pending input and require at least one number.
 2. Show every error at once, then scroll to and focus the first field with an error.
-3. If valid: create (`phoneNumbers` = `[]` with `"בכל השיחות"`) – **one record per number** – or update; then go to the history list (replace) with the first saved record open.
+3. If valid: create (`phoneNumbers` = `[]` with `"בכל השיחות"`) – **one record per number** – or update; then go one step back to the history list with the first saved record open.
 
 ### 4.6 Create based on an ended record
 
@@ -140,6 +140,7 @@ Only one message per slot (first failing rule, in table order).
 | `details` | Details |
 | `approverId` | Approver |
 | `approvedFileId` | File |
+| A key whose slot is not shown (the locked number in edit; the numbers with `"בכל השיחות"`) | The general save error `"השמירה נכשלה. נסה שוב"`, together with the errors of the shown slots |
 
 ---
 

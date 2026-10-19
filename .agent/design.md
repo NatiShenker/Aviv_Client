@@ -1,6 +1,6 @@
 # Design Sources and Styling
 
-Binding guidance for building or changing any screen, layout or styling in Aviv. Read it together with `ui-library.md`.
+Binding guidance for building or changing any screen, layout or styling in Aviv. Read it together with `ui_library.md`.
 
 ## What the design is based on
 
@@ -9,8 +9,9 @@ There is no binding design system yet. The look comes from two sources:
 1. **Screen sketches**: `reference/builder-screens/` (read-only). Translated from Figma into code, one self-contained file per screen.
    - They define the **spirit, flow and behavior** of the app. Follow them for structure, hierarchy, interaction and wording.
    - They are **not pixel-exact**. Exact sizes, spacing and shades will change.
-   - They cover **mobile only**. Tablet and desktop are not designed yet; do not invent them — ask.
-2. **The UI library**: `../ui-library` (see `ui-library.md`). It owns the look and behavior of the controls themselves.
+   - Mobile sketches are in `pages/`. Desktop sketches are in `pages/desktop/`: a grid of trainee cards, and a side drawer for the actions, histories and forms. They lag the specs (no "create based on", no permissions, an older filter and sort model); where they differ, the specs and the mobile code win.
+   - Tablet is not designed yet; do not invent it — ask.
+2. **The UI library**: `../ui-library` (see `ui_library.md`). It owns the look and behavior of the controls themselves.
 
 ## User Experience (UX) Excellence
 
@@ -52,4 +53,4 @@ The sketches were built to be self-contained, not maintainable. Do not carry ove
 | Tablet | Fully standalone | Isolated |
 | Desktop | Micro-frontend inside the host Shell (Module Federation) | **Leaks into the Shell page** |
 
-**Open decision**: in desktop MFE mode, global CSS — mainly Tailwind's preflight reset and the base styles — would apply to the whole Shell page. Do not add global CSS rules beyond the current setup, and raise the issue when working on desktop hosting.
+**Open decision**: in desktop MFE mode, global CSS — mainly Tailwind's preflight reset and the base styles, and the `CssBaseline` of `IpsThemeProvider` — would apply to the whole Shell page. Do not add global CSS rules beyond the current setup, and raise the issue when working on desktop hosting (see the desktop readiness backlog in `pending-decisions.md`).

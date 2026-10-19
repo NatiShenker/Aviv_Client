@@ -13,7 +13,7 @@ Prototype source: `client/pages/VoiceMessageList.tsx` (superseded where this spe
 
 ## 2. Route & parameters
 
-- **Route:** `/child/:id/voice-message`
+- **Route:** `/trainee/:id/voice-message`
 - **`id`:** trainee ID. Unknown trainee → `"החניך לא נמצא"` under the header.
 - **After save:** the list reloads and opens the first saved record.
 
@@ -21,14 +21,14 @@ Prototype source: `client/pages/VoiceMessageList.tsx` (superseded where this spe
 
 ## 3. Layout
 
-1. **HistoryHeader** – title `"הודעה קולית לנמען"`; back arrow to `/child/{id}`.
+1. **HistoryHeader** – title `"הודעה קולית לנמען"`; back arrow one step back to the actions screen ([00 §3.1](../00_foundations.md)).
 2. **HistoryToolbar** ([00 §3.23](../00_foundations.md))
    - Section title `"היסטוריית הודעות לנמען"` (Messages history).
    - Search field: aria-label `"חיפוש הודעות לנמען"`, placeholder `"חיפוש לפי מספר, סיבה או תאריך"`.
    - Sort button (aria-label `"מיון"`).
 3. **Cards** – one ExpandableRecordCard per record.
 4. **EmptyState** – `"לא נמצאו הודעות לנמען"` (No messages found).
-5. **StickyActionBar** – primary button `"הוספת הודעה לנמען"` (Add message) + plus icon → `/child/{id}/voice-message/new`.
+5. **StickyActionBar** – primary button `"הוספת הודעה לנמען"` (Add message) + plus icon → `/trainee/{id}/voice-message/new`.
 
 ### 3.1 Card – closed
 

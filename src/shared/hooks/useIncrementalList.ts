@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LIST_PAGE_SIZE } from "@/constants/appConstants";
+import { LIST_PAGE_SIZE } from "@/appConstants";
 
 interface IncrementalListOptions {
   pageSize?: number;

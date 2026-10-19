@@ -2,7 +2,7 @@
 
 Prototype sources: `client/pages/ExceptionList.tsx`, `client/pages/ExceptionForm.tsx`, `client/lib/restrictions.ts`.
 
-Screens: [history.md](https://www.google.com/search?q=history.md) · [form.md](https://www.google.com/search?q=form.md)
+Screens: [history.md](04_number_restriction_history.md) · [form.md](04_number_restriction_form.md)
 
 ---
 
@@ -39,8 +39,8 @@ Every permit and every restriction is a **separate record** in the history list.
 - **A permit always relies on one specific restriction.** The user finds it by entering the full number and choosing among the restrictions that apply to this trainee.
 - **One number per permit.**
 - **Dates must be inside the restriction's period.** Default: from the later of today and the restriction's start, to the restriction's end.
-- **Several permits on the same restriction are allowed** (e.g. 08:00–09:00 and 18:00–19:00). Each is a separate record. Overlaps are not checked ([OQ-12](https://www.google.com/search?q=..%2FREADME.md%23oq-12)).
-- On `GET`, the permit includes `sourceRestriction: SourceRestrictionSummaryDto` (resolved via SQL `JOIN` to `AVIV_RESTRICTION_NUMBER` + `AVIV_INSTITUTES_RESTRICTION_NUMBER`) for display ([OQ-11](https://www.google.com/search?q=..%2FREADME.md%23oq-11)).
+- **Several permits on the same restriction are allowed** (e.g. 08:00–09:00 and 18:00–19:00). Each is a separate record. Overlaps are not checked ([OQ-12](../../pending-decisions.md#oq-12)).
+- On `GET`, the permit includes `sourceRestriction: SourceRestrictionSummaryDto` (resolved via SQL `JOIN` to `AVIV_RESTRICTION_NUMBER` + `AVIV_INSTITUTES_RESTRICTION_NUMBER`) for display ([OQ-11](../../pending-decisions.md#oq-11)).
 - Type, number and restriction cannot be changed after creation.
 
 ### 2.4 Restriction rules
@@ -51,7 +51,7 @@ Every permit and every restriction is a **separate record** in the history list.
 
 ### 2.6 Interpretation
 
-**Restriction** – same as the trainee restriction ([03 overview §2.3](https://www.google.com/search?q=..%2F03-trainee-restriction%2Foverview.md%2323-interpretation-table)), but for calls to this number only.
+**Restriction** – same as the trainee restriction ([03 overview §2.3](../03-trainee-restriction/03_trainee_restriction_overview.md#23-interpretation-table)), but for calls to this number only.
 
 **Permit** – calls to the number during the permit's dates (outside the permit, the restriction applies):
 
@@ -77,7 +77,7 @@ Each result also carries **this trainee's existing permits** on it that have not
 
 ### 2.8 Status
 
-Active while `endDate >= today`, else ended ([OQ-01](https://www.google.com/search?q=..%2FREADME.md%23oq-01)). Label: `"פעיל"` for permits, `"פעילה"` for restrictions, `"הסתיים"` for both.
+Active while `endDate >= today`, else ended ([OQ-01](../../pending-decisions.md#oq-01)). Label: `"פעיל"` for permits, `"פעילה"` for restrictions, `"הסתיים"` for both.
 
 ---
 
@@ -87,7 +87,7 @@ Active while `endDate >= today`, else ended ([OQ-01](https://www.google.com/sear
 |---|---|
 | Type label – restriction | `"הגבלה מלאה"` or `"הגבלת משך שיחה – עד X דק'"` |
 | Type label – permit | `"היתר מלא"` or `"היתר עם הגבלת משך – עד X דק'"` |
-| Hours / devices – restriction | Same "open by default" rule as [03 overview §3.2](https://www.google.com/search?q=..%2F03-trainee-restriction%2Foverview.md%2332-open-by-default-rule) |
+| Hours / devices – restriction | Same "open by default" rule as [03 overview §3.2](../03-trainee-restriction/03_trainee_restriction_overview.md#32-open-by-default-rule) |
 | Hours / devices – permit | Always open by default: unset hours → `"כל היום"`, unset devices → `"כל המכשירים"` |
 | Scope label | §2.2 |
 | "On restriction" | `"{scope label} · {DD/MM/YY-DD/MM/YY}"` |
@@ -110,10 +110,10 @@ Active while `endDate >= today`, else ended ([OQ-01](https://www.google.com/sear
 
 ## 8. Prototype demo data (for QA parity)
 
-| Number | Lookup result for the demo trainee (institute "ארזים") |
+| Number | Lookup result for the demo trainee (institute "הדר") |
 |---|---|
-| `0508881122` | 2 results: `"הגבלה ארצית"` and `"הגבלת פנימייה – ארזים"` (a "נווה צופים" restriction exists but is excluded). The national one has an existing permit: `"16:00-19:00 · עד 15 דק'"` |
-| `0524443322` | 1 result: `"הגבלת פנימייה – ארזים"` – auto-selected |
+| `0508881122` | 2 results: `"הגבלה ארצית"` and `"הגבלת פנימייה – הדר"` (an "אורות" restriction exists but is excluded). The national one has an existing permit: `"16:00-19:00 · עד 15 דק'"` |
+| `0524443322` | 1 result: `"הגבלת פנימייה – הדר"` – auto-selected |
 | `039998877` | 1 result: `"הגבלה ארצית"` – auto-selected, with an existing permit: `"כל היום · טלפון משרד הפנימייה"` |
 | `0526667788` | 1 result: `"הגבלה לחניך"` (from a restriction record of this trainee) – auto-selected |
 | `0549990000` | 0 results – its national restriction has ended |

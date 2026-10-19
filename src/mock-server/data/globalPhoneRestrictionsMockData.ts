@@ -8,7 +8,7 @@ import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuild
  * הגבלות מספר ארציות ופנימייתיות (AVIV_RESTRICTION_NUMBER), שנוצרו ב"חוסאם".
  * עליהן יושבים היתרי המספר של החניכים, והן מופיעות בחיפוש של יצירת היתר.
  *
- * מספרי ההדגמה של ספק 04 overview §8. "ארזים" שבספק = פנימיית הדר, ו"נווה צופים" = פנימיית אורות.
+ * מספרי ההדגמה של ספק 04 overview §8.
  */
 
 const [HADAR_INSTITUTE, OROT_INSTITUTE] = INSTITUTES_MOCK_DATA;

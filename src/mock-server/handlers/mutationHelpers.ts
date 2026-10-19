@@ -6,7 +6,7 @@ import type {
   LookupItem,
   MutationResultDto,
 } from "@/schemas/common.schema";
-import { todayIsoDate } from "../mockDates";
+import { todayIsoDate } from "@/shared/dates/isoDate";
 import { APPROVED_FILES_MOCK_DATA } from "../data/approvedFilesMockData";
 import { APPROVERS_MOCK_DATA } from "../data/approversMockData";
 import { DEVICES_MOCK_DATA } from "../data/devicesMockData";

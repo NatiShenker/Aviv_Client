@@ -19,6 +19,7 @@ import type {
   UpdateTraineePhoneRestrictionRequest,
   UpdateTraineePhoneRestrictionResponse,
 } from "@/schemas/phone-exceptions.schema";
+import { todayIsoDate } from "@/shared/dates/isoDate";
 import { formatDateRange } from "@/shared/formatting/dateFormat";
 import { isValidPhone } from "@/shared/formatting/phoneFormat";
 import { GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA } from "../data/globalPhoneRestrictionsMockData";
@@ -26,7 +27,6 @@ import { buildAuditMetadata } from "../data/recordMetadataBuilders";
 import { summarizeGlobalRestriction, summarizeTraineeRestriction } from "../data/sourceRestrictionBuilders";
 import { TRAINEE_PHONE_RECORDS_MOCK_DATA } from "../data/traineePhoneRecordsMockData";
 import { TRAINEES_MOCK_DATA } from "../data/traineesMockData";
-import { todayIsoDate } from "../mockDates";
 import type { MockRequest } from "../mockRequest";
 import {
   MOCK_CURRENT_USER_ID,
