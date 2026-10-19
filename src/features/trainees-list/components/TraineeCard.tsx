@@ -29,13 +29,14 @@ export default function TraineeCard({ trainee }: TraineeCardProps) {
 
       <div className="mt-4 border-t border-divider" />
 
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-text-muted">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1">
+      {/* מבנה קבוע בכל רוחב: המיקום מימין והדקות משמאל, והפער (חריג) בשורה משלו רק כשהוא קיים */}
+      <div className="mt-2 flex flex-col gap-1 text-xs text-text-muted">
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex min-w-0 items-center gap-1">
             <AppIcon name="location" />
-            {buildTraineeLocationLabel(trainee)}
+            <span className="truncate">{buildTraineeLocationLabel(trainee)}</span>
           </span>
-          <span className="flex items-center gap-1">
+          <span className="flex shrink-0 items-center gap-1">
             <AppIcon name="timer" />
             {TEXTS.minutes(trainee.remainingMinutes)}
           </span>

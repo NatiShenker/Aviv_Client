@@ -1,7 +1,5 @@
 import SortSheet from "@/shells/mobile/SortSheet";
-import { TRAINEE_SORT_OPTIONS, type TraineeSortOption } from "../traineesListOptions";
-
-const SORT_ROWS = TRAINEE_SORT_OPTIONS.map((option) => ({ value: option.key, label: option.label }));
+import { TRAINEE_SORT_OPTIONS, TRAINEE_SORT_ROWS, type TraineeSortOption } from "../traineesListOptions";
 
 interface TraineesSortDrawerProps {
   open: boolean;
@@ -19,5 +17,7 @@ export default function TraineesSortDrawer({ open, onClose, sort, onSortChange }
     }
   };
 
-  return <SortSheet open={open} onClose={onClose} rows={SORT_ROWS} selectedValue={sort.key} onChange={handleChange} />;
+  return (
+    <SortSheet open={open} onClose={onClose} rows={TRAINEE_SORT_ROWS} selectedValue={sort.key} onChange={handleChange} />
+  );
 }

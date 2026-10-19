@@ -11,7 +11,8 @@ The UI is in Hebrew only and is laid out right-to-left (RTL).
 ## Platforms and Run Modes
 
 - Mobile: the app runs inside a full-page iframe; the host provides only a top and bottom frame.
-- **CURRENT PHASE: MOBILE ONLY.** Do not build or adapt layouts for tablet or desktop at this stage. Assume the app runs inside a full-page iframe on a mobile device.
+- Desktop: for now the same standalone app in a wide browser. Mounting it in the host Shell (MFE) is an open decision (`.agent/pending-decisions.md`).
+- **CURRENT PHASE: MOBILE + DESKTOP.** Desktop phase 1 covers the trainees list. The layout comes only from `usePlatform().layout` (container ≥ 1024px = desktop). There is no tablet layout; do not build one.
 
 ## Role and Workflow
 

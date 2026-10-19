@@ -29,7 +29,7 @@ export default function TraineesListHeader({
       <div className="flex min-w-0 items-center justify-between gap-3">
         <h1 className="shrink-0 text-lg font-medium">{TEXTS.title}</h1>
         {/* הבורר יורש את הגופן והצבע מהעוטף */}
-        <div className="min-w-0 text-base font-medium text-primary">
+        <div className="min-w-0 text-base font-medium text-text-primary">
           <InstituteSelector />
         </div>
       </div>

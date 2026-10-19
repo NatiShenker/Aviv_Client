@@ -8,7 +8,19 @@ export const TRAINEES_LIST_TEXTS = {
     filter: "סינון",
     filterWhenActive: "סינון, יש סינון פעיל",
     sort: "מיון",
+    // מוצעים - ממתינים לאישור (pending-decisions)
+    resultsCount: (count: number) => (count === 1 ? "מוצג חניך אחד" : `מוצגים ${count} חניכים`),
+    sortValue: (sortLabel: string) => `מיין לפי: ${sortLabel}`,
   },
+
+  // דסקטופ: פאנל המסננים. מוצעים - ממתינים לאישור (pending-decisions)
+  filterPanel: {
+    title: "מסננים",
+    clearFilters: (activeCount: number) => (activeCount > 0 ? `נקה מסננים (${activeCount})` : "נקה מסננים"),
+  },
+
+  // דסקטופ: השם הנגיש של אזור הכרטיסים שנגלל
+  cardsRegionLabel: "רשימת החניכים",
 
   states: {
     selectInstitute: "יש לבחור פנימייה כדי להציג את רשימת החניכים",

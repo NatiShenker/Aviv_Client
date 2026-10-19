@@ -20,7 +20,7 @@ Excellent UX across all platforms is a primary goal. When building screens, you 
 - **Form UX:** Clearly distinguish mandatory fields from optional ones. Dependent fields must be logically grouped and their disabled/enabled states clearly communicated visually.
 - **Transitions & Feedback:** Use smooth, standard transitions (e.g., sheets sliding up, skeleton loaders). Use toast notifications (`useToast()`) or inline alerts for success/failure feedback on actions.
 - **Icons & Affordance:** Actions must be recognizable. Ensure touch targets are adequately sized for mobile fingers (minimum 44x44px functional area).
-- **Width:** every screen must fit 320px width without horizontal scroll.
+- **Width:** every mobile screen must fit 320px width without horizontal scroll.
 - **Filters:** filters with many or dynamic options use a select (multi-select where relevant), not chips.
 
 ## What not to copy from the sketches
@@ -42,6 +42,7 @@ The sketches were built to be self-contained, not maintainable. Do not carry ove
 - **Token precedence**: when a role exists both in the library and in the sketches, the library value wins. Sketch-only roles are in the provisional block of `tokens.css`; similar sketch shades were merged. A binding tokens file will replace them.
 - **Library controls keep their own styling.** MUI's styles are not in a CSS layer, so they win over Tailwind utilities. Do not try to restyle a control with Tailwind classes; use Tailwind only for layout around it.
 - **Surfaces and controls** (one rule for every screen): a card on the page background is white with **no border**; a card on a white surface (inside a form sheet) gets a 1px `divider` border; anything the user types into or operates (fields, the search field, toolbar icon buttons) is **outlined**. Radii follow the library tokens by role: cards `rounded-card`, fields `rounded-input`, buttons `rounded-base`.
+- **Layout tokens**: a repeated layout value that has no Tailwind default gets a theme key in `tokens.css` instead of an arbitrary value (e.g. `--grid-template-columns-cards` → `grid-cols-cards`).
 - **RTL**: the app is Hebrew-only and right-to-left. Prefer logical utilities (`ms-*`, `me-*`, `ps-*`, `pe-*`, `start-*`, `end-*`, `text-start`) over physical ones (`ml-*`, `left-*`, `text-right`). Wrap LTR content such as phone numbers and date ranges in `dir="ltr"`.
 - **Font**: Rubik, with Heebo as fallback, loaded by `index.html`, the same as the library.
 
@@ -51,6 +52,18 @@ The sketches were built to be self-contained, not maintainable. Do not carry ove
 |---|---|---|
 | Mobile | Full iframe inside a host frame (top and bottom bars only) | Isolated by the iframe |
 | Tablet | Fully standalone | Isolated |
-| Desktop | Micro-frontend inside the host Shell (Module Federation) | **Leaks into the Shell page** |
+| Desktop | Now: the same standalone app in a wide browser. Later: micro-frontend inside the host Shell (Module Federation) – an open decision | Standalone: isolated. MFE: **leaks into the Shell page** |
+
+- The layout is not the run mode: it comes from the width of Aviv's container (`usePlatform().layout`, ≥ 1024px = desktop). There is no tablet layout; a narrower tablet gets the mobile layout.
 
 **Open decision**: in desktop MFE mode, global CSS — mainly Tailwind's preflight reset and the base styles, and the `CssBaseline` of `IpsThemeProvider` — would apply to the whole Shell page. Do not add global CSS rules beyond the current setup, and raise the issue when working on desktop hosting (see the desktop readiness backlog in `pending-decisions.md`).
+
+## Desktop layout
+
+Decided for desktop phase 1 (the trainees list). Spec 01 › Desktop has the screen itself.
+
+- **Page:** `DesktopPage` fills the viewport. The header rows and panels stay in place, and **only the list area scrolls**.
+- **Panels:** white panels (`rounded-card bg-paper`) on the page background, with no border. A card inside a panel is on a white surface, so it gets the 1px `divider` border – on its wrapper, so the card component stays the same as on mobile.
+- **Labels:** above the fields, with `FieldLabelText` linked to the control (`labelId`), not MUI's floating label. Exception: a toolbar row has no labels above its controls, so the row keeps one height (the search has a placeholder; the sort shows "מיין לפי: …" in its value).
+- **Context selector** (e.g. the institute in the title row): text and chevron with no border, in the main text color – the same look as on mobile.
+- **Sizes:** spacing stays compact (`p-4`, `gap-4`), so the list keeps as much height as possible.

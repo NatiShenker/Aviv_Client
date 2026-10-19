@@ -87,6 +87,17 @@ export const TRAINEE_SORT_OPTIONS: TraineeSortOption[] = [
 // ספק 01 §4.1: שם, א׳ עד ת׳
 export const DEFAULT_TRAINEE_SORT_OPTION = TRAINEE_SORT_OPTIONS[0];
 
+/** אפשרות מיון כשורה בפקד הבחירה: המפתח שלה והטקסט */
+export interface TraineeSortRow {
+  value: string;
+  label: string;
+}
+
+export const TRAINEE_SORT_ROWS: TraineeSortRow[] = TRAINEE_SORT_OPTIONS.map((option) => ({
+  value: option.key,
+  label: option.label,
+}));
+
 export function findSortOption(key: string): TraineeSortOption {
   return TRAINEE_SORT_OPTIONS.find((option) => option.key === key) ?? DEFAULT_TRAINEE_SORT_OPTION;
 }

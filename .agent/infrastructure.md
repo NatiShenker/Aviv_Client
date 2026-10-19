@@ -4,17 +4,23 @@ Binding guidance for the shared infrastructure every screen uses. Read it with `
 
 ## Folder layout
 
-- `src/` root — the app-level files: `bootstrap.tsx` (entry), `App.tsx` (providers and routes), `routes.ts`, `appConstants.ts`.
-- `src/shells/mobile/` — the mobile page shell: page root, header, pinned top, sticky action bar, the full-screen form sheet, the mobile navigation (`navigation/`) and the window hooks (`hooks/`). A desktop shell will sit next to it.
+- `src/` root — the app-level files: `bootstrap.tsx` (entry), `App.tsx` (providers and the layout switch), `MobileRoutes.tsx` / `DesktopRoutes.tsx` (the screens of each layout), `routes.ts`, `appConstants.ts`.
+- `src/shells/mobile/` — the mobile page shell: page root, header, pinned top, sticky action bar, the full-screen form sheet, the mobile navigation (`navigation/`) and the window hooks (`hooks/`).
+- `src/shells/desktop/` — the desktop page shell: `DesktopPage` (the page root fills the viewport; the screen decides which area inside it scrolls). No page transitions and no window hooks.
 - `src/features/<feature>/` — one folder per feature: the `*Screen.tsx` composition, its components and hooks, and its `*Logic.ts`, `*Options.ts` and `*Texts.ts` files.
   - The record features (trainee restrictions, number restrictions, voice messages) split into `history/` and `form/`; a file used by both stays at the feature root. Other features keep their components in `components/`.
+  - A feature with a desktop layout keeps its desktop composition and desktop-only components in `desktop/` (e.g. `features/trainees-list/desktop/`). Everything both layouts use stays where it is.
   - `features/records/` — the building blocks the record features share (spec 00 §3–§4): `history/` and `form/`.
   - `features/institutes/` — the selected institute, wings and permissions. `features/trainee/` — the trainee of the current route and its display name.
-- `src/shared/` — generic code with no domain knowledge: hooks, small components, form primitives, icons, formatting, dates.
+- `src/shared/` — generic code with no domain knowledge: hooks, small components, form primitives, icons, formatting, dates, and the platform module (`platform/`).
 - `src/services/` — one file per controller, plus `serviceEndpoints.ts`. `src/infrastructure/` — http, api, errors, storage.
 - `src/mock-server/` — the simulated service.
 - **Dependency direction:** `shared` imports nothing from `features`, `shells` or the root files (except `appConstants.ts`); `shells` import nothing from `features`.
-- **Platform split:** state, logic, cards, data hooks and form bodies know nothing about routes or the page (e.g. `useRecordHistoryState`, `useHistoryFormTarget`, `RecordFormTarget`, the menu model of 02). Routes and page containers stay in `shells/mobile` and in each feature's mobile composition (`*Screen.tsx`, `*History.tsx`, `*FormSheet.tsx`, `use*FormRoute.ts`). A desktop shell reuses the first group and replaces the second.
+- **Platform split:** state, logic, cards, data hooks and form bodies know nothing about routes or the page (e.g. `useRecordHistoryState`, `useHistoryFormTarget`, `RecordFormTarget`, the menu model of 02, `useTraineesListState`, `TraineesListStates`). Routes and page containers stay in the shells and in each feature's composition per layout (mobile: `*Screen.tsx`, `*History.tsx`, `*FormSheet.tsx`, `use*FormRoute.ts`; desktop: `desktop/`). The desktop composition reuses the first group and replaces the second.
+- **Platform detection:** only `usePlatform()` (`shared/platform/PlatformProvider.tsx`) knows the platform. Today it returns `layout` (`mobile` / `desktop`), measured from the width of Aviv's own container (≥ `DESKTOP_LAYOUT_MIN_WIDTH_PX` = 1024 is desktop). Any further detection (iOS, touch, run mode) is added there only when it has a consumer.
+  - The layout is chosen in one place: `App.tsx` renders `MobileRoutes` or `DesktopRoutes`. Components never check widths, `userAgent` or the layout, and there are no viewport-based Tailwind classes (`sm:`, `lg:`).
+  - Controls follow the layout (see `ui_library.md`).
+  - Crossing the breakpoint renders the other layout at the same URL. The desktop has no inner pages yet, so an inner URL is replaced by the list (`DesktopRoutes` fallback), and an open form closes without saving. The trainees list keeps its search, filters and sort (`traineesListMemory`).
 - A small component used by one parent stays a private component in the parent's file. A separate file is only for a component with its own responsibility or state.
 
 ## Server access
@@ -57,7 +63,8 @@ Binding guidance for the shared infrastructure every screen uses. Read it with `
 - Every list renders incrementally on the client, `LIST_PAGE_SIZE` (30) items at a time: `useIncrementalList` + `LoadMoreSentinel`.
 - **Returning to a list screen** restores it as the user left it, until a page reload:
   - A small in-memory module of the screen holds the search, filters and sort (e.g. `traineesListMemory.ts`), along with the number of items shown and the scroll position.
-  - The position is restored with `useIncrementalList`'s `initialVisibleCount` and `useWindowScrollRestoration`.
+  - The position is restored with `useIncrementalList`'s `initialVisibleCount` and `useWindowScrollRestoration` (mobile).
+- **Desktop lists:** the page fills the viewport and only the list area scrolls (a focusable `role="region"` with `overflow-y-auto`, so the keyboard can scroll it). `LoadMoreSentinel` works there without a root; it loads when the sentinel becomes visible (the 200px preload margin applies only to the viewport). The desktop does not restore the position, and clears the remembered position (`forgetTraineesListPosition`) so a later mobile layout does not restore a stale one.
 
 ## Icons
 

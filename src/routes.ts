@@ -18,6 +18,12 @@ export const ROUTE_PATTERNS = {
   editVoiceMessage: "/trainee/:traineeId/voice-message/:recordId/edit",
 } as const;
 
+/**
+ * כל נתיב שאין לו מסך בפריסה הנוכחית (למשל נתיב פנימי בדסקטופ).
+ * מחוץ ל-ROUTE_PATTERNS בכוונה: appEntry מתייחס לכל תבנית שם כנתיב פנימי, ו-"*" מתאים לכל נתיב
+ */
+export const FALLBACK_ROUTE_PATTERN = "*";
+
 /** פרמטרי הנתיבים, כפי שהם מופיעים בתבניות */
 export interface TraineeRouteParams {
   traineeId: string;

@@ -1,17 +1,14 @@
-import { useMemo } from "react";
 import {
   IpsButton,
   IpsDrawer,
   IpsMultiSelectMobile,
   IpsPillSelect,
-  type IpsMultiSelectMobileValue,
   type IpsSelectOption,
 } from "ui-library";
-import { buildWingLabel } from "@/features/institutes/organizationLogic";
 import type { WingDto, WingLocationDto } from "@/schemas/organization.schema";
 import type { TraineeListFiltersState } from "@/schemas/trainees.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import { locationsOfSelectedWings } from "../traineesListLogic";
+import { formatMultiSelection, resolveLocationsFieldState, toFilterIds } from "../traineesFilterFieldsLogic";
 import {
   BALANCE_FILTER_OPTIONS,
   PHONE_EXCEPTION_FILTER_OPTIONS,
@@ -20,20 +17,12 @@ import {
   findOptionValue,
 } from "../traineesListOptions";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
+import { useTraineeFilterOptions } from "../useTraineeFilterOptions";
 import type { TraineeFilterGroupsUpdate } from "../useTraineesListFilters";
 
 const TEXTS = TRAINEES_LIST_TEXTS.filterDrawer;
 // גובה לפי התוכן; המגירה מגבילה את עצמה ל-90% מהמסך ומוסיפה גלילה כשצריך
 const DRAWER_HEIGHT = "auto";
-
-/** טקסט השדה בבחירה מרובה: שם הפריט כשנבחר אחד, אחרת מספר הנבחרים */
-function formatSelection(selectedLabels: string[]): string {
-  return selectedLabels.length === 1 ? selectedLabels[0] : TEXTS.selectedCount(selectedLabels.length);
-}
-
-function toIds(values: IpsMultiSelectMobileValue[]): number[] {
-  return values.map(Number);
-}
 
 interface TraineesFilterDrawerProps {
   open: boolean;
@@ -57,21 +46,7 @@ export default function TraineesFilterDrawer({
   onWingIdsChange,
   onFiltersChange,
 }: TraineesFilterDrawerProps) {
-  const wingOptions = useMemo<IpsSelectOption[]>(
-    () => wings.map((wing) => ({ value: wing.id, label: buildWingLabel(wing) })),
-    [wings],
-  );
-
-  // מיקומי האגפים שנבחרו בלבד (בלי בחירת אגף - כל המיקומים בפנימייה), מקובצים לפי אגף.
-  // הקבוצות גם מבדילות בין מיקומים עם אותו שם באגפים שונים
-  const locationOptions = useMemo<IpsSelectOption[]>(() => {
-    const wingLabelById = new Map(wingOptions.map((option) => [option.value, option.label]));
-    return locationsOfSelectedWings(locations.data ?? [], filters.wingIds).map((location) => ({
-      value: location.id,
-      label: location.name,
-      group: wingLabelById.get(location.wingId),
-    }));
-  }, [locations.data, filters.wingIds, wingOptions]);
+  const { wingOptions, locationOptions } = useTraineeFilterOptions(wings, locations.data, filters.wingIds);
 
   return (
     <IpsDrawer
@@ -94,8 +69,8 @@ export default function TraineesFilterDrawer({
           allOptionLabel={TEXTS.all}
           options={wingOptions}
           value={filters.wingIds}
-          onChange={(values) => onWingIdsChange(toIds(values))}
-          formatSelection={formatSelection}
+          onChange={(values) => onWingIdsChange(toFilterIds(values))}
+          formatSelection={formatMultiSelection}
         />
         <LocationFilter
           locations={locations}
@@ -161,8 +136,7 @@ interface LocationFilterProps {
 }
 
 function LocationFilter({ locations, options, selectedLocationIds, onChange }: LocationFilterProps) {
-  const isLoading = locations.status === "idle" || locations.status === "loading";
-  const hasFailed = locations.status === "error";
+  const fieldState = resolveLocationsFieldState(locations.status);
 
   return (
     <div className="flex flex-col gap-1">
@@ -171,23 +145,17 @@ function LocationFilter({ locations, options, selectedLocationIds, onChange }: L
         allOptionLabel={TEXTS.all}
         options={options}
         value={selectedLocationIds}
-        onChange={(values) => onChange(toIds(values))}
-        formatSelection={formatSelection}
-        disabled={isLoading || hasFailed}
-        error={hasFailed}
-        helperText={locationsStatusText(isLoading, hasFailed)}
+        onChange={(values) => onChange(toFilterIds(values))}
+        formatSelection={formatMultiSelection}
+        disabled={fieldState.isUnavailable}
+        error={fieldState.hasFailed}
+        helperText={fieldState.statusText}
       />
-      {hasFailed && (
+      {fieldState.hasFailed && (
         <IpsButton variant="text" size="small" className="self-start" onClick={locations.reload}>
           {TEXTS.retry}
         </IpsButton>
       )}
     </div>
   );
-}
-
-function locationsStatusText(isLoading: boolean, hasFailed: boolean): string | undefined {
-  if (isLoading) return TEXTS.locationsLoading;
-  if (hasFailed) return TEXTS.locationsLoadFailed;
-  return undefined;
 }

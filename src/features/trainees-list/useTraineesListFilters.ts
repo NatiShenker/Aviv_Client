@@ -4,7 +4,7 @@ import { readWithExpiry, saveWithExpiry } from "@/infrastructure/storage/expirin
 import { STORAGE_KEYS } from "@/infrastructure/storage/storageKeys";
 import type { InstituteWithWingsDto, WingLocationDto } from "@/schemas/organization.schema";
 import type { TraineeListFiltersState, TraineeListItemDto } from "@/schemas/trainees.schema";
-import { filterAndSortTrainees, hasActiveFilters, keepLocationsOfWings } from "./traineesListLogic";
+import { countActiveFilterGroups, filterAndSortTrainees, keepLocationsOfWings } from "./traineesListLogic";
 import { readRememberedTraineesList, rememberTraineesListView } from "./traineesListMemory";
 import {
   DEFAULT_TRAINEE_FILTERS,
@@ -18,14 +18,17 @@ export type TraineeFilterGroupsUpdate = Partial<
   Pick<TraineeListFiltersState, "locationIds" | "traineeRestriction" | "recipientMessage" | "phoneException" | "balance">
 >;
 
-interface TraineesListFilters {
+export interface TraineesListFilters {
   filters: TraineeListFiltersState;
   sort: TraineeSortOption;
   visibleTrainees: TraineeListItemDto[];
   isFilterActive: boolean;
+  /** כמה מקבוצות הסינון פעילות (לכפתור "נקה מסננים (n)") */
+  activeFilterCount: number;
   setSearchQuery: (searchQuery: string) => void;
   setWingIds: (wingIds: number[]) => void;
   updateFilters: (update: TraineeFilterGroupsUpdate) => void;
+  clearFilters: () => void;
   setSort: (sort: TraineeSortOption) => void;
 }
 
@@ -81,19 +84,31 @@ export function useTraineesListFilters(
     setFilters((current) => ({ ...current, ...update }));
   }, []);
 
+  // כל קבוצות הסינון חוזרות ל"הכל", כולל האגף השמור. החיפוש והמיון לא משתנים
+  const clearFilters = useCallback(() => {
+    setFilters((current) => ({ ...DEFAULT_TRAINEE_FILTERS, searchQuery: current.searchQuery }));
+    if (institute) {
+      storeWingIds(institute.id, []);
+    }
+  }, [institute]);
+
   const visibleTrainees = useMemo(
     () => filterAndSortTrainees(trainees, filters, sort),
     [trainees, filters, sort],
   );
 
+  const activeFilterCount = countActiveFilterGroups(filters);
+
   return {
     filters,
     sort,
     visibleTrainees,
-    isFilterActive: hasActiveFilters(filters),
+    isFilterActive: activeFilterCount > 0,
+    activeFilterCount,
     setSearchQuery,
     setWingIds,
     updateFilters,
+    clearFilters,
     setSort,
   };
 }
