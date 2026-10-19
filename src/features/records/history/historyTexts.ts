@@ -15,9 +15,6 @@ export const HISTORY_TEXTS = {
     details: "פירוט",
     notSpecified: "לא צוין",
   },
-  drawers: {
-    close: "סגירה",
-  },
   // תוויות המיון מוצעות - ממתינות לאישור (pending-decisions)
   sort: {
     startDateDescending: "תאריך התחלה – מהחדש לישן",

@@ -7,7 +7,6 @@ import {
   HISTORY_SORT_ROWS,
   findHistorySortOption,
 } from "@/features/records/history/historySort";
-import HistorySortDrawer from "@/features/records/history/HistorySortDrawer";
 import HistoryToolbar from "@/features/records/history/HistoryToolbar";
 import { useHistoryFormTarget } from "@/features/records/history/useHistoryFormTarget";
 import { useRevealSavedRecord } from "@/features/records/history/useRevealSavedRecord";
@@ -17,6 +16,7 @@ import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import AppIcon from "@/shared/icons/AppIcon";
 import { useNavigateBack } from "@/shells/mobile/navigation/useNavigateBack";
 import PinnedPageTop from "@/shells/mobile/PinnedPageTop";
+import SortSheet from "@/shells/mobile/SortSheet";
 import StickyActionBar from "@/shells/mobile/StickyActionBar";
 import { useVoiceMessageFormRoute } from "../form/useVoiceMessageFormRoute";
 import VoiceMessageFormSheet from "../form/VoiceMessageFormSheet";
@@ -104,7 +104,7 @@ export default function VoiceMessagesHistory({ traineeId, traineeFullName, heade
         texts={TEXTS.states}
       />
 
-      <HistorySortDrawer
+      <SortSheet
         open={isSortOpen}
         onClose={() => setIsSortOpen(false)}
         rows={HISTORY_SORT_ROWS}

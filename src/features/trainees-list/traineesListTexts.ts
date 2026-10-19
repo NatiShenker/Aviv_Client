@@ -67,7 +67,6 @@ export const TRAINEES_LIST_TEXTS = {
   },
 
   sortDrawer: {
-    title: "מיון",
     options: {
       nameAscending: "שם – א׳ עד ת׳",
       nameDescending: "שם – ת׳ עד א׳",
