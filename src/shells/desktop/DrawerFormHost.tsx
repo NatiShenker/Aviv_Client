@@ -54,7 +54,8 @@ export default function DrawerFormHost<TTarget>({ formTarget, renderForm, childr
   ];
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+    // clip ולא hidden - כדי שמעבר הפוקוס לטופס שנכנס לא יגלול את המכולה הצידה (ראו DrawerScreenTransition)
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-clip">
       <DrawerPane layoutClass="flex-1" motionClass={screenMotionClass} isInert={isFormOpen}>
         {children}
       </DrawerPane>

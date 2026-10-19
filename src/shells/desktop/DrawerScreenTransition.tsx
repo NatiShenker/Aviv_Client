@@ -29,7 +29,9 @@ export default function DrawerScreenTransition({ current, leaving, direction, on
   ];
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+    // clip ולא hidden: למכולה עם hidden עדיין יש גלילה מתוכנתת, ומעבר פוקוס למסך שנכנס משמאל (קדימה, RTL)
+    // היה גולל אותה הצידה באמצע ההחלקה. clip לא יוצר אזור גלילה בכלל, כמו ב-AppPage במובייל
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-clip">
       {panes.map(({ screen, isLeaving }) => (
         <DrawerPane
           key={screen.key}

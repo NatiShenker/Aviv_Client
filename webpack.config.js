@@ -7,7 +7,8 @@ const pkg = require("./package.json");
 
 // גשר זמני: ספריית הפקדים אינה זמינה כחבילת npm ברשת החיצונית, ולכן נטענת מהתיקייה האחות.
 // במעבר לרשת הפנימית: להסיר את הקבוע ואת ה-aliases שמבוססים עליו, ולהוסיף את החבילה ל-package.json.
-const UI_LIBRARY_PATH = path.resolve(__dirname, "../ui-library");
+// const UI_LIBRARY_PATH = path.resolve(__dirname, "../ui-library");
+const UI_LIBRARY_PATH = "C:\\Users\\user\\Desktop\\source\\ui-library";
 
 module.exports = ({ sviva, mode }) => {
 	const PORT = 4171;

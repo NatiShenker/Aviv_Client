@@ -28,7 +28,8 @@ export default function DrawerFormLayer({ title, onClose, footer, children }: Dr
   const hasReturnedFocusRef = useRef(false);
 
   useEffect(() => {
-    layerRef.current?.focus();
+    // בלי גלילה: הטופס עדיין באמצע ההחלקה פנימה, והדפדפן היה מנסה "להביא אותו לתצוגה"
+    layerRef.current?.focus({ preventScroll: true });
     const opener = openerRef.current;
     return () => returnFocusOnce(opener, hasReturnedFocusRef);
   }, []);

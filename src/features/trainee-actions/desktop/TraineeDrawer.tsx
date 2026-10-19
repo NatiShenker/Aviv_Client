@@ -211,7 +211,8 @@ function DrawerScreenRegion({ label, takesFocusOnMount, children }: DrawerScreen
 
   useEffect(() => {
     if (shouldFocusOnMount) {
-      regionRef.current?.focus();
+      // בלי גלילה: המסך עדיין באמצע ההחלקה פנימה, והדפדפן היה מנסה "להביא אותו לתצוגה"
+      regionRef.current?.focus({ preventScroll: true });
     }
   }, [shouldFocusOnMount]);
 
