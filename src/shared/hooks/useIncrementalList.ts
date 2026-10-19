@@ -5,6 +5,11 @@ interface IncrementalListOptions {
   pageSize?: number;
   /** כמה פריטים להציג מיד (למשל בחזרה למסך, כדי לשחזר את מה שכבר הוצג) */
   initialVisibleCount?: number | null;
+  /**
+   * מה הופך את הרשימה ל"רשימה חדשה" שמתחילה שוב מהעמוד הראשון, למשל [סינון, מיון].
+   * בלי - כל מערך פריטים חדש. עם - רענון של אותה רשימה (אותם סינון ומיון) שומר את כמות הפריטים המוצגים
+   */
+  resetOn?: readonly unknown[];
 }
 
 interface IncrementalList<TItem> {
@@ -13,21 +18,26 @@ interface IncrementalList<TItem> {
   showMore: () => void;
 }
 
+function haveSameValues(first: readonly unknown[], second: readonly unknown[]): boolean {
+  return first.length === second.length && first.every((value, index) => Object.is(value, second[index]));
+}
+
 /** מציג רשימה בהדרגה בצד הקליינט: עמוד אחד בהתחלה, ועוד עמוד בכל קריאה ל-showMore */
 export function useIncrementalList<TItem>(
   items: TItem[],
-  { pageSize = LIST_PAGE_SIZE, initialVisibleCount }: IncrementalListOptions = {},
+  { pageSize = LIST_PAGE_SIZE, initialVisibleCount, resetOn }: IncrementalListOptions = {},
 ): IncrementalList<TItem> {
   const [visibleCount, setVisibleCount] = useState(initialVisibleCount ?? pageSize);
-  const previousItemsRef = useRef(items);
+  const resetValues = resetOn ?? [items];
+  const previousResetValuesRef = useRef(resetValues);
 
   // רשימה חדשה (חיפוש, סינון, מיון או פנימייה אחרת) מתחילה שוב מהעמוד הראשון.
   // הרשימה של הרינדור הראשון נשארת עם הכמות ההתחלתית
   useEffect(() => {
-    if (previousItemsRef.current === items) return;
-    previousItemsRef.current = items;
+    if (haveSameValues(previousResetValuesRef.current, resetValues)) return;
+    previousResetValuesRef.current = resetValues;
     setVisibleCount(pageSize);
-  }, [items, pageSize]);
+  });
 
   const visibleItems = useMemo(() => items.slice(0, visibleCount), [items, visibleCount]);
   const hasMore = visibleCount < items.length;

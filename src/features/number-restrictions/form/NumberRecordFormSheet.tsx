@@ -1,20 +1,11 @@
-import { useInstitutes } from "@/features/institutes/InstitutesProvider";
-import FormSheetFooter from "@/features/records/form/FormSheetFooter";
-import { editedRecordOf, resolveFormStartingPoint } from "@/features/records/form/formStartingPoint";
+import FormFooter from "@/features/records/form/FormFooter";
 import { useFormSheetSession } from "@/features/records/form/useFormSheetSession";
-import { useInstituteDevices } from "@/features/records/form/useInstituteDevices";
-import { useReasons } from "@/features/records/form/useReasons";
-import type { WingDto } from "@/schemas/organization.schema";
 import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
 import FormSheet from "@/shells/mobile/FormSheet";
-import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
-import NumberRecordForm, { NUMBER_RECORD_FORM_ID } from "./NumberRecordForm";
-import { buildFormTitle } from "./numberRecordFormLogic";
-import { useNumberRecordForm } from "./useNumberRecordForm";
+import NumberRecordForm from "./NumberRecordForm";
+import RestrictionOptionCards from "./RestrictionOptionCards";
+import { useNumberRecordFormSession } from "./useNumberRecordFormSession";
 import type { NumberRecordFormTarget } from "./useNumberRecordFormRoute";
-
-// הפניה קבועה, כדי שרשימה ריקה לא תיחשב "רשימה חדשה" בכל רינדור
-const NO_WINGS: WingDto[] = [];
 
 interface NumberRecordFormSheetProps {
   /** הטופס שהכתובת מבקשת. null = הטופס סגור */
@@ -43,46 +34,18 @@ interface NumberRecordFormDialogProps extends Omit<NumberRecordFormSheetProps, "
   target: NumberRecordFormTarget | null;
 }
 
-function NumberRecordFormDialog({
-  isOpen,
-  target,
-  traineeId,
-  editRecord,
-  basedOnRecord,
-  onClose,
-  onSaved,
-}: NumberRecordFormDialogProps) {
-  const { selectedInstitute } = useInstitutes();
-  const instituteId = selectedInstitute?.id ?? null;
-  const devices = useInstituteDevices(instituteId);
-  const reasons = useReasons("phoneException");
-
-  // הערכים נקבעים כשהטופס נפתח. אחרי שמירה ההיסטוריה נטענת מחדש, והטופס נשאר כפי שהיה עד שנסגר
-  const startingPoint = resolveFormStartingPoint(target, editRecord, basedOnRecord);
-  const form = useNumberRecordForm({ traineeId, instituteId, startingPoint, reasons, onSaved });
+function NumberRecordFormDialog({ isOpen, onClose, ...sessionOptions }: NumberRecordFormDialogProps) {
+  const formSession = useNumberRecordFormSession(sessionOptions);
 
   return (
     <FormSheet
       open={isOpen}
-      title={buildFormTitle(form.state)}
+      title={formSession.title}
       onClose={onClose}
-      actions={
-        <FormSheetFooter
-          formId={NUMBER_RECORD_FORM_ID}
-          saveLabel={NUMBER_RESTRICTIONS_TEXTS.form.save}
-          saveError={form.saveError}
-          isBusy={form.isSaving || form.isFileUploading}
-          onCancel={onClose}
-        />
-      }
+      actions={<FormFooter {...formSession.saveProps} onCancel={onClose} buttonSize="large" />}
     >
-      <NumberRecordForm
-        form={form}
-        editRecord={editedRecordOf(startingPoint)}
-        devices={devices}
-        wings={selectedInstitute?.wings ?? NO_WINGS}
-        reasons={reasons}
-      />
+      {/* במובייל בוחרים הגבלה בכפתור "בחירה" בכל כרטיס (ספק 04 form §3.2.1) */}
+      <NumberRecordForm {...formSession.formProps} RestrictionOptionsList={RestrictionOptionCards} />
     </FormSheet>
   );
 }

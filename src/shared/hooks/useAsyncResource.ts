@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toAppError, type AppError } from "@/infrastructure/errors/appError";
+import { reportError } from "@/infrastructure/errors/errorReporting";
 
 /** idle = אין עדיין מה לטעון (המפתח null) */
 export type AsyncStatus = "idle" | "loading" | "success" | "empty" | "error";
@@ -8,8 +9,16 @@ export interface AsyncResource<TData> {
   status: AsyncStatus;
   data: TData | null;
   error: AppError | null;
+  /** טעינה מהשרת עם מצב טעינה (למשל "נסה שוב") */
   reload: () => void;
+  /**
+   * טעינה מהשרת בשקט: הנתונים הנוכחיים נשארים מוצגים עד שהחדשים מגיעים, בלי מצב טעינה.
+   * כישלון משאיר את הנתונים הקיימים ומדווח בלבד
+   */
+  refreshInBackground: () => void;
 }
+
+const BACKGROUND_REFRESH_ERROR_CONTEXT = "background refresh";
 
 /** בדיקת "ריק" לתשובה שהיא רשימה (לאפשרות isEmpty) */
 export function isEmptyList(list: unknown[]): boolean {
@@ -65,9 +74,11 @@ export function useAsyncResource<TKey extends RequestKey, TData>({
   const loadRef = useRef(load);
   const isEmptyRef = useRef(isEmpty);
   const readCacheRef = useRef(readCache);
+  const requestKeyRef = useRef(requestKey);
   loadRef.current = load;
   isEmptyRef.current = isEmpty;
   readCacheRef.current = readCache;
+  requestKeyRef.current = requestKey;
 
   useEffect(() => {
     if (requestKey === null) {
@@ -108,5 +119,21 @@ export function useAsyncResource<TKey extends RequestKey, TData>({
     setReloadCount((count) => count + 1);
   }, []);
 
-  return useMemo(() => ({ ...state, reload }), [state, reload]);
+  const refreshInBackground = useCallback(() => {
+    const refreshedKey = requestKeyRef.current;
+    if (refreshedKey === null) return;
+
+    loadRef
+      .current(refreshedKey)
+      .then((data) => {
+        // תשובה ששייכת למפתח קודם (למשל הפנימייה התחלפה בינתיים) לא מחליפה את הנתונים
+        if (requestKeyRef.current !== refreshedKey) return;
+        setState(toLoadedState(data, isEmptyRef.current));
+      })
+      .catch((error: unknown) => {
+        reportError(toAppError(error), BACKGROUND_REFRESH_ERROR_CONTEXT);
+      });
+  }, []);
+
+  return useMemo(() => ({ ...state, reload, refreshInBackground }), [state, reload, refreshInBackground]);
 }

@@ -8,6 +8,7 @@ import AppPage from "@/shells/mobile/AppPage";
 import { useScrollToTopOnOpen } from "@/shells/mobile/hooks/useScrollToTopOnOpen";
 import PageHeader from "@/shells/mobile/PageHeader";
 import PinnedPageTop from "@/shells/mobile/PinnedPageTop";
+import { SCREEN_SIDE_GUTTER_CLASS } from "@/shells/mobile/screenSpacing";
 import HistorySkeleton from "./HistorySkeleton";
 
 type ReadyAccess = Extract<TraineeActionAccess, { status: "ready" }>;
@@ -47,9 +48,11 @@ function RecordHistoryPageContent({ title, permissionId, loadingLabel, renderHis
   return (
     <>
       <PinnedPageTop>{header}</PinnedPageTop>
-      {access.status === "notFound" && <ScreenStateMessage message={TRAINEE_TEXTS.notFound} />}
-      {access.status === "loading" && <HistorySkeleton loadingLabel={loadingLabel} />}
-      {access.status === "blocked" && <PermissionBlockedMessage permission={access.permission} />}
+      <div className={SCREEN_SIDE_GUTTER_CLASS}>
+        {access.status === "notFound" && <ScreenStateMessage message={TRAINEE_TEXTS.notFound} />}
+        {access.status === "loading" && <HistorySkeleton loadingLabel={loadingLabel} />}
+        {access.status === "blocked" && <PermissionBlockedMessage permission={access.permission} />}
+      </div>
     </>
   );
 }

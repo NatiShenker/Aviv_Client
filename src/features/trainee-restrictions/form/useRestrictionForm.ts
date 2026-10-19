@@ -50,6 +50,7 @@ export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | undefined>(undefined);
   const [isFileUploading, setIsFileUploading] = useState(false);
+  const [hasUserChanges, setHasUserChanges] = useState(false);
   const focusAfterRender = useFocusAfterRender();
 
   // הרשומה שמורה עם שם הסיבה: כשרשימת הסיבות מגיעה, הסיבה נבחרת בה לפי השם
@@ -63,9 +64,11 @@ export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved 
     );
   }, [sourceRecord, reasons.data]);
 
+  // כל שינוי של המשתמש עובר כאן (בחירת הסיבה לפי השם, כשהרשימה מגיעה, לא נחשבת שינוי)
   const changeValues = (update: Partial<RestrictionFormValues>, clearedSlots: RestrictionErrorSlot[] = []) => {
     setValues((current) => ({ ...current, ...update }));
     setErrors((current) => withoutErrors(current, clearedSlots));
+    setHasUserChanges(true);
   };
 
   const showErrors = (nextErrors: RestrictionFormErrors) => {
@@ -134,6 +137,8 @@ export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved 
     isSaving,
     isFileUploading,
     saveError,
+    /** המשתמש שינה ערך מאז שהטופס נפתח - כדי לשאול לפני שהטופס נסגר בלי כוונה */
+    hasUserChanges,
     submit,
     setIsFileUploading,
     toggleCondition: (condition: PermittedCondition) =>

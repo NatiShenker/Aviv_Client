@@ -7,7 +7,7 @@ Everything shared by all screens. Screen files reference the components and patt
 ## 1. Platform
 
 - **Mobile web**, Hebrew, right-to-left: every screen root has `dir="rtl"` and `lang="he"`.
-- **Desktop layout** (Aviv's container ≥ 1024px, decided 2026-10-19): the same rules, with a desktop composition per screen. The shared desktop rules are in [design.md](../design.md) › Desktop layout, and each screen spec describes its desktop layout in its own section (so far: [01 §8](01_children_list.md)).
+- **Desktop layout** (Aviv's container ≥ 1024px, decided 2026-10-19): the same rules, with a desktop composition per screen. The shared desktop rules are in [design.md](../design.md) › Desktop layout, and each screen spec describes its desktop layout in its own section: the trainees list ([01 §8](01_children_list.md)), the trainee drawer ([02 §8](02_child_actions.md)) and the history and form specs of 03–05 (§8 in each). The history and form screens share one desktop pattern (§4.4).
 - **Content width:** the full width of the frame, with no fixed width; every screen fits 320px without horizontal scroll ([design.md](../design.md)). The app background (`#f6f8fe`) fills the viewport.
 - **Font:** Rubik, weights 400 / 500 / 600. Load once globally.
 - **Top spacing:** 50px above the header on every screen (status-bar area).
@@ -314,6 +314,43 @@ Fields 1–3 are stacked 8px apart; the file field is 16px below them. See [OQ-1
 
 - **Approver (ApproverField):** the MFE is a full-width search box with its own open results list, and reports the chosen approver through `onSelect`. Once chosen, the field shows the approver's name and role with a `"החלפה"` (Change) button, which shows the MFE again; `"ביטול"` (Cancel) returns to the chosen approver. Until the MFE is integrated, a stand-in with the same contract is used (`src/integrations/approver-mfe`).
 - **File (ApprovalFileField):** without a file, a hint `"בחר קובץ ולחץ 'שמור קבצים' כדי לצרף אותו"` **(proposed)** and `IpsFileUpload` (one file, camera allowed). After the upload the file is registered in the service (to get its `approvedFileId`), and the field shows a file row (icon, name, X `"הסרת הקובץ"`) instead of `IpsFileUpload`. Saving waits while a file uploads. Upload or registration failure: `"העלאת הקובץ נכשלה, נסה שוב"` **(proposed)**.
+
+### 4.4 Desktop: history and form in the trainee drawer
+
+Decided for desktop phase 2 (2026-10-19). On desktop the history and form screens of 03–05 open inside the trainee drawer ([02 §8](02_child_actions.md)), below its fixed trainee header. The data, cards, search, sort, states, form blocks, validation and texts are the ones of §4.1–§4.3 and of each feature spec; only the layout and the controls differ.
+
+**History screen.** Top to bottom; the top row and the toolbar stay in place, and only the cards scroll:
+
+1. **Top row:**
+   - At the start, a back arrow `"חזרה לפעולות"` **(proposed)** to the actions screen.
+   - Next to it, the current action as a context selector – text and chevron with no border, like the institute selector ([design.md](../design.md) › Desktop layout). Its options are only the permitted actions, and its accessible name is `"החלפת פעולה"` **(proposed)**. With only one permitted action it is a plain title.
+   - At the end, the primary create button (text + plus icon, the regular button size). It takes the place of the mobile StickyActionBar (§3.26).
+2. **Toolbar:**
+   - The section title (18px, weight 500).
+   - Below it, in one row: the search field, always visible and taking the remaining width (clear button `"ניקוי חיפוש"`), and the sort select.
+   - The sort select's closed value is only a sort icon and `"מיון"`, like the mobile sort button. At the drawer's width there is no room for "מיין לפי: …" next to the search (decided 2026-10-19). Its list has one row per field + direction (§3.25), and its accessible name includes the current row: `"מיון: {row}"` **(proposed)**.
+   - Both are disabled until the records have loaded.
+3. **Cards:** ExpandableRecordCard (§3.22) on the drawer's white surface. Each card, and each skeleton card, gets a 1px `divider` frame on its wrapper. The cards render incrementally inside the drawer's scroll area.
+4. **States:** as on mobile. Before the permissions load: skeleton cards. Without permission: the blocked message ([02 §7](02_child_actions.md)). The top row is available in every state.
+
+**Form.**
+
+- **Presentation:** a layer over the history inside the drawer, below the trainee header – the desktop counterpart of the mobile form sheet. The history stays mounted and inert under it, so its search, sort, open card and scroll position are kept.
+- **Layer layout:**
+  - At the top: the form title (create / edit, as in each form spec) and an X `"סגירה ללא שמירה"`.
+  - The blocks scroll in the middle.
+  - At the bottom, a fixed footer: `"ביטול"` on the right and `"שמור"` on the left, two equal columns in the regular button size.
+  - The general save error is shown above the buttons.
+- **Focus:** moves into the layer when it opens. The X and `"ביטול"` go back to the history without confirmation ([OQ-16](../pending-decisions.md#oq-16)), and focus returns to the button that opened the form.
+- **Controls:** the desktop controls of the library (MUI): dates (`IpsDatePicker` in Hebrew, `DD/MM/YY`, empty sections shown as `--`), times (`IpsTimePicker`, 24h, clear button), selects, text fields, text area and radio groups. Labels are above the fields.
+  - The grid is the mobile one: dates, times and the duration take half a row; reason, details, approver, file, and phone with its button take a full row. There are no desktop-only widths (decided 2026-10-19).
+  - A date or time that is only partly typed counts as empty, so validation reports it.
+- **After save:**
+  - The layer closes.
+  - The history reloads (skeleton), then shows the saved record open and focused (§4.1).
+  - The trainees list behind the drawer refreshes silently ([01 §8.2](01_children_list.md)).
+- **Unavailable record:** an edit of a record that is no longer available (replaced or ended) closes the layer. This replaces the mobile redirect to the history URL.
+- **Closing the whole drawer** while a form has changes asks first ([02 §8.6](02_child_actions.md)).
 
 ## 5. Formats
 

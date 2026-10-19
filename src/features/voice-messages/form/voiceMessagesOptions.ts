@@ -1,10 +1,10 @@
-import type { IpsRadioGroupMobileOption } from "ui-library";
 import type { VoiceMessageScope } from "@/schemas/voice-messages.schema";
+import type { RadioFieldOption } from "@/shared/form-controls/formControls";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 
 const SCOPE_TEXTS = VOICE_MESSAGES_TEXTS.form.messageBlock.scopes;
 
-interface ScopeOption extends IpsRadioGroupMobileOption {
+interface ScopeOption extends RadioFieldOption {
   value: VoiceMessageScope;
 }
 

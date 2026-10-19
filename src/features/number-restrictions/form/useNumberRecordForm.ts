@@ -57,6 +57,16 @@ import { usePermitLookup } from "./usePermitLookup";
 
 type StateTransition = (current: NumberRecordFormState) => NumberRecordFormState;
 
+export interface ChooseRestrictionOptions {
+  /**
+   * אחרי הבחירה הפוקוס עובר לכותרת הבוחר, כדי שקורא מסך ישמיע שהבחירה נעשתה (ספק 04 form §4.5).
+   * false - כשהמשתמש כבר העביר את הפוקוס בעצמו למקום אחר, ואין להחזיר אותו
+   */
+  shouldFocusPicker: boolean;
+}
+
+const MOVE_FOCUS_TO_PICKER: ChooseRestrictionOptions = { shouldFocusPicker: true };
+
 interface UseNumberRecordFormOptions {
   traineeId: number;
   /** הפנימייה של החניך, לחיפוש ההגבלות הפנימייתיות */
@@ -82,9 +92,16 @@ export function useNumberRecordForm({
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | undefined>(undefined);
   const [isFileUploading, setIsFileUploading] = useState(false);
+  const [hasUserChanges, setHasUserChanges] = useState(false);
   const focusAfterRender = useFocusAfterRender();
 
   const update = (transition: StateTransition) => setState(transition);
+
+  // שינוי ערך על ידי המשתמש. תוצאות חיפוש, ופתיחה וסגירה של אזורים, לא נחשבות שינוי
+  const updateByUser = (transition: StateTransition) => {
+    setState(transition);
+    setHasUserChanges(true);
+  };
 
   const permitLookup = usePermitLookup({
     traineeId,
@@ -118,12 +135,12 @@ export function useNumberRecordForm({
 
   const changeType = (recordType: TraineePhoneRecordType) => {
     permitLookup.cancel();
-    update((current) => changeRecordType(current, recordType, todayIsoDate()));
+    updateByUser((current) => changeRecordType(current, recordType, todayIsoDate()));
   };
 
   const changePhone = (phoneDraft: string) => {
     permitLookup.cancel();
-    update((current) => changePhoneDraft(current, phoneDraft));
+    updateByUser((current) => changePhoneDraft(current, phoneDraft));
   };
 
   // ספק 04 form §4.3: ריק - כלום; לא תקין - שגיאה בלי חיפוש; תקין - חיפוש
@@ -141,12 +158,17 @@ export function useNumberRecordForm({
 
   const restrictNumber = () => {
     permitLookup.cancel();
-    update((current) => restrictSearchedNumber(current, todayIsoDate()));
+    updateByUser((current) => restrictSearchedNumber(current, todayIsoDate()));
   };
 
-  const choose = (restriction: SourceRestrictionSummaryDto) => {
-    update((current) => chooseRestriction(current, restriction, todayIsoDate()));
-    focusAfterRender(RESTRICTION_PICKER_HEADING_ID);
+  const choose = (
+    restriction: SourceRestrictionSummaryDto,
+    { shouldFocusPicker }: ChooseRestrictionOptions = MOVE_FOCUS_TO_PICKER,
+  ) => {
+    updateByUser((current) => chooseRestriction(current, restriction, todayIsoDate()));
+    if (shouldFocusPicker) {
+      focusAfterRender(RESTRICTION_PICKER_HEADING_ID);
+    }
   };
 
   // ── שמירה (ספק 04 form §4.10) ──
@@ -213,30 +235,33 @@ export function useNumberRecordForm({
     isSaving,
     isFileUploading,
     saveError,
+    /** המשתמש שינה ערך מאז שהטופס נפתח - כדי לשאול לפני שהטופס נסגר בלי כוונה */
+    hasUserChanges,
     submit,
     setIsFileUploading,
     changeType,
     changePhone,
     searchPhone,
-    addPhone: () => update(addPhoneFromDraft),
-    removePhone: (phone: PhoneString) => update((current) => removeAddedPhone(current, phone)),
+    addPhone: () => updateByUser(addPhoneFromDraft),
+    removePhone: (phone: PhoneString) => updateByUser((current) => removeAddedPhone(current, phone)),
     restrictNumber,
     choose,
     openPicker: () => update(openRestrictionPicker),
     closePicker: () => update(closeRestrictionPicker),
     toggleCondition: (condition: PermittedCondition) => update((current) => toggleCondition(current, condition)),
-    changeStartDate: (startDate: string) => update((current) => changeDate(current, "startDate", startDate)),
-    changeEndDate: (endDate: string) => update((current) => changeDate(current, "endDate", endDate)),
+    changeStartDate: (startDate: string) => updateByUser((current) => changeDate(current, "startDate", startDate)),
+    changeEndDate: (endDate: string) => updateByUser((current) => changeDate(current, "endDate", endDate)),
     changeLimitKind: (limitKind: CallLimitKind) =>
-      update((current) => changeFormValues(current, { limitKind }, ["duration"])),
+      updateByUser((current) => changeFormValues(current, { limitKind }, ["duration"])),
     changeDurationText: (durationText: string) =>
-      update((current) => changeFormValues(current, { durationText }, ["duration"])),
-    changeStartTime: (startTime: string) => update((current) => changeFormValues(current, { startTime }, ["hours"])),
-    changeEndTime: (endTime: string) => update((current) => changeFormValues(current, { endTime }, ["hours"])),
+      updateByUser((current) => changeFormValues(current, { durationText }, ["duration"])),
+    changeStartTime: (startTime: string) =>
+      updateByUser((current) => changeFormValues(current, { startTime }, ["hours"])),
+    changeEndTime: (endTime: string) => updateByUser((current) => changeFormValues(current, { endTime }, ["hours"])),
     changeDeviceIds: (deviceIds: number[]) =>
-      update((current) => changeFormValues(current, { deviceIds }, ["devices"])),
+      updateByUser((current) => changeFormValues(current, { deviceIds }, ["devices"])),
     changeDecision: (decisionUpdate: Partial<DecisionValues>) =>
-      update((current) => changeFormValues(current, decisionUpdate, decisionErrorSlotsFor(decisionUpdate))),
+      updateByUser((current) => changeFormValues(current, decisionUpdate, decisionErrorSlotsFor(decisionUpdate))),
   };
 }
 

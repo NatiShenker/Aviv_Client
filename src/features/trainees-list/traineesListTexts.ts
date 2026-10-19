@@ -21,6 +21,8 @@ export const TRAINEES_LIST_TEXTS = {
 
   // דסקטופ: השם הנגיש של אזור הכרטיסים שנגלל
   cardsRegionLabel: "רשימת החניכים",
+  // דסקטופ: השם הנגיש של הכרטיס כולו, שפותח את מגירת הפעולות. מוצע - ממתין לאישור (pending-decisions)
+  openTraineeActions: (traineeDisplayName: string) => `פתיחת הפעולות של ${traineeDisplayName}`,
 
   states: {
     selectInstitute: "יש לבחור פנימייה כדי להציג את רשימת החניכים",

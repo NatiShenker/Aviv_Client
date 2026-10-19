@@ -1,11 +1,11 @@
-import type { IpsRadioGroupMobileOption } from "ui-library";
 import type { TraineePhoneRecordType } from "@/schemas/phone-exceptions.schema";
+import type { RadioFieldOption } from "@/shared/form-controls/formControls";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 
 const RECORD_TYPE_TEXTS = NUMBER_RESTRICTIONS_TEXTS.recordTypes;
 const DESCRIPTION_TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.actionType.descriptions;
 
-interface RecordTypeOption extends IpsRadioGroupMobileOption {
+interface RecordTypeOption extends RadioFieldOption {
   value: TraineePhoneRecordType;
 }
 

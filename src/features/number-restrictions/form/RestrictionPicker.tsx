@@ -1,26 +1,39 @@
-import { useId, useMemo } from "react";
+import { useId, useMemo, type ComponentType } from "react";
 import { IpsButton } from "ui-library";
 import type { SourceRestrictionSummaryDto } from "@/schemas/phone-exceptions.schema";
 import ErrorText from "@/shared/components/form/ErrorText";
-import LoadMoreSentinel from "@/shared/components/LoadMoreSentinel";
-import { useIncrementalList } from "@/shared/hooks/useIncrementalList";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import { NUMBER_RECORD_FIELD_IDS, RESTRICTION_PICKER_HEADING_ID } from "./numberRecordFormLogic";
-import RestrictionOptionCard from "./RestrictionOptionCard";
 import { buildRestrictionPickerView } from "./restrictionPickerLogic";
-import type { NumberRecordFormController } from "./useNumberRecordForm";
+import type { ChooseRestrictionOptions, NumberRecordFormController } from "./useNumberRecordForm";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.picker;
 
+/** רשימת ההגבלות לבחירה. כל פריסה מציגה אותה בדרך שלה; הכותרת, הרמז והמצבים משותפים */
+export interface RestrictionOptionsListProps {
+  /** הכרטיסים שמוצגים עכשיו: כולם בזמן בחירה, או רק הנבחר */
+  restrictions: SourceRestrictionSummaryDto[];
+  selectedRestrictionId: number | null;
+  /** בזמן בחירה אפשר לבחור הגבלה; אחרת מוצג רק הכרטיס שנבחר */
+  isChoosing: boolean;
+  /** מזהה הרמז שמעל הרשימה, כשהוא מוצג - מתאר את הרשימה לקורא מסך */
+  hintId?: string;
+  /** בלי options - הפוקוס עובר לכותרת הבוחר אחרי הבחירה */
+  onChoose: (restriction: SourceRestrictionSummaryDto, options?: ChooseRestrictionOptions) => void;
+}
+
+export type RestrictionOptionsListComponent = ComponentType<RestrictionOptionsListProps>;
+
 interface RestrictionPickerProps {
   form: NumberRecordFormController;
+  RestrictionOptionsList: RestrictionOptionsListComponent;
 }
 
 /**
  * ההגבלות שהיתר יכול לחול עליהן (ספק 04 form §3.2, §4.4). כשהרשימה פתוחה לבחירה היא תופסת את הטופס,
  * ובלוקים 1–3 מוסתרים עד שבוחרים.
  */
-export default function RestrictionPicker({ form }: RestrictionPickerProps) {
+export default function RestrictionPicker({ form, RestrictionOptionsList }: RestrictionPickerProps) {
   const { lookup, selectedRestriction, isPickerOpen, errors } = form.state;
   const hintId = useId();
   const view = useMemo(
@@ -65,42 +78,5 @@ export default function RestrictionPicker({ form }: RestrictionPickerProps) {
       />
       <ErrorText message={errors.restriction} />
     </div>
-  );
-}
-
-interface RestrictionOptionsListProps {
-  restrictions: SourceRestrictionSummaryDto[];
-  selectedRestrictionId: number | null;
-  isChoosing: boolean;
-  hintId?: string;
-  onChoose: (restriction: SourceRestrictionSummaryDto) => void;
-}
-
-// טעינה הדרגתית, כמו בשאר הרשימות: 30 כרטיסים, ועוד 30 בכל הגעה לסוף
-function RestrictionOptionsList({
-  restrictions,
-  selectedRestrictionId,
-  isChoosing,
-  hintId,
-  onChoose,
-}: RestrictionOptionsListProps) {
-  const { visibleItems, hasMore, showMore } = useIncrementalList(restrictions);
-
-  return (
-    <>
-      <ul aria-labelledby={RESTRICTION_PICKER_HEADING_ID} aria-describedby={hintId} className="mt-2 flex flex-col gap-2">
-        {visibleItems.map((restriction) => (
-          <li key={restriction.restrictionId}>
-            <RestrictionOptionCard
-              restriction={restriction}
-              isSelected={restriction.restrictionId === selectedRestrictionId}
-              isChoosing={isChoosing}
-              onChoose={() => onChoose(restriction)}
-            />
-          </li>
-        ))}
-      </ul>
-      {hasMore && <LoadMoreSentinel renderedCount={visibleItems.length} onVisible={showMore} />}
-    </>
   );
 }

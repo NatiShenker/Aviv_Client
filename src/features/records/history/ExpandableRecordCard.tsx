@@ -49,7 +49,7 @@ export default function ExpandableRecordCard({
 }: ExpandableRecordCardProps) {
   return (
     <article id={id} className="rounded-card bg-paper p-4">
-      <button type="button" aria-expanded={isOpen} onClick={onToggle} className="flex w-full items-center gap-3 text-start">
+      <button type="button" aria-expanded={isOpen} onClick={onToggle} className="flex w-full cursor-pointer items-center gap-3 text-start">
         <RecordIconCircle icon={icon} tone={iconTone} />
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="flex min-w-0 items-center gap-2 text-base text-text-primary">{summaryTitle}</span>

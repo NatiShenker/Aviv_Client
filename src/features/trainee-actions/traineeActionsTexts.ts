@@ -17,4 +17,11 @@ export const TRAINEE_ACTIONS_TEXTS = {
     // מוצע - ממתין לאישור (pending-decisions)
     noPermittedActions: "אין לך הרשאה לפעולות על חניכים בפנימייה זו",
   },
+
+  // דסקטופ: מגירת החניך. מוצעים - ממתינים לאישור (pending-decisions)
+  drawer: {
+    close: "סגירה",
+    backToActions: "חזרה לפעולות",
+    switchAction: "החלפת פעולה",
+  },
 } as const;

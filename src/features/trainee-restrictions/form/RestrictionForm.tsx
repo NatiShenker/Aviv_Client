@@ -24,7 +24,7 @@ const DECISION_FIELD_IDS = {
   file: RESTRICTION_FIELD_IDS.file,
 };
 
-interface RestrictionFormProps {
+export interface RestrictionFormProps {
   form: RestrictionFormController;
   devices: AsyncResource<DeviceDto[]>;
   /** אגפי הפנימייה - המכשירים מקובצים לפיהם */

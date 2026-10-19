@@ -60,10 +60,27 @@ The sketches were built to be self-contained, not maintainable. Do not carry ove
 
 ## Desktop layout
 
-Decided for desktop phase 1 (the trainees list). Spec 01 › Desktop has the screen itself.
+Decided for desktop phase 1 (the trainees list) and phase 2 (the trainee drawer). Spec 01 §8 and spec 02 §8 have the screens themselves; spec 00 §4.4 has the history and form pattern inside the drawer.
 
 - **Page:** `DesktopPage` fills the viewport. The header rows and panels stay in place, and **only the list area scrolls**.
 - **Panels:** white panels (`rounded-card bg-paper`) on the page background, with no border. A card inside a panel is on a white surface, so it gets the 1px `divider` border – on its wrapper, so the card component stays the same as on mobile.
-- **Labels:** above the fields, with `FieldLabelText` linked to the control (`labelId`), not MUI's floating label. Exception: a toolbar row has no labels above its controls, so the row keeps one height (the search has a placeholder; the sort shows "מיין לפי: …" in its value).
-- **Context selector** (e.g. the institute in the title row): text and chevron with no border, in the main text color – the same look as on mobile.
+- **Labels:** above the fields, with `FieldLabelText` linked to the control (`labelId`), not MUI's floating label. This holds in the drawer forms too. Exception: a toolbar row has no labels above its controls, so the row keeps one height (the search has a placeholder; the sort shows its meaning in its value).
+- **Context selector** (e.g. the institute in the title row, the action in the drawer): text and chevron with no border, in the main text color – the same look as on mobile (`CONTEXT_SELECT_SX`, applied at the usage).
 - **Sizes:** spacing stays compact (`p-4`, `gap-4`), so the list keeps as much height as possible.
+- **Clickable surfaces:** a whole card that opens something (e.g. the trainee card) is a transparent button over the card. The card itself does not change. On hover the frame turns `border-strong`; an active card has a `primary` frame. Raw buttons need `cursor-pointer` – Tailwind's preflight resets the cursor of buttons, and no global CSS rule is added for it (see Run modes).
+
+### Side drawer (phase 2)
+
+- **Shape:** a modal drawer from the end side of the screen (left, in RTL), over a dark overlay, at a fixed width of **480px** (`SIDE_DRAWER_WIDTH_PX`).
+  - Why 480: common side panels are 400–600px wide (e.g. Ant Design 378, Primer 480, Australian Government Design System 512, Fluent UI 592). At 480, the drawer's cards (432px of content) are wider than on mobile (343px) but not stretched, and a card line holds about 58 characters, inside the readable 50–75.
+  - Decided 2026-10-19.
+- **Inside:**
+  - The side padding is 24px (`DRAWER_SIDE_GUTTER_CLASS`), set by the containers, not by the content components.
+  - The drawer has a fixed header. Each screen decides what scrolls: a top row and a toolbar stay in place, and only the list or the form body scrolls. A form's footer is fixed at the bottom of the drawer.
+- **Forms:**
+  - The same two-column grid as on mobile: short fields (dates, times, duration) take half a row; the others take a full row.
+  - There are no desktop-only field widths (decided 2026-10-19: fields of varying widths read as disorder, and a full-width short field does not fit either).
+- **Buttons:** the library's regular size on desktop; `size="large"` (48px, touch) is for mobile only.
+- **Button pairs:** the secondary action is at the start (right) and the primary at the end (left), in every pair: the form footer ("ביטול" | "שמור") and confirmations ("המשך עריכה" | "יציאה בלי שמירה"). In a confirmation of a destructive action:
+  - the least destructive button gets the initial focus (WAI-ARIA APG);
+  - the destructive one is contained in the error color.

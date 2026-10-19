@@ -1,5 +1,6 @@
 import type { KeyboardEvent } from "react";
-import { IpsButton, IpsTextFieldMobile } from "ui-library";
+import { IpsButton } from "ui-library";
+import { useFormControls } from "@/shared/form-controls/FormControlsProvider";
 import AppIcon from "@/shared/icons/AppIcon";
 import type { AppIconName } from "@/shared/icons/appIcons";
 import { FORM_TEXTS } from "../formTexts";
@@ -38,6 +39,7 @@ export default function PhoneInputRow({
   enterKeyHint,
   onAction,
 }: PhoneInputRowProps) {
+  const { TextField } = useFormControls();
   const canRunAction = isActionEnabled && !isActionBusy;
 
   // Enter מפעיל את הפעולה של השדה, ולא שולח את הטופס
@@ -52,7 +54,7 @@ export default function PhoneInputRow({
   return (
     <div className="mt-1 flex items-center gap-2">
       <div className="min-w-0 flex-1">
-        <IpsTextFieldMobile
+        <TextField
           id={id}
           type="tel"
           inputMode="tel"

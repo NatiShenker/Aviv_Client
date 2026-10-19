@@ -1,22 +1,25 @@
+import type { ReactNode } from "react";
 import { useInstitutes } from "@/features/institutes/InstitutesProvider";
 import { INSTITUTES_TEXTS } from "@/features/institutes/institutesTexts";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
-import { traineeActionPath } from "../traineeActionPaths";
 import { buildPermittedTraineeMenu, isTraineeMenuEmpty } from "../traineeActionsLogic";
 import type { TraineeMenuItem } from "../traineeActionsOptions";
 import { TRAINEE_ACTIONS_TEXTS } from "../traineeActionsTexts";
-import ActionRow from "./ActionRow";
 
 const TEXTS = TRAINEE_ACTIONS_TEXTS;
 
 const SKELETON_ROW_KEYS = [1, 2, 3];
 
 interface TraineeActionsMenuProps {
-  traineeId: number;
+  /** השורה של כל פריט. כל פריסה קובעת מה השורה עושה (במובייל - קישור לעמוד של הפעולה) */
+  renderItemRow: (item: TraineeMenuItem) => ReactNode;
 }
 
-/** מקטעי "פעולות" ו"מידע נוסף", לפי ההרשאות של המשתמש בפנימייה */
-export default function TraineeActionsMenu({ traineeId }: TraineeActionsMenuProps) {
+/**
+ * מקטעי "פעולות" ו"מידע נוסף", לפי ההרשאות של המשתמש בפנימייה.
+ * בלי ריווח בצדדים - הוא שייך למכולה של כל פריסה
+ */
+export default function TraineeActionsMenu({ renderItemRow }: TraineeActionsMenuProps) {
   const { permissions } = useInstitutes();
 
   switch (permissions.status) {
@@ -44,14 +47,14 @@ export default function TraineeActionsMenu({ traineeId }: TraineeActionsMenuProp
       return (
         <>
           {hasActions && (
-            <MenuSection title={TEXTS.sections.actions} items={menu.actionItems} traineeId={traineeId} />
+            <MenuSection title={TEXTS.sections.actions} items={menu.actionItems} renderItemRow={renderItemRow} />
           )}
-          {hasActions && hasAdditionalInfo && <div className="mx-4 mt-6 border-t border-divider" />}
+          {hasActions && hasAdditionalInfo && <div className="mt-6 border-t border-divider" />}
           {hasAdditionalInfo && (
             <MenuSection
               title={TEXTS.sections.additionalInfo}
               items={menu.additionalInfoItems}
-              traineeId={traineeId}
+              renderItemRow={renderItemRow}
               isTitleEmphasized
             />
           )}
@@ -61,27 +64,24 @@ export default function TraineeActionsMenu({ traineeId }: TraineeActionsMenuProp
   }
 }
 
+// המקטעים מוזחים מעט פנימה ביחס לקו המפריד (ספק 02: קו ב-16px, מקטעים ב-19px)
+const SECTION_INSET_CLASS = "px-1";
+
 interface MenuSectionProps {
   title: string;
   items: TraineeMenuItem[];
-  traineeId: number;
+  renderItemRow: (item: TraineeMenuItem) => ReactNode;
   /** כותרת "מידע נוסף" מודגשת (ספק 02 §3.3) */
   isTitleEmphasized?: boolean;
 }
 
-function MenuSection({ title, items, traineeId, isTitleEmphasized = false }: MenuSectionProps) {
+function MenuSection({ title, items, renderItemRow, isTitleEmphasized = false }: MenuSectionProps) {
   return (
-    <section className="mt-7 px-5">
+    <section className={`mt-7 ${SECTION_INSET_CLASS}`}>
       <h2 className={`text-base ${isTitleEmphasized ? "font-medium" : ""}`}>{title}</h2>
       <ul className="mt-4 flex flex-col gap-1">
         {items.map((item) => (
-          <li key={item.key}>
-            <ActionRow
-              label={item.label}
-              icon={item.icon}
-              to={traineeActionPath(item.key, traineeId)}
-            />
-          </li>
+          <li key={item.key}>{renderItemRow(item)}</li>
         ))}
       </ul>
     </section>
@@ -91,7 +91,7 @@ function MenuSection({ title, items, traineeId, isTitleEmphasized = false }: Men
 // שלד בצורת שורות התפריט, עד שההרשאות מגיעות. ההבהוב פועל רק כשהמשתמש לא ביקש להפחית תנועה
 function MenuSkeleton() {
   return (
-    <div role="status" className="mt-7 px-5">
+    <div role="status" className={`mt-7 ${SECTION_INSET_CLASS}`}>
       <span className="sr-only">{TEXTS.states.loadingActions}</span>
       <div aria-hidden="true" className="flex flex-col gap-1 motion-safe:animate-pulse">
         <div className="h-5 w-16 rounded-sm bg-grey-100" />

@@ -1,8 +1,9 @@
 import { useMemo } from "react";
-import { IpsButton, IpsMultiSelectMobile, IpsTimePickerMobile, type IpsMultiSelectMobileValue } from "ui-library";
+import { IpsButton } from "ui-library";
 import { buildDeviceOptions } from "@/features/institutes/organizationLogic";
 import type { DeviceDto, WingDto } from "@/schemas/organization.schema";
 import FormSection from "@/shared/components/form/FormSection";
+import { useFormControls } from "@/shared/form-controls/FormControlsProvider";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import {
   buildDevicesSummary,
@@ -56,6 +57,7 @@ export default function PermittedConditionsBlock({
   onEndTimeChange,
   onDeviceIdsChange,
 }: PermittedConditionsBlockProps) {
+  const { TimeField } = useFormControls();
   const deviceList = devices.data ?? NO_DEVICES;
   const hoursSummary = buildHoursSummary(values, ruleKind);
 
@@ -70,7 +72,7 @@ export default function PermittedConditionsBlock({
       >
         <p className="text-xs text-text-muted">{TEXTS.hoursHint}</p>
         <div className="mt-2 grid grid-cols-2 gap-2">
-          <IpsTimePickerMobile
+          <TimeField
             id={fieldIds.hours}
             label={TEXTS.startTime}
             aria-label={TEXTS.startTime}
@@ -80,7 +82,7 @@ export default function PermittedConditionsBlock({
             error={Boolean(errors.hours)}
             onChange={onStartTimeChange}
           />
-          <IpsTimePickerMobile
+          <TimeField
             label={TEXTS.endTime}
             aria-label={TEXTS.endTime}
             placeholder={TEXTS.timePlaceholder}
@@ -129,17 +131,18 @@ interface DevicesSelectProps {
  * כשרשימת המכשירים לא נטענה - השדה ריק, עם הודעה ו"נסה שוב" (ספק 03 form §7)
  */
 function DevicesSelect({ id, devices, wings, selectedDeviceIds, onChange, hasError }: DevicesSelectProps) {
+  const { MultiSelectField } = useFormControls();
   const hasFailed = devices.status === "error";
   const options = useMemo(() => buildDeviceOptions(devices.data ?? NO_DEVICES, wings), [devices.data, wings]);
 
   return (
     <div>
-      <IpsMultiSelectMobile
+      <MultiSelectField
         id={id}
         label={TEXTS.pickDevice}
         options={options}
         value={selectedDeviceIds}
-        onChange={(deviceIds: IpsMultiSelectMobileValue[]) => onChange(deviceIds.map(Number))}
+        onChange={(deviceIds) => onChange(deviceIds.map(Number))}
         formatSelection={formatDevicesSelection}
         error={hasError || hasFailed}
         helperText={hasFailed ? TEXTS.devicesLoadFailed : undefined}

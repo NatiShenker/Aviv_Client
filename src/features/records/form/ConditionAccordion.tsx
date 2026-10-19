@@ -25,7 +25,7 @@ export default function ConditionAccordion({ title, summary, isOpen, onToggle, e
         aria-expanded={isOpen}
         aria-controls={contentId}
         onClick={onToggle}
-        className="flex h-11 w-full items-center gap-2 text-start text-sm text-text-primary"
+        className="flex h-11 w-full cursor-pointer items-center gap-2 text-start text-sm text-text-primary"
       >
         <span className="shrink-0">{title}</span>
         <span className="min-w-0 flex-1 truncate text-text-muted">{summary}</span>

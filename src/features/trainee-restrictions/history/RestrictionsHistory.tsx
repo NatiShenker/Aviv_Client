@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import RecordHistoryLayout from "@/features/records/history/RecordHistoryLayout";
 import { useRecordFormSlot } from "@/features/records/history/useRecordFormSlot";
-import { useRecordHistoryState } from "@/features/records/history/useRecordHistoryState";
 import { ROUTES } from "@/routes";
 import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
@@ -10,8 +9,7 @@ import RestrictionFormSheet from "../form/RestrictionFormSheet";
 import { useRestrictionFormRoute } from "../form/useRestrictionFormRoute";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import RestrictionCard from "./RestrictionCard";
-import { filterAndSortRestrictions, restrictionCardDomId } from "./traineeRestrictionsLogic";
-import { useTraineeRestrictionsData } from "./useTraineeRestrictionsData";
+import { useRestrictionsHistory } from "./useRestrictionsHistory";
 
 const getRecordKey = (record: TraineeRestrictionRecordDto) => record.id;
 
@@ -27,12 +25,7 @@ interface RestrictionsHistoryProps {
  */
 export default function RestrictionsHistory({ traineeId, header }: RestrictionsHistoryProps) {
   const navigate = useNavigate();
-  const restrictions = useTraineeRestrictionsData(traineeId);
-  const history = useRecordHistoryState({
-    records: restrictions,
-    filterAndSort: filterAndSortRestrictions,
-    cardDomIdOf: restrictionCardDomId,
-  });
+  const { restrictions, history } = useRestrictionsHistory(traineeId);
 
   const renderCard = (record: TraineeRestrictionRecordDto) => (
     <RestrictionCard
