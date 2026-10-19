@@ -3,11 +3,12 @@ import { Link } from "react-router-dom";
 import { ROUTES } from "@/routes";
 import type { TraineeListItemDto } from "@/schemas/trainees.schema";
 import LoadMoreSentinel from "@/shared/components/LoadMoreSentinel";
-import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useIncrementalList } from "@/shared/hooks/useIncrementalList";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
 import TraineeCard from "./TraineeCard";
+import TraineeCardSkeleton from "./TraineeCardSkeleton";
+import TraineesListStates from "./TraineesListStates";
 
 const TEXTS = TRAINEES_LIST_TEXTS.states;
 
@@ -24,7 +25,7 @@ interface TraineesListProps {
   onVisibleCountChange: (visibleCount: number) => void;
 }
 
-/** אזור הרשימה: בחירת פנימייה, טעינה, שגיאה, ריק, או הכרטיסים */
+/** רשימת החניכים במובייל: עמודה אחת של כרטיסים, וכל כרטיס מוביל למסך הפעולות של החניך */
 export default function TraineesList({
   hasSelectedInstitute,
   trainees,
@@ -32,37 +33,21 @@ export default function TraineesList({
   restoredVisibleCount,
   onVisibleCountChange,
 }: TraineesListProps) {
-  if (!hasSelectedInstitute) {
-    return <ScreenStateMessage message={TEXTS.selectInstitute} />;
-  }
-
-  switch (trainees.status) {
-    case "idle":
-    case "loading":
-      return <LoadingSkeleton />;
-    case "error":
-      return (
-        <ScreenStateMessage
-          tone="error"
-          message={TEXTS.loadFailed}
-          actionLabel={TEXTS.retry}
-          onAction={trainees.reload}
-        />
-      );
-    case "empty":
-      return <ScreenStateMessage message={TEXTS.noResults} />;
-    case "success":
-      if (visibleTrainees.length === 0) {
-        return <ScreenStateMessage message={TEXTS.noResults} />;
-      }
-      return (
+  return (
+    <TraineesListStates
+      hasSelectedInstitute={hasSelectedInstitute}
+      trainees={trainees}
+      visibleTrainees={visibleTrainees}
+      loadingContent={<LoadingSkeleton />}
+      renderCards={(traineesToShow) => (
         <TraineeCards
-          trainees={visibleTrainees}
+          trainees={traineesToShow}
           restoredVisibleCount={restoredVisibleCount}
           onVisibleCountChange={onVisibleCountChange}
         />
-      );
-  }
+      )}
+    />
+  );
 }
 
 interface TraineeCardsProps {
@@ -106,22 +91,6 @@ function LoadingSkeleton() {
       {SKELETON_CARD_KEYS.map((key) => (
         <TraineeCardSkeleton key={key} />
       ))}
-    </div>
-  );
-}
-
-// שלד בצורת כרטיס חניך. ההבהוב פועל רק כשהמשתמש לא ביקש להפחית תנועה
-function TraineeCardSkeleton() {
-  return (
-    <div aria-hidden="true" className="rounded-card bg-paper p-4 motion-safe:animate-pulse">
-      <div className="flex items-start gap-3">
-        <div className="size-15 shrink-0 rounded-input bg-grey-100" />
-        <div className="flex-1 pt-1">
-          <div className="h-4 w-2/3 rounded-sm bg-grey-100" />
-        </div>
-      </div>
-      <div className="mt-4 border-t border-divider" />
-      <div className="mt-2 h-3 w-1/2 rounded-sm bg-grey-100" />
     </div>
   );
 }

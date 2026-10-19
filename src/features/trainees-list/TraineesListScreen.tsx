@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useInstitutes } from "@/features/institutes/InstitutesProvider";
 import InstitutesStateGate from "@/features/institutes/InstitutesStateGate";
-import type { WingLocationDto } from "@/schemas/organization.schema";
-import type { TraineeListItemDto } from "@/schemas/trainees.schema";
 import AppPage from "@/shells/mobile/AppPage";
 import { useWindowScrollRestoration } from "@/shells/mobile/hooks/useWindowScrollRestoration";
 import PinnedPageTop from "@/shells/mobile/PinnedPageTop";
@@ -11,14 +9,9 @@ import TraineesList from "./components/TraineesList";
 import TraineesListHeader from "./components/TraineesListHeader";
 import TraineesSortDrawer from "./components/TraineesSortDrawer";
 import { readRememberedTraineesList, rememberTraineesListPosition } from "./traineesListMemory";
-import { useTraineesListData } from "./useTraineesListData";
-import { useTraineesListFilters } from "./useTraineesListFilters";
+import { useTraineesListState } from "./useTraineesListState";
 
 type OpenDrawer = "filter" | "sort" | null;
-
-// הפניות קבועות, כדי שרשימה ריקה לא תיחשב "רשימה חדשה" בכל רינדור
-const NO_TRAINEES: TraineeListItemDto[] = [];
-const NO_LOCATIONS: WingLocationDto[] = [];
 
 /** מסך הבית: רשימת החניכים בפנימייה הנבחרת (ספק 01) */
 export default function TraineesListScreen() {
@@ -34,12 +27,7 @@ export default function TraineesListScreen() {
 // עולה רק אחרי שרשימת הפנימיות הגיעה
 function TraineesListContent() {
   const { selectedInstitute } = useInstitutes();
-  const { trainees, locations } = useTraineesListData(selectedInstitute);
-  const listFilters = useTraineesListFilters(
-    trainees.data ?? NO_TRAINEES,
-    selectedInstitute,
-    locations.data ?? NO_LOCATIONS,
-  );
+  const { trainees, locations, listFilters } = useTraineesListState(selectedInstitute);
   const [openDrawer, setOpenDrawer] = useState<OpenDrawer>(null);
 
   // המיקום ברשימה כפי שהיה כשעזבו את המסך: נקרא פעם אחת, כשהמסך עולה

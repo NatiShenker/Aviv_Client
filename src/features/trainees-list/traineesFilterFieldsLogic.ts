@@ -1,0 +1,63 @@
+import type { IpsSelectOption } from "ui-library";
+import { buildWingLabel } from "@/features/institutes/organizationLogic";
+import type { WingDto, WingLocationDto } from "@/schemas/organization.schema";
+import type { AsyncStatus } from "@/shared/hooks/useAsyncResource";
+import { locationsOfSelectedWings } from "./traineesListLogic";
+import { TRAINEES_LIST_TEXTS } from "./traineesListTexts";
+
+const TEXTS = TRAINEES_LIST_TEXTS.filterDrawer;
+
+export function buildWingFilterOptions(wings: WingDto[]): IpsSelectOption[] {
+  return wings.map((wing) => ({ value: wing.id, label: buildWingLabel(wing) }));
+}
+
+/**
+ * מיקומי האגפים שנבחרו בלבד (בלי בחירת אגף - כל המיקומים בפנימייה), מקובצים לפי אגף.
+ * הקבוצות גם מבדילות בין מיקומים עם אותו שם באגפים שונים
+ */
+export function buildLocationFilterOptions(
+  locations: WingLocationDto[],
+  selectedWingIds: number[],
+  wings: WingDto[],
+): IpsSelectOption[] {
+  const wingLabelById = new Map(wings.map((wing) => [wing.id, buildWingLabel(wing)]));
+  return locationsOfSelectedWings(locations, selectedWingIds).map((location) => ({
+    value: location.id,
+    label: location.name,
+    group: wingLabelById.get(location.wingId),
+  }));
+}
+
+/** טקסט השדה בבחירה מרובה: שם הפריט כשנבחר אחד, אחרת מספר הנבחרים */
+export function formatMultiSelection(selectedLabels: string[]): string {
+  return selectedLabels.length === 1 ? selectedLabels[0] : TEXTS.selectedCount(selectedLabels.length);
+}
+
+/** הפקד מחזיר את ערכי האפשרויות; המזהים בסינון הם מספרים */
+export function toFilterIds(values: ReadonlyArray<string | number>): number[] {
+  return values.map(Number);
+}
+
+export interface LocationsFieldState {
+  /** המיקומים עוד לא הגיעו או שהטעינה נכשלה - השדה מושבת */
+  isUnavailable: boolean;
+  hasFailed: boolean;
+  statusText: string | undefined;
+}
+
+/** המיקומים נטענים ברקע, ולכן לשדה יש מצבי טעינה ושגיאה משלו */
+export function resolveLocationsFieldState(status: AsyncStatus): LocationsFieldState {
+  const isLoading = status === "idle" || status === "loading";
+  const hasFailed = status === "error";
+  return {
+    isUnavailable: isLoading || hasFailed,
+    hasFailed,
+    statusText: locationsStatusText(isLoading, hasFailed),
+  };
+}
+
+function locationsStatusText(isLoading: boolean, hasFailed: boolean): string | undefined {
+  if (isLoading) return TEXTS.locationsLoading;
+  if (hasFailed) return TEXTS.locationsLoadFailed;
+  return undefined;
+}

@@ -18,7 +18,7 @@ export type TraineeFilterGroupsUpdate = Partial<
   Pick<TraineeListFiltersState, "locationIds" | "traineeRestriction" | "recipientMessage" | "phoneException" | "balance">
 >;
 
-interface TraineesListFilters {
+export interface TraineesListFilters {
   filters: TraineeListFiltersState;
   sort: TraineeSortOption;
   visibleTrainees: TraineeListItemDto[];
