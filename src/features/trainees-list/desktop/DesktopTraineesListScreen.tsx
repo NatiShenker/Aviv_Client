@@ -35,7 +35,8 @@ function DesktopTraineesListContent() {
     <>
       <div className="flex shrink-0 items-center justify-between gap-4">
         <h1 className="text-2xl font-medium">{TRAINEES_LIST_TEXTS.title}</h1>
-        <div className="w-72">
+        {/* הבורר יורש את הגופן והצבע מהעוטף, ורוחבו לפי שם הפנימייה */}
+        <div className="min-w-0 max-w-80 text-lg font-medium text-text-primary">
           <DesktopInstituteSelector />
         </div>
       </div>

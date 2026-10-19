@@ -1,6 +1,4 @@
-import { useId } from "react";
 import { IpsSelect, IpsTextField } from "ui-library";
-import FieldLabelText from "@/shared/components/form/FieldLabelText";
 import { TRAINEE_SORT_ROWS, findSortOption, type TraineeSortOption } from "../traineesListOptions";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
 
@@ -17,7 +15,10 @@ interface TraineesResultsToolbarProps {
   isDisabled: boolean;
 }
 
-/** הסרגל שבראש פאנל התוצאות בדסקטופ: חיפוש, מספר התוצאות ומיון */
+/**
+ * הסרגל שבראש פאנל התוצאות בדסקטופ: החיפוש ומיד אחריו מספר התוצאות שלו, והמיון בקצה.
+ * אין תוויות מעל השדות, כדי שכל השורה תהיה בגובה אחד: לחיפוש יש placeholder, והמיון אומר "מיין לפי" בערך שלו
+ */
 export default function TraineesResultsToolbar({
   searchQuery,
   onSearchQueryChange,
@@ -26,12 +27,9 @@ export default function TraineesResultsToolbar({
   onSortChange,
   isDisabled,
 }: TraineesResultsToolbarProps) {
-  const sortLabelId = useId();
-
   return (
-    <div className="flex shrink-0 items-end gap-4 border-b border-divider p-4">
-      {/* בלי תווית גלויה, כמו במובייל: ה-placeholder מסביר, והשם הנגיש מגיע מ-aria-label */}
-      <div className="min-w-0 flex-1">
+    <div className="flex shrink-0 items-center gap-4 border-b border-divider p-4">
+      <div className="w-80 shrink-0">
         <IpsTextField
           type="search"
           fullWidth
@@ -45,17 +43,18 @@ export default function TraineesResultsToolbar({
       </div>
 
       {resultCount !== null && (
-        <p role="status" className="shrink-0 pb-2 text-sm text-text-muted">
+        <p role="status" className="shrink-0 text-sm text-text-muted">
           {TEXTS.resultsCount(resultCount)}
         </p>
       )}
 
-      <div className="w-72 shrink-0">
-        <FieldLabelText id={sortLabelId} text={TEXTS.sort} />
+      <div className="ms-auto w-80 shrink-0">
         <IpsSelect
-          labelId={sortLabelId}
           options={TRAINEE_SORT_ROWS}
           value={sort.key}
+          // הקידומת רק בערך הסגור; השורות ברשימה נשארות נקיות לסריקה
+          renderValue={() => TEXTS.sortValue(sort.label)}
+          inputProps={{ "aria-label": TEXTS.sort }}
           disabled={isDisabled}
           onChange={(selectedKey) => onSortChange(findSortOption(String(selectedKey)))}
         />

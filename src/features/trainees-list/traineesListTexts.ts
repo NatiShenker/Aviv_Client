@@ -8,8 +8,9 @@ export const TRAINEES_LIST_TEXTS = {
     filter: "סינון",
     filterWhenActive: "סינון, יש סינון פעיל",
     sort: "מיון",
-    // מוצע - ממתין לאישור (pending-decisions)
-    resultsCount: (count: number) => `${count} חניכים`,
+    // מוצעים - ממתינים לאישור (pending-decisions)
+    resultsCount: (count: number) => (count === 1 ? "מוצג חניך אחד" : `מוצגים ${count} חניכים`),
+    sortValue: (sortLabel: string) => `מיין לפי: ${sortLabel}`,
   },
 
   // דסקטופ: פאנל המסננים. מוצעים - ממתינים לאישור (pending-decisions)

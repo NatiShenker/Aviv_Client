@@ -7,7 +7,8 @@ import TraineeCardSkeleton from "../components/TraineeCardSkeleton";
 import TraineesListStates from "../components/TraineesListStates";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
 
-const SKELETON_CARD_COUNT = 6;
+// מספיק כדי למלא את אזור הכרטיסים בזמן הטעינה
+const SKELETON_CARD_COUNT = 12;
 const SKELETON_CARD_KEYS = Array.from({ length: SKELETON_CARD_COUNT }, (_, index) => index);
 
 // הכרטיסים יושבים על משטח לבן, ולכן מקבלים מסגרת (design.md). המסגרת על העוטף, כדי שהכרטיס יישאר זהה למובייל

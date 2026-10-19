@@ -76,9 +76,11 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
      - Active: `"פעיל"` – bg `#e7ffef`, text `#15833a`, dot `#22c55e`.
      - Restricted: `"מוגבל עד {DD/MM}"` (Restricted until) – bg `#ffe8e8`, text `#d4262b`, dot `#ff3b3b`.
 2. **Divider:** 16px below, 0.6px `#ebebf0`.
-3. **Bottom row** (8px below, 12/15, gray):
-   - **Right group:** location pin + `"אגף {wing.name}"` (and wing location `location.name` when present); timer + `"{remainingMinutes} דקות"` (fetched by the backend from the 3rd-party Cellcom service).
-   - **Left (conditional):** warning icon + `"קיים פער בנתונים בסלקום"` (Data gap in Cellcom), color `#bd4d00` – **rendered only when `flags.hasCellcomDiscrepancy === true`** (from the 3rd-party Cellcom service).
+3. **Bottom rows** (8px below, 12/15, gray). One fixed structure at every card width (decided 2026-10-19), so the minutes are in the same place on every card:
+   - **First row, right:** location pin + `"אגף {wing.name}"` (and wing location `location.name` when present), truncated when long.
+   - **First row, left:** timer + `"{remainingMinutes} דקות"` (fetched by the backend from the 3rd-party Cellcom service).
+   - **Second row (conditional), right:** warning icon + `"קיים פער בנתונים בסלקום"` (Data gap in Cellcom), color `#bd4d00` – **rendered only when `flags.hasCellcomDiscrepancy === true`** (from the 3rd-party Cellcom service).
+   - The loading skeleton follows the same structure (photo, name and badge; then location and minutes).
 
 ### 3.3 Empty state
 
