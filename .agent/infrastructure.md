@@ -14,6 +14,7 @@ Binding guidance for the shared infrastructure every screen uses. Read it with `
 - `src/services/` — one file per controller, plus `serviceEndpoints.ts`. `src/infrastructure/` — http, api, errors, storage.
 - `src/mock-server/` — the simulated service.
 - **Dependency direction:** `shared` imports nothing from `features`, `shells` or the root files (except `appConstants.ts`); `shells` import nothing from `features`.
+- **Platform split:** state, logic, cards, data hooks and form bodies know nothing about routes or the page (e.g. `useRecordHistoryState`, `useHistoryFormTarget`, `RecordFormTarget`, the menu model of 02). Routes and page containers stay in `shells/mobile` and in each feature's mobile composition (`*Screen.tsx`, `*History.tsx`, `*FormSheet.tsx`, `use*FormRoute.ts`). A desktop shell reuses the first group and replaces the second.
 - A small component used by one parent stays a private component in the parent's file. A separate file is only for a component with its own responsibility or state.
 
 ## Server access

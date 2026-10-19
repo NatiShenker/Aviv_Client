@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { SCREEN_TOP_SPACING_CLASS } from "./screenSpacing";
 
 interface PinnedPageTopProps {
   children: ReactNode;
@@ -10,5 +11,5 @@ interface PinnedPageTopProps {
  * כולל את הריווח העליון של המסך, כדי שהכותרת לא תזוז כלל בגלילה.
  */
 export default function PinnedPageTop({ children }: PinnedPageTopProps) {
-  return <div className="sticky top-0 z-10 bg-background pb-4 pt-12">{children}</div>;
+  return <div className={`sticky top-0 z-10 bg-background pb-4 ${SCREEN_TOP_SPACING_CLASS}`}>{children}</div>;
 }

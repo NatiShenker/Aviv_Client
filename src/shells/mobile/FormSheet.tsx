@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { IpsDialog, IpsIconButton, type IpsDialogRenderContext } from "ui-library";
 import AppIcon from "@/shared/icons/AppIcon";
 import { FORM_SHEET_TEXTS } from "./formSheetTexts";
+import { SCREEN_TOP_SPACING_CLASS } from "./screenSpacing";
 
 interface FormSheetProps {
   open: boolean;
@@ -20,7 +21,7 @@ interface FormSheetProps {
 export default function FormSheet({ open, title, onClose, children, actions }: FormSheetProps) {
   // אותו מבנה כמו הכותרת של עמוד (PinnedPageTop + PageHeader): ריווח עליון, ושורת כותרת עם קו תחתון
   const renderHeader = ({ titleId, requestClose }: IpsDialogRenderContext) => (
-    <div className="pt-12">
+    <div className={SCREEN_TOP_SPACING_CLASS}>
       <div className="mx-4 flex items-center justify-between gap-2 border-b border-divider pb-1">
         <h2 id={titleId} className="min-w-0 truncate text-xl font-medium text-text-primary">
           {title}

@@ -5,6 +5,7 @@ import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
 import AppPage from "@/shells/mobile/AppPage";
 import { useScrollToTopOnOpen } from "@/shells/mobile/hooks/useScrollToTopOnOpen";
 import PageHeader from "@/shells/mobile/PageHeader";
+import { SCREEN_TOP_SPACING_CLASS } from "@/shells/mobile/screenSpacing";
 import TraineeActionsMenu from "./components/TraineeActionsMenu";
 
 /** מסך הפעולות של חניך: כניסה לפעולות ולמידע הנוסף, לפי ההרשאות (ספק 02) */
@@ -12,7 +13,7 @@ export default function TraineeActionsScreen() {
   useScrollToTopOnOpen();
 
   return (
-    <AppPage className="pb-10 pt-12">
+    <AppPage className={`pb-10 ${SCREEN_TOP_SPACING_CLASS}`}>
       <TraineeActionsContent />
     </AppPage>
   );

@@ -1,6 +1,7 @@
 import { useInstitutes } from "@/features/institutes/InstitutesProvider";
 import { INSTITUTES_TEXTS } from "@/features/institutes/institutesTexts";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
+import { traineeActionPath } from "../traineeActionPaths";
 import { buildPermittedTraineeMenu, isTraineeMenuEmpty } from "../traineeActionsLogic";
 import type { TraineeMenuItem } from "../traineeActionsOptions";
 import { TRAINEE_ACTIONS_TEXTS } from "../traineeActionsTexts";
@@ -78,7 +79,7 @@ function MenuSection({ title, items, traineeId, isTitleEmphasized = false }: Men
             <ActionRow
               label={item.label}
               icon={item.icon}
-              to={item.buildPath ? item.buildPath(traineeId) : null}
+              to={traineeActionPath(item.key, traineeId)}
             />
           </li>
         ))}

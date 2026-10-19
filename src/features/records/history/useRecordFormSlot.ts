@@ -1,11 +1,13 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import type { FormSheetTarget } from "@/shells/mobile/navigation/useFormSheetRoute";
 import { useNavigateBack } from "@/shells/mobile/navigation/useNavigateBack";
+import type { RecordFormTarget } from "../form/formStartingPoint";
 import type { DatedHistoryRecord } from "./historySort";
 import { useHistoryFormTarget } from "./useHistoryFormTarget";
 
 interface RecordFormSlotOptions<TRecord, TRecordRef, TSavedRecordKey> {
-  formTarget: FormSheetTarget<TRecordRef> | null;
+  formTarget: RecordFormTarget<TRecordRef> | null;
   records: AsyncResource<TRecord[]>;
   matchesRecordRef: (record: TRecord, recordRef: TRecordRef) => boolean;
   historyPath: string;
@@ -14,7 +16,7 @@ interface RecordFormSlotOptions<TRecord, TRecordRef, TSavedRecordKey> {
 
 /**
  * טופס היצירה / העריכה שמעל ההיסטוריה במובייל: הטופס שהכתובת מבקשת, סגירה בצעד אחורה,
- * ושמירה שחוזרת להיסטוריה עם הרשומה שנשמרה
+ * שמירה שחוזרת להיסטוריה עם הרשומה שנשמרה, וכתובת עריכה של רשומה לא זמינה שמוחלפת בכתובת ההיסטוריה
  */
 export function useRecordFormSlot<TRecord extends DatedHistoryRecord, TRecordRef, TSavedRecordKey>({
   formTarget,
@@ -23,13 +25,19 @@ export function useRecordFormSlot<TRecord extends DatedHistoryRecord, TRecordRef
   historyPath,
   onSaved,
 }: RecordFormSlotOptions<TRecord, TRecordRef, TSavedRecordKey>) {
+  const navigate = useNavigate();
   const close = useNavigateBack();
-  const { openTarget, editRecord, basedOnRecord } = useHistoryFormTarget({
+  const { openTarget, editRecord, basedOnRecord, isEditTargetUnavailable } = useHistoryFormTarget({
     formTarget,
     records,
     matchesRecordRef,
-    historyPath,
   });
+
+  useEffect(() => {
+    if (isEditTargetUnavailable) {
+      navigate(historyPath, { replace: true });
+    }
+  }, [isEditTargetUnavailable, navigate, historyPath]);
 
   const saveAndClose = (savedRecordKey: TSavedRecordKey) => {
     onSaved(savedRecordKey);

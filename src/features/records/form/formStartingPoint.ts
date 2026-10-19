@@ -1,4 +1,10 @@
-import type { FormSheetTarget } from "@/shells/mobile/navigation/useFormSheetRoute";
+/**
+ * הטופס שמתבקש לפתוח: יצירה (אולי על בסיס רשומה שהסתיימה), או עריכה של רשומה.
+ * במובייל הוא נגזר מהכתובת (useRecordFormRoute)
+ */
+export type RecordFormTarget<TRecordRef> =
+  | { mode: "create"; basedOnRef: TRecordRef | null }
+  | { mode: "edit"; recordRef: TRecordRef };
 
 /**
  * מאיפה טופס מתחיל: רשומה חדשה ריקה, עריכה של רשומה, או רשומה חדשה על בסיס רשומה שהסתיימה
@@ -10,7 +16,7 @@ export type FormStartingPoint<TRecord> =
   | { kind: "basedOn"; record: TRecord };
 
 export function resolveFormStartingPoint<TRecord>(
-  target: FormSheetTarget<unknown> | null,
+  target: RecordFormTarget<unknown> | null,
   editRecord: TRecord | null,
   basedOnRecord: TRecord | null,
 ): FormStartingPoint<TRecord> {
