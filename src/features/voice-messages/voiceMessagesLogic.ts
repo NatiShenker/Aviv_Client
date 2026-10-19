@@ -1,5 +1,9 @@
 import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
-import type { DetailItem } from "@/features/records/history/recordDetails";
+import {
+  buildDecisionDetailItems,
+  decisionSearchParts,
+  type DetailItem,
+} from "@/features/records/history/recordDetails";
 import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
 import { formatDateRange } from "@/shared/formatting/dateFormat";
 import { filterBySearchQuery } from "@/shared/search/searchText";
@@ -26,25 +30,15 @@ export function isAllCallsMessage(record: Pick<TraineeVoiceMessageRecordDto, "ph
  * המספר, התאריכים והסטטוס כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן
  */
 export function buildVoiceMessageDetails(record: TraineeVoiceMessageRecordDto): DetailItem[] {
-  const details: DetailItem[] = [
+  return [
     {
       key: "repeatDuringCall",
       label: TEXTS.details.repeatDuringCall,
       value: record.repeatDuringCall ? TEXTS.details.yes : TEXTS.details.no,
       isFullWidth: true,
     },
-    { key: "reason", label: TEXTS.details.reason, value: record.reason || TEXTS.details.notSpecified },
-    {
-      key: "approver",
-      label: TEXTS.details.approver,
-      value: record.approver.fullName || TEXTS.details.notSpecified,
-    },
+    ...buildDecisionDetailItems(record),
   ];
-
-  if (record.details) {
-    details.push({ key: "details", label: TEXTS.details.details, value: record.details, isFullWidth: true });
-  }
-  return details;
 }
 
 // ── חיפוש ומיון (ספק 05 history §4, ספק 00 §4.1) ──
@@ -54,9 +48,7 @@ function buildVoiceMessageSearchParts(record: TraineeVoiceMessageRecordDto): str
   return [
     record.phoneNumber ?? TEXTS.card.allCalls,
     record.repeatDuringCall ? TEXTS.details.repeatDuringCall : "",
-    record.reason,
-    record.details,
-    record.approver.fullName,
+    ...decisionSearchParts(record),
     formatDateRange(record.startDate, record.endDate),
     record.startDate,
     record.endDate,

@@ -2,11 +2,10 @@ import { useInstitutes } from "@/features/institutes/InstitutesProvider";
 import FormSheetFooter from "@/features/records/form/FormSheetFooter";
 import { editedRecordOf, resolveFormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { useFormSheetSession } from "@/features/records/form/useFormSheetSession";
+import { useInstituteDevices } from "@/features/records/form/useInstituteDevices";
+import { useReasons } from "@/features/records/form/useReasons";
 import type { WingDto } from "@/schemas/organization.schema";
 import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
-import { getCachedInstituteDevices, getInstituteDevices } from "@/services/devicesService";
-import { getCachedPhoneExceptionReasons, getPhoneExceptionReasons } from "@/services/reasonsService";
-import { useAsyncResource } from "@/shared/hooks/useAsyncResource";
 import FormSheet from "@/shells/mobile/FormSheet";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import NumberRecordForm, { NUMBER_RECORD_FORM_ID } from "./NumberRecordForm";
@@ -14,7 +13,6 @@ import { buildFormTitle } from "./numberRecordFormLogic";
 import { useNumberRecordForm } from "./useNumberRecordForm";
 import type { NumberRecordFormTarget } from "./useNumberRecordFormRoute";
 
-const REASONS_REQUEST_KEY = "phoneExceptionReasons";
 // הפניה קבועה, כדי שרשימה ריקה לא תיחשב "רשימה חדשה" בכל רינדור
 const NO_WINGS: WingDto[] = [];
 
@@ -56,17 +54,8 @@ function NumberRecordFormDialog({
 }: NumberRecordFormDialogProps) {
   const { selectedInstitute } = useInstitutes();
   const instituteId = selectedInstitute?.id ?? null;
-  // המכשירים נטענו כבר ברקע אחרי רשימת החניכים; הסיבות נשמרות אחרי הטעינה הראשונה
-  const devices = useAsyncResource({
-    requestKey: instituteId,
-    load: getInstituteDevices,
-    readCache: getCachedInstituteDevices,
-  });
-  const reasons = useAsyncResource({
-    requestKey: REASONS_REQUEST_KEY,
-    load: getPhoneExceptionReasons,
-    readCache: getCachedPhoneExceptionReasons,
-  });
+  const devices = useInstituteDevices(instituteId);
+  const reasons = useReasons("phoneException");
 
   // הערכים נקבעים כשהטופס נפתח. אחרי שמירה ההיסטוריה נטענת מחדש, והטופס נשאר כפי שהיה עד שנסגר
   const startingPoint = resolveFormStartingPoint(target, editRecord, basedOnRecord);

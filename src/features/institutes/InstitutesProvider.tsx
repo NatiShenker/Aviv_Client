@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { TOAST_TYPES, useToast } from "ui-library";
 import type { InstituteWithWingsDto } from "@/schemas/organization.schema";
 import { getInstitutesAndWings, getPermissionsForInstitute } from "@/services/institutesService";
-import { useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { isEmptyList, useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { resolveSelectedInstitute, storeInstituteId } from "./instituteSelection";
 import { INSTITUTES_TEXTS } from "./institutesTexts";
 
@@ -18,8 +18,6 @@ const InstitutesContext = createContext<InstitutesContextValue | null>(null);
 
 // רשימת הפנימיות נטענת פעם אחת בעליית האפליקציה
 const INSTITUTES_REQUEST_KEY = "institutes";
-
-const isEmptyList = (list: unknown[]) => list.length === 0;
 
 interface InstitutesProviderProps {
   children: ReactNode;

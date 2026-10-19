@@ -15,8 +15,8 @@ import type { CallLimitKind, LookupItem } from "@/schemas/common.schema";
 import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
 import { createTraineeRestriction, updateTraineeRestriction } from "@/services/traineeRestrictionsService";
 import { todayIsoDate } from "@/shared/dates/isoDate";
-import { focusField } from "@/shared/dom/focusField";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { useFocusAfterRender } from "@/shared/hooks/useFocusAfterRender";
 import {
   RESTRICTION_ERROR_SLOTS,
   RESTRICTION_FIELD_IDS,
@@ -50,7 +50,7 @@ export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | undefined>(undefined);
   const [isFileUploading, setIsFileUploading] = useState(false);
-  const [slotToFocus, setSlotToFocus] = useState<RestrictionErrorSlot | null>(null);
+  const focusAfterRender = useFocusAfterRender();
 
   // הרשומה שמורה עם שם הסיבה: כשרשימת הסיבות מגיעה, הסיבה נבחרת בה לפי השם
   useEffect(() => {
@@ -63,13 +63,6 @@ export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved 
     );
   }, [sourceRecord, reasons.data]);
 
-  // אחרי שהשגיאות הוצגו (ואקורדיון שיש בו שגיאה נפתח) - פוקוס וגלילה לשדה השגוי הראשון
-  useEffect(() => {
-    if (!slotToFocus) return;
-    setSlotToFocus(null);
-    focusField(RESTRICTION_FIELD_IDS[slotToFocus]);
-  }, [slotToFocus]);
-
   const changeValues = (update: Partial<RestrictionFormValues>, clearedSlots: RestrictionErrorSlot[] = []) => {
     setValues((current) => ({ ...current, ...update }));
     setErrors((current) => withoutErrors(current, clearedSlots));
@@ -81,7 +74,10 @@ export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved 
       hours: current.hours || Boolean(nextErrors.hours),
       devices: current.devices || Boolean(nextErrors.devices),
     }));
-    setSlotToFocus(findFirstErrorSlot(nextErrors, RESTRICTION_ERROR_SLOTS));
+    const firstErrorSlot = findFirstErrorSlot(nextErrors, RESTRICTION_ERROR_SLOTS);
+    if (firstErrorSlot) {
+      focusAfterRender(RESTRICTION_FIELD_IDS[firstErrorSlot]);
+    }
   };
 
   const saveRestriction = async (formValues: RestrictionFormValues): Promise<number | null> => {

@@ -8,15 +8,13 @@ import {
   type LocationsQuery,
 } from "@/services/locationsService";
 import { getCachedTrainees, getTrainees } from "@/services/traineesService";
-import { useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { isEmptyList, useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
 
 interface TraineesListData {
   trainees: AsyncResource<TraineeListItemDto[]>;
   /** נטען ברקע, במקביל לחניכים. משמש את קבוצת "מיקום באגף" בסינון */
   locations: AsyncResource<WingLocationDto[]>;
 }
-
-const isEmptyList = (list: unknown[]) => list.length === 0;
 
 /**
  * הנתונים של מסך החניכים לפנימייה הנבחרת. החלפת פנימייה טוענת מחדש;

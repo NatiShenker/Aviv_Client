@@ -6,7 +6,11 @@ import {
   hasPermittedHours,
 } from "@/features/records/form/callConditionsLogic";
 import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
-import type { DetailItem } from "@/features/records/history/recordDetails";
+import {
+  buildDecisionDetailItems,
+  decisionSearchParts,
+  type DetailItem,
+} from "@/features/records/history/recordDetails";
 import type {
   SourceRestrictionSummaryDto,
   TraineePhonePermitRecordDto,
@@ -121,17 +125,8 @@ export function buildNumberRecordDetails(record: TraineePhoneRecordDto): DetailI
       isLtr: hasPermittedHours(record),
     },
     { key: "devices", label: TEXTS.details.devices, value: buildPermittedDevicesValue(record, record.type) },
-    { key: "reason", label: TEXTS.details.reason, value: record.reason || TEXTS.details.notSpecified },
-    {
-      key: "approver",
-      label: TEXTS.details.approver,
-      value: record.approver.fullName || TEXTS.details.notSpecified,
-    },
+    ...buildDecisionDetailItems(record),
   );
-
-  if (record.details) {
-    details.push({ key: "details", label: TEXTS.details.details, value: record.details, isFullWidth: true });
-  }
   return details;
 }
 
@@ -145,9 +140,7 @@ function buildNumberRecordSearchParts(record: TraineePhoneRecordDto): string[] {
     TEXTS.recordTypes[record.type],
     buildNumberRecordTypeLabel(record),
     scopeLabel,
-    record.reason,
-    record.details,
-    record.approver.fullName,
+    ...decisionSearchParts(record),
     buildPermittedHoursValue(record, record.type),
     buildPermittedDevicesValue(record, record.type),
     ...buildPermittedDeviceNames(record),

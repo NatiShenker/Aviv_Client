@@ -6,7 +6,11 @@ import {
   hasPermittedHours,
 } from "@/features/records/form/callConditionsLogic";
 import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
-import type { DetailItem } from "@/features/records/history/recordDetails";
+import {
+  buildDecisionDetailItems,
+  decisionSearchParts,
+  type DetailItem,
+} from "@/features/records/history/recordDetails";
 import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
 import { formatDateRange } from "@/shared/formatting/dateFormat";
 import { filterBySearchQuery } from "@/shared/search/searchText";
@@ -38,7 +42,7 @@ export function restrictionCardDomId(recordId: number): string {
  * הסוג והתאריכים כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן
  */
 export function buildRestrictionDetails(record: TraineeRestrictionRecordDto): DetailItem[] {
-  const details: DetailItem[] = [
+  return [
     {
       key: "hours",
       label: TEXTS.details.hours,
@@ -46,18 +50,8 @@ export function buildRestrictionDetails(record: TraineeRestrictionRecordDto): De
       isLtr: hasPermittedHours(record),
     },
     { key: "devices", label: TEXTS.details.devices, value: buildPermittedDevicesValue(record, RULE_KIND) },
-    { key: "reason", label: TEXTS.details.reason, value: record.reason || TEXTS.details.notSpecified },
-    {
-      key: "approver",
-      label: TEXTS.details.approver,
-      value: record.approver.fullName || TEXTS.details.notSpecified,
-    },
+    ...buildDecisionDetailItems(record),
   ];
-
-  if (record.details) {
-    details.push({ key: "details", label: TEXTS.details.details, value: record.details, isFullWidth: true });
-  }
-  return details;
 }
 
 // ── חיפוש ומיון (ספק 03 history §4, ספק 00 §4.1) ──
@@ -65,9 +59,7 @@ export function buildRestrictionDetails(record: TraineeRestrictionRecordDto): De
 /** הערכים הגלויים של הרשומה, שהחיפוש בודק */
 function buildRestrictionSearchParts(record: TraineeRestrictionRecordDto): string[] {
   return [
-    record.reason,
-    record.details,
-    record.approver.fullName,
+    ...decisionSearchParts(record),
     buildRestrictionTypeLabel(record),
     buildPermittedHoursValue(record, RULE_KIND),
     buildPermittedDevicesValue(record, RULE_KIND),

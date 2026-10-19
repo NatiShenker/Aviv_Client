@@ -19,10 +19,6 @@ export const VOICE_MESSAGES_TEXTS = {
     repeatDuringCall: "הודעה חוזרת",
     yes: "כן",
     no: "לא",
-    reason: "סיבה",
-    approver: "גורם מאשר",
-    details: "פירוט",
-    notSpecified: "לא צוין",
   },
 
   states: {

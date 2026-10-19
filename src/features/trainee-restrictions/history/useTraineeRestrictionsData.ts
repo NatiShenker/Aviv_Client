@@ -1,8 +1,6 @@
 import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
 import { getTraineeRestrictions } from "@/services/traineeRestrictionsService";
-import { useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
-
-const isEmptyList = (list: unknown[]) => list.length === 0;
+import { isEmptyList, useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
 
 /**
  * ההגבלות של החניך. נטענות מהשרת בכל כניסה למסך, בלי זכרון:

@@ -17,9 +17,9 @@ import type {
   TraineePhoneRecordType,
 } from "@/schemas/phone-exceptions.schema";
 import { todayIsoDate } from "@/shared/dates/isoDate";
-import { focusField } from "@/shared/dom/focusField";
 import { isValidPhone, normalizePhone } from "@/shared/formatting/phoneFormat";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { useFocusAfterRender } from "@/shared/hooks/useFocusAfterRender";
 import { buildNumberRecordKey } from "../numberRestrictionsLogic";
 import {
   NUMBER_RECORD_ERROR_SLOTS,
@@ -82,7 +82,7 @@ export function useNumberRecordForm({
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | undefined>(undefined);
   const [isFileUploading, setIsFileUploading] = useState(false);
-  const [fieldIdToFocus, setFieldIdToFocus] = useState<string | null>(null);
+  const focusAfterRender = useFocusAfterRender();
 
   const update = (transition: StateTransition) => setState(transition);
 
@@ -113,13 +113,6 @@ export function useNumberRecordForm({
       searchNumber(phoneToSearch);
     }
   }, []);
-
-  // אחרי שהמסך התעדכן (שגיאות הוצגו, אקורדיון נפתח, הרשימה נסגרה) - פוקוס וגלילה לשדה
-  useEffect(() => {
-    if (!fieldIdToFocus) return;
-    setFieldIdToFocus(null);
-    focusField(fieldIdToFocus);
-  }, [fieldIdToFocus]);
 
   // ── סוג הפעולה וחיפוש המספר ──
 
@@ -153,7 +146,7 @@ export function useNumberRecordForm({
 
   const choose = (restriction: SourceRestrictionSummaryDto) => {
     update((current) => chooseRestriction(current, restriction, todayIsoDate()));
-    setFieldIdToFocus(RESTRICTION_PICKER_HEADING_ID);
+    focusAfterRender(RESTRICTION_PICKER_HEADING_ID);
   };
 
   // ── שמירה (ספק 04 form §4.10) ──
@@ -186,7 +179,7 @@ export function useNumberRecordForm({
     setState(showErrors(submittedState, errors));
     const firstErrorSlot = findFirstErrorSlot(errors, NUMBER_RECORD_ERROR_SLOTS);
     if (firstErrorSlot) {
-      setFieldIdToFocus(NUMBER_RECORD_FIELD_IDS[firstErrorSlot]);
+      focusAfterRender(NUMBER_RECORD_FIELD_IDS[firstErrorSlot]);
     }
   };
 

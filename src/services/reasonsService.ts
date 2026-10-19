@@ -7,40 +7,23 @@ import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
 type GetReasonsResponse = LookupItem<number>[];
 
 /** רשימת סיבות לכל פעולה (ספק 00 §6) */
-type ReasonListKey = "traineeRestriction" | "phoneException" | "voiceMessage";
+export type ReasonListKey = "traineeRestriction" | "phoneException" | "voiceMessage";
+
+const REASON_LIST_ENDPOINTS: Record<ReasonListKey, string> = {
+  traineeRestriction: SERVICE_ENDPOINTS.lookups.getTraineeRestrictionReasons,
+  phoneException: SERVICE_ENDPOINTS.lookups.getPhoneExceptionReasons,
+  voiceMessage: SERVICE_ENDPOINTS.lookups.getVoiceMessageReasons,
+};
 
 // רשימות הסיבות קבועות, ולכן נשמרות עד רענון הדף
 const reasonsCache = createQueryCache<ReasonListKey, LookupItem<number>[]>((listKey) => listKey);
 
-async function getReasons(listKey: ReasonListKey, url: string): Promise<LookupItem<number>[]> {
-  const reasons = await serviceClient.get<GetReasonsResponse>(url);
+export async function getReasons(listKey: ReasonListKey): Promise<LookupItem<number>[]> {
+  const reasons = await serviceClient.get<GetReasonsResponse>(REASON_LIST_ENDPOINTS[listKey]);
   reasonsCache.set(listKey, reasons);
   return reasons;
 }
 
-/** הסיבות של "הגבלה/היתר לחניך" */
-export function getTraineeRestrictionReasons(): Promise<LookupItem<number>[]> {
-  return getReasons("traineeRestriction", SERVICE_ENDPOINTS.lookups.getTraineeRestrictionReasons);
-}
-
-export function getCachedTraineeRestrictionReasons(): LookupItem<number>[] | null {
-  return reasonsCache.get("traineeRestriction");
-}
-
-/** הסיבות של "הגבלה/היתר למספר" */
-export function getPhoneExceptionReasons(): Promise<LookupItem<number>[]> {
-  return getReasons("phoneException", SERVICE_ENDPOINTS.lookups.getPhoneExceptionReasons);
-}
-
-export function getCachedPhoneExceptionReasons(): LookupItem<number>[] | null {
-  return reasonsCache.get("phoneException");
-}
-
-/** הסיבות של "הודעה קולית לנמען" */
-export function getVoiceMessageReasons(): Promise<LookupItem<number>[]> {
-  return getReasons("voiceMessage", SERVICE_ENDPOINTS.lookups.getVoiceMessageReasons);
-}
-
-export function getCachedVoiceMessageReasons(): LookupItem<number>[] | null {
-  return reasonsCache.get("voiceMessage");
+export function getCachedReasons(listKey: ReasonListKey): LookupItem<number>[] | null {
+  return reasonsCache.get(listKey);
 }

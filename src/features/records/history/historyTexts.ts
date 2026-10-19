@@ -8,6 +8,13 @@ export const HISTORY_TEXTS = {
     edit: "עריכה",
     endedBadge: "הסתיים",
   },
+  // "למה ומי" בכרטיס פתוח, זהים בכל ההיסטוריות (ספק 00 §3.22)
+  details: {
+    reason: "סיבה",
+    approver: "גורם מאשר",
+    details: "פירוט",
+    notSpecified: "לא צוין",
+  },
   drawers: {
     close: "סגירה",
   },

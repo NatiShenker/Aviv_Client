@@ -1,8 +1,6 @@
 import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
 import { getTraineePhoneRecords } from "@/services/phoneExceptionsService";
-import { useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
-
-const isEmptyList = (list: unknown[]) => list.length === 0;
+import { isEmptyList, useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
 
 /**
  * ההגבלות וההיתרים של החניך למספרים. נטענים מהשרת בכל כניסה למסך, בלי זכרון:

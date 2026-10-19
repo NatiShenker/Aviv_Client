@@ -1,8 +1,6 @@
 import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
 import { getTraineeVoiceMessages } from "@/services/voiceMessagesService";
-import { useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
-
-const isEmptyList = (list: unknown[]) => list.length === 0;
+import { isEmptyList, useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
 
 /**
  * ההודעות לנמען של החניך. נטענות מהשרת בכל כניסה למסך, בלי זכרון:

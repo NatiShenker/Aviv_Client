@@ -1,9 +1,8 @@
 import FormSheetFooter from "@/features/records/form/FormSheetFooter";
 import { editedRecordOf, resolveFormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { useFormSheetSession } from "@/features/records/form/useFormSheetSession";
+import { useReasons } from "@/features/records/form/useReasons";
 import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
-import { getCachedVoiceMessageReasons, getVoiceMessageReasons } from "@/services/reasonsService";
-import { useAsyncResource } from "@/shared/hooks/useAsyncResource";
 import FormSheet from "@/shells/mobile/FormSheet";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 import { useVoiceMessageForm } from "./useVoiceMessageForm";
@@ -11,7 +10,6 @@ import type { VoiceMessageFormTarget } from "./useVoiceMessageFormRoute";
 import VoiceMessageForm, { VOICE_MESSAGE_FORM_ID } from "./VoiceMessageForm";
 
 const TEXTS = VOICE_MESSAGES_TEXTS.form;
-const REASONS_REQUEST_KEY = "voiceMessageReasons";
 
 interface VoiceMessageFormSheetProps {
   /** הטופס שהכתובת מבקשת. null = הטופס סגור */
@@ -51,12 +49,7 @@ function VoiceMessageFormDialog({
   onClose,
   onSaved,
 }: VoiceMessageFormDialogProps) {
-  // הסיבות נשמרות אחרי הטעינה הראשונה
-  const reasons = useAsyncResource({
-    requestKey: REASONS_REQUEST_KEY,
-    load: getVoiceMessageReasons,
-    readCache: getCachedVoiceMessageReasons,
-  });
+  const reasons = useReasons("voiceMessage");
 
   const isEditMode = target?.mode === "edit";
   // הערכים נקבעים כשהטופס נפתח. אחרי שמירה ההיסטוריה נטענת מחדש, והטופס נשאר כפי שהיה עד שנסגר

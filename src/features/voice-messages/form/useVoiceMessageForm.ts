@@ -14,8 +14,8 @@ import type { LookupItem, PhoneString } from "@/schemas/common.schema";
 import type { TraineeVoiceMessageRecordDto, VoiceMessageScope } from "@/schemas/voice-messages.schema";
 import { createTraineeVoiceMessage, updateTraineeVoiceMessage } from "@/services/voiceMessagesService";
 import { todayIsoDate } from "@/shared/dates/isoDate";
-import { focusField } from "@/shared/dom/focusField";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { useFocusAfterRender } from "@/shared/hooks/useFocusAfterRender";
 import {
   VOICE_MESSAGE_ERROR_SLOTS,
   VOICE_MESSAGE_FIELD_IDS,
@@ -51,7 +51,7 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | undefined>(undefined);
   const [isFileUploading, setIsFileUploading] = useState(false);
-  const [fieldIdToFocus, setFieldIdToFocus] = useState<string | null>(null);
+  const focusAfterRender = useFocusAfterRender();
 
   // הרשומה שמורה עם שם הסיבה: כשרשימת הסיבות מגיעה, הסיבה נבחרת בה לפי השם
   useEffect(() => {
@@ -64,13 +64,6 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
     );
   }, [sourceRecord, reasons.data]);
 
-  // אחרי שהמסך התעדכן (שדה המספרים הופיע, שגיאות הוצגו) - פוקוס וגלילה לשדה
-  useEffect(() => {
-    if (!fieldIdToFocus) return;
-    setFieldIdToFocus(null);
-    focusField(fieldIdToFocus);
-  }, [fieldIdToFocus]);
-
   const changeValues = (update: Partial<VoiceMessageFormValues>, clearedSlots: VoiceMessageErrorSlot[] = []) => {
     setValues((current) => ({ ...current, ...update }));
     setErrors((current) => withoutErrors(current, clearedSlots));
@@ -80,7 +73,7 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
     setErrors(nextErrors);
     const firstErrorSlot = findFirstErrorSlot(nextErrors, VOICE_MESSAGE_ERROR_SLOTS);
     if (firstErrorSlot) {
-      setFieldIdToFocus(VOICE_MESSAGE_FIELD_IDS[firstErrorSlot]);
+      focusAfterRender(VOICE_MESSAGE_FIELD_IDS[firstErrorSlot]);
     }
   };
 
@@ -90,7 +83,7 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
   const changeScope = (scope: VoiceMessageScope) => {
     changeValues({ scope }, ["phone"]);
     if (scope === "selected") {
-      setFieldIdToFocus(VOICE_MESSAGE_FIELD_IDS.phone);
+      focusAfterRender(VOICE_MESSAGE_FIELD_IDS.phone);
     }
   };
 

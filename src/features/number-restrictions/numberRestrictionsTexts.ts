@@ -40,10 +40,6 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
     onRestriction: "על הגבלה",
     hours: "שעות מותרות",
     devices: "מכשירים מותרים",
-    reason: "סיבה",
-    approver: "גורם מאשר",
-    details: "פירוט",
-    notSpecified: "לא צוין",
   },
 
   states: {

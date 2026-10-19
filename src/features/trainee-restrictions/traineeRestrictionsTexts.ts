@@ -16,10 +16,6 @@ export const TRAINEE_RESTRICTIONS_TEXTS = {
   details: {
     hours: "שעות מותרות",
     devices: "מכשירים מותרים",
-    reason: "סיבה",
-    approver: "גורם מאשר",
-    details: "פירוט",
-    notSpecified: "לא צוין",
   },
 
   states: {

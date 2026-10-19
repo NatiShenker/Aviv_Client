@@ -2,11 +2,10 @@ import { useInstitutes } from "@/features/institutes/InstitutesProvider";
 import FormSheetFooter from "@/features/records/form/FormSheetFooter";
 import { resolveFormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { useFormSheetSession } from "@/features/records/form/useFormSheetSession";
+import { useInstituteDevices } from "@/features/records/form/useInstituteDevices";
+import { useReasons } from "@/features/records/form/useReasons";
 import type { WingDto } from "@/schemas/organization.schema";
 import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
-import { getCachedInstituteDevices, getInstituteDevices } from "@/services/devicesService";
-import { getCachedTraineeRestrictionReasons, getTraineeRestrictionReasons } from "@/services/reasonsService";
-import { useAsyncResource } from "@/shared/hooks/useAsyncResource";
 import FormSheet from "@/shells/mobile/FormSheet";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import RestrictionForm, { RESTRICTION_FORM_ID } from "./RestrictionForm";
@@ -14,7 +13,6 @@ import { useRestrictionForm } from "./useRestrictionForm";
 import type { RestrictionFormTarget } from "./useRestrictionFormRoute";
 
 const TEXTS = TRAINEE_RESTRICTIONS_TEXTS.form;
-const REASONS_REQUEST_KEY = "traineeRestrictionReasons";
 // הפניה קבועה, כדי שרשימה ריקה לא תיחשב "רשימה חדשה" בכל רינדור
 const NO_WINGS: WingDto[] = [];
 
@@ -55,17 +53,8 @@ function RestrictionFormDialog({
   onSaved,
 }: RestrictionFormDialogProps) {
   const { selectedInstitute } = useInstitutes();
-  // המכשירים נטענו כבר ברקע אחרי רשימת החניכים; הסיבות נשמרות אחרי הטעינה הראשונה
-  const devices = useAsyncResource({
-    requestKey: selectedInstitute?.id ?? null,
-    load: getInstituteDevices,
-    readCache: getCachedInstituteDevices,
-  });
-  const reasons = useAsyncResource({
-    requestKey: REASONS_REQUEST_KEY,
-    load: getTraineeRestrictionReasons,
-    readCache: getCachedTraineeRestrictionReasons,
-  });
+  const devices = useInstituteDevices(selectedInstitute?.id ?? null);
+  const reasons = useReasons("traineeRestriction");
 
   const isEditMode = target?.mode === "edit";
   // הערכים נקבעים כשהטופס נפתח. אחרי שמירה ההיסטוריה נטענת מחדש, והטופס נשאר כפי שהיה עד שנסגר
