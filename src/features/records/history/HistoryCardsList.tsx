@@ -64,7 +64,7 @@ function HistoryCards<TRecord>({ visibleRecords, getRecordKey, renderCard }: His
 
   return (
     <>
-      <ul className="flex flex-col gap-2 px-4">
+      <ul className="flex flex-col gap-2">
         {visibleItems.map((record) => (
           <li key={getRecordKey(record)}>{renderCard(record)}</li>
         ))}

@@ -1,15 +1,10 @@
-import FormSheetFooter from "@/features/records/form/FormSheetFooter";
-import { editedRecordOf, resolveFormStartingPoint } from "@/features/records/form/formStartingPoint";
+import FormFooter from "@/features/records/form/FormFooter";
 import { useFormSheetSession } from "@/features/records/form/useFormSheetSession";
-import { useReasons } from "@/features/records/form/useReasons";
 import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
 import FormSheet from "@/shells/mobile/FormSheet";
-import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
-import { useVoiceMessageForm } from "./useVoiceMessageForm";
+import { useVoiceMessageFormSession } from "./useVoiceMessageFormSession";
 import type { VoiceMessageFormTarget } from "./useVoiceMessageFormRoute";
-import VoiceMessageForm, { VOICE_MESSAGE_FORM_ID } from "./VoiceMessageForm";
-
-const TEXTS = VOICE_MESSAGES_TEXTS.form;
+import VoiceMessageForm from "./VoiceMessageForm";
 
 interface VoiceMessageFormSheetProps {
   /** הטופס שהכתובת מבקשת. null = הטופס סגור */
@@ -39,44 +34,17 @@ interface VoiceMessageFormDialogProps extends Omit<VoiceMessageFormSheetProps, "
   target: VoiceMessageFormTarget | null;
 }
 
-function VoiceMessageFormDialog({
-  isOpen,
-  target,
-  traineeId,
-  traineeFullName,
-  editRecord,
-  basedOnRecord,
-  onClose,
-  onSaved,
-}: VoiceMessageFormDialogProps) {
-  const reasons = useReasons("voiceMessage");
-
-  const isEditMode = target?.mode === "edit";
-  // הערכים נקבעים כשהטופס נפתח. אחרי שמירה ההיסטוריה נטענת מחדש, והטופס נשאר כפי שהיה עד שנסגר
-  const startingPoint = resolveFormStartingPoint(target, editRecord, basedOnRecord);
-  const form = useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved });
+function VoiceMessageFormDialog({ isOpen, onClose, ...sessionOptions }: VoiceMessageFormDialogProps) {
+  const formSession = useVoiceMessageFormSession(sessionOptions);
 
   return (
     <FormSheet
       open={isOpen}
-      title={isEditMode ? TEXTS.editTitle : TEXTS.createTitle}
+      title={formSession.title}
       onClose={onClose}
-      actions={
-        <FormSheetFooter
-          formId={VOICE_MESSAGE_FORM_ID}
-          saveLabel={TEXTS.save}
-          saveError={form.saveError}
-          isBusy={form.isSaving || form.isFileUploading}
-          onCancel={onClose}
-        />
-      }
+      actions={<FormFooter {...formSession.saveProps} onCancel={onClose} />}
     >
-      <VoiceMessageForm
-        form={form}
-        editRecord={editedRecordOf(startingPoint)}
-        traineeFullName={traineeFullName}
-        reasons={reasons}
-      />
+      <VoiceMessageForm {...formSession.formProps} />
     </FormSheet>
   );
 }

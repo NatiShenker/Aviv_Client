@@ -17,7 +17,7 @@ const DECISION_FIELD_IDS = {
   file: VOICE_MESSAGE_FIELD_IDS.file,
 };
 
-interface VoiceMessageFormProps {
+export interface VoiceMessageFormProps {
   form: VoiceMessageFormController;
   /** בעריכה - ההודעה, לכרטיס ההיקף הנעול */
   editRecord: TraineeVoiceMessageRecordDto | null;

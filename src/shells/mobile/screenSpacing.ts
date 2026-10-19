@@ -3,3 +3,9 @@
  * מחלקה מלאה, כדי ש-Tailwind ימצא אותה בסריקה
  */
 export const SCREEN_TOP_SPACING_CLASS = "pt-12";
+
+/**
+ * הריווח בצדי המסך (ספק 00 §2.3). שייך למכולה של המסך ולא לרכיבי התוכן,
+ * כדי שאותם רכיבים ישמשו גם בפריסה אחרת עם ריווח משלה
+ */
+export const SCREEN_SIDE_GUTTER_CLASS = "px-4";

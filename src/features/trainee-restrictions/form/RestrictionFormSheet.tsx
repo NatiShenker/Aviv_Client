@@ -1,20 +1,10 @@
-import { useInstitutes } from "@/features/institutes/InstitutesProvider";
-import FormSheetFooter from "@/features/records/form/FormSheetFooter";
-import { resolveFormStartingPoint } from "@/features/records/form/formStartingPoint";
+import FormFooter from "@/features/records/form/FormFooter";
 import { useFormSheetSession } from "@/features/records/form/useFormSheetSession";
-import { useInstituteDevices } from "@/features/records/form/useInstituteDevices";
-import { useReasons } from "@/features/records/form/useReasons";
-import type { WingDto } from "@/schemas/organization.schema";
 import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
 import FormSheet from "@/shells/mobile/FormSheet";
-import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
-import RestrictionForm, { RESTRICTION_FORM_ID } from "./RestrictionForm";
-import { useRestrictionForm } from "./useRestrictionForm";
+import RestrictionForm from "./RestrictionForm";
+import { useRestrictionFormSession } from "./useRestrictionFormSession";
 import type { RestrictionFormTarget } from "./useRestrictionFormRoute";
-
-const TEXTS = TRAINEE_RESTRICTIONS_TEXTS.form;
-// הפניה קבועה, כדי שרשימה ריקה לא תיחשב "רשימה חדשה" בכל רינדור
-const NO_WINGS: WingDto[] = [];
 
 interface RestrictionFormSheetProps {
   /** הטופס שהכתובת מבקשת. null = הטופס סגור */
@@ -43,45 +33,17 @@ interface RestrictionFormDialogProps extends Omit<RestrictionFormSheetProps, "ta
   target: RestrictionFormTarget | null;
 }
 
-function RestrictionFormDialog({
-  isOpen,
-  target,
-  traineeId,
-  editRecord,
-  basedOnRecord,
-  onClose,
-  onSaved,
-}: RestrictionFormDialogProps) {
-  const { selectedInstitute } = useInstitutes();
-  const devices = useInstituteDevices(selectedInstitute?.id ?? null);
-  const reasons = useReasons("traineeRestriction");
-
-  const isEditMode = target?.mode === "edit";
-  // הערכים נקבעים כשהטופס נפתח. אחרי שמירה ההיסטוריה נטענת מחדש, והטופס נשאר כפי שהיה עד שנסגר
-  const startingPoint = resolveFormStartingPoint(target, editRecord, basedOnRecord);
-  const form = useRestrictionForm({ traineeId, startingPoint, reasons, onSaved });
+function RestrictionFormDialog({ isOpen, onClose, ...sessionOptions }: RestrictionFormDialogProps) {
+  const formSession = useRestrictionFormSession(sessionOptions);
 
   return (
     <FormSheet
       open={isOpen}
-      title={isEditMode ? TEXTS.editTitle : TEXTS.createTitle}
+      title={formSession.title}
       onClose={onClose}
-      actions={
-        <FormSheetFooter
-          formId={RESTRICTION_FORM_ID}
-          saveLabel={TEXTS.save}
-          saveError={form.saveError}
-          isBusy={form.isSaving || form.isFileUploading}
-          onCancel={onClose}
-        />
-      }
+      actions={<FormFooter {...formSession.saveProps} onCancel={onClose} />}
     >
-      <RestrictionForm
-        form={form}
-        devices={devices}
-        wings={selectedInstitute?.wings ?? NO_WINGS}
-        reasons={reasons}
-      />
+      <RestrictionForm {...formSession.formProps} />
     </FormSheet>
   );
 }

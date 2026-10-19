@@ -2,21 +2,15 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import RecordHistoryLayout from "@/features/records/history/RecordHistoryLayout";
 import { useRecordFormSlot } from "@/features/records/history/useRecordFormSlot";
-import { useRecordHistoryState } from "@/features/records/history/useRecordHistoryState";
 import { ROUTES } from "@/routes";
 import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import NumberRecordFormSheet from "../form/NumberRecordFormSheet";
 import { useNumberRecordFormRoute } from "../form/useNumberRecordFormRoute";
-import {
-  buildNumberRecordKey,
-  filterAndSortNumberRecords,
-  matchesNumberRecordRef,
-  numberRecordCardDomId,
-} from "../numberRestrictionsLogic";
+import { buildNumberRecordKey, matchesNumberRecordRef } from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import NumberRecordCard from "./NumberRecordCard";
-import { useNumberRestrictionsData } from "./useNumberRestrictionsData";
+import { useNumberRestrictionsHistory } from "./useNumberRestrictionsHistory";
 
 interface NumberRestrictionsHistoryProps {
   traineeId: number;
@@ -30,12 +24,7 @@ interface NumberRestrictionsHistoryProps {
  */
 export default function NumberRestrictionsHistory({ traineeId, header }: NumberRestrictionsHistoryProps) {
   const navigate = useNavigate();
-  const phoneRecords = useNumberRestrictionsData(traineeId);
-  const history = useRecordHistoryState({
-    records: phoneRecords,
-    filterAndSort: filterAndSortNumberRecords,
-    cardDomIdOf: numberRecordCardDomId,
-  });
+  const { phoneRecords, history } = useNumberRestrictionsHistory(traineeId);
 
   const renderCard = (record: TraineePhoneRecordDto) => {
     const recordKey = buildNumberRecordKey(record);

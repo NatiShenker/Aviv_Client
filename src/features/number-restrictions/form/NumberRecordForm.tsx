@@ -9,6 +9,7 @@ import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import ActionTypeBlock from "./ActionTypeBlock";
 import LockedNumberCard from "./LockedNumberCard";
 import { NUMBER_RECORD_FIELD_IDS, permitDateBounds, shouldShowDetailBlocks } from "./numberRecordFormLogic";
+import type { RestrictionOptionsListComponent } from "./RestrictionPicker";
 import type { NumberRecordFormController } from "./useNumberRecordForm";
 
 /** כפתור השמירה נמצא בפוטר של הטופס, מחוץ ל-<form>, ומשויך אליו לפי המזהה */
@@ -25,7 +26,7 @@ const DECISION_FIELD_IDS = {
   file: NUMBER_RECORD_FIELD_IDS.file,
 };
 
-interface NumberRecordFormProps {
+export interface NumberRecordFormProps {
   form: NumberRecordFormController;
   /** בעריכה - הרשומה, לכרטיס המספר הנעול */
   editRecord: TraineePhoneRecordDto | null;
@@ -33,6 +34,8 @@ interface NumberRecordFormProps {
   /** אגפי הפנימייה - המכשירים מקובצים לפיהם */
   wings: WingDto[];
   reasons: AsyncResource<LookupItem<number>[]>;
+  /** רשימת ההגבלות לבחירה בהיתר - כל פריסה מציגה אותה בדרך שלה */
+  RestrictionOptionsList: RestrictionOptionsListComponent;
 }
 
 /**
@@ -40,7 +43,14 @@ interface NumberRecordFormProps {
  * הבלוקים מוסתרים (ולא מוסרים) כל עוד היתר מחכה לבחירת הגבלה, כדי שמה שכבר הוזן בהם - כולל קובץ
  * שמועלה - יישמר.
  */
-export default function NumberRecordForm({ form, editRecord, devices, wings, reasons }: NumberRecordFormProps) {
+export default function NumberRecordForm({
+  form,
+  editRecord,
+  devices,
+  wings,
+  reasons,
+  RestrictionOptionsList,
+}: NumberRecordFormProps) {
   const { state } = form;
   const { values, errors, recordType } = state;
   const isPermit = recordType === "permit";
@@ -50,7 +60,11 @@ export default function NumberRecordForm({ form, editRecord, devices, wings, rea
 
   return (
     <form id={NUMBER_RECORD_FORM_ID} noValidate onSubmit={form.submit}>
-      {editRecord ? <LockedNumberCard record={editRecord} /> : <ActionTypeBlock form={form} />}
+      {editRecord ? (
+        <LockedNumberCard record={editRecord} />
+      ) : (
+        <ActionTypeBlock form={form} RestrictionOptionsList={RestrictionOptionsList} />
+      )}
 
       <div
         hidden={!shouldShowDetailBlocks(state)}

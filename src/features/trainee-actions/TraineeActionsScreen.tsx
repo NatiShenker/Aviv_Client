@@ -5,8 +5,11 @@ import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
 import AppPage from "@/shells/mobile/AppPage";
 import { useScrollToTopOnOpen } from "@/shells/mobile/hooks/useScrollToTopOnOpen";
 import PageHeader from "@/shells/mobile/PageHeader";
-import { SCREEN_TOP_SPACING_CLASS } from "@/shells/mobile/screenSpacing";
+import { SCREEN_SIDE_GUTTER_CLASS, SCREEN_TOP_SPACING_CLASS } from "@/shells/mobile/screenSpacing";
+import { ActionLinkRow, DisabledActionRow } from "./components/ActionRow";
 import TraineeActionsMenu from "./components/TraineeActionsMenu";
+import { traineeActionPath } from "./traineeActionPaths";
+import type { TraineeMenuItem } from "./traineeActionsOptions";
 
 /** מסך הפעולות של חניך: כניסה לפעולות ולמידע הנוסף, לפי ההרשאות (ספק 02) */
 export default function TraineeActionsScreen() {
@@ -37,7 +40,23 @@ function TraineeActionsContent() {
   return (
     <>
       {header}
-      <TraineeActionsMenu traineeId={traineeId} />
+      <div className={SCREEN_SIDE_GUTTER_CLASS}>
+        <TraineeActionsMenu renderItemRow={(item) => <MobileActionRow item={item} traineeId={traineeId} />} />
+      </div>
     </>
   );
+}
+
+interface MobileActionRowProps {
+  item: TraineeMenuItem;
+  traineeId: number;
+}
+
+// במובייל כל פעולה היא עמוד בכתובת משלו
+function MobileActionRow({ item, traineeId }: MobileActionRowProps) {
+  const path = traineeActionPath(item.key, traineeId);
+  if (path === null) {
+    return <DisabledActionRow label={item.label} icon={item.icon} />;
+  }
+  return <ActionLinkRow label={item.label} icon={item.icon} to={path} />;
 }

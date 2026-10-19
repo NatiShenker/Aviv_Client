@@ -6,16 +6,19 @@ import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import { NUMBER_RECORD_FIELD_IDS, canSearchPhone } from "./numberRecordFormLogic";
 import { RECORD_TYPE_OPTIONS, isNumberRecordType } from "./numberRestrictionsOptions";
 import PermitLookupResult from "./PermitLookupResult";
+import type { RestrictionOptionsListComponent } from "./RestrictionPicker";
 import type { NumberRecordFormController } from "./useNumberRecordForm";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.actionType;
 
 interface ActionTypeBlockProps {
   form: NumberRecordFormController;
+  /** רשימת ההגבלות לבחירה בהיתר, בתצוגה של הפריסה */
+  RestrictionOptionsList: RestrictionOptionsListComponent;
 }
 
 /** בלוק 0 ביצירה - "הגבלה או היתר": הבחירה, ושדה המספר של כל סוג (ספק 04 form §3.2) */
-export default function ActionTypeBlock({ form }: ActionTypeBlockProps) {
+export default function ActionTypeBlock({ form, RestrictionOptionsList }: ActionTypeBlockProps) {
   const { state } = form;
   const isPermit = state.recordType === "permit";
 
@@ -60,7 +63,7 @@ export default function ActionTypeBlock({ form }: ActionTypeBlockProps) {
         )}
       </div>
 
-      {isPermit && <PermitLookupResult form={form} />}
+      {isPermit && <PermitLookupResult form={form} RestrictionOptionsList={RestrictionOptionsList} />}
     </FormSection>
   );
 }

@@ -1,7 +1,7 @@
 import { IpsButton } from "ui-library";
 import AppIcon from "@/shared/icons/AppIcon";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
-import RestrictionPicker from "./RestrictionPicker";
+import RestrictionPicker, { type RestrictionOptionsListComponent } from "./RestrictionPicker";
 import { buildLookupAnnouncement } from "./restrictionPickerLogic";
 import type { NumberRecordFormController } from "./useNumberRecordForm";
 
@@ -9,10 +9,12 @@ const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.noRestrictions;
 
 interface PermitLookupResultProps {
   form: NumberRecordFormController;
+  /** רשימת ההגבלות לבחירה, בתצוגה של הפריסה */
+  RestrictionOptionsList: RestrictionOptionsListComponent;
 }
 
 /** תוצאת החיפוש של היתר חדש: אין הגבלות על המספר, או בוחר ההגבלה (ספק 04 form §3.2) */
-export default function PermitLookupResult({ form }: PermitLookupResultProps) {
+export default function PermitLookupResult({ form, RestrictionOptionsList }: PermitLookupResultProps) {
   const { lookup } = form.state;
   const isDone = lookup.status === "done";
 
@@ -23,7 +25,9 @@ export default function PermitLookupResult({ form }: PermitLookupResultProps) {
         {buildLookupAnnouncement(lookup)}
       </p>
       {isDone && lookup.results.length === 0 && <NoRestrictionsCard onRestrictNumber={form.restrictNumber} />}
-      {isDone && lookup.results.length > 0 && <RestrictionPicker form={form} />}
+      {isDone && lookup.results.length > 0 && (
+        <RestrictionPicker form={form} RestrictionOptionsList={RestrictionOptionsList} />
+      )}
     </>
   );
 }

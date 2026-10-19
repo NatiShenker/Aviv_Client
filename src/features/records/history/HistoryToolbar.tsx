@@ -30,7 +30,7 @@ export default function HistoryToolbar({
   isDisabled,
 }: HistoryToolbarProps) {
   return (
-    <div className="mt-4 flex flex-col gap-3 px-4">
+    <div className="mt-4 flex flex-col gap-3">
       <h2 className="truncate text-lg font-medium">{title}</h2>
 
       <div className="flex items-center gap-2">

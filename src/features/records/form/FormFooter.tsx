@@ -2,13 +2,17 @@ import { IpsButton } from "ui-library";
 import ErrorText from "@/shared/components/form/ErrorText";
 import { FORM_TEXTS } from "./formTexts";
 
-interface FormSheetFooterProps {
+/** מצב כפתור השמירה, כפי שהטופס מחשב אותו */
+export interface FormSaveProps {
   /** כפתור השמירה נמצא מחוץ ל-<form>, ומשויך אליו לפי המזהה */
   formId: string;
   saveLabel: string;
   saveError?: string;
   /** בזמן שמירה או העלאת קובץ - השמירה מחכה (ספק 03 form §7) */
   isBusy: boolean;
+}
+
+interface FormFooterProps extends FormSaveProps {
   /** "ביטול" - סגירה בלי שמירה */
   onCancel: () => void;
 }
@@ -17,7 +21,7 @@ interface FormSheetFooterProps {
  * פוטר טופס היצירה / העריכה: "ביטול" ו"שמור" בכל הטפסים (ספק 00 §3.26, OQ-17).
  * שגיאת שמירה כללית מוצגת מעל הכפתורים (ספק 03 form §7)
  */
-export default function FormSheetFooter({ formId, saveLabel, saveError, isBusy, onCancel }: FormSheetFooterProps) {
+export default function FormFooter({ formId, saveLabel, saveError, isBusy, onCancel }: FormFooterProps) {
   return (
     <div className="flex w-full flex-col gap-2">
       <ErrorText message={saveError} />

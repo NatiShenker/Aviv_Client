@@ -8,7 +8,7 @@ interface HistorySkeletonProps {
 /** שלד בצורת כרטיסים סגורים, בזמן טעינת ההרשאות או הרשומות. ההבהוב פועל רק כשלא ביקשו להפחית תנועה */
 export default function HistorySkeleton({ loadingLabel }: HistorySkeletonProps) {
   return (
-    <div role="status" className="flex flex-col gap-2 px-4">
+    <div role="status" className="flex flex-col gap-2">
       <span className="sr-only">{loadingLabel}</span>
       {SKELETON_CARD_KEYS.map((key) => (
         <div

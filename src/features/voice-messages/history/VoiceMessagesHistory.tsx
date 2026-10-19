@@ -2,15 +2,13 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import RecordHistoryLayout from "@/features/records/history/RecordHistoryLayout";
 import { useRecordFormSlot } from "@/features/records/history/useRecordFormSlot";
-import { useRecordHistoryState } from "@/features/records/history/useRecordHistoryState";
 import { ROUTES } from "@/routes";
 import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useVoiceMessageFormRoute } from "../form/useVoiceMessageFormRoute";
 import VoiceMessageFormSheet from "../form/VoiceMessageFormSheet";
-import { filterAndSortVoiceMessages, voiceMessageCardDomId } from "../voiceMessagesLogic";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
-import { useVoiceMessagesData } from "./useVoiceMessagesData";
+import { useVoiceMessagesHistory } from "./useVoiceMessagesHistory";
 import VoiceMessageCard from "./VoiceMessageCard";
 
 const getRecordKey = (record: TraineeVoiceMessageRecordDto) => record.id;
@@ -29,12 +27,7 @@ interface VoiceMessagesHistoryProps {
  */
 export default function VoiceMessagesHistory({ traineeId, traineeFullName, header }: VoiceMessagesHistoryProps) {
   const navigate = useNavigate();
-  const voiceMessages = useVoiceMessagesData(traineeId);
-  const history = useRecordHistoryState({
-    records: voiceMessages,
-    filterAndSort: filterAndSortVoiceMessages,
-    cardDomIdOf: voiceMessageCardDomId,
-  });
+  const { voiceMessages, history } = useVoiceMessagesHistory(traineeId);
 
   const renderCard = (record: TraineeVoiceMessageRecordDto) => (
     <VoiceMessageCard

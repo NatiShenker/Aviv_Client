@@ -3,6 +3,7 @@ import { IpsButton } from "ui-library";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import AppIcon from "@/shared/icons/AppIcon";
 import PinnedPageTop from "@/shells/mobile/PinnedPageTop";
+import { SCREEN_SIDE_GUTTER_CLASS } from "@/shells/mobile/screenSpacing";
 import SortSheet from "@/shells/mobile/SortSheet";
 import StickyActionBar from "@/shells/mobile/StickyActionBar";
 import HistoryCardsList, { type HistoryListTexts } from "./HistoryCardsList";
@@ -46,24 +47,28 @@ export default function RecordHistoryLayout<TRecord, TRecordKey extends string |
     <>
       <PinnedPageTop>
         {header}
-        <HistoryToolbar
-          title={texts.toolbar.sectionTitle}
-          searchQuery={history.searchQuery}
-          onSearchQueryChange={history.setSearchQuery}
-          searchLabel={texts.toolbar.searchLabel}
-          searchPlaceholder={texts.toolbar.searchPlaceholder}
-          onSortClick={history.openSort}
-          isDisabled={records.status !== "success"}
-        />
+        <div className={SCREEN_SIDE_GUTTER_CLASS}>
+          <HistoryToolbar
+            title={texts.toolbar.sectionTitle}
+            searchQuery={history.searchQuery}
+            onSearchQueryChange={history.setSearchQuery}
+            searchLabel={texts.toolbar.searchLabel}
+            searchPlaceholder={texts.toolbar.searchPlaceholder}
+            onSortClick={history.openSort}
+            isDisabled={records.status !== "success"}
+          />
+        </div>
       </PinnedPageTop>
 
-      <HistoryCardsList
-        records={records}
-        visibleRecords={history.visibleRecords}
-        getRecordKey={getRecordKey}
-        renderCard={renderCard}
-        texts={texts.states}
-      />
+      <div className={SCREEN_SIDE_GUTTER_CLASS}>
+        <HistoryCardsList
+          records={records}
+          visibleRecords={history.visibleRecords}
+          getRecordKey={getRecordKey}
+          renderCard={renderCard}
+          texts={texts.states}
+        />
+      </div>
 
       <SortSheet
         open={history.isSortOpen}
