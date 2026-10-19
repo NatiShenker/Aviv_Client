@@ -25,7 +25,7 @@ export const TRAINEE_RESTRICTIONS_TEXTS = {
     noResults: "לא נמצאו הגבלות",
   },
 
-  newRestriction: "הוספת הגבלה",
+  newRecord: "הוספת הגבלה",
 
   form: {
     createTitle: "הגבלה חדשה",

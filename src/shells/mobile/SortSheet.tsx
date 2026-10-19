@@ -16,8 +16,13 @@ interface SortSheetProps {
   onChange: (value: string) => void;
 }
 
-/** מגירת המיון (ספק 00 §3.25): שורה לכל צירוף של שדה וכיוון. הבחירה מוחלת מיד, והמגירה נשארת פתוחה */
+/** מגירת המיון (ספק 00 §3.25): שורה לכל צירוף של שדה וכיוון. בחירה מחילה את המיון וסוגרת את המגירה */
 export default function SortSheet({ open, onClose, rows, selectedValue, onChange }: SortSheetProps) {
+  const handleChange = (value: IpsRadioListMobileValue) => {
+    onChange(String(value));
+    onClose();
+  };
+
   return (
     <IpsDrawer
       open={open}
@@ -32,7 +37,7 @@ export default function SortSheet({ open, onClose, rows, selectedValue, onChange
         aria-label={SORT_SHEET_TEXTS.title}
         options={rows}
         value={selectedValue}
-        onChange={(value: IpsRadioListMobileValue) => onChange(String(value))}
+        onChange={handleChange}
       />
     </IpsDrawer>
   );

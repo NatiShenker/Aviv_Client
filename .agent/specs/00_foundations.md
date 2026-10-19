@@ -250,7 +250,7 @@ Same structure and look as the children list header row 2 ([01 §3.1](01_childre
 
 - BottomSheet titled `"מיון"` (Sort). One 56px row per sort option, where every option is a field **and** a direction (e.g. `"שם – א׳ עד ת׳"`). There is no separate direction row.
 - Rows are separated by a line. The selected row is bold, in the primary color, with a check icon. Implemented by `IpsRadioListMobile` (native radios).
-- Changes apply immediately; the sheet stays open until closed.
+- Choosing a row applies the sort and closes the sheet (decided 2026-10-19). Tapping the row that is already selected changes nothing, so the sheet stays open; the X, the backdrop and dragging down close it.
 
 ### 3.26 StickyActionBar
 
