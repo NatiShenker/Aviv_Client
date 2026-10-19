@@ -10,8 +10,8 @@ import AppIcon from "@/shared/icons/AppIcon";
 import { DRAWER_SIDE_GUTTER_CLASS } from "@/shells/desktop/drawerSpacing";
 import SideDrawer from "@/shells/desktop/SideDrawer";
 import { TRAINEE_ACTIONS_TEXTS } from "../traineeActionsTexts";
+import DrawerActionScreen from "./DrawerActionScreen";
 import DrawerActionsScreen from "./DrawerActionsScreen";
-import DrawerActionTopBar from "./DrawerActionTopBar";
 import { ACTIONS_SCREEN, type TraineeDrawerScreen } from "./traineeDrawerScreens";
 
 const TEXTS = TRAINEE_ACTIONS_TEXTS;
@@ -43,7 +43,7 @@ export default function TraineeDrawer({ isOpen, openingKey, trainee, onClose }: 
           <ScreenStateMessage message={TRAINEE_TEXTS.notFound} />
         </div>
       ) : (
-        <TraineeDrawerScreens key={openingKey} />
+        <TraineeDrawerScreens key={openingKey} trainee={trainee} />
       )}
     </SideDrawer>
   );
@@ -71,7 +71,7 @@ function TraineeDrawerHeader({ trainee, titleId, onClose }: TraineeDrawerHeaderP
 }
 
 // המעבר בין המסכים שבתוך המגירה. מתחיל תמיד במסך הפעולות
-function TraineeDrawerScreens() {
+function TraineeDrawerScreens({ trainee }: { trainee: TraineeListItemDto }) {
   const [screen, setScreen] = useState<TraineeDrawerScreen>(ACTIONS_SCREEN);
   // בפתיחה הפוקוס בכותרת המגירה; רק מעבר מסך מעביר אותו למסך החדש
   const [hasNavigated, setHasNavigated] = useState(false);
@@ -91,8 +91,9 @@ function TraineeDrawerScreens() {
 
   return (
     <DrawerScreenRegion key={screen.actionKey} label={TEXTS.items[screen.actionKey]} shouldTakeFocus={hasNavigated}>
-      <DrawerActionTopBar
+      <DrawerActionScreen
         actionKey={screen.actionKey}
+        trainee={trainee}
         onBack={() => navigate(ACTIONS_SCREEN)}
         onSwitchAction={(actionKey) => navigate({ name: "history", actionKey })}
       />

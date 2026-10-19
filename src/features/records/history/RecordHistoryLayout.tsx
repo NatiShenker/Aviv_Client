@@ -6,18 +6,10 @@ import PinnedPageTop from "@/shells/mobile/PinnedPageTop";
 import { SCREEN_SIDE_GUTTER_CLASS } from "@/shells/mobile/screenSpacing";
 import SortSheet from "@/shells/mobile/SortSheet";
 import StickyActionBar from "@/shells/mobile/StickyActionBar";
-import HistoryCardsList, { type HistoryListTexts } from "./HistoryCardsList";
+import HistoryCardsList, { type RecordHistoryTexts } from "./HistoryCardsList";
 import { HISTORY_SORT_ROWS } from "./historySort";
 import HistoryToolbar from "./HistoryToolbar";
 import type { RecordHistoryState } from "./useRecordHistoryState";
-
-/** הטקסטים של מסך ההיסטוריה, מקובץ הטקסטים של הפיצ'ר */
-export interface RecordHistoryTexts {
-  toolbar: { sectionTitle: string; searchLabel: string; searchPlaceholder: string };
-  states: HistoryListTexts;
-  /** כפתור היצירה שבתחתית המסך */
-  newRecord: string;
-}
 
 interface RecordHistoryLayoutProps<TRecord, TRecordKey extends string | number> {
   /** כותרת המסך. נעוצה יחד עם שורת הכלים, והרשימה נגללת מתחת לשתיהן */

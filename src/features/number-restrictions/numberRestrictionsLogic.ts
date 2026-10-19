@@ -48,6 +48,11 @@ export function parseNumberRecordKey(recordKey: string | undefined): NumberRecor
   return { type: type as TraineePhoneRecordType, id: Number(id) };
 }
 
+/** הסוג והמזהה של רשומה, בלי שאר השדות שלה (למשל לטופס שנפתח עליה) */
+export function numberRecordRefOf({ type, id }: NumberRecordRef): NumberRecordRef {
+  return { type, id };
+}
+
 export function matchesNumberRecordRef(record: NumberRecordRef, recordRef: NumberRecordRef): boolean {
   return record.type === recordRef.type && record.id === recordRef.id;
 }

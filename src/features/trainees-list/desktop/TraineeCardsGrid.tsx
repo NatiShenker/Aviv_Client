@@ -81,7 +81,7 @@ function CardsGrid({ trainees, activeTraineeId, onOpenTrainee }: CardsGridProps)
                 type="button"
                 aria-label={TRAINEES_LIST_TEXTS.openTraineeActions(buildTraineeDisplayName(trainee))}
                 onClick={() => onOpenTrainee(trainee.id)}
-                className="absolute inset-0 rounded-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                className="absolute inset-0 cursor-pointer rounded-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               />
             </li>
           );

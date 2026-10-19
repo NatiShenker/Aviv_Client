@@ -3,6 +3,8 @@ export const HISTORY_TEXTS = {
   toolbar: {
     clearSearch: "ניקוי חיפוש",
     sort: "מיון",
+    // דסקטופ: בורר המיון מציג רק "מיון", ולכן השם הנגיש כולל את המיון הנוכחי. מוצע - ממתין לאישור (pending-decisions)
+    sortWithCurrent: (currentSortLabel: string) => `מיון: ${currentSortLabel}`,
   },
   card: {
     edit: "עריכה",

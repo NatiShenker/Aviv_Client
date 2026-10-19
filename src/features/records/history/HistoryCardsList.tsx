@@ -3,6 +3,7 @@ import LoadMoreSentinel from "@/shared/components/LoadMoreSentinel";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useIncrementalList } from "@/shared/hooks/useIncrementalList";
+import { showCardAsIs, type RenderCardFrame } from "./historyCardFrame";
 import HistorySkeleton from "./HistorySkeleton";
 import { HISTORY_TEXTS } from "./historyTexts";
 
@@ -13,6 +14,14 @@ export interface HistoryListTexts {
   noResults: string;
 }
 
+/** הטקסטים של מסך ההיסטוריה, מקובץ הטקסטים של הפיצ'ר - משותפים לשתי הפריסות */
+export interface RecordHistoryTexts {
+  toolbar: { sectionTitle: string; searchLabel: string; searchPlaceholder: string };
+  states: HistoryListTexts;
+  /** כפתור היצירה (במובייל בתחתית המסך, בדסקטופ בשורה העליונה) */
+  newRecord: string;
+}
+
 interface HistoryCardsListProps<TRecord> {
   records: AsyncResource<TRecord[]>;
   /** הרשימה אחרי חיפוש ומיון */
@@ -20,6 +29,8 @@ interface HistoryCardsListProps<TRecord> {
   getRecordKey: (record: TRecord) => string | number;
   renderCard: (record: TRecord) => ReactNode;
   texts: HistoryListTexts;
+  /** עוטף כל כרטיס (וכל כרטיס בשלד) - למשל מסגרת על משטח לבן. בלי - הכרטיסים כמו שהם */
+  renderCardFrame?: RenderCardFrame;
 }
 
 /** אזור הכרטיסים במסך היסטוריה: טעינה, שגיאה, ריק, או הכרטיסים עצמם */
@@ -29,11 +40,12 @@ export default function HistoryCardsList<TRecord>({
   getRecordKey,
   renderCard,
   texts,
+  renderCardFrame = showCardAsIs,
 }: HistoryCardsListProps<TRecord>) {
   switch (records.status) {
     case "idle":
     case "loading":
-      return <HistorySkeleton loadingLabel={texts.loading} />;
+      return <HistorySkeleton loadingLabel={texts.loading} renderCardFrame={renderCardFrame} />;
     case "error":
       return (
         <ScreenStateMessage
@@ -49,24 +61,30 @@ export default function HistoryCardsList<TRecord>({
       if (visibleRecords.length === 0) {
         return <ScreenStateMessage message={texts.noResults} />;
       }
-      return <HistoryCards visibleRecords={visibleRecords} getRecordKey={getRecordKey} renderCard={renderCard} />;
+      return (
+        <HistoryCards
+          visibleRecords={visibleRecords}
+          getRecordKey={getRecordKey}
+          renderCard={renderCard}
+          renderCardFrame={renderCardFrame}
+        />
+      );
   }
 }
 
-type HistoryCardsProps<TRecord> = Pick<
-  HistoryCardsListProps<TRecord>,
-  "visibleRecords" | "getRecordKey" | "renderCard"
->;
+type HistoryCardsProps<TRecord> = Pick<HistoryCardsListProps<TRecord>, "visibleRecords" | "getRecordKey" | "renderCard"> & {
+  renderCardFrame: RenderCardFrame;
+};
 
 // טעינה הדרגתית: 30 כרטיסים בהתחלה, ועוד 30 בכל הגעה לסוף הרשימה. חיפוש או מיון חדש מתחילים מההתחלה
-function HistoryCards<TRecord>({ visibleRecords, getRecordKey, renderCard }: HistoryCardsProps<TRecord>) {
+function HistoryCards<TRecord>({ visibleRecords, getRecordKey, renderCard, renderCardFrame }: HistoryCardsProps<TRecord>) {
   const { visibleItems, hasMore, showMore } = useIncrementalList(visibleRecords);
 
   return (
     <>
       <ul className="flex flex-col gap-2">
         {visibleItems.map((record) => (
-          <li key={getRecordKey(record)}>{renderCard(record)}</li>
+          <li key={getRecordKey(record)}>{renderCardFrame(renderCard(record))}</li>
         ))}
       </ul>
       {hasMore && <LoadMoreSentinel renderedCount={visibleItems.length} onVisible={showMore} />}

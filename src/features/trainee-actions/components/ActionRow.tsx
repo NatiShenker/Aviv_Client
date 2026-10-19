@@ -38,7 +38,7 @@ export function ActionButtonRow({ label, icon, onClick }: ActionButtonRowProps) 
     <button
       type="button"
       onClick={onClick}
-      className={`${ROW_CLASS} text-start text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
+      className={`${ROW_CLASS} cursor-pointer text-start text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
     >
       <RowContent label={label} icon={icon} />
     </button>
