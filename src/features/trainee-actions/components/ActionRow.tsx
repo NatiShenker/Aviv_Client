@@ -11,20 +11,37 @@ interface ActionLinkRowProps extends ActionRowContentProps {
   to: string;
 }
 
+interface ActionButtonRowProps extends ActionRowContentProps {
+  onClick: () => void;
+}
+
 // כרטיס על רקע העמוד: לבן ובלי מסגרת, בפינות של כרטיס (design.md)
 const ROW_CLASS = "flex h-15 w-full items-center gap-3 rounded-card bg-paper px-3";
 
 /*
  * שורה בתפריט החניך: אייקון בעיגול, תווית וחץ (ספק 02 §3.2).
- * המראה משותף, ומה שהשורה עושה נקבע לפי הפריסה: במובייל קישור לעמוד של הפעולה.
+ * המראה משותף, ומה שהשורה עושה נקבע לפי הפריסה: במובייל קישור לעמוד של הפעולה, בדסקטופ מעבר למסך במגירה.
  */
 
-/** שורה שמובילה לעמוד של הפעולה */
+/** שורה שמובילה לעמוד של הפעולה (מובייל) */
 export function ActionLinkRow({ label, icon, to }: ActionLinkRowProps) {
   return (
     <Link to={to} className={`${ROW_CLASS} text-text-primary`}>
       <RowContent label={label} icon={icon} />
     </Link>
+  );
+}
+
+/** שורה שפותחת את המסך של הפעולה בתוך המגירה (דסקטופ) */
+export function ActionButtonRow({ label, icon, onClick }: ActionButtonRowProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${ROW_CLASS} text-start text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
+    >
+      <RowContent label={label} icon={icon} />
+    </button>
   );
 }
 

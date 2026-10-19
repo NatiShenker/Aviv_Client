@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import DesktopInstituteSelector from "@/features/institutes/DesktopInstituteSelector";
 import { useInstitutes } from "@/features/institutes/InstitutesProvider";
 import InstitutesStateGate from "@/features/institutes/InstitutesStateGate";
+import TraineeDrawer from "@/features/trainee-actions/desktop/TraineeDrawer";
+import { useTraineeDrawer } from "@/features/trainee-actions/desktop/useTraineeDrawer";
 import DesktopPage from "@/shells/desktop/DesktopPage";
 import { forgetTraineesListPosition } from "../traineesListMemory";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
@@ -26,6 +28,9 @@ function DesktopTraineesListContent() {
   const { selectedInstitute } = useInstitutes();
   const { trainees, locations, listFilters } = useTraineesListState(selectedInstitute);
   const areToolsDisabled = trainees.status !== "success";
+  const traineeDrawer = useTraineeDrawer();
+  // המגירה מציגה את החניך מתוך הרשימה שכבר נטענה
+  const drawerTrainee = trainees.data?.find((trainee) => trainee.id === traineeDrawer.drawer?.traineeId) ?? null;
 
   useEffect(() => {
     forgetTraineesListPosition();
@@ -68,8 +73,17 @@ function DesktopTraineesListContent() {
           hasSelectedInstitute={selectedInstitute !== null}
           trainees={trainees}
           visibleTrainees={listFilters.visibleTrainees}
+          activeTraineeId={traineeDrawer.openTraineeId}
+          onOpenTrainee={traineeDrawer.openDrawer}
         />
       </div>
+
+      <TraineeDrawer
+        isOpen={traineeDrawer.drawer?.isOpen ?? false}
+        openingKey={traineeDrawer.drawer?.openingKey ?? 0}
+        trainee={drawerTrainee}
+        onClose={traineeDrawer.closeDrawer}
+      />
     </>
   );
 }
