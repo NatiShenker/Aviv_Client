@@ -15,6 +15,20 @@ export function UnsavedChangesReporter({ onChange, children }: UnsavedChangesRep
   return <UnsavedChangesContext.Provider value={onChange}>{children}</UnsavedChangesContext.Provider>;
 }
 
+interface UnsavedChangesMuteProps {
+  isMuted: boolean;
+  children: ReactNode;
+}
+
+/**
+ * טופס שנסגר ועדיין יוצא באנימציה כבר לא נחשב פתוח: הדיווח שלו מושתק, והמגירה מקבלת "אין שינויים".
+ * כך לחיצה על הרקע מיד אחרי "שמור" או "ביטול" לא שואלת על טופס שכבר נסגר
+ */
+export function UnsavedChangesMute({ isMuted, children }: UnsavedChangesMuteProps) {
+  const report = useContext(UnsavedChangesContext);
+  return <UnsavedChangesContext.Provider value={isMuted ? null : report}>{children}</UnsavedChangesContext.Provider>;
+}
+
 /** טופס מדווח אם יש בו שינויים שלא נשמרו. כשהוא נסגר - אין יותר שינויים */
 export function useReportUnsavedChanges(hasUnsavedChanges: boolean): void {
   const report = useContext(UnsavedChangesContext);

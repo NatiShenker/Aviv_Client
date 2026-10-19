@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { buildTraineeDisplayName } from "@/features/trainee/traineeDisplay";
 import type { TraineeListItemDto } from "@/schemas/trainees.schema";
 import AppIcon from "@/shared/icons/AppIcon";
@@ -10,10 +11,12 @@ const TEXTS = TRAINEES_LIST_TEXTS.card;
 
 interface TraineeCardProps {
   trainee: TraineeListItemDto;
+  /** תפריט ליד תגית הסטטוס - בדסקטופ תפריט ⋮ (ספק 02 §8.1). במובייל אין */
+  menu?: ReactNode;
 }
 
 /** כרטיס חניך ברשימה (ספק 01 §3.2) */
-export default function TraineeCard({ trainee }: TraineeCardProps) {
+export default function TraineeCard({ trainee, menu }: TraineeCardProps) {
   return (
     <article className="rounded-card bg-paper p-4">
       <div className="flex items-start justify-between gap-2">
@@ -23,7 +26,10 @@ export default function TraineeCard({ trainee }: TraineeCardProps) {
             <h2 className="truncate text-sm font-medium text-text-primary">{buildTraineeDisplayName(trainee)}</h2>
           </div>
         </div>
-        <TraineeStatusBadge restrictedUntilDate={trainee.restrictedUntilDate ?? null} />
+        <div className="flex shrink-0 items-center gap-1">
+          <TraineeStatusBadge restrictedUntilDate={trainee.restrictedUntilDate ?? null} />
+          {menu}
+        </div>
       </div>
 
       <div className="mt-4 border-t border-divider" />

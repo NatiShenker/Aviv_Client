@@ -8,10 +8,11 @@ Binding guidance for the shared infrastructure every screen uses. Read it with `
 - `src/shells/mobile/` — the mobile page shell: page root, header, pinned top, sticky action bar, the full-screen form sheet, the mobile navigation (`navigation/`), the window hooks (`hooks/`), the screen spacing (`screenSpacing.ts`: top spacing and the side gutter) and the mobile form controls (`mobileFormControls.ts`).
 - `src/shells/desktop/` — the desktop shell:
   - `DesktopPage`: the page root fills the viewport, and the screen decides which area inside it scrolls.
-  - The side drawer and its parts: `SideDrawer`, `DrawerTopBar`, `DrawerFormHost`, `DrawerFormLayer`, `UnsavedChangesDialog` and `unsavedChanges`, with `drawerSpacing.ts` for the side gutter.
+  - The side drawer and its parts: `SideDrawer`, `DrawerTopBar`, `DrawerFormHost`, `DrawerFormLayer`, `UnsavedChangesDialog` and `unsavedChanges`, with `drawerSpacing.ts` for the side gutter and the reserved scrollbar gutter.
+  - The screen transitions inside the drawer: `DrawerScreenTransition` and `DrawerPane` (one sliding screen), with `drawerScreenMotion.ts` for the directions and animation classes. The form layer slides through `DrawerFormHost`; a leaving form is told through `drawerFormLeaving.ts`, so it returns focus and stops reporting unsaved changes.
   - The context selector look: `contextSelectSx.ts`.
   - The desktop form controls: `form-controls/`.
-  - No page transitions and no window hooks.
+  - No page transitions between routes and no window hooks.
 - `src/features/<feature>/` — one folder per feature: the `*Screen.tsx` composition, its components and hooks, and its `*Logic.ts`, `*Options.ts` and `*Texts.ts` files.
   - The record features (trainee restrictions, number restrictions, voice messages) split into `history/` and `form/`; a file used by both stays at the feature root. Other features keep their components in `components/`.
   - A feature with a desktop layout keeps its desktop composition and desktop-only components in `desktop/`, e.g.:
@@ -43,7 +44,7 @@ Binding guidance for the shared infrastructure every screen uses. Read it with `
     - `HistoryCardsList`'s `renderCardFrame` (a frame on a white surface);
     - `NumberRecordForm`'s `RestrictionOptionsList` (cards with "בחירה" on mobile, radio cards on desktop);
     - `FormFooter`'s `buttonSize`.
-  - **Gutters:** content components have no side gutter. The containers set it: `SCREEN_SIDE_GUTTER_CLASS` on mobile, `DRAWER_SIDE_GUTTER_CLASS` in the drawer.
+  - **Gutters:** content components have no side gutter. The containers set it: `SCREEN_SIDE_GUTTER_CLASS` on mobile, `DRAWER_ROW_GUTTER_CLASS` / `DRAWER_SCROLL_AREA_CLASS` in the drawer.
 - **Form controls per layout:** the shared form blocks never use a mobile or a desktop control directly. They take their controls from `useFormControls()`.
   - **Contract:** `shared/form-controls/formControls.ts` – date, time, select, multi-select, text, text area, radio group. It holds only the props the blocks use, with values as strings (`'YYYY-MM-DD'`, `'HH:mm'`).
   - **Providers:** `MobileRoutes` provides `MOBILE_FORM_CONTROLS` (the `Ips*Mobile` controls as they are); `DesktopRoutes` provides `DESKTOP_FORM_CONTROLS` (`shells/desktop/form-controls/`: the MUI `Ips*` controls).

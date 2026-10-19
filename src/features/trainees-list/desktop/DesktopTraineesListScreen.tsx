@@ -3,6 +3,7 @@ import DesktopInstituteSelector from "@/features/institutes/DesktopInstituteSele
 import { useInstitutes } from "@/features/institutes/InstitutesProvider";
 import InstitutesStateGate from "@/features/institutes/InstitutesStateGate";
 import TraineeDrawer from "@/features/trainee-actions/desktop/TraineeDrawer";
+import { ACTIONS_SCREEN } from "@/features/trainee-actions/desktop/traineeDrawerScreens";
 import { useTraineeDrawer } from "@/features/trainee-actions/desktop/useTraineeDrawer";
 import { focusField } from "@/shared/dom/focusField";
 import DesktopPage from "@/shells/desktop/DesktopPage";
@@ -92,6 +93,7 @@ function DesktopTraineesListContent() {
       <TraineeDrawer
         isOpen={traineeDrawer.drawer?.isOpen ?? false}
         openingKey={traineeDrawer.drawer?.openingKey ?? 0}
+        initialScreen={traineeDrawer.drawer?.initialScreen ?? ACTIONS_SCREEN}
         trainee={drawerTrainee}
         onClose={traineeDrawer.closeDrawer}
         onRecordSaved={trainees.refreshInBackground}

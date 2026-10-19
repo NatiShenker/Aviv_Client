@@ -47,9 +47,9 @@ export default function NumberRestrictionsDrawerHistory({
     );
   };
 
-  const formLayer = formTarget && (
+  const renderForm = (target: NumberRecordFormTarget) => (
     <NumberRecordDrawerForm
-      target={formTarget}
+      target={target}
       traineeId={traineeId}
       phoneRecords={phoneRecords}
       onClose={() => setFormTarget(null)}
@@ -58,7 +58,7 @@ export default function NumberRestrictionsDrawerHistory({
   );
 
   return (
-    <DrawerFormHost formLayer={formLayer}>
+    <DrawerFormHost formTarget={formTarget} renderForm={renderForm}>
       <DrawerHistoryLayout
         navigation={navigation}
         texts={NUMBER_RESTRICTIONS_TEXTS}

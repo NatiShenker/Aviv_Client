@@ -41,9 +41,9 @@ export default function RestrictionsDrawerHistory({ traineeId, navigation, onRec
     />
   );
 
-  const formLayer = formTarget && (
+  const renderForm = (target: RestrictionFormTarget) => (
     <RestrictionDrawerForm
-      target={formTarget}
+      target={target}
       traineeId={traineeId}
       restrictions={restrictions}
       onClose={() => setFormTarget(null)}
@@ -52,7 +52,7 @@ export default function RestrictionsDrawerHistory({ traineeId, navigation, onRec
   );
 
   return (
-    <DrawerFormHost formLayer={formLayer}>
+    <DrawerFormHost formTarget={formTarget} renderForm={renderForm}>
       <DrawerHistoryLayout
         navigation={navigation}
         texts={TRAINEE_RESTRICTIONS_TEXTS}

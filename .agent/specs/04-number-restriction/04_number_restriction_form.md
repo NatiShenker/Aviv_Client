@@ -304,7 +304,7 @@ As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details 
 The form opens as a layer over the history in the trainee drawer ([00 §4.4](../00_foundations.md#44-desktop-history-and-form-in-the-trainee-drawer), decided 2026-10-19). The title, blocks, behavior, validation and errors are those of §3–§7, with the desktop controls. The one exception is choosing the restriction of a new permit (§8.1).
 
 - **Edit of an unavailable record** (replaced by a newer version, or ended) closes the layer and stays on the history. This is the desktop counterpart of the redirect in §2.
-- **Close:** the X and `"ביטול"` go back to the history without confirmation. Closing the whole drawer while the form has changes asks first ([02 §8.6](../02_child_actions.md)).
+- **Close:** the back arrow `"חזרה ללא שמירה"` **(proposed)** and `"ביטול"` go back to the history without confirmation. Closing the whole drawer while the form has changes asks first ([02 §8.6](../02_child_actions.md)).
 
 ### 8.1 Choosing the restriction – radio cards
 

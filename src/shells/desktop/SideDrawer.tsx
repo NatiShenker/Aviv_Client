@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { IpsDrawer, type IpsDrawerCloseReason, type IpsDrawerRenderContext } from "ui-library";
 import { isTextEntryElement } from "@/shared/dom/isTextEntryElement";
 
-// רוחב קבוע: הכרטיסים בה רחבים יותר מאשר במובייל, אבל לא מוגזמים (החלטת שלב 2 בדסקטופ)
-const SIDE_DRAWER_WIDTH_PX = 480;
+// רוחב קבוע: מרווח לכרטיסים ולטופס, ושורת טקסט עדיין בטווח הקריא (design.md › Side drawer, הוחלט 2026-10-19)
+const SIDE_DRAWER_WIDTH_PX = 560;
 
 // לאזור התוכן של IpsDrawer יש ריווח וגלילה משלו. כאן כל מסך קובע איזה חלק בו נגלל (למשל מעל פוטר קבוע),
 // ולכן ההתאמה נעשית במקום השימוש, והפקד בספרייה לא משתנה

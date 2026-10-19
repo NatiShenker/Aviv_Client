@@ -1,3 +1,5 @@
+import TraineeCardMenu from "@/features/trainee-actions/desktop/TraineeCardMenu";
+import type { TraineeDrawerScreen } from "@/features/trainee-actions/desktop/traineeDrawerScreens";
 import { buildTraineeDisplayName } from "@/features/trainee/traineeDisplay";
 import type { TraineeListItemDto } from "@/schemas/trainees.schema";
 import LoadMoreSentinel from "@/shared/components/LoadMoreSentinel";
@@ -28,8 +30,8 @@ interface TraineeCardsGridProps {
   visibleTrainees: TraineeListItemDto[];
   /** החניך שמגירת הפעולות שלו פתוחה, או null */
   activeTraineeId: number | null;
-  /** לחיצה על כרטיס פותחת את מגירת הפעולות של החניך */
-  onOpenTrainee: (traineeId: number) => void;
+  /** פותח את מגירת החניך: הכרטיס - על מסך הפעולות, תפריט ⋮ - על המסך שנבחר בו */
+  onOpenTrainee: (traineeId: number, initialScreen?: TraineeDrawerScreen) => void;
   /** מה מתחיל את הרשימה שוב מ-30 הכרטיסים הראשונים (חיפוש, סינון, מיון) - ולא רענון של אותה רשימה */
   resetVisibleCountOn: readonly unknown[];
 }
@@ -86,15 +88,29 @@ function CardsGrid({ trainees, activeTraineeId, onOpenTrainee, resetVisibleCount
       <ul className="grid grid-cols-cards gap-4">
         {visibleItems.map((trainee) => {
           const borderClass = trainee.id === activeTraineeId ? ACTIVE_CARD_BORDER_CLASS : CARD_BORDER_CLASS;
+          const displayName = buildTraineeDisplayName(trainee);
           return (
             <li key={trainee.id} className={`relative transition-colors ${CARD_FRAME_CLASS} ${borderClass}`}>
-              <TraineeCard trainee={trainee} />
-              {/* הכרטיס כולו פותח את המגירה: כפתור שקוף מעליו, כדי שהכרטיס עצמו יישאר זהה למובייל */}
+              {/*
+                הכרטיס כולו פותח את המגירה: כפתור שקוף מעליו, כדי שהכרטיס עצמו יישאר זהה למובייל.
+                הכפתור לפני הכרטיס, כדי ש-Tab יגיע קודם לכרטיס ואחר כך ל-⋮ שבתוכו; ה-⋮ יושב מעל הכפתור
+              */}
               <button
                 type="button"
-                aria-label={TRAINEES_LIST_TEXTS.openTraineeActions(buildTraineeDisplayName(trainee))}
+                aria-label={TRAINEES_LIST_TEXTS.openTraineeActions(displayName)}
                 onClick={() => onOpenTrainee(trainee.id)}
                 className="absolute inset-0 cursor-pointer rounded-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              />
+              <TraineeCard
+                trainee={trainee}
+                menu={
+                  <div className="relative z-10 -my-1 -me-2">
+                    <TraineeCardMenu
+                      traineeDisplayName={displayName}
+                      onOpenScreen={(screen) => onOpenTrainee(trainee.id, screen)}
+                    />
+                  </div>
+                }
               />
             </li>
           );

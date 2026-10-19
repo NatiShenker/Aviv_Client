@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { ACTIONS_SCREEN, type TraineeDrawerScreen } from "./traineeDrawerScreens";
 
 interface TraineeDrawerState {
   traineeId: number;
   isOpen: boolean;
-  /** מתחלף בכל פתיחה, כדי שכל פתיחה תתחיל במסך הפעולות */
+  /** מתחלף בכל פתיחה, כדי שכל פתיחה תתחיל מחדש */
   openingKey: number;
+  /** המסך שהפתיחה מתחילה בו: מסך הפעולות (הכרטיס), או היסטוריה של פעולה (תפריט ⋮) */
+  initialScreen: TraineeDrawerScreen;
 }
 
 interface TraineeDrawerControls {
@@ -12,7 +15,7 @@ interface TraineeDrawerControls {
   drawer: TraineeDrawerState | null;
   /** החניך שהמגירה שלו פתוחה עכשיו - לכרטיס הפעיל ברשימה */
   openTraineeId: number | null;
-  openDrawer: (traineeId: number) => void;
+  openDrawer: (traineeId: number, initialScreen?: TraineeDrawerScreen) => void;
   closeDrawer: () => void;
 }
 
@@ -20,8 +23,8 @@ interface TraineeDrawerControls {
 export function useTraineeDrawer(): TraineeDrawerControls {
   const [drawer, setDrawer] = useState<TraineeDrawerState | null>(null);
 
-  const openDrawer = (traineeId: number) => {
-    setDrawer((current) => ({ traineeId, isOpen: true, openingKey: (current?.openingKey ?? 0) + 1 }));
+  const openDrawer = (traineeId: number, initialScreen: TraineeDrawerScreen = ACTIONS_SCREEN) => {
+    setDrawer((current) => ({ traineeId, isOpen: true, openingKey: (current?.openingKey ?? 0) + 1, initialScreen }));
   };
 
   const closeDrawer = () => {

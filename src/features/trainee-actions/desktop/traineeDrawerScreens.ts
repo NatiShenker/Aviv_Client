@@ -8,6 +8,11 @@ export type TraineeDrawerScreen = { name: "actions" } | { name: "history"; actio
 
 export const ACTIONS_SCREEN: TraineeDrawerScreen = { name: "actions" };
 
+/** מזהה יציב לכל מסך במגירה - המסך שיוצא במעבר נשאר אותו מופע עד סוף היציאה */
+export function drawerScreenKeyOf(screen: TraineeDrawerScreen): string {
+  return screen.name === "actions" ? "actions" : `history-${screen.actionKey}`;
+}
+
 // בדסקטופ כל פעולה היא מסך בתוך המגירה. null = לפריט אין עדיין מסך (OQ-08), והשורה מוצגת מנוטרלת
 const DRAWER_ACTION_KEYS: Record<TraineeMenuItemKey, DrawerActionKey | null> = {
   traineeRestriction: "traineeRestriction",

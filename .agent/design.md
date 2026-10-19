@@ -71,12 +71,19 @@ Decided for desktop phase 1 (the trainees list) and phase 2 (the trainee drawer)
 
 ### Side drawer (phase 2)
 
-- **Shape:** a modal drawer from the end side of the screen (left, in RTL), over a dark overlay, at a fixed width of **480px** (`SIDE_DRAWER_WIDTH_PX`).
-  - Why 480: common side panels are 400–600px wide (e.g. Ant Design 378, Primer 480, Australian Government Design System 512, Fluent UI 592). At 480, the drawer's cards (432px of content) are wider than on mobile (343px) but not stretched, and a card line holds about 58 characters, inside the readable 50–75.
-  - Decided 2026-10-19.
+- **Shape:** a modal drawer from the end side of the screen (left, in RTL), over a dark overlay, at a fixed width of **560px** (`SIDE_DRAWER_WIDTH_PX`), with **32px** side padding.
+  - Why 560: common side panels are 400–600px wide (e.g. Ant Design 378, Primer 480, Australian Government Design System 512, Fluent UI 592). The first version (480 with 24px padding) felt cramped. At 560 the content is 496px wide: the cards and the form's half-row fields get room, and a card line holds about 66 characters, still inside the readable 50–75. On a 1024px container part of the list stays visible behind the overlay.
+  - Decided 2026-10-19 (480 on the same day, widened after review).
 - **Inside:**
-  - The side padding is 24px (`DRAWER_SIDE_GUTTER_CLASS`), set by the containers, not by the content components.
+  - The side padding is set by the containers, not by the content components: `DRAWER_ROW_GUTTER_CLASS` for a fixed row (header, top row, toolbar, footer) and `DRAWER_SCROLL_AREA_CLASS` for an area that scrolls (`shells/desktop/drawerSpacing.ts`).
+  - **Scrollbar gutter:** a classic scrollbar (Windows) takes its width only from the area that scrolls, so the controls above a list came out wider than the cards. Every row in the drawer reserves the same gutter (`scrollbar-gutter: stable`, the `scrollbar-gutter-stable` utility), so the header, the toolbar, the cards, the form fields and the footer all end on the same line. With overlay scrollbars (macOS) the gutter is 0.
   - The drawer has a fixed header. Each screen decides what scrolls: a top row and a toolbar stay in place, and only the list or the form body scrolls. A form's footer is fixed at the bottom of the drawer.
+- **Text hierarchy** (decided 2026-10-19; before it the trainee, the action and the section title were all 18px bold):
+  - Level 1, the trainee (the drawer's header): 20px, weight 500, with a 60px photo and the status badge below the name.
+  - Level 2, the screen (the action selector, the form title): 18px, weight 500.
+  - Level 3, sections ("היסטוריית…", "פעולות", "מידע נוסף", the form blocks): 16px, regular, with no exceptions.
+- **Navigation inside the drawer:** the drawer's X is its only X and closes the whole drawer. Every inner screen (a history, a form) goes back with a back arrow at the start of its top row. The top row holds navigation only; a screen's primary action sits at the end of its section title row (e.g. the create button of a history).
+- **Motion:** screens slide inside the drawer, the outgoing one too ([00 §2.4](specs/00_foundations.md), [02 §8.5](specs/02_child_actions.md)).
 - **Forms:**
   - The same two-column grid as on mobile: short fields (dates, times, duration) take half a row; the others take a full row.
   - There are no desktop-only field widths (decided 2026-10-19: fields of varying widths read as disorder, and a full-width short field does not fit either).
