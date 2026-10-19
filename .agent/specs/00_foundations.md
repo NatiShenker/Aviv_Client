@@ -7,6 +7,7 @@ Everything shared by all screens. Screen files reference the components and patt
 ## 1. Platform
 
 - **Mobile web**, Hebrew, right-to-left: every screen root has `dir="rtl"` and `lang="he"`.
+- **Desktop layout** (Aviv's container ≥ 1024px, decided 2026-10-19): the same rules, with a desktop composition per screen. The shared desktop rules are in [design.md](../design.md) › Desktop layout, and each screen spec describes its desktop layout in its own section (so far: [01 §8](01_children_list.md)).
 - **Content width:** the full width of the frame, with no fixed width; every screen fits 320px without horizontal scroll ([design.md](../design.md)). The app background (`#f6f8fe`) fills the viewport.
 - **Font:** Rubik, weights 400 / 500 / 600. Load once globally.
 - **Top spacing:** 50px above the header on every screen (status-bar area).

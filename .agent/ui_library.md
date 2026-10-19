@@ -70,3 +70,13 @@ The organization's shared React component library: `Ips*` components (wrapping M
 | Save and error feedback | `useToast` | |
 | Confirmations | `IpsDialog` | |
 | Required attachment | `IpsFileUpload` | Uploads directly from the client to SharePoint after its own "שמור קבצים". Wrapped by the app's `ApprovalFileField` (one file, attached-file row). |
+
+## Mapping: desktop layout
+
+| Element | Library control | Notes |
+|---|---|---|
+| Search field | `IpsTextField type="search"` | `fullWidth`, `placeholder`, `clearButtonLabel` (Hebrew, keyboard-reachable clear button), `aria-label` through `inputProps`. `onChange` passes the event: read `event.target.value`. |
+| Single select (filter, sort) | `IpsSelect` | External label: `FieldLabelText id` + `labelId`. Without a visible label: `inputProps={{ "aria-label": … }}` – a top-level `aria-label` lands on the wrapper, not on the control. `renderValue` can change the closed value only (e.g. "מיין לפי: …"). |
+| Multi-select (wing, location filters) | `IpsSelect multiple` | No explicit "הכל" option on desktop (pending-decisions): `placeholder` "הכל" shows for an empty selection, and `renderValue` shows the summary (one name, or "{n} נבחרו"). Groups through `group` on the options. |
+| Context selector in a header row (institute) | `IpsSelect` + `sx` at the usage | A one-off plain look (no border, inherited font and color), set where it is used (`DesktopInstituteSelector`); the control itself is unchanged. |
+| Secondary action (e.g. "נקה מסננים") | `IpsButton variant="outlined" size="small"` | `startIcon` with `AppIcon`. |

@@ -18,7 +18,7 @@ Prototype source: `client/pages/ChildrenList.tsx`.
 - **Returning to the list** from another screen (e.g. back from a trainee) shows it as the user left it, until the page is reloaded:
   - The search, every filter group and the sort.
   - The loaded list itself, with no new load (`"נסה שוב"` always reloads from the server). Exception: a save in an action screen changes the trainee flags, so the list loads again; the search, filters, sort and position are still restored.
-  - The number of cards already shown, and the scroll position.
+  - The number of cards already shown, and the scroll position (mobile only; see §8.2).
 - **After a page reload** everything resets, except the persisted selections below.
 - **Persisted selections (local storage, 30 days from the last selection):**
   - The selected institute (institute selector, §3.1a).
@@ -172,3 +172,35 @@ All calls go to Aviv_Service. `clientIds` is always `[AVIV_CLIENT_ID]` (55).
 | Locations loading / failed | Shown only inside filter group **b**: `"טוען מיקומים…"` / `"לא ניתן לטעון את המיקומים"` + `"נסה שוב"` **(proposed)** |
 | Permissions failed | Toast `"לא ניתן לטעון את ההרשאות לפנימייה"` **(proposed)** |
 | Photo failed to load | Show the gradient placeholder |
+
+---
+
+## 8. Desktop (Aviv's container ≥ 1024px)
+
+Desktop phase 1 (decided 2026-10-19). The data, the search, the filter and sort logic, the card, the states and the texts are the mobile ones; only the layout and the controls differ ([design.md](../design.md) › Desktop layout). The desktop sketch (`pages/desktop/DesktopChildrenList.tsx`) gives the spirit; where it differs, this section wins.
+
+### 8.1 Layout
+
+The page fills the viewport. Top to bottom:
+
+1. **Title row:** `"רשימת חניכים"` (start) and the institute selector (end) – text and chevron with no border, in the main text color, as on mobile (§3.1a).
+2. **Filters panel** (white): a header row with the title `"מסננים"` **(proposed)** and, at the end, the outlined button `"נקה מסננים ({n})"` **(proposed)**. Below it, the six filter groups (§3.4 a–f) in **one row of equal columns**, each with its label above:
+   - **Wing, location:** multi-selects **without an explicit `"הכל"` option** (a desktop deviation from §3.4, see pending-decisions): an empty selection shows `"הכל"`; one selected → its name; more → `"{n} נבחרו"`. The location keeps its loading / error states and `"נסה שוב"`.
+   - **Groups c–f:** single selects with the same options as the mobile chips (`"הכל"` is one of them).
+3. **Results panel** (white), filling the rest of the height:
+   - **Toolbar:** the search field (narrow, at the start, placeholder `"חיפוש לפי שם או מספר"`, clear button `"ניקוי חיפוש"`), right after it the count `"מוצגים {n} חניכים"` / `"מוצג חניך אחד"` **(proposed)**, and at the end the sort. The sort is a select with the rows of §3.5 (no prefix in the menu); its closed value reads `"מיין לפי: {row}"` **(proposed)**. No labels above the toolbar controls.
+   - **Cards:** a grid of the §3.2 cards (columns of at least 340px), each card with a 1px `divider` border. **Only this area scrolls.**
+
+### 8.2 Behavior
+
+- **Filter, search and sort** behave as on mobile (§4): every choice applies at once.
+- **`"נקה מסננים ({n})"`:** `n` is the number of filter groups that are not `"הכל"`. It resets all six groups – including the stored wing filter – but not the search and not the sort. Disabled (not hidden) when no group is active, and then shown without the count.
+- **Tools disabled** (filters, clear, search, sort) until the list has loaded, as on mobile.
+- **Cards are not interactive** in phase 1; the actions drawer comes in phase 2.
+- **Incremental rendering:** 30 cards, then 30 more when the end of the scroll area is reached.
+- **Returning:** the search, filters and sort are kept until a page reload (as on mobile). The scroll position is **not** restored on desktop.
+- **Crossing the 1024px breakpoint** shows the other layout with the same search, filters and sort. An inner mobile page (and an open form) closes without saving, and the address becomes the list.
+
+### 8.3 States
+
+As in §7, inside the results panel. Loading shows 12 skeleton cards in the grid.
