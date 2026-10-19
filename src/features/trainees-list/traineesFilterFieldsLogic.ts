@@ -33,6 +33,23 @@ export function formatMultiSelection(selectedLabels: string[]): string {
   return selectedLabels.length === 1 ? selectedLabels[0] : TEXTS.selectedCount(selectedLabels.length);
 }
 
+/**
+ * טקסט השדה בבחירה מרובה בדסקטופ, שאין בו אפשרות "הכל" מפורשת:
+ * בלי בחירה - "הכל", ואחרת כמו במובייל
+ */
+export function buildMultiSelectionSummary(
+  options: IpsSelectOption[],
+  selectedValues: ReadonlyArray<string | number>,
+): string {
+  if (selectedValues.length === 0) {
+    return TEXTS.all;
+  }
+  const selectedLabels = options
+    .filter((option) => selectedValues.includes(option.value))
+    .map((option) => option.label);
+  return formatMultiSelection(selectedLabels);
+}
+
 /** הפקד מחזיר את ערכי האפשרויות; המזהים בסינון הם מספרים */
 export function toFilterIds(values: ReadonlyArray<string | number>): number[] {
   return values.map(Number);

@@ -46,3 +46,13 @@ export function rememberTraineesListPosition(position: ListPosition): void {
     remembered = { ...remembered, ...position };
   }
 }
+
+/**
+ * הדסקטופ לא משחזר מיקום ברשימה. הוא מוחק את המיקום השמור,
+ * כדי שמעבר חזרה לפריסת המובייל לא ישחזר גלילה ישנה שכבר לא מתאימה
+ */
+export function forgetTraineesListPosition(): void {
+  if (remembered) {
+    remembered = { ...remembered, visibleCount: null, scrollY: 0 };
+  }
+}

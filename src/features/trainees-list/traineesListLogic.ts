@@ -19,16 +19,17 @@ export function buildTraineeLocationLabel(trainee: TraineeListItemDto): string {
   return `${wingLabel}${TRAINEES_LIST_TEXTS.card.locationSeparator}${trainee.location.name}`;
 }
 
-/** האם קבוצת סינון כלשהי אינה על "הכל" (החיפוש לא נחשב סינון) */
-export function hasActiveFilters(filters: TraineeListFiltersState): boolean {
-  return (
-    filters.wingIds.length > 0 ||
-    filters.locationIds.length > 0 ||
-    filters.traineeRestriction !== "all" ||
-    filters.recipientMessage !== "all" ||
-    filters.phoneException !== "all" ||
-    filters.balance !== "all"
-  );
+/** כמה מקבוצות הסינון אינן על "הכל" (החיפוש לא נחשב סינון) */
+export function countActiveFilterGroups(filters: TraineeListFiltersState): number {
+  const activeGroups = [
+    filters.wingIds.length > 0,
+    filters.locationIds.length > 0,
+    filters.traineeRestriction !== "all",
+    filters.recipientMessage !== "all",
+    filters.phoneException !== "all",
+    filters.balance !== "all",
+  ];
+  return activeGroups.filter(Boolean).length;
 }
 
 /** המיקומים שאפשר לבחור: של האגפים שנבחרו, או כל המיקומים כשלא נבחר אגף */
