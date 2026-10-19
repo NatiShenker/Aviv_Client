@@ -24,4 +24,10 @@ export const TRAINEE_ACTIONS_TEXTS = {
     backToActions: "חזרה לפעולות",
     switchAction: "החלפת פעולה",
   },
+
+  // דסקטופ: תפריט ⋮ על כרטיס החניך. מוצעים - ממתינים לאישור (pending-decisions)
+  cardMenu: {
+    label: (traineeDisplayName: string) => `פעולות עבור ${traineeDisplayName}`,
+    allActions: "כל הפעולות",
+  },
 } as const;

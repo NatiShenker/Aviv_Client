@@ -77,6 +77,7 @@ Everything shared by all screens. Screen files reference the components and patt
 | Chevron rotate | 180°, 200ms (300ms on expandable cards, in sync with the card expand) | Accordions, expandable cards, "אפשרויות נוספות" |
 | `pageEnterForward` / `pageEnterBack` | translateX(-100%)→0 / translateX(100%)→0, 300ms ease-out. Only the incoming page moves; the outgoing page disappears at once | Navigation between pages: forward enters from the left, back from the right (RTL). No animation on the first page of a visit or on a replace |
 | Form sheet | Slides up on open and down on close. Covers the whole screen: no rounded corners, no grab handle, no drag to close | Create / edit forms open over their history screen instead of navigating sideways. Implemented by `IpsDialog` `fullScreen` + `transition="slide"` |
+| Drawer screens (desktop) | Like `pageEnterForward` / `pageEnterBack`, and **the outgoing screen moves too** (decided 2026-10-19 – a deviation from the mobile rule above, for the drawer only): forward, the new screen enters from the left while the old one is pushed out to the right; back, the reverse. 300ms ease-out | Screens inside the trainee drawer ([02 §8.5](02_child_actions.md)), including the form layer: it enters like a forward screen and leaves like a back, and the history under it moves with it. No slide when switching the action in the selector (like a replace) or on the first screen of an opening (the drawer itself slides in) |
 
 Production: respect `prefers-reduced-motion` for all animations.
 
@@ -319,15 +320,14 @@ Fields 1–3 are stacked 8px apart; the file field is 16px below them. See [OQ-1
 
 Decided for desktop phase 2 (2026-10-19). On desktop the history and form screens of 03–05 open inside the trainee drawer ([02 §8](02_child_actions.md)), below its fixed trainee header. The data, cards, search, sort, states, form blocks, validation and texts are the ones of §4.1–§4.3 and of each feature spec; only the layout and the controls differ.
 
-**History screen.** Top to bottom; the top row and the toolbar stay in place, and only the cards scroll:
+**History screen.** Top to bottom; the top row and the toolbar stay in place, and only the cards scroll. The texts follow the drawer's hierarchy ([design.md](../design.md) › Side drawer): the trainee (20), then the screen (18, the action selector), then the section (16, regular).
 
-1. **Top row:**
+1. **Top row – navigation only** (decided 2026-10-19, so the row stays quiet):
    - At the start, a back arrow `"חזרה לפעולות"` **(proposed)** to the actions screen.
-   - Next to it, the current action as a context selector – text and chevron with no border, like the institute selector ([design.md](../design.md) › Desktop layout). Its options are only the permitted actions, and its accessible name is `"החלפת פעולה"` **(proposed)**. With only one permitted action it is a plain title.
-   - At the end, the primary create button (text + plus icon, the regular button size). It takes the place of the mobile StickyActionBar (§3.26).
+   - Next to it, the current action as a context selector – text and chevron with no border, like the institute selector ([design.md](../design.md) › Desktop layout), 18px, weight 500. Its options are only the permitted actions, and its accessible name is `"החלפת פעולה"` **(proposed)**. With only one permitted action it is a plain title.
 2. **Toolbar:**
-   - The section title (18px, weight 500).
-   - Below it, in one row: the search field, always visible and taking the remaining width (clear button `"ניקוי חיפוש"`), and the sort select.
+   - The section title (16px, regular) at the start of its row, and at the end of the same row the primary create button (text + plus icon, the regular button size). It takes the place of the mobile StickyActionBar (§3.26).
+   - Below them, in one row: the search field, always visible and taking the remaining width (clear button `"ניקוי חיפוש"`), and the sort select.
    - The sort select's closed value is only a sort icon and `"מיון"`, like the mobile sort button. At the drawer's width there is no room for "מיין לפי: …" next to the search (decided 2026-10-19). Its list has one row per field + direction (§3.25), and its accessible name includes the current row: `"מיון: {row}"` **(proposed)**.
    - Both are disabled until the records have loaded.
 3. **Cards:** ExpandableRecordCard (§3.22) on the drawer's white surface. Each card, and each skeleton card, gets a 1px `divider` frame on its wrapper. The cards render incrementally inside the drawer's scroll area.
@@ -335,13 +335,13 @@ Decided for desktop phase 2 (2026-10-19). On desktop the history and form screen
 
 **Form.**
 
-- **Presentation:** a layer over the history inside the drawer, below the trainee header – the desktop counterpart of the mobile form sheet. The history stays mounted and inert under it, so its search, sort, open card and scroll position are kept.
+- **Presentation:** a layer over the history inside the drawer, below the trainee header – the desktop counterpart of the mobile form sheet. It enters and leaves like a drawer screen, and the history moves with it (§2.4). The history stays mounted and inert under it, so its search, sort, open card and scroll position are kept.
 - **Layer layout:**
-  - At the top: the form title (create / edit, as in each form spec) and an X `"סגירה ללא שמירה"`.
+  - At the top: a back arrow `"חזרה ללא שמירה"` **(proposed)** at the start, and the form title next to it (create / edit, as in each form spec; 18px, weight 500). An arrow and not an X: the drawer's X is the only X, and every inner screen goes back with an arrow (decided 2026-10-19).
   - The blocks scroll in the middle.
   - At the bottom, a fixed footer: `"ביטול"` on the right and `"שמור"` on the left, two equal columns in the regular button size.
   - The general save error is shown above the buttons.
-- **Focus:** moves into the layer when it opens. The X and `"ביטול"` go back to the history without confirmation ([OQ-16](../pending-decisions.md#oq-16)), and focus returns to the button that opened the form.
+- **Focus:** moves into the layer when it opens. The back arrow and `"ביטול"` go back to the history without confirmation ([OQ-16](../pending-decisions.md#oq-16)), and focus returns to the button that opened the form as soon as the layer starts to leave.
 - **Controls:** the desktop controls of the library (MUI): dates (`IpsDatePicker` in Hebrew, `DD/MM/YY`, empty sections shown as `--`), times (`IpsTimePicker`, 24h, clear button), selects, text fields, text area and radio groups. Labels are above the fields.
   - The grid is the mobile one: dates, times and the duration take half a row; reason, details, approver, file, and phone with its button take a full row. There are no desktop-only widths (decided 2026-10-19).
   - A date or time that is only partly typed counts as empty, so validation reports it.

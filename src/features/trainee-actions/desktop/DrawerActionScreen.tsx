@@ -11,7 +11,7 @@ import { TRAINEE_RESTRICTIONS_TEXTS } from "@/features/trainee-restrictions/trai
 import VoiceMessagesDrawerHistory from "@/features/voice-messages/desktop/VoiceMessagesDrawerHistory";
 import { VOICE_MESSAGES_TEXTS } from "@/features/voice-messages/voiceMessagesTexts";
 import type { TraineeListItemDto } from "@/schemas/trainees.schema";
-import { DRAWER_SIDE_GUTTER_CLASS } from "@/shells/desktop/drawerSpacing";
+import { DRAWER_SCROLL_AREA_CLASS } from "@/shells/desktop/drawerSpacing";
 import DrawerTopBar from "@/shells/desktop/DrawerTopBar";
 import DrawerActionNavigation from "./DrawerActionNavigation";
 import type { DrawerActionKey } from "./traineeDrawerScreens";
@@ -89,8 +89,8 @@ export default function DrawerActionScreen({
 
   return (
     <>
-      <DrawerTopBar start={navigation} />
-      <div className={DRAWER_SIDE_GUTTER_CLASS}>
+      <DrawerTopBar>{navigation}</DrawerTopBar>
+      <div className={`min-h-0 flex-1 pb-6 ${DRAWER_SCROLL_AREA_CLASS}`}>
         {permission.status === "loading" ? (
           <HistorySkeleton loadingLabel={view.loadingLabel} renderCardFrame={renderDrawerCardFrame} />
         ) : (

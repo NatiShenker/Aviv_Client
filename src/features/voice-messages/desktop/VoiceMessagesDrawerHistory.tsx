@@ -48,9 +48,9 @@ export default function VoiceMessagesDrawerHistory({
     />
   );
 
-  const formLayer = formTarget && (
+  const renderForm = (target: VoiceMessageFormTarget) => (
     <VoiceMessageDrawerForm
-      target={formTarget}
+      target={target}
       traineeId={traineeId}
       traineeFullName={traineeFullName}
       voiceMessages={voiceMessages}
@@ -60,7 +60,7 @@ export default function VoiceMessagesDrawerHistory({
   );
 
   return (
-    <DrawerFormHost formLayer={formLayer}>
+    <DrawerFormHost formTarget={formTarget} renderForm={renderForm}>
       <DrawerHistoryLayout
         navigation={navigation}
         texts={VOICE_MESSAGES_TEXTS}

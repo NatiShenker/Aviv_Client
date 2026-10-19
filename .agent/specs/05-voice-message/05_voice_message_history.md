@@ -78,9 +78,9 @@ Below the grid: outline button `"עריכה"` with edit icon – or, on an ended
 
 The history opens in the trainee drawer, in the desktop history pattern of [00 §4.4](../00_foundations.md#44-desktop-history-and-form-in-the-trainee-drawer) (decided 2026-10-19):
 
-- **Top row:** back to the actions, the action selector showing `"הודעה קולית לנמען"`, and at the end the create button `"הוספת הודעה לנמען"`.
+- **Top row:** back to the actions, and the action selector showing `"הודעה קולית לנמען"`.
 - **Toolbar:**
-  - the section title `"היסטוריית הודעות לנמען"`;
+  - the section title `"היסטוריית הודעות לנמען"`, with the create button `"הוספת הודעה לנמען"` at the end of its row;
   - the search, with this screen's label and placeholder (§3);
   - the `"מיון"` select, with the rows of the history screens ([03 history §4](../03-trainee-restriction/03_trainee_restriction_history.md)).
 - **Cards, search, sort, states and permission:** as in §3–§4.

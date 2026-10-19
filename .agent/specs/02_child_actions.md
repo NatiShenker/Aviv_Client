@@ -45,7 +45,7 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 ### 3.3 Additional information section
 
 - **Divider** 24px below the actions (same style as §3.1).
-- **Title** `"מידע נוסף"` (Additional information), 16/20, weight 500, 23px below the divider.
+- **Title** `"מידע נוסף"` (Additional information), 16/20, 23px below the divider. Regular weight, like `"פעולות"` – every section title has the same weight, on both layouts (decided 2026-10-19; the sketch had it bold).
 - **One row**, 15px below: `"היסטוריית דקות"` (Minutes history; the spelling "היסטוריית" is used on every screen – decided 2026-10-18), clock icon, same row style. It has no destination ([OQ-08](../pending-decisions.md#oq-08)), so it is shown disabled.
 - **Permission:** the whole section (divider, title and rows) requires one general permission ID.
 
@@ -84,19 +84,25 @@ Desktop phase 2 (decided 2026-10-19). On desktop the trainee's screens – this 
   - hover: `border-strong` frame and a pointer cursor;
   - keyboard focus: a ring;
   - the trainee whose drawer is open: `primary` frame.
-- The sketch's ⋮ menu on the card (direct access to the actions) is deferred ([pending-decisions](../pending-decisions.md)).
+- **⋮ menu** (built 2026-10-19, as in the sketch): a ⋮ button next to the card's status badge, named `"פעולות עבור {name | code}"` **(proposed)**. It sits above the card's transparent button, which comes first in the tab order.
+  - The menu lists the permitted actions that have a drawer screen; each one opens the drawer straight on its history. Then a divider and `"כל הפעולות"` **(proposed)**, which opens the drawer on the actions screen.
+  - While the permissions load, after a load error, or with no permitted action, the menu has only `"כל הפעולות"`; the actions screen shows the matching state (§7).
+  - Arrow keys move between the items; Escape closes the menu and returns focus to ⋮. The drawer opens after the menu has closed, so closing the drawer returns focus to ⋮.
+  - Implemented by `IpsMenu` (added to the library on branch `AVIV`). The mobile card has no ⋮.
 
 ### 8.2 The drawer
 
-- **Shape:** a modal drawer from the end side of the screen (left, in RTL), a fixed 480px wide, over a dark overlay. The list behind is inert.
+- **Shape:** a modal drawer from the end side of the screen (left, in RTL), a fixed 560px wide with 32px side padding (decided 2026-10-19, [design.md](../design.md) › Side drawer), over a dark overlay. The list behind is inert.
 - **State:** in memory only, so the address does not change. The browser's Back leaves Aviv's screen. Crossing below the 1024px breakpoint closes the drawer and drops an open form without asking.
-- **Every opening** starts at the actions screen.
+- **Every opening** starts at the actions screen – or, from the card's ⋮ menu, at the chosen action's history (§8.1).
 
 ### 8.3 Header (fixed on every screen)
 
-- The trainee photo (48px), and `"{name} | {code}"` as the drawer's title (18px, weight 500; it also names the drawer).
-- The card's status badge (`"פעיל"` / `"מוגבל עד DD/MM"`, [01](01_children_list.md)).
-- At the end, an X `"סגירה"` **(proposed)**.
+The top level of the drawer's text hierarchy ([design.md](../design.md) › Side drawer); enlarged on 2026-10-19:
+
+- The trainee photo (60px, as on the card).
+- Next to it, `"{name} | {code}"` as the drawer's title (20px, weight 500; it also names the drawer), and below it the card's status badge (`"פעיל"` / `"מוגבל עד DD/MM"`, [01](01_children_list.md)).
+- At the end, aligned to the top, an X `"סגירה"` **(proposed)** – the drawer's only X.
 - The trainee comes from the trainees list that is already loaded. A trainee who is no longer in the list shows `"החניך לא נמצא"` under the header.
 
 ### 8.4 Actions screen
@@ -110,6 +116,7 @@ The sections of §3.2–§3.3: `"פעולות"` with the permitted actions, and 
 ### 8.5 Navigation and focus
 
 - The screens change inside the drawer, and each new screen starts at its top.
+- **Motion** (decided 2026-10-19, [00 §2.4](00_foundations.md)): both screens move. Forward (an action, or opening a form), the new screen slides in from the left while the old one is pushed out to the right; back (the back arrow, or closing a form), the reverse. Switching the action in the selector replaces the screen without a slide. With "reduce motion" there is no animation.
 - After a screen change, focus moves to the new screen, so a screen reader announces it.
 - Focus stays inside the drawer.
 - **Escape** closes the drawer, except:
@@ -126,7 +133,8 @@ The sections of §3.2–§3.3: `"פעולות"` with the permitted actions, and 
   - all texts **(proposed)**.
 - Escape or the overlay in the dialog keeps editing.
 - A form that was opened but not changed closes without asking.
-- The form's own X and `"ביטול"` go back to the history without asking, on both layouts ([OQ-16](../pending-decisions.md#oq-16)).
+- The form's own close (the X on mobile, the back arrow on desktop) and `"ביטול"` go back to the history without asking ([OQ-16](../pending-decisions.md#oq-16)).
+- A form that was closed and is still sliding out no longer counts: the overlay or Escape right after `"שמור"` / `"ביטול"` closes the drawer without asking.
 
 ### 8.7 After a save
 

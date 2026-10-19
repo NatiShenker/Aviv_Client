@@ -82,9 +82,9 @@ Note: like the form summary ([form.md §4.5](03_trainee_restriction_form.md#45-p
 
 The history opens in the trainee drawer, in the desktop history pattern of [00 §4.4](../00_foundations.md#44-desktop-history-and-form-in-the-trainee-drawer) (decided 2026-10-19):
 
-- **Top row:** back to the actions, the action selector showing `"הגבלה/היתר לחניך"`, and at the end the create button `"הוספת הגבלה"`.
+- **Top row:** back to the actions, and the action selector showing `"הגבלה/היתר לחניך"`.
 - **Toolbar:**
-  - the section title `"היסטוריית הגבלות"`;
+  - the section title `"היסטוריית הגבלות"`, with the create button `"הוספת הגבלה"` at the end of its row;
   - the search, with this screen's label and placeholder (§3);
   - the `"מיון"` select, with the rows of §4.
 - **Cards, search, sort, states and permission:** as in §3–§4.

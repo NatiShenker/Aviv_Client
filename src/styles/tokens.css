@@ -66,11 +66,14 @@
 	--color-error-soft: #fef2f2;
 
 	/*
-	 * תנועה: כניסת עמוד מהצד. קדימה העמוד נכנס משמאל וחזרה מימין (מראה RTL).
-	 * רק העמוד הנכנס זז; משך ועקומה כמו המגירה התחתונה (ספק 00 §2.4)
+	 * תנועה: כניסת עמוד מהצד. קדימה העמוד נכנס משמאל וחזרה מימין (מראה RTL); משך ועקומה כמו המגירה התחתונה (ספק 00 §2.4).
+	 * במובייל רק העמוד הנכנס זז. במגירה בדסקטופ גם המסך היוצא זז: קדימה הוא נדחף ימינה, וחזרה שמאלה.
+	 * היציאה נשארת במצב הסופי (forwards) עד שהמסך מוסר, כדי שלא יקפוץ חזרה לרגע
 	 */
 	--animate-page-enter-forward: page-enter-forward 300ms ease-out;
 	--animate-page-enter-back: page-enter-back 300ms ease-out;
+	--animate-page-exit-forward: page-exit-forward 300ms ease-out forwards;
+	--animate-page-exit-back: page-exit-back 300ms ease-out forwards;
 
 	@keyframes page-enter-forward {
 		from {
@@ -81,6 +84,18 @@
 	@keyframes page-enter-back {
 		from {
 			transform: translateX(100%);
+		}
+	}
+
+	@keyframes page-exit-forward {
+		to {
+			transform: translateX(100%);
+		}
+	}
+
+	@keyframes page-exit-back {
+		to {
+			transform: translateX(-100%);
 		}
 	}
 

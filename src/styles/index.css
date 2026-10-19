@@ -1,3 +1,8 @@
 /* הסריקה מוגבלת ל-src, כדי שמחלקות מתיקיית reference לא ייכנסו ל-CSS */
 @import "tailwindcss" source("..");
 @import "./tokens.css";
+
+/* מקום שמור לפס הגלילה גם כשאין גלילה - כדי ששורות במגירה ייגמרו באותו קו (design.md › Side drawer) */
+@utility scrollbar-gutter-stable {
+	scrollbar-gutter: stable;
+}

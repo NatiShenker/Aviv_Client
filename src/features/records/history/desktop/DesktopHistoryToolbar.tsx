@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { IpsSelect, IpsTextField } from "ui-library";
 import AppIcon from "@/shared/icons/AppIcon";
 import { HISTORY_SORT_ROWS, findHistorySortOption } from "../historySort";
@@ -8,6 +9,8 @@ const TEXTS = HISTORY_TEXTS.toolbar;
 interface DesktopHistoryToolbarProps {
   /** כותרת המקטע, למשל "היסטוריית הגבלות" */
   title: string;
+  /** כפתור היצירה, בקצה שורת הכותרת */
+  createButton: ReactNode;
   searchQuery: string;
   onSearchQueryChange: (searchQuery: string) => void;
   searchLabel: string;
@@ -19,12 +22,14 @@ interface DesktopHistoryToolbarProps {
 }
 
 /**
- * מעל רשימת ההיסטוריה במגירה (ספק 00 §3.23, פריסת דסקטופ): כותרת המקטע, ומתחתיה חיפוש שתמיד גלוי ובורר מיון.
+ * מעל רשימת ההיסטוריה במגירה (ספק 00 §4.4): כותרת המקטע וכפתור היצירה, ומתחתם חיפוש שתמיד גלוי ובורר מיון.
+ * הכותרת ברמת מקטע (16, רגיל), מתחת לשם החניך ולבורר הפעולה - כדי שלא יהיו שלוש כותרות באותו משקל.
  * ברוחב המגירה אין מקום ל"מיין לפי: …" ליד החיפוש, ולכן הבורר סגור מציג רק "מיון", כמו כפתור המיון במובייל;
  * ברשימה שלו שורה לכל צירוף של שדה וכיוון
  */
 export default function DesktopHistoryToolbar({
   title,
+  createButton,
   searchQuery,
   onSearchQueryChange,
   searchLabel,
@@ -37,7 +42,10 @@ export default function DesktopHistoryToolbar({
 
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="truncate text-lg font-medium">{title}</h3>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="min-w-0 truncate text-base">{title}</h3>
+        <div className="shrink-0">{createButton}</div>
+      </div>
 
       <div className="flex items-center gap-2">
         <div className="min-w-0 flex-1">

@@ -1,4 +1,4 @@
-import { DRAWER_SIDE_GUTTER_CLASS } from "@/shells/desktop/drawerSpacing";
+import { DRAWER_SCROLL_AREA_CLASS } from "@/shells/desktop/drawerSpacing";
 import { ActionButtonRow, DisabledActionRow } from "../components/ActionRow";
 import TraineeActionsMenu from "../components/TraineeActionsMenu";
 import type { TraineeMenuItem } from "../traineeActionsOptions";
@@ -11,7 +11,7 @@ interface DrawerActionsScreenProps {
 /** מסך הפעולות במגירה: אותם מקטעים כמו במובייל (ספק 02), וכל פעולה פותחת מסך בתוך המגירה */
 export default function DrawerActionsScreen({ onSelectAction }: DrawerActionsScreenProps) {
   return (
-    <div className={`min-h-0 flex-1 overflow-y-auto pb-6 ${DRAWER_SIDE_GUTTER_CLASS}`}>
+    <div className={`min-h-0 flex-1 pb-6 ${DRAWER_SCROLL_AREA_CLASS}`}>
       <TraineeActionsMenu renderItemRow={(item) => <DrawerActionRow item={item} onSelectAction={onSelectAction} />} />
     </div>
   );

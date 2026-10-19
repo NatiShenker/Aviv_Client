@@ -10,10 +10,12 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
+import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import KeyboardVoiceOutlinedIcon from "@mui/icons-material/KeyboardVoiceOutlined";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import PersonIcon from "@mui/icons-material/Person";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import SearchIcon from "@mui/icons-material/Search";
@@ -46,7 +48,9 @@ export type AppIconName =
   | "copy"
   | "file"
   | "phone"
-  | "check";
+  | "check"
+  | "more"
+  | "allActions";
 
 /*
  * רישום האייקונים של האפליקציה - המקום היחיד שמגדיר מאיפה כל אייקון מגיע.
@@ -79,4 +83,8 @@ export const APP_ICONS: Record<AppIconName, AppIconSource> = {
   file: InsertDriveFileOutlinedIcon,
   phone: PhoneOutlinedIcon,
   check: CheckIcon,
+  // תפריט ⋮ על כרטיס החניך בדסקטופ
+  more: MoreVertIcon,
+  // "כל הפעולות" בתפריט ⋮: ריבועים ברשת, כמו בסקיצה
+  allActions: GridViewOutlinedIcon,
 };

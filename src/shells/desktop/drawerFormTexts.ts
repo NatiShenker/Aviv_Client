@@ -1,5 +1,6 @@
 export const DRAWER_FORM_TEXTS = {
-  closeWithoutSaving: "סגירה ללא שמירה",
+  // חץ החזרה בשורת הכותרת של טופס במגירה. מוצע - ממתין לאישור (pending-decisions)
+  backWithoutSaving: "חזרה ללא שמירה",
 
   // יציאה מהמגירה כשבטופס יש שינויים. מוצעים - ממתינים לאישור (pending-decisions)
   unsavedChanges: {

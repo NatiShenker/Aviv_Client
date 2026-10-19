@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { IpsButton } from "ui-library";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import AppIcon from "@/shared/icons/AppIcon";
-import { DRAWER_SIDE_GUTTER_CLASS } from "@/shells/desktop/drawerSpacing";
+import { DRAWER_ROW_GUTTER_CLASS, DRAWER_SCROLL_AREA_CLASS } from "@/shells/desktop/drawerSpacing";
 import DrawerTopBar from "@/shells/desktop/DrawerTopBar";
 import HistoryCardsList, { type RecordHistoryTexts } from "../HistoryCardsList";
 import type { RecordHistoryState } from "../useRecordHistoryState";
@@ -10,7 +10,7 @@ import DesktopHistoryToolbar from "./DesktopHistoryToolbar";
 import { renderDrawerCardFrame } from "./drawerCardFrame";
 
 interface DrawerHistoryLayoutProps<TRecord, TRecordKey extends string | number> {
-  /** תחילת השורה העליונה: חזרה ושם הפעולה. כפתור היצירה בקצה שלה */
+  /** השורה העליונה: חזרה ושם הפעולה */
   navigation: ReactNode;
   texts: RecordHistoryTexts;
   records: AsyncResource<TRecord[]>;
@@ -21,7 +21,7 @@ interface DrawerHistoryLayoutProps<TRecord, TRecordKey extends string | number> 
 }
 
 /**
- * מסך היסטוריה במגירה (ספק 00 §4.1, פריסת דסקטופ): השורה העליונה עם כפתור היצירה וסרגל החיפוש והמיון קבועים,
+ * מסך היסטוריה במגירה (ספק 00 §4.4): השורה העליונה, וסרגל עם כותרת המקטע, כפתור היצירה, החיפוש והמיון - קבועים,
  * ורק הכרטיסים שמתחתם נגללים
  */
 export default function DrawerHistoryLayout<TRecord, TRecordKey extends string | number>({
@@ -35,18 +35,16 @@ export default function DrawerHistoryLayout<TRecord, TRecordKey extends string |
 }: DrawerHistoryLayoutProps<TRecord, TRecordKey>) {
   return (
     <>
-      <DrawerTopBar
-        start={navigation}
-        end={
-          <IpsButton variant="contained" endIcon={<AppIcon name="add" />} onClick={onCreate}>
-            {texts.newRecord}
-          </IpsButton>
-        }
-      />
+      <DrawerTopBar>{navigation}</DrawerTopBar>
 
-      <div className={`shrink-0 pb-3 ${DRAWER_SIDE_GUTTER_CLASS}`}>
+      <div className={`shrink-0 pb-4 ${DRAWER_ROW_GUTTER_CLASS}`}>
         <DesktopHistoryToolbar
           title={texts.toolbar.sectionTitle}
+          createButton={
+            <IpsButton variant="contained" endIcon={<AppIcon name="add" />} onClick={onCreate}>
+              {texts.newRecord}
+            </IpsButton>
+          }
           searchQuery={history.searchQuery}
           onSearchQueryChange={history.setSearchQuery}
           searchLabel={texts.toolbar.searchLabel}
@@ -62,7 +60,7 @@ export default function DrawerHistoryLayout<TRecord, TRecordKey extends string |
         tabIndex={0}
         role="region"
         aria-label={texts.toolbar.sectionTitle}
-        className={`min-h-0 flex-1 overflow-y-auto pb-6 ${DRAWER_SIDE_GUTTER_CLASS}`}
+        className={`min-h-0 flex-1 pb-6 ${DRAWER_SCROLL_AREA_CLASS}`}
       >
         <HistoryCardsList
           records={records}

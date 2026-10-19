@@ -55,7 +55,6 @@ export default function TraineeActionsMenu({ renderItemRow }: TraineeActionsMenu
               title={TEXTS.sections.additionalInfo}
               items={menu.additionalInfoItems}
               renderItemRow={renderItemRow}
-              isTitleEmphasized
             />
           )}
         </>
@@ -71,14 +70,13 @@ interface MenuSectionProps {
   title: string;
   items: TraineeMenuItem[];
   renderItemRow: (item: TraineeMenuItem) => ReactNode;
-  /** כותרת "מידע נוסף" מודגשת (ספק 02 §3.3) */
-  isTitleEmphasized?: boolean;
 }
 
-function MenuSection({ title, items, renderItemRow, isTitleEmphasized = false }: MenuSectionProps) {
+// כל כותרות המקטעים באותו משקל - בלי הדגשה של מקטע אחד (ספק 02 §3.3, הוחלט 2026-10-19)
+function MenuSection({ title, items, renderItemRow }: MenuSectionProps) {
   return (
     <section className={`mt-7 ${SECTION_INSET_CLASS}`}>
-      <h2 className={`text-base ${isTitleEmphasized ? "font-medium" : ""}`}>{title}</h2>
+      <h2 className="text-base">{title}</h2>
       <ul className="mt-4 flex flex-col gap-1">
         {items.map((item) => (
           <li key={item.key}>{renderItemRow(item)}</li>

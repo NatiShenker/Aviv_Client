@@ -6,22 +6,27 @@ import TraineePhoto from "@/features/trainees-list/components/TraineePhoto";
 import TraineeStatusBadge from "@/features/trainees-list/components/TraineeStatusBadge";
 import type { TraineeListItemDto } from "@/schemas/trainees.schema";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
+import { prefersReducedMotion } from "@/shared/dom/prefersReducedMotion";
 import AppIcon from "@/shared/icons/AppIcon";
-import { DRAWER_SIDE_GUTTER_CLASS } from "@/shells/desktop/drawerSpacing";
+import { DRAWER_ROW_GUTTER_CLASS } from "@/shells/desktop/drawerSpacing";
+import type { DrawerSlideDirection } from "@/shells/desktop/drawerScreenMotion";
+import DrawerScreenTransition from "@/shells/desktop/DrawerScreenTransition";
 import SideDrawer from "@/shells/desktop/SideDrawer";
 import UnsavedChangesDialog from "@/shells/desktop/UnsavedChangesDialog";
 import { UnsavedChangesReporter } from "@/shells/desktop/unsavedChanges";
 import { TRAINEE_ACTIONS_TEXTS } from "../traineeActionsTexts";
 import DrawerActionScreen from "./DrawerActionScreen";
 import DrawerActionsScreen from "./DrawerActionsScreen";
-import { ACTIONS_SCREEN, type TraineeDrawerScreen } from "./traineeDrawerScreens";
+import { ACTIONS_SCREEN, drawerScreenKeyOf, type TraineeDrawerScreen } from "./traineeDrawerScreens";
 
 const TEXTS = TRAINEE_ACTIONS_TEXTS;
 
 interface TraineeDrawerProps {
   isOpen: boolean;
-  /** מתחלף בכל פתיחה, כדי שכל פתיחה תתחיל במסך הפעולות */
+  /** מתחלף בכל פתיחה, כדי שכל פתיחה תתחיל מחדש */
   openingKey: number;
+  /** המסך שהפתיחה מתחילה בו: מסך הפעולות, או היסטוריה של פעולה (מתפריט ⋮ שעל הכרטיס) */
+  initialScreen: TraineeDrawerScreen;
   /** החניך מתוך רשימת החניכים. null = הוא כבר לא ברשימה */
   trainee: TraineeListItemDto | null;
   onClose: () => void;
@@ -34,11 +39,12 @@ interface TraineeDrawerProps {
 /**
  * מגירת החניך בדסקטופ: כותרת קבועה עם החניך, ומתחתיה מסך הפעולות או המסך של פעולה (ספק 02 ואילך).
  * המגירה עצמה נשארת mounted, כדי שגם הפתיחה הראשונה תונפש; התוכן מתחיל מחדש בכל פתיחה.
- * סגירה (רקע, Escape, X) כשבטופס הפתוח יש שינויים שואלת קודם; X ו"ביטול" של הטופס עצמו לא (OQ-16)
+ * סגירה (רקע, Escape, X) כשבטופס הפתוח יש שינויים שואלת קודם; החץ ו"ביטול" של הטופס עצמו לא (OQ-16)
  */
 export default function TraineeDrawer({
   isOpen,
   openingKey,
+  initialScreen,
   trainee,
   onClose,
   onRecordSaved,
@@ -71,12 +77,17 @@ export default function TraineeDrawer({
         )}
       >
         {trainee === null ? (
-          <div className={DRAWER_SIDE_GUTTER_CLASS}>
+          <div className={DRAWER_ROW_GUTTER_CLASS}>
             <ScreenStateMessage message={TRAINEE_TEXTS.notFound} />
           </div>
         ) : (
           <UnsavedChangesReporter onChange={setHasUnsavedChanges}>
-            <TraineeDrawerScreens key={openingKey} trainee={trainee} onRecordSaved={onRecordSaved} />
+            <TraineeDrawerScreens
+              key={openingKey}
+              trainee={trainee}
+              initialScreen={initialScreen}
+              onRecordSaved={onRecordSaved}
+            />
           </UnsavedChangesReporter>
         )}
       </SideDrawer>
@@ -97,15 +108,17 @@ interface TraineeDrawerHeaderProps {
   onClose: () => void;
 }
 
-// כותרת קומפקטית, כדי שלמסכים יישאר כמה שיותר גובה: תמונה, "שם | מספר" כמו בכרטיס, תגית הסטטוס וסגירה
+// הרמה העליונה בהיררכיה של המגירה (ספק 02 §8.3): תמונה כמו בכרטיס, "שם | מספר" (20, מודגש) ומתחתיו תגית הסטטוס, וסגירה
 function TraineeDrawerHeader({ trainee, titleId, onClose }: TraineeDrawerHeaderProps) {
   return (
-    <header className={`flex shrink-0 items-center gap-3 border-b border-divider py-4 ${DRAWER_SIDE_GUTTER_CLASS}`}>
-      {trainee && <TraineePhoto traineeId={trainee.id} size="small" />}
-      <h2 id={titleId} className="min-w-0 flex-1 truncate text-lg font-medium text-text-primary">
-        {trainee ? buildTraineeDisplayName(trainee) : ""}
-      </h2>
-      {trainee && <TraineeStatusBadge restrictedUntilDate={trainee.restrictedUntilDate ?? null} />}
+    <header className={`flex shrink-0 items-start gap-4 border-b border-divider py-5 ${DRAWER_ROW_GUTTER_CLASS}`}>
+      {trainee && <TraineePhoto traineeId={trainee.id} />}
+      <div className="flex min-w-0 flex-1 flex-col items-start gap-2 pt-1">
+        <h2 id={titleId} className="max-w-full truncate text-xl font-medium text-text-primary">
+          {trainee ? buildTraineeDisplayName(trainee) : ""}
+        </h2>
+        {trainee && <TraineeStatusBadge restrictedUntilDate={trainee.restrictedUntilDate ?? null} />}
+      </div>
       <IpsIconButton edge="end" icon={<AppIcon name="close" />} aria-label={TEXTS.drawer.close} onClick={onClose} />
     </header>
   );
@@ -113,57 +126,94 @@ function TraineeDrawerHeader({ trainee, titleId, onClose }: TraineeDrawerHeaderP
 
 interface TraineeDrawerScreensProps {
   trainee: TraineeListItemDto;
+  initialScreen: TraineeDrawerScreen;
   onRecordSaved: () => void;
 }
 
-// המעבר בין המסכים שבתוך המגירה. מתחיל תמיד במסך הפעולות
-function TraineeDrawerScreens({ trainee, onRecordSaved }: TraineeDrawerScreensProps) {
-  const [screen, setScreen] = useState<TraineeDrawerScreen>(ACTIONS_SCREEN);
+interface ScreenTransition {
+  screen: TraineeDrawerScreen;
+  /** המסך הקודם, עד סוף אנימציית היציאה שלו */
+  leavingScreen: TraineeDrawerScreen | null;
+  direction: DrawerSlideDirection;
+}
+
+// המעבר בין המסכים שבתוך המגירה (ספק 02 §8.5). המסך הראשון מופיע בלי החלקה - המגירה עצמה מחליקה פנימה
+function TraineeDrawerScreens({ trainee, initialScreen, onRecordSaved }: TraineeDrawerScreensProps) {
+  const [transition, setTransition] = useState<ScreenTransition>({
+    screen: initialScreen,
+    leavingScreen: null,
+    direction: "none",
+  });
   // בפתיחה הפוקוס בכותרת המגירה; רק מעבר מסך מעביר אותו למסך החדש
   const [hasNavigated, setHasNavigated] = useState(false);
 
-  const navigate = (nextScreen: TraineeDrawerScreen) => {
-    setScreen(nextScreen);
+  const navigate = (nextScreen: TraineeDrawerScreen, direction: DrawerSlideDirection) => {
+    // בלי החלקה, או בהעדפת "הפחתת תנועה" - המסך הקודם יורד מיד
+    const keepsLeavingScreen = direction !== "none" && !prefersReducedMotion();
+    setTransition((current) => ({
+      screen: nextScreen,
+      leavingScreen: keepsLeavingScreen ? current.screen : null,
+      direction,
+    }));
     setHasNavigated(true);
   };
 
-  if (screen.name === "actions") {
+  const finishLeaving = () => {
+    setTransition((current) => ({ ...current, leavingScreen: null }));
+  };
+
+  const renderScreen = (screen: TraineeDrawerScreen): ReactNode => {
+    if (screen.name === "actions") {
+      return (
+        <DrawerScreenRegion label={TEXTS.sections.actions} takesFocusOnMount={hasNavigated}>
+          <DrawerActionsScreen onSelectAction={(actionKey) => navigate({ name: "history", actionKey }, "forward")} />
+        </DrawerScreenRegion>
+      );
+    }
+
     return (
-      <DrawerScreenRegion key="actions" label={TEXTS.sections.actions} shouldTakeFocus={hasNavigated}>
-        <DrawerActionsScreen onSelectAction={(actionKey) => navigate({ name: "history", actionKey })} />
+      <DrawerScreenRegion label={TEXTS.items[screen.actionKey]} takesFocusOnMount={hasNavigated}>
+        <DrawerActionScreen
+          actionKey={screen.actionKey}
+          trainee={trainee}
+          onBack={() => navigate(ACTIONS_SCREEN, "back")}
+          // החלפת פעולה מחליפה את המסך במקומו, כמו replace במובייל - בלי החלקה
+          onSwitchAction={(actionKey) => navigate({ name: "history", actionKey }, "none")}
+          onRecordSaved={onRecordSaved}
+        />
       </DrawerScreenRegion>
     );
-  }
+  };
 
+  const { screen, leavingScreen } = transition;
   return (
-    <DrawerScreenRegion key={screen.actionKey} label={TEXTS.items[screen.actionKey]} shouldTakeFocus={hasNavigated}>
-      <DrawerActionScreen
-        actionKey={screen.actionKey}
-        trainee={trainee}
-        onBack={() => navigate(ACTIONS_SCREEN)}
-        onSwitchAction={(actionKey) => navigate({ name: "history", actionKey })}
-        onRecordSaved={onRecordSaved}
-      />
-    </DrawerScreenRegion>
+    <DrawerScreenTransition
+      current={{ key: drawerScreenKeyOf(screen), content: renderScreen(screen) }}
+      leaving={leavingScreen && { key: drawerScreenKeyOf(leavingScreen), content: renderScreen(leavingScreen) }}
+      direction={transition.direction}
+      onLeavingDone={finishLeaving}
+    />
   );
 }
 
 interface DrawerScreenRegionProps {
   label: string;
-  /** אחרי מעבר מסך הפוקוס עובר לכאן, כדי שקורא מסך ישמיע את המסך החדש והמקלדת תמשיך ממנו */
-  shouldTakeFocus: boolean;
+  /** מסך שעולה אחרי מעבר לוקח את הפוקוס, כדי שקורא מסך ישמיע אותו והמקלדת תמשיך ממנו */
+  takesFocusOnMount: boolean;
   children: ReactNode;
 }
 
-// מסך אחד במגירה: ממלא את הגובה שמתחת לכותרת. key שונה לכל מסך, ולכן כל מסך מתחיל מלמעלה
-function DrawerScreenRegion({ label, shouldTakeFocus, children }: DrawerScreenRegionProps) {
+// מסך אחד במגירה: ממלא את הגובה שמתחת לכותרת, ומתחיל מלמעלה
+function DrawerScreenRegion({ label, takesFocusOnMount, children }: DrawerScreenRegionProps) {
   const regionRef = useRef<HTMLDivElement>(null);
+  // רק בעלייה: מסך שכבר מוצג (למשל המסך שיוצא עכשיו) לא לוקח את הפוקוס
+  const [shouldFocusOnMount] = useState(takesFocusOnMount);
 
   useEffect(() => {
-    if (shouldTakeFocus) {
+    if (shouldFocusOnMount) {
       regionRef.current?.focus();
     }
-  }, [shouldTakeFocus]);
+  }, [shouldFocusOnMount]);
 
   return (
     <div

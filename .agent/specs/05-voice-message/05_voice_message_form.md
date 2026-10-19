@@ -158,4 +158,4 @@ The form opens as a layer over the history in the trainee drawer ([00 §4.4](../
 - the repeat setting is the same settings row with a switch (§3.3).
 
 - **Edit of an unavailable record** (replaced by a newer version, or ended) closes the layer and stays on the history. This is the desktop counterpart of the redirect in §2.
-- **Close:** the X and `"ביטול"` go back to the history without confirmation. Closing the whole drawer while the form has changes asks first ([02 §8.6](../02_child_actions.md)).
+- **Close:** the back arrow `"חזרה ללא שמירה"` **(proposed)** and `"ביטול"` go back to the history without confirmation. Closing the whole drawer while the form has changes asks first ([02 §8.6](../02_child_actions.md)).

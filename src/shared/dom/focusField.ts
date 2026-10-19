@@ -1,4 +1,4 @@
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+import { prefersReducedMotion } from "./prefersReducedMotion";
 
 /**
  * מעביר פוקוס לשדה וגולל אליו (למשל לשגיאה הראשונה אחרי שמירה שנכשלה).
@@ -9,7 +9,6 @@ export function focusField(elementId: string): void {
     const element = document.getElementById(elementId);
     if (!element) return;
     element.focus({ preventScroll: true });
-    const isReducedMotion = window.matchMedia(REDUCED_MOTION_QUERY).matches;
-    element.scrollIntoView({ block: "center", behavior: isReducedMotion ? "auto" : "smooth" });
+    element.scrollIntoView({ block: "center", behavior: prefersReducedMotion() ? "auto" : "smooth" });
   });
 }
