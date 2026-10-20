@@ -1,6 +1,6 @@
 import { IpsIconButton } from "ui-library";
-import AppIcon from "@/shared/icons/AppIcon";
-import { NAVIGATION_TEXTS } from "./navigation/navigationTexts";
+import AppIcon from "@/shared/components/AppIcon";
+import { MOBILE_SHELL_TEXTS } from "./mobileShellTexts";
 import { useNavigateBack } from "./navigation/useNavigateBack";
 
 interface PageHeaderProps {
@@ -18,7 +18,7 @@ export default function PageHeader({ title }: PageHeaderProps) {
         edge="start"
         size="large"
         icon={<AppIcon name="back" />}
-        aria-label={NAVIGATION_TEXTS.back}
+        aria-label={MOBILE_SHELL_TEXTS.navigation.back}
         onClick={navigateBack}
       />
       <h1 className="min-w-0 truncate text-xl font-medium">{title}</h1>

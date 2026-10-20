@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { IpsTimePicker } from "ui-library";
 import FieldLabelText from "@/shared/components/form/FieldLabelText";
-import type { TimeFieldProps } from "@/shared/form-controls/formControls";
+import type { TimeFieldProps } from "@/shared/components/form/formControls";
 import { TIME_DISPLAY_FORMAT, TIME_FIELD_PLACEHOLDERS } from "./pickerFieldOptions";
 import { momentToTime, timeToMoment } from "./pickerValues";
 import { usePickerDraft } from "./usePickerDraft";

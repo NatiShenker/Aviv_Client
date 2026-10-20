@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { IpsSelectOption } from "ui-library";
-import type { WingDto, WingLocationDto } from "@/schemas/organization.schema";
+import type { WingDto, WingLocationDto } from "@/types/organization.schema";
 import { buildLocationFilterOptions, buildWingFilterOptions } from "./traineesFilterFieldsLogic";
 
 interface TraineeFilterOptions {

@@ -1,5 +1,5 @@
-import { AVIV_CLIENT_ID } from "@/appConstants";
-import type { InstituteWithWingsDto } from "@/schemas/organization.schema";
+import { AVIV_CLIENT_ID } from "@/config/appConstants";
+import type { InstituteWithWingsDto } from "@/types/organization.schema";
 
 // פנימייה א' - רשימה ארוכה (בדיקת טעינה הדרגתית), ב' - קצרה, ג' - בלי חניכים (מצב ריק טבעי).
 // "מיקומים שונים" הוא אגף וירטואלי: בו נמצאים מכשירי הפנימייה כולה, ואין בו חניכים

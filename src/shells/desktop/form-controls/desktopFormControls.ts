@@ -1,4 +1,4 @@
-import type { FormControls } from "@/shared/form-controls/formControls";
+import type { FormControls } from "@/shared/components/form/formControls";
 import DesktopDateField from "./DesktopDateField";
 import DesktopMultiSelectField from "./DesktopMultiSelectField";
 import DesktopRadioGroupField from "./DesktopRadioGroupField";

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { IpsDialog, IpsIconButton, type IpsDialogRenderContext } from "ui-library";
-import AppIcon from "@/shared/icons/AppIcon";
-import { FORM_SHEET_TEXTS } from "./formSheetTexts";
+import AppIcon from "@/shared/components/AppIcon";
+import { MOBILE_SHELL_TEXTS } from "./mobileShellTexts";
 import { SCREEN_TOP_SPACING_CLASS } from "./screenSpacing";
 
 interface FormSheetProps {
@@ -30,7 +30,7 @@ export default function FormSheet({ open, title, onClose, children, actions }: F
           edge="end"
           size="large"
           icon={<AppIcon name="close" />}
-          aria-label={FORM_SHEET_TEXTS.closeWithoutSaving}
+          aria-label={MOBILE_SHELL_TEXTS.formSheet.closeWithoutSaving}
           onClick={requestClose}
         />
       </div>

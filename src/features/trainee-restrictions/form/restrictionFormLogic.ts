@@ -5,7 +5,7 @@ import {
   validateDuration,
   validateHours,
   type CallConditionsValues,
-} from "@/features/records/form/callConditionsLogic";
+} from "@/features/records/form/call-conditions/callConditionsLogic";
 import { createDefaultDateRange, validateDateRange } from "@/features/records/form/dateRangeLogic";
 import {
   createBasedOnDecisionValues,
@@ -15,7 +15,7 @@ import {
   validateDecision,
   type DecisionValues,
   type ValidatedDecision,
-} from "@/features/records/form/decisionLogic";
+} from "@/features/records/form/decision/decisionLogic";
 import {
   CALL_FORM_SERVER_FIELD_SLOTS,
   mapServerFieldErrors,
@@ -24,12 +24,12 @@ import {
   type FormErrors,
 } from "@/features/records/form/formErrors";
 import type { FormStartingPoint } from "@/features/records/form/formStartingPoint";
-import type { ISODateString } from "@/schemas/common.schema";
+import type { ISODateString } from "@/types/common.schema";
 import type {
   CreateTraineeRestrictionRequest,
   TraineeRestrictionRecordDto,
   UpdateTraineeRestrictionRequest,
-} from "@/schemas/trainee-restrictions.schema";
+} from "@/types/trainee-restrictions.schema";
 
 // ── ערכי הטופס ──
 

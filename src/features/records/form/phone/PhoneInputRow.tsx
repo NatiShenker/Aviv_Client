@@ -1,8 +1,8 @@
 import type { KeyboardEvent } from "react";
 import { IpsButton } from "ui-library";
-import { useFormControls } from "@/shared/form-controls/FormControlsProvider";
-import AppIcon from "@/shared/icons/AppIcon";
-import type { AppIconName } from "@/shared/icons/appIcons";
+import AppIcon from "@/shared/components/AppIcon";
+import type { AppIconName } from "@/shared/components/appIcons";
+import { useFormControls } from "@/shared/components/form/FormControlsProvider";
 import { FORM_TEXTS } from "../formTexts";
 
 const TEXTS = FORM_TEXTS.phone;

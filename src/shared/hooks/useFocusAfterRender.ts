@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { focusField } from "@/shared/dom/focusField";
+import { focusField } from "@/utils/dom";
 
 /**
  * פוקוס וגלילה לשדה אחרי שהמסך התעדכן, ולא באותו רינדור: למשל אחרי ששגיאות הוצגו,

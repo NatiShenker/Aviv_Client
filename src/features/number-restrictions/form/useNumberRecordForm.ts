@@ -1,25 +1,25 @@
 import { useEffect, useState, type FormEvent } from "react";
-import type { PermittedCondition } from "@/features/records/form/callConditionsLogic";
+import type { PermittedCondition } from "@/features/records/form/call-conditions/callConditionsLogic";
 import {
   decisionErrorSlotsFor,
   findReasonIdByName,
   toValidatedDecision,
   type DecisionValues,
-} from "@/features/records/form/decisionLogic";
+} from "@/features/records/form/decision/decisionLogic";
 import { findFirstErrorSlot, hasErrors, splitByHiddenSlots } from "@/features/records/form/formErrors";
 import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
 import { toAppError } from "@/infrastructure/errors/appError";
-import type { CallLimitKind, LookupItem, PhoneString } from "@/schemas/common.schema";
+import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { useFocusAfterRender } from "@/shared/hooks/useFocusAfterRender";
+import type { CallLimitKind, LookupItem, PhoneString } from "@/types/common.schema";
 import type {
   SourceRestrictionSummaryDto,
   TraineePhoneRecordDto,
   TraineePhoneRecordType,
-} from "@/schemas/phone-exceptions.schema";
-import { todayIsoDate } from "@/shared/dates/isoDate";
-import { isValidPhone, normalizePhone } from "@/shared/formatting/phoneFormat";
-import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import { useFocusAfterRender } from "@/shared/hooks/useFocusAfterRender";
+} from "@/types/phone-exceptions.schema";
+import { todayIsoDate } from "@/utils/dates";
+import { isValidPhone, normalizePhone } from "@/utils/phone";
 import { buildNumberRecordKey } from "../numberRestrictionsLogic";
 import {
   NUMBER_RECORD_ERROR_SLOTS,
@@ -53,7 +53,7 @@ import {
   isRestrictionConflict,
   mapSaveErrorToSlots,
 } from "./numberRecordValidation";
-import { usePermitLookup } from "./usePermitLookup";
+import { usePermitLookup } from "./source-restriction/usePermitLookup";
 
 type StateTransition = (current: NumberRecordFormState) => NumberRecordFormState;
 

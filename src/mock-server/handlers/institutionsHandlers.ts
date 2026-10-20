@@ -4,7 +4,7 @@ import type {
   GetInstitutesAndWingsResponse,
   GetPermissionsForInstituteRequest,
   GetPermissionsForInstituteResponse,
-} from "@/schemas/organization.schema";
+} from "@/types/organization.schema";
 import { INSTITUTES_MOCK_DATA } from "../data/institutesMockData";
 import { PERMISSIONS_BY_INSTITUTE_MOCK_DATA } from "../data/permissionsMockData";
 import { MockHandlerError, type MockRequest } from "../mockRequest";

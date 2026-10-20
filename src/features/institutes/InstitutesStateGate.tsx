@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
-import { useInstitutes } from "./InstitutesProvider";
+import { useInstitutes } from "@/store/institutesContext";
 import { INSTITUTES_TEXTS } from "./institutesTexts";
 
 interface InstitutesStateGateProps {

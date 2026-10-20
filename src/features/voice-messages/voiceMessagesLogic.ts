@@ -1,15 +1,27 @@
-import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
 import {
   buildDecisionDetailItems,
   decisionSearchParts,
   type DetailItem,
-} from "@/features/records/history/recordDetails";
-import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
-import { formatDateRange } from "@/shared/formatting/dateFormat";
-import { filterBySearchQuery } from "@/shared/search/searchText";
+} from "@/features/records/history/card/recordDetails";
+import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
+import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
+import { formatDateRange } from "@/utils/dates";
+import { filterBySearchQuery } from "@/utils/text";
 import { VOICE_MESSAGES_TEXTS } from "./voiceMessagesTexts";
 
 const TEXTS = VOICE_MESSAGES_TEXTS;
+
+// ── זיהוי רשומה ──
+
+/** המפתח של הודעה בהיסטוריה: הכרטיס הפתוח וההודעה שנשמרה */
+export function voiceMessageRecordKey(record: TraineeVoiceMessageRecordDto): number {
+  return record.id;
+}
+
+/** ההודעה שהטופס נפתח עליה (בעריכה או ביצירה על בסיס הודעה) */
+export function matchesVoiceMessageId(record: TraineeVoiceMessageRecordDto, recordId: number): boolean {
+  return record.id === recordId;
+}
 
 // ── ערכי התצוגה של רשומה (ספק 05 history §3) ──
 

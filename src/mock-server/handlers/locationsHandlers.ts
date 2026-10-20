@@ -1,7 +1,7 @@
 import type {
   GetLocationsAndVirtualLocationsRequest,
   GetLocationsAndVirtualLocationsResponse,
-} from "@/schemas/organization.schema";
+} from "@/types/organization.schema";
 import { LOCATIONS_MOCK_DATA } from "../data/locationsMockData";
 import type { MockRequest } from "../mockRequest";
 

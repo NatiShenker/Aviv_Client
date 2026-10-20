@@ -33,8 +33,6 @@ export const TRAINEES_LIST_TEXTS = {
   },
 
   card: {
-    activeBadge: "פעיל",
-    restrictedUntil: "מוגבל עד",
     locationSeparator: ", ",
     minutes: (minutes: number) => `${minutes} דקות`,
     cellcomDiscrepancy: "קיים פער בנתונים בסלקום",

@@ -1,6 +1,12 @@
-import { toConditionsInput } from "@/features/records/form/callConditionsLogic";
-import { toDecisionInput, type ValidatedDecision } from "@/features/records/form/decisionLogic";
-import type { ISODateString, MutationResultDto, PermittedCallConditionsInput } from "@/schemas/common.schema";
+import { toConditionsInput } from "@/features/records/form/call-conditions/callConditionsLogic";
+import { toDecisionInput, type ValidatedDecision } from "@/features/records/form/decision/decisionLogic";
+import {
+  createTraineePhonePermit,
+  createTraineePhoneRestriction,
+  updateTraineePhonePermit,
+  updateTraineePhoneRestriction,
+} from "@/services/phoneExceptionsService";
+import type { ISODateString, MutationResultDto, PermittedCallConditionsInput } from "@/types/common.schema";
 import type {
   CreateTraineePhonePermitRequest,
   CreateTraineePhoneRestrictionRequest,
@@ -10,13 +16,7 @@ import type {
   TraineePhoneRestrictionRecordDto,
   UpdateTraineePhonePermitRequest,
   UpdateTraineePhoneRestrictionRequest,
-} from "@/schemas/phone-exceptions.schema";
-import {
-  createTraineePhonePermit,
-  createTraineePhoneRestriction,
-  updateTraineePhonePermit,
-  updateTraineePhoneRestriction,
-} from "@/services/phoneExceptionsService";
+} from "@/types/phone-exceptions.schema";
 import type { NumberRecordRef } from "../numberRestrictionsLogic";
 import type { NumberRecordFormState, NumberRecordFormValues } from "./numberRecordFormLogic";
 

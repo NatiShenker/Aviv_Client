@@ -1,13 +1,13 @@
 import PhoneNumbersField from "@/features/records/form/phone/PhoneNumbersField";
 import PhoneSearchField from "@/features/records/form/phone/PhoneSearchField";
+import type { FieldOptionValue } from "@/shared/components/form/formControls";
+import { useFormControls } from "@/shared/components/form/FormControlsProvider";
 import FormSection from "@/shared/components/form/FormSection";
-import type { FieldOptionValue } from "@/shared/form-controls/formControls";
-import { useFormControls } from "@/shared/form-controls/FormControlsProvider";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import { NUMBER_RECORD_FIELD_IDS, canSearchPhone } from "./numberRecordFormLogic";
 import { RECORD_TYPE_OPTIONS, isNumberRecordType } from "./numberRestrictionsOptions";
-import PermitLookupResult from "./PermitLookupResult";
-import type { RestrictionOptionsListComponent } from "./RestrictionPicker";
+import PermitLookupResult from "./source-restriction/PermitLookupResult";
+import type { RestrictionOptionsListComponent } from "./source-restriction/RestrictionPicker";
 import type { NumberRecordFormController } from "./useNumberRecordForm";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.actionType;

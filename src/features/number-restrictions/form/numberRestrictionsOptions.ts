@@ -1,5 +1,5 @@
-import type { TraineePhoneRecordType } from "@/schemas/phone-exceptions.schema";
-import type { RadioFieldOption } from "@/shared/form-controls/formControls";
+import type { RadioFieldOption } from "@/shared/components/form/formControls";
+import type { TraineePhoneRecordType } from "@/types/phone-exceptions.schema";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 
 const RECORD_TYPE_TEXTS = NUMBER_RESTRICTIONS_TEXTS.recordTypes;

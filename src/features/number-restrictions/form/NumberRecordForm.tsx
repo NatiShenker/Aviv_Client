@@ -1,15 +1,15 @@
-import CallDetailsBlock from "@/features/records/form/CallDetailsBlock";
-import DecisionBlock from "@/features/records/form/DecisionBlock";
-import PermittedConditionsBlock from "@/features/records/form/PermittedConditionsBlock";
-import type { LookupItem } from "@/schemas/common.schema";
-import type { DeviceDto, WingDto } from "@/schemas/organization.schema";
-import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
+import CallDetailsBlock from "@/features/records/form/call-conditions/CallDetailsBlock";
+import PermittedConditionsBlock from "@/features/records/form/call-conditions/PermittedConditionsBlock";
+import DecisionBlock from "@/features/records/form/decision/DecisionBlock";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { LookupItem } from "@/types/common.schema";
+import type { DeviceDto, WingDto } from "@/types/organization.schema";
+import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import ActionTypeBlock from "./ActionTypeBlock";
 import LockedNumberCard from "./LockedNumberCard";
 import { NUMBER_RECORD_FIELD_IDS, permitDateBounds, shouldShowDetailBlocks } from "./numberRecordFormLogic";
-import type { RestrictionOptionsListComponent } from "./RestrictionPicker";
+import type { RestrictionOptionsListComponent } from "./source-restriction/RestrictionPicker";
 import type { NumberRecordFormController } from "./useNumberRecordForm";
 
 /** כפתור השמירה נמצא בפוטר של הטופס, מחוץ ל-<form>, ומשויך אליו לפי המזהה */

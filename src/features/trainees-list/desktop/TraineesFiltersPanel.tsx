@@ -1,10 +1,10 @@
 import { useId } from "react";
 import { IpsButton, IpsSelect, type IpsSelectOption } from "ui-library";
-import type { WingDto, WingLocationDto } from "@/schemas/organization.schema";
-import type { TraineeListFiltersState } from "@/schemas/trainees.schema";
+import AppIcon from "@/shared/components/AppIcon";
 import FieldLabelText from "@/shared/components/form/FieldLabelText";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import AppIcon from "@/shared/icons/AppIcon";
+import type { WingDto, WingLocationDto } from "@/types/organization.schema";
+import type { TraineeListFiltersState } from "@/types/trainees.schema";
 import {
   buildMultiSelectionSummary,
   resolveLocationsFieldState,

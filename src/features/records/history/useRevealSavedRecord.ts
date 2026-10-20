@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { focusField } from "@/shared/dom/focusField";
+import { focusField } from "@/utils/dom";
 
 /**
  * אחרי שמירה ההיסטוריה נטענת מחדש, והכרטיס שנשמר צריך להיראות (ספק 00 §4.1).

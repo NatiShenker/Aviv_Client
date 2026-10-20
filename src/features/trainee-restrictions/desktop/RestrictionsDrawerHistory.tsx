@@ -1,14 +1,13 @@
 import { useState, type ReactNode } from "react";
-import DrawerHistoryLayout from "@/features/records/history/desktop/DrawerHistoryLayout";
-import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
-import DrawerFormHost from "@/shells/desktop/DrawerFormHost";
-import type { RestrictionFormTarget } from "../form/useRestrictionFormRoute";
+import DrawerHistoryLayout from "@/features/records/desktop/DrawerHistoryLayout";
+import DrawerFormHost from "@/shells/desktop/drawer/DrawerFormHost";
+import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
+import type { RestrictionFormTarget } from "../form/useRestrictionFormSession";
 import RestrictionCard from "../history/RestrictionCard";
+import { restrictionRecordKey } from "../history/traineeRestrictionsLogic";
 import { useRestrictionsHistory } from "../history/useRestrictionsHistory";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import RestrictionDrawerForm from "./RestrictionDrawerForm";
-
-const getRecordKey = (record: TraineeRestrictionRecordDto) => record.id;
 
 interface RestrictionsDrawerHistoryProps {
   traineeId: number;
@@ -58,7 +57,7 @@ export default function RestrictionsDrawerHistory({ traineeId, navigation, onRec
         texts={TRAINEE_RESTRICTIONS_TEXTS}
         records={restrictions}
         history={history}
-        getRecordKey={getRecordKey}
+        getRecordKey={restrictionRecordKey}
         renderCard={renderCard}
         onCreate={() => setFormTarget({ mode: "create", basedOnRef: null })}
       />

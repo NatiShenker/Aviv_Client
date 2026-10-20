@@ -1,7 +1,7 @@
-import ExpandableRecordCard from "@/features/records/history/ExpandableRecordCard";
-import { isRecordActive } from "@/features/records/history/historySort";
-import RecordPeriodSummary from "@/features/records/history/RecordPeriodSummary";
-import type { TraineePhoneRecordDto, TraineePhoneRecordType } from "@/schemas/phone-exceptions.schema";
+import ExpandableRecordCard from "@/features/records/history/card/ExpandableRecordCard";
+import RecordPeriodSummary from "@/features/records/history/card/RecordPeriodSummary";
+import { isRecordActive } from "@/features/records/history/recordStatus";
+import type { TraineePhoneRecordDto, TraineePhoneRecordType } from "@/types/phone-exceptions.schema";
 import { buildNumberRecordDetails, buildNumberRecordKey, numberRecordCardDomId } from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 

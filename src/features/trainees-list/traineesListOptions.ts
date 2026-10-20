@@ -1,12 +1,12 @@
+import type { SortDirection } from "@/types/common.schema";
 import type {
   BalanceFilter,
   PhoneExceptionFilter,
   RecipientMessageFilter,
-  SortDirection,
   TraineeListFiltersState,
   TraineeRestrictionFilter,
   TraineeSortField,
-} from "@/schemas/trainees.schema";
+} from "@/types/trainees.schema";
 import { TRAINEES_LIST_TEXTS } from "./traineesListTexts";
 
 export interface FilterOption<TValue extends string> {

@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import DesktopInstituteSelector from "@/features/institutes/DesktopInstituteSelector";
-import { useInstitutes } from "@/features/institutes/InstitutesProvider";
 import InstitutesStateGate from "@/features/institutes/InstitutesStateGate";
 import TraineeDrawer from "@/features/trainee-actions/desktop/TraineeDrawer";
 import { ACTIONS_SCREEN } from "@/features/trainee-actions/desktop/traineeDrawerScreens";
 import { useTraineeDrawer } from "@/features/trainee-actions/desktop/useTraineeDrawer";
-import { focusField } from "@/shared/dom/focusField";
+import DesktopInstituteSelector from "@/features/trainees-list/desktop/DesktopInstituteSelector";
 import DesktopPage from "@/shells/desktop/DesktopPage";
+import { useInstitutes } from "@/store/institutesContext";
+import { focusField } from "@/utils/dom";
 import { forgetTraineesListPosition } from "../traineesListMemory";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
 import { useTraineesListState } from "../useTraineesListState";

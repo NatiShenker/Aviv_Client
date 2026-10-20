@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { SELECTION_TTL_DAYS } from "@/appConstants";
-import { readWithExpiry, saveWithExpiry } from "@/infrastructure/storage/expiringStorage";
-import { STORAGE_KEYS } from "@/infrastructure/storage/storageKeys";
-import type { InstituteWithWingsDto, WingLocationDto } from "@/schemas/organization.schema";
-import type { TraineeListFiltersState, TraineeListItemDto } from "@/schemas/trainees.schema";
+import { SELECTION_TTL_DAYS, STORAGE_KEYS } from "@/config/appConstants";
+import { readWithExpiry, saveWithExpiry } from "@/infrastructure/expiringStorage";
+import type { InstituteWithWingsDto, WingLocationDto } from "@/types/organization.schema";
+import type { TraineeListFiltersState, TraineeListItemDto } from "@/types/trainees.schema";
 import { countActiveFilterGroups, filterAndSortTrainees, keepLocationsOfWings } from "./traineesListLogic";
 import { readRememberedTraineesList, rememberTraineesListView } from "./traineesListMemory";
 import {

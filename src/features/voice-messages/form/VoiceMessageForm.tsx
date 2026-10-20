@@ -1,7 +1,7 @@
-import DecisionBlock from "@/features/records/form/DecisionBlock";
-import type { LookupItem } from "@/schemas/common.schema";
-import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
+import DecisionBlock from "@/features/records/form/decision/DecisionBlock";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { LookupItem } from "@/types/common.schema";
+import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
 import MessageBlock from "./MessageBlock";
 import MessageDetailsBlock from "./MessageDetailsBlock";
 import type { VoiceMessageFormController } from "./useVoiceMessageForm";

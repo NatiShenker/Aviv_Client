@@ -7,18 +7,18 @@ import {
   validateDecision,
   type DecisionValues,
   type ValidatedDecision,
-} from "@/features/records/form/decisionLogic";
+} from "@/features/records/form/decision/decisionLogic";
 import { mapServerFieldErrors, removeEmptyErrors, type FormErrors } from "@/features/records/form/formErrors";
 import type { FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { commitPendingPhone, tryAddPhone } from "@/features/records/form/phone/phoneNumbersLogic";
 import type { AppError } from "@/infrastructure/errors/appError";
-import type { ISODateString, PhoneString } from "@/schemas/common.schema";
+import type { ISODateString, PhoneString } from "@/types/common.schema";
 import type {
   CreateTraineeVoiceMessageRequest,
   TraineeVoiceMessageRecordDto,
   UpdateTraineeVoiceMessageRequest,
   VoiceMessageScope,
-} from "@/schemas/voice-messages.schema";
+} from "@/types/voice-messages.schema";
 import { DEFAULT_SCOPE } from "./voiceMessagesOptions";
 
 /*

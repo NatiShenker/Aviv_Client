@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
 import { IpsRadioGroup, type IpsRadioGroupOption, type IpsRadioGroupValue } from "ui-library";
-import type { SourceRestrictionSummaryDto } from "@/schemas/phone-exceptions.schema";
-import { formatDateRange } from "@/shared/formatting/dateFormat";
+import type { SourceRestrictionSummaryDto } from "@/types/phone-exceptions.schema";
+import { formatDateRange } from "@/utils/dates";
 import { RESTRICTION_PICKER_HEADING_ID } from "../form/numberRecordFormLogic";
-import { formatExistingPermitsSummary } from "../form/restrictionPickerLogic";
-import type { RestrictionOptionsListProps } from "../form/RestrictionPicker";
+import type { RestrictionOptionsListProps } from "../form/source-restriction/RestrictionPicker";
+import { formatExistingPermitsSummary } from "../form/source-restriction/restrictionPickerLogic";
 import { buildRestrictionReasonText, buildScopeLabel } from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 

@@ -1,5 +1,5 @@
-import { PERMISSION_IDS, type PermissionId } from "@/features/institutes/permissionIds";
-import type { AppIconName } from "@/shared/icons/appIcons";
+import { PERMISSION_IDS, type PermissionId } from "@/features/institutes/permissions";
+import type { AppIconName } from "@/shared/components/appIcons";
 import { TRAINEE_ACTIONS_TEXTS } from "./traineeActionsTexts";
 
 const ITEM_TEXTS = TRAINEE_ACTIONS_TEXTS.items;

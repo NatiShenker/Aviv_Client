@@ -1,5 +1,5 @@
-import RecordIconCircle from "@/features/records/history/RecordIconCircle";
-import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
+import RecordIconCircle from "@/features/records/history/card/RecordIconCircle";
+import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
 import { isAllCallsMessage } from "../voiceMessagesLogic";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 

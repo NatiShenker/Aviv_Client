@@ -1,9 +1,9 @@
-import type { LookupItem, TimeString } from "@/schemas/common.schema";
-import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
+import type { LookupItem, TimeString } from "@/types/common.schema";
+import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
 import { daysFromToday } from "../mockDates";
 import { DEVICES_MOCK_DATA } from "./devicesMockData";
-import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
 import { TRAINEE_RESTRICTION_REASONS_MOCK_DATA } from "./reasonsMockData";
+import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
 import {
   TRAINEES_MOCK_DATA,
   showcaseEndedRecordCount,

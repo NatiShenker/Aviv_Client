@@ -1,23 +1,8 @@
-import type { ISODateString, TemporalStatus } from "@/schemas/common.schema";
-import type { SortDirection } from "@/schemas/trainees.schema";
+import type { SortDirection } from "@/types/common.schema";
 import { HISTORY_TEXTS } from "./historyTexts";
+import { isRecordActive, type DatedHistoryRecord } from "./recordStatus";
 
 const SORT_TEXTS = HISTORY_TEXTS.sort;
-
-/** רשומה בהיסטוריה: מספיקים התאריכים והסטטוס כדי למיין אותה */
-export interface DatedHistoryRecord {
-  startDate: ISODateString;
-  endDate: ISODateString;
-  temporalStatus: TemporalStatus;
-}
-
-/**
- * פעילה כל עוד הרשומה לא הסתיימה. רשומה עתידית מוצגת גם היא כפעילה (OQ-01),
- * ולכן רק "expired" נחשבת הסתיימה.
- */
-export function isRecordActive(record: Pick<DatedHistoryRecord, "temporalStatus">): boolean {
-  return record.temporalStatus !== "expired";
-}
 
 export type HistorySortField = "startDate" | "endDate" | "status";
 

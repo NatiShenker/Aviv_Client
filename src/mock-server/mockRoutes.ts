@@ -1,20 +1,20 @@
+import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
 import type { HttpMethod } from "@/infrastructure/http/httpClient";
 import { APPROVER_STAND_IN_ENDPOINTS } from "@/integrations/approver-mfe/approversStandInService";
-import type { ApproverRef, FileAttachmentRef, LookupItem, MutationResultDto } from "@/schemas/common.schema";
+import type { ApproverRef, FileAttachmentRef, LookupItem, MutationResultDto } from "@/types/common.schema";
 import type {
   GetInstituteDevicesResponse,
   GetInstitutesAndWingsResponse,
   GetLocationsAndVirtualLocationsResponse,
   GetPermissionsForInstituteResponse,
-} from "@/schemas/organization.schema";
+} from "@/types/organization.schema";
 import type {
   GetTraineePhoneRecordsResponse,
   LookupPhoneRestrictionsForPermitResponse,
-} from "@/schemas/phone-exceptions.schema";
-import type { GetTraineeRestrictionsResponse } from "@/schemas/trainee-restrictions.schema";
-import type { GetTraineesResponse } from "@/schemas/trainees.schema";
-import type { GetTraineeVoiceMessagesResponse } from "@/schemas/voice-messages.schema";
-import { SERVICE_ENDPOINTS } from "@/services/serviceEndpoints";
+} from "@/types/phone-exceptions.schema";
+import type { GetTraineeRestrictionsResponse } from "@/types/trainee-restrictions.schema";
+import type { GetTraineesResponse } from "@/types/trainees.schema";
+import type { GetTraineeVoiceMessagesResponse } from "@/types/voice-messages.schema";
 import { handleSearchApprovers } from "./handlers/approverStandInHandlers";
 import { handleRegisterApprovedFile } from "./handlers/filesHandlers";
 import {

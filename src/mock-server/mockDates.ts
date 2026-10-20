@@ -1,5 +1,5 @@
-import type { ISODateString, TemporalStatus } from "@/schemas/common.schema";
-import { addDaysToIsoDate, todayIsoDate } from "@/shared/dates/isoDate";
+import type { ISODateString, TemporalStatus } from "@/types/common.schema";
+import { addDaysToIsoDate, todayIsoDate } from "@/utils/dates";
 
 // תאריכי המוק מחושבים יחסית להיום, כדי שרשומה "פעילה" תישאר פעילה בכל יום שמריצים את האפליקציה
 

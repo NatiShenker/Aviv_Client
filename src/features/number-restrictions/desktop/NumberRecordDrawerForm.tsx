@@ -1,12 +1,11 @@
+import { useDrawerFormSlot } from "@/features/records/desktop/useDrawerFormSlot";
 import FormFooter from "@/features/records/form/FormFooter";
-import { useDrawerFormSlot } from "@/features/records/history/desktop/useDrawerFormSlot";
-import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import DrawerFormLayer from "@/shells/desktop/DrawerFormLayer";
-import { useReportUnsavedChanges } from "@/shells/desktop/unsavedChanges";
+import DrawerFormLayer from "@/shells/desktop/drawer/DrawerFormLayer";
+import { useReportUnsavedChanges } from "@/shells/desktop/drawer/unsavedChanges";
+import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import NumberRecordForm from "../form/NumberRecordForm";
-import { useNumberRecordFormSession } from "../form/useNumberRecordFormSession";
-import type { NumberRecordFormTarget } from "../form/useNumberRecordFormRoute";
+import { useNumberRecordFormSession, type NumberRecordFormTarget } from "../form/useNumberRecordFormSession";
 import { matchesNumberRecordRef } from "../numberRestrictionsLogic";
 import RestrictionRadioCards from "./RestrictionRadioCards";
 

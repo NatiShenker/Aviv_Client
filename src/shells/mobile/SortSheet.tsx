@@ -1,5 +1,7 @@
 import { IpsDrawer, IpsRadioListMobile, type IpsRadioListMobileValue } from "ui-library";
-import { SORT_SHEET_TEXTS } from "./sortSheetTexts";
+import { MOBILE_SHELL_TEXTS } from "./mobileShellTexts";
+
+const TEXTS = MOBILE_SHELL_TEXTS.sortSheet;
 
 const SHEET_HEIGHT = "auto";
 
@@ -28,13 +30,13 @@ export default function SortSheet({ open, onClose, rows, selectedValue, onChange
       open={open}
       anchor="bottom"
       size={SHEET_HEIGHT}
-      title={SORT_SHEET_TEXTS.title}
-      closeButtonLabel={SORT_SHEET_TEXTS.close}
+      title={TEXTS.title}
+      closeButtonLabel={TEXTS.close}
       onClose={onClose}
       rtl
     >
       <IpsRadioListMobile
-        aria-label={SORT_SHEET_TEXTS.title}
+        aria-label={TEXTS.title}
         options={rows}
         value={selectedValue}
         onChange={handleChange}

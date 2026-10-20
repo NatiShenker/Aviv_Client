@@ -1,9 +1,9 @@
-import CallDetailsBlock from "@/features/records/form/CallDetailsBlock";
-import DecisionBlock from "@/features/records/form/DecisionBlock";
-import PermittedConditionsBlock from "@/features/records/form/PermittedConditionsBlock";
-import type { LookupItem } from "@/schemas/common.schema";
-import type { DeviceDto, WingDto } from "@/schemas/organization.schema";
+import CallDetailsBlock from "@/features/records/form/call-conditions/CallDetailsBlock";
+import PermittedConditionsBlock from "@/features/records/form/call-conditions/PermittedConditionsBlock";
+import DecisionBlock from "@/features/records/form/decision/DecisionBlock";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { LookupItem } from "@/types/common.schema";
+import type { DeviceDto, WingDto } from "@/types/organization.schema";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import { RESTRICTION_FIELD_IDS } from "./restrictionFormLogic";
 import type { RestrictionFormController } from "./useRestrictionForm";

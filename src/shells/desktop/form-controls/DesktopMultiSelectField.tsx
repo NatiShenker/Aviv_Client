@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { IpsSelect } from "ui-library";
 import FieldLabelText from "@/shared/components/form/FieldLabelText";
-import type { FieldOption, FieldOptionValue, MultiSelectFieldProps } from "@/shared/form-controls/formControls";
+import type { FieldOption, FieldOptionValue, MultiSelectFieldProps } from "@/shared/components/form/formControls";
 
 const DEFAULT_SELECTION_SEPARATOR = ", ";
 

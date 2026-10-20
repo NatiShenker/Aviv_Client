@@ -1,12 +1,12 @@
-import { AVIV_CLIENT_ID } from "@/appConstants";
-import { createQueryCache, idsKey } from "@/infrastructure/api/queryCache";
-import { serviceClient } from "@/infrastructure/api/serviceClient";
+import { AVIV_CLIENT_ID } from "@/config/appConstants";
+import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
+import { createQueryCache, idsKey } from "@/infrastructure/queryCache";
+import { serviceClient } from "@/infrastructure/serviceClient";
 import type {
   GetLocationsAndVirtualLocationsRequest,
   GetLocationsAndVirtualLocationsResponse,
   WingLocationDto,
-} from "@/schemas/organization.schema";
-import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
+} from "@/types/organization.schema";
 
 export interface LocationsQuery {
   instituteIds: number[];

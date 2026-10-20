@@ -1,4 +1,4 @@
-import type { ISODateString, PermittedCallConditionsDto, PhoneString } from "@/schemas/common.schema";
+import type { ISODateString, PermittedCallConditionsDto, PhoneString } from "@/types/common.schema";
 import type {
   CreateTraineePhonePermitRequest,
   CreateTraineePhonePermitResponse,
@@ -18,10 +18,9 @@ import type {
   UpdateTraineePhonePermitResponse,
   UpdateTraineePhoneRestrictionRequest,
   UpdateTraineePhoneRestrictionResponse,
-} from "@/schemas/phone-exceptions.schema";
-import { todayIsoDate } from "@/shared/dates/isoDate";
-import { formatDateRange } from "@/shared/formatting/dateFormat";
-import { isValidPhone } from "@/shared/formatting/phoneFormat";
+} from "@/types/phone-exceptions.schema";
+import { todayIsoDate, formatDateRange } from "@/utils/dates";
+import { isValidPhone } from "@/utils/phone";
 import { GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA } from "../data/globalPhoneRestrictionsMockData";
 import { buildAuditMetadata } from "../data/recordMetadataBuilders";
 import { summarizeGlobalRestriction, summarizeTraineeRestriction } from "../data/sourceRestrictionBuilders";

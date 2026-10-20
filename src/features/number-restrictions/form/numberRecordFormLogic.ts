@@ -9,7 +9,7 @@ import {
   type CallConditionsValues,
   type CallTermsValues,
   type OpenConditions,
-} from "@/features/records/form/callConditionsLogic";
+} from "@/features/records/form/call-conditions/callConditionsLogic";
 import {
   createDefaultDateRange,
   touchedDatesFor,
@@ -21,7 +21,7 @@ import {
   createEmptyDecisionValues,
   decisionValuesFromRecord,
   type DecisionValues,
-} from "@/features/records/form/decisionLogic";
+} from "@/features/records/form/decision/decisionLogic";
 import {
   withoutErrors,
   type CallFormErrorSlot,
@@ -30,13 +30,13 @@ import {
 import type { FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
 import { tryAddPhone } from "@/features/records/form/phone/phoneNumbersLogic";
-import type { ISODateString, PhoneString } from "@/schemas/common.schema";
+import type { ISODateString, PhoneString } from "@/types/common.schema";
 import type {
   SourceRestrictionSummaryDto,
   TraineePhoneRecordDto,
   TraineePhoneRecordType,
-} from "@/schemas/phone-exceptions.schema";
-import { normalizePhone } from "@/shared/formatting/phoneFormat";
+} from "@/types/phone-exceptions.schema";
+import { normalizePhone } from "@/utils/phone";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 
 /*

@@ -1,5 +1,5 @@
 import { HTTP_STATUS } from "@/infrastructure/http/httpStatus";
-import type { DecisionApprovalInput, ISODateString, PermittedCallConditionsInput } from "@/schemas/common.schema";
+import type { DecisionApprovalInput, ISODateString, PermittedCallConditionsInput } from "@/types/common.schema";
 import { APPROVED_FILES_MOCK_DATA } from "../data/approvedFilesMockData";
 import { APPROVERS_MOCK_DATA } from "../data/approversMockData";
 import { MockHandlerError } from "../mockRequest";

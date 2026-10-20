@@ -1,6 +1,6 @@
-import type { ISODateString } from "@/schemas/common.schema";
-import { addDaysToIsoDate } from "@/shared/dates/isoDate";
-import { CALL_CONDITIONS_TEXTS } from "./callConditionsTexts";
+import type { ISODateString } from "@/types/common.schema";
+import { addDaysToIsoDate } from "@/utils/dates";
+import { CALL_CONDITIONS_TEXTS } from "./call-conditions/callConditionsTexts";
 
 /*
  * טווח התאריכים, המשותף לכל הרשומות: הגבלות, היתרים והודעות לנמען (ספק 00 §4.2).

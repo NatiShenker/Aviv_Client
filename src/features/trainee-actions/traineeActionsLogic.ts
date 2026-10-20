@@ -1,4 +1,4 @@
-import { isPermitted } from "@/features/institutes/permissionsLogic";
+import { isPermitted } from "@/features/institutes/permissions";
 import {
   ADDITIONAL_INFO_ITEMS,
   ADDITIONAL_INFO_PERMISSION_ID,

@@ -1,4 +1,4 @@
-import type { FileAttachmentRef } from "@/schemas/common.schema";
+import type { FileAttachmentRef } from "@/types/common.schema";
 import { TRAINEE_PHONE_RECORDS_MOCK_DATA } from "./traineePhoneRecordsMockData";
 import { TRAINEE_RESTRICTIONS_MOCK_DATA } from "./traineeRestrictionsMockData";
 import { TRAINEE_VOICE_MESSAGES_MOCK_DATA } from "./traineeVoiceMessagesMockData";

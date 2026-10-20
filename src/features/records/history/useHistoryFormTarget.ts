@@ -1,6 +1,6 @@
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import type { RecordFormTarget } from "../form/formStartingPoint";
-import { isRecordActive, type DatedHistoryRecord } from "./historySort";
+import { isRecordActive, type DatedHistoryRecord } from "./recordStatus";
 
 interface HistoryFormTargetOptions<TRecord, TRecordRef> {
   formTarget: RecordFormTarget<TRecordRef> | null;

@@ -1,8 +1,8 @@
 import { forwardRef, useId } from "react";
 import { IpsIconButton, IpsTextField } from "ui-library";
+import AppIcon from "@/shared/components/AppIcon";
 import FieldLabelText from "@/shared/components/form/FieldLabelText";
-import type { TextFieldProps } from "@/shared/form-controls/formControls";
-import AppIcon from "@/shared/icons/AppIcon";
+import type { TextFieldProps } from "@/shared/components/form/formControls";
 
 /**
  * שדה טקסט בדסקטופ: IpsTextField, עם התווית מעל השדה (design.md).

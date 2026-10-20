@@ -1,5 +1,5 @@
-import type { LookupItem } from "@/schemas/common.schema";
-import type { GetInstituteDevicesRequest, GetInstituteDevicesResponse } from "@/schemas/organization.schema";
+import type { LookupItem } from "@/types/common.schema";
+import type { GetInstituteDevicesRequest, GetInstituteDevicesResponse } from "@/types/organization.schema";
 import { DEVICES_MOCK_DATA } from "../data/devicesMockData";
 import {
   PHONE_EXCEPTION_REASONS_MOCK_DATA,

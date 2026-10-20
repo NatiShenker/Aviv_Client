@@ -1,10 +1,10 @@
-import { validateDuration, validateHours } from "@/features/records/form/callConditionsLogic";
+import { validateDuration, validateHours } from "@/features/records/form/call-conditions/callConditionsLogic";
 import { validateDateRange } from "@/features/records/form/dateRangeLogic";
-import { validateDecision } from "@/features/records/form/decisionLogic";
+import { validateDecision } from "@/features/records/form/decision/decisionLogic";
 import { CALL_FORM_SERVER_FIELD_SLOTS, mapServerFieldErrors, removeEmptyErrors } from "@/features/records/form/formErrors";
 import { commitPendingPhone } from "@/features/records/form/phone/phoneNumbersLogic";
 import type { AppError } from "@/infrastructure/errors/appError";
-import { formatDateRange } from "@/shared/formatting/dateFormat";
+import { formatDateRange } from "@/utils/dates";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import {
   closeRestrictionPicker,

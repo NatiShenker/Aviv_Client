@@ -1,4 +1,5 @@
-import { serviceClient } from "@/infrastructure/api/serviceClient";
+import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
+import { serviceClient } from "@/infrastructure/serviceClient";
 import type {
   CreateTraineeVoiceMessageRequest,
   CreateTraineeVoiceMessageResponse,
@@ -7,8 +8,7 @@ import type {
   TraineeVoiceMessageRecordDto,
   UpdateTraineeVoiceMessageRequest,
   UpdateTraineeVoiceMessageResponse,
-} from "@/schemas/voice-messages.schema";
-import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
+} from "@/types/voice-messages.schema";
 import { clearCachedTrainees } from "./traineesService";
 
 const ENDPOINTS = SERVICE_ENDPOINTS.voiceMessages;

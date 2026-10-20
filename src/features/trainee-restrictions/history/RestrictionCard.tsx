@@ -1,7 +1,7 @@
-import ExpandableRecordCard from "@/features/records/history/ExpandableRecordCard";
-import { isRecordActive } from "@/features/records/history/historySort";
-import RecordPeriodSummary from "@/features/records/history/RecordPeriodSummary";
-import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
+import ExpandableRecordCard from "@/features/records/history/card/ExpandableRecordCard";
+import RecordPeriodSummary from "@/features/records/history/card/RecordPeriodSummary";
+import { isRecordActive } from "@/features/records/history/recordStatus";
+import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import { buildRestrictionDetails, buildRestrictionTypeLabel, restrictionCardDomId } from "./traineeRestrictionsLogic";
 

@@ -1,14 +1,12 @@
+import { useDrawerFormSlot } from "@/features/records/desktop/useDrawerFormSlot";
 import FormFooter from "@/features/records/form/FormFooter";
-import { useDrawerFormSlot } from "@/features/records/history/desktop/useDrawerFormSlot";
-import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import DrawerFormLayer from "@/shells/desktop/DrawerFormLayer";
-import { useReportUnsavedChanges } from "@/shells/desktop/unsavedChanges";
-import { useVoiceMessageFormSession } from "../form/useVoiceMessageFormSession";
-import type { VoiceMessageFormTarget } from "../form/useVoiceMessageFormRoute";
+import DrawerFormLayer from "@/shells/desktop/drawer/DrawerFormLayer";
+import { useReportUnsavedChanges } from "@/shells/desktop/drawer/unsavedChanges";
+import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
+import { useVoiceMessageFormSession, type VoiceMessageFormTarget } from "../form/useVoiceMessageFormSession";
 import VoiceMessageForm from "../form/VoiceMessageForm";
-
-const matchesVoiceMessageId = (record: TraineeVoiceMessageRecordDto, recordId: number) => record.id === recordId;
+import { matchesVoiceMessageId } from "../voiceMessagesLogic";
 
 interface VoiceMessageDrawerFormProps {
   target: VoiceMessageFormTarget;

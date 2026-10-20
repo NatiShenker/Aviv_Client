@@ -1,7 +1,7 @@
 import type { IpsSelectOption } from "ui-library";
 import { buildWingLabel } from "@/features/institutes/organizationLogic";
-import type { WingDto, WingLocationDto } from "@/schemas/organization.schema";
 import type { AsyncStatus } from "@/shared/hooks/useAsyncResource";
+import type { WingDto, WingLocationDto } from "@/types/organization.schema";
 import { locationsOfSelectedWings } from "./traineesListLogic";
 import { TRAINEES_LIST_TEXTS } from "./traineesListTexts";
 

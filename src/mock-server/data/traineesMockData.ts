@@ -1,6 +1,6 @@
-import type { LookupItem } from "@/schemas/common.schema";
-import type { InstituteWithWingsDto } from "@/schemas/organization.schema";
-import type { TraineeActiveStatusFlagsDto, TraineeListItemDto } from "@/schemas/trainees.schema";
+import type { LookupItem } from "@/types/common.schema";
+import type { InstituteWithWingsDto } from "@/types/organization.schema";
+import type { TraineeActiveStatusFlagsDto, TraineeListItemDto } from "@/types/trainees.schema";
 import { daysFromToday } from "../mockDates";
 import { INSTITUTES_MOCK_DATA } from "./institutesMockData";
 import { LOCATIONS_MOCK_DATA } from "./locationsMockData";

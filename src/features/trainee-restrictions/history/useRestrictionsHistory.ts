@@ -1,6 +1,6 @@
 import { useRecordHistoryState, type RecordHistoryState } from "@/features/records/history/useRecordHistoryState";
-import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
 import { filterAndSortRestrictions, restrictionCardDomId } from "./traineeRestrictionsLogic";
 import { useTraineeRestrictionsData } from "./useTraineeRestrictionsData";
 

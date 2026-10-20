@@ -1,4 +1,4 @@
-import type { LookupItem } from "@/schemas/common.schema";
+import type { LookupItem } from "@/types/common.schema";
 
 // רשימות הסיבות לפי ספק 00 §6
 

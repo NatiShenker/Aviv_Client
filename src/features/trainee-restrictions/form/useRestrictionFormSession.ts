@@ -1,18 +1,19 @@
-import { useInstitutes } from "@/features/institutes/InstitutesProvider";
-import type { FormSaveProps } from "@/features/records/form/FormFooter";
-import { resolveFormStartingPoint } from "@/features/records/form/formStartingPoint";
-import { useInstituteDevices } from "@/features/records/form/useInstituteDevices";
-import { useReasons } from "@/features/records/form/useReasons";
-import type { WingDto } from "@/schemas/organization.schema";
-import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
+import { useInstituteDevices, useReasons } from "@/features/records/form/formReferenceData";
+import { resolveFormStartingPoint, type RecordFormTarget } from "@/features/records/form/formStartingPoint";
+import type { RecordFormSession } from "@/features/records/form/recordFormSession";
+import { useInstitutes } from "@/store/institutesContext";
+import type { WingDto } from "@/types/organization.schema";
+import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import { RESTRICTION_FORM_ID, type RestrictionFormProps } from "./RestrictionForm";
 import { useRestrictionForm } from "./useRestrictionForm";
-import type { RestrictionFormTarget } from "./useRestrictionFormRoute";
 
 const TEXTS = TRAINEE_RESTRICTIONS_TEXTS.form;
 // הפניה קבועה, כדי שרשימה ריקה לא תיחשב "רשימה חדשה" בכל רינדור
 const NO_WINGS: WingDto[] = [];
+
+/** הטופס שנפתח מעל ההיסטוריה. בעריכה (או ביצירה על בסיס רשומה) - מזהה ההגבלה */
+export type RestrictionFormTarget = RecordFormTarget<number>;
 
 interface RestrictionFormSessionOptions {
   /** הטופס שנפתח. null = הטופס סגור */
@@ -25,14 +26,7 @@ interface RestrictionFormSessionOptions {
   onSaved: (savedRecordId: number) => void;
 }
 
-/** מה שפתיחה אחת של טופס ההגבלה צריכה, בלי המעטפת: כותרת, גוף הטופס, ומצב השמירה לפוטר */
-export interface RestrictionFormSession {
-  title: string;
-  formProps: RestrictionFormProps;
-  saveProps: FormSaveProps;
-  /** המשתמש שינה ערך מאז שהטופס נפתח */
-  hasUserChanges: boolean;
-}
+export type RestrictionFormSession = RecordFormSession<RestrictionFormProps>;
 
 /**
  * פתיחה אחת של טופס ההגבלה, לשתי הפריסות: נתוני העזר (מכשירים, סיבות), נקודת ההתחלה והטופס עצמו.

@@ -1,18 +1,18 @@
 import type { ReactNode } from "react";
 import PermissionBlockedMessage from "@/features/institutes/PermissionBlockedMessage";
-import { PERMISSION_IDS, type PermissionId } from "@/features/institutes/permissionIds";
+import { PERMISSION_IDS, type PermissionId } from "@/features/institutes/permissions";
 import { usePermissionCheck } from "@/features/institutes/usePermissionCheck";
 import NumberRestrictionsDrawerHistory from "@/features/number-restrictions/desktop/NumberRestrictionsDrawerHistory";
 import { NUMBER_RESTRICTIONS_TEXTS } from "@/features/number-restrictions/numberRestrictionsTexts";
-import { renderDrawerCardFrame } from "@/features/records/history/desktop/drawerCardFrame";
+import { renderDrawerCardFrame } from "@/features/records/desktop/DrawerHistoryLayout";
 import HistorySkeleton from "@/features/records/history/HistorySkeleton";
 import RestrictionsDrawerHistory from "@/features/trainee-restrictions/desktop/RestrictionsDrawerHistory";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "@/features/trainee-restrictions/traineeRestrictionsTexts";
 import VoiceMessagesDrawerHistory from "@/features/voice-messages/desktop/VoiceMessagesDrawerHistory";
 import { VOICE_MESSAGES_TEXTS } from "@/features/voice-messages/voiceMessagesTexts";
-import type { TraineeListItemDto } from "@/schemas/trainees.schema";
-import { DRAWER_SCROLL_AREA_CLASS } from "@/shells/desktop/drawerSpacing";
-import DrawerTopBar from "@/shells/desktop/DrawerTopBar";
+import { DRAWER_SCROLL_AREA_CLASS } from "@/shells/desktop/drawer/drawerSpacing";
+import DrawerTopBar from "@/shells/desktop/drawer/DrawerTopBar";
+import type { TraineeListItemDto } from "@/types/trainees.schema";
 import DrawerActionNavigation from "./DrawerActionNavigation";
 import type { DrawerActionKey } from "./traineeDrawerScreens";
 

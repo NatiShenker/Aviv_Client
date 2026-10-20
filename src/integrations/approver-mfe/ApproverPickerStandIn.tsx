@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { IpsButton, IpsRadioListMobile, IpsSearchFieldMobile, type IpsRadioListMobileValue } from "ui-library";
-import type { ApproverRef } from "@/schemas/common.schema";
 import { isEmptyList, useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { ApproverRef } from "@/types/common.schema";
+import type { ApproverPickerProps } from "./approverPickerContract";
 import { searchApprovers } from "./approversStandInService";
 import { APPROVER_STAND_IN_TEXTS } from "./approverStandInTexts";
-import type { ApproverPickerProps } from "./approverPickerContract";
 
 const TEXTS = APPROVER_STAND_IN_TEXTS;
 

@@ -1,6 +1,6 @@
-import type { InstituteWithWingsDto, WingLocationDto } from "@/schemas/organization.schema";
-import type { TraineeListItemDto } from "@/schemas/trainees.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { InstituteWithWingsDto, WingLocationDto } from "@/types/organization.schema";
+import type { TraineeListItemDto } from "@/types/trainees.schema";
 import { useTraineesListData } from "./useTraineesListData";
 import { useTraineesListFilters, type TraineesListFilters } from "./useTraineesListFilters";
 

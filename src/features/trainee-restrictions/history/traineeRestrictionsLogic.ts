@@ -4,21 +4,33 @@ import {
   buildPermittedDevicesValue,
   buildPermittedHoursValue,
   hasPermittedHours,
-} from "@/features/records/form/callConditionsLogic";
-import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
+} from "@/features/records/form/call-conditions/callConditionsLogic";
 import {
   buildDecisionDetailItems,
   decisionSearchParts,
   type DetailItem,
-} from "@/features/records/history/recordDetails";
-import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
-import { formatDateRange } from "@/shared/formatting/dateFormat";
-import { filterBySearchQuery } from "@/shared/search/searchText";
+} from "@/features/records/history/card/recordDetails";
+import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
+import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
+import { formatDateRange } from "@/utils/dates";
+import { filterBySearchQuery } from "@/utils/text";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 
 const TEXTS = TRAINEE_RESTRICTIONS_TEXTS;
 // כל הרשומות במסך הזה הן הגבלות (ספק 03 overview §3.2)
 const RULE_KIND = "restriction";
+
+// ── זיהוי רשומה ──
+
+/** המפתח של רשומה בהיסטוריה: הכרטיס הפתוח והרשומה שנשמרה */
+export function restrictionRecordKey(record: TraineeRestrictionRecordDto): number {
+  return record.id;
+}
+
+/** הרשומה שהטופס נפתח עליה (בעריכה או ביצירה על בסיס רשומה) */
+export function matchesRestrictionId(record: TraineeRestrictionRecordDto, recordId: number): boolean {
+  return record.id === recordId;
+}
 
 // ── ערכי התצוגה של רשומה (ספק 03 overview §3) ──
 

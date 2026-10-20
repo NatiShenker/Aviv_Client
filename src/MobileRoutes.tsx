@@ -1,11 +1,11 @@
 import { Route, Routes } from "react-router-dom";
-import NumberRestrictionsScreen from "./features/number-restrictions/NumberRestrictionsScreen";
-import TraineeActionsScreen from "./features/trainee-actions/TraineeActionsScreen";
-import TraineeRestrictionsScreen from "./features/trainee-restrictions/TraineeRestrictionsScreen";
-import TraineesListScreen from "./features/trainees-list/TraineesListScreen";
-import VoiceMessagesScreen from "./features/voice-messages/VoiceMessagesScreen";
-import { ROUTE_PATTERNS } from "./routes";
-import { FormControlsProvider } from "./shared/form-controls/FormControlsProvider";
+import { ROUTE_PATTERNS } from "./config/routes";
+import NumberRestrictionsScreen from "./features/number-restrictions/mobile/NumberRestrictionsScreen";
+import TraineeActionsScreen from "./features/trainee-actions/mobile/TraineeActionsScreen";
+import TraineeRestrictionsScreen from "./features/trainee-restrictions/mobile/TraineeRestrictionsScreen";
+import TraineesListScreen from "./features/trainees-list/mobile/TraineesListScreen";
+import VoiceMessagesScreen from "./features/voice-messages/mobile/VoiceMessagesScreen";
+import { FormControlsProvider } from "./shared/components/form/FormControlsProvider";
 import { MOBILE_FORM_CONTROLS } from "./shells/mobile/mobileFormControls";
 
 /** המסכים של פריסת המובייל: כל מסך הוא עמוד, והטפסים בהם עם הפקדים הנייטיביים */

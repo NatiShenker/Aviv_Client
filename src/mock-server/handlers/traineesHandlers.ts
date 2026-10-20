@@ -1,15 +1,15 @@
-import type { ISODateString } from "@/schemas/common.schema";
+import type { ISODateString } from "@/types/common.schema";
 import type {
   GetTraineePhotoRequest,
   GetTraineesRequest,
   GetTraineesResponse,
   TraineeListItemDto,
-} from "@/schemas/trainees.schema";
+} from "@/types/trainees.schema";
 import { TRAINEE_PHONE_RECORDS_MOCK_DATA } from "../data/traineePhoneRecordsMockData";
 import { MISSING_PHOTO_URL, TRAINEE_PHOTOS_MOCK_DATA } from "../data/traineePhotosMockData";
 import { TRAINEE_RESTRICTIONS_MOCK_DATA } from "../data/traineeRestrictionsMockData";
-import { TRAINEE_VOICE_MESSAGES_MOCK_DATA } from "../data/traineeVoiceMessagesMockData";
 import { TRAINEES_MOCK_DATA, type TraineeMockRecord } from "../data/traineesMockData";
+import { TRAINEE_VOICE_MESSAGES_MOCK_DATA } from "../data/traineeVoiceMessagesMockData";
 import { isTodayInRange } from "../mockDates";
 import type { MockRequest } from "../mockRequest";
 

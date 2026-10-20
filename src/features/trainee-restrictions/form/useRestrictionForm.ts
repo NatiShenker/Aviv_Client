@@ -1,22 +1,22 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { openConditionsForRecord, type PermittedCondition } from "@/features/records/form/callConditionsLogic";
+import { openConditionsForRecord, type PermittedCondition } from "@/features/records/form/call-conditions/callConditionsLogic";
 import { touchedDatesFor } from "@/features/records/form/dateRangeLogic";
 import {
   decisionErrorSlotsFor,
   findReasonIdByName,
   toValidatedDecision,
   type DecisionValues,
-} from "@/features/records/form/decisionLogic";
+} from "@/features/records/form/decision/decisionLogic";
 import { findFirstErrorSlot, hasErrors, withoutErrors } from "@/features/records/form/formErrors";
 import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
 import { toAppError } from "@/infrastructure/errors/appError";
-import type { CallLimitKind, LookupItem } from "@/schemas/common.schema";
-import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
 import { createTraineeRestriction, updateTraineeRestriction } from "@/services/traineeRestrictionsService";
-import { todayIsoDate } from "@/shared/dates/isoDate";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useFocusAfterRender } from "@/shared/hooks/useFocusAfterRender";
+import type { CallLimitKind, LookupItem } from "@/types/common.schema";
+import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
+import { todayIsoDate } from "@/utils/dates";
 import {
   RESTRICTION_ERROR_SLOTS,
   RESTRICTION_FIELD_IDS,

@@ -1,7 +1,7 @@
-import RecordIconCircle from "@/features/records/history/RecordIconCircle";
-import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
+import RecordIconCircle from "@/features/records/history/card/RecordIconCircle";
+import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
-import RestrictionSummaryLines from "./RestrictionSummaryLines";
+import RestrictionSummaryLines from "./source-restriction/RestrictionSummaryLines";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS;
 

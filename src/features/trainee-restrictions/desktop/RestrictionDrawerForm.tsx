@@ -1,14 +1,12 @@
+import { useDrawerFormSlot } from "@/features/records/desktop/useDrawerFormSlot";
 import FormFooter from "@/features/records/form/FormFooter";
-import { useDrawerFormSlot } from "@/features/records/history/desktop/useDrawerFormSlot";
-import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import DrawerFormLayer from "@/shells/desktop/DrawerFormLayer";
-import { useReportUnsavedChanges } from "@/shells/desktop/unsavedChanges";
+import DrawerFormLayer from "@/shells/desktop/drawer/DrawerFormLayer";
+import { useReportUnsavedChanges } from "@/shells/desktop/drawer/unsavedChanges";
+import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
 import RestrictionForm from "../form/RestrictionForm";
-import { useRestrictionFormSession } from "../form/useRestrictionFormSession";
-import type { RestrictionFormTarget } from "../form/useRestrictionFormRoute";
-
-const matchesRestrictionId = (record: TraineeRestrictionRecordDto, recordId: number) => record.id === recordId;
+import { useRestrictionFormSession, type RestrictionFormTarget } from "../form/useRestrictionFormSession";
+import { matchesRestrictionId } from "../history/traineeRestrictionsLogic";
 
 interface RestrictionDrawerFormProps {
   target: RestrictionFormTarget;
