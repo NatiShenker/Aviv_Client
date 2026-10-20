@@ -1,4 +1,4 @@
-import type { TraineeListFiltersState } from "@/schemas/trainees.schema";
+import type { TraineeListFiltersState } from "@/types/trainees.schema";
 
 /*
  * מצב הרשימה בזכרון של האפליקציה, כדי שבחזרה ממסך אחר המשתמש ימצא אותה כפי שעזב:

@@ -7,7 +7,7 @@ import {
   IpsTextFieldMobile,
   IpsTimePickerMobile,
 } from "ui-library";
-import type { FormControls } from "@/shared/form-controls/formControls";
+import type { FormControls } from "@/shared/components/form/formControls";
 
 /**
  * פקדי הטופס במובייל: הפקדים הנייטיביים של הספרייה (Ips*Mobile), כמו שהם.

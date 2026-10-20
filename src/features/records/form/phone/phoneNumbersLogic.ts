@@ -1,5 +1,5 @@
-import type { PhoneString } from "@/schemas/common.schema";
-import { isValidPhone, normalizePhone } from "@/shared/formatting/phoneFormat";
+import type { PhoneString } from "@/types/common.schema";
+import { isValidPhone, normalizePhone } from "@/utils/phone";
 import { FORM_TEXTS } from "../formTexts";
 
 const TEXTS = FORM_TEXTS.phone;

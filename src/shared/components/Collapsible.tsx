@@ -25,14 +25,14 @@ export default function Collapsible({ isOpen, children, id }: CollapsibleProps) 
     }
   }, [isOpen]);
 
-  const rowsClass = isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]";
+  const rowsClass = isOpen ? "grid-rows-expanded" : "grid-rows-collapsed";
   const revealClass = isOpen ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0";
 
   return (
     <div
       ref={contentRef}
       id={id}
-      className={`grid motion-safe:transition-[grid-template-rows] ${COLLAPSIBLE_MOTION_CLASS} ${rowsClass}`}
+      className={`grid motion-safe:transition-all ${COLLAPSIBLE_MOTION_CLASS} ${rowsClass}`}
     >
       <div className="min-h-0 overflow-hidden">
         <div className={`motion-safe:transition ${COLLAPSIBLE_MOTION_CLASS} ${revealClass}`}>{children}</div>

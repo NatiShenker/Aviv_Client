@@ -1,14 +1,13 @@
 import { useState, type ReactNode } from "react";
-import DrawerHistoryLayout from "@/features/records/history/desktop/DrawerHistoryLayout";
-import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
-import DrawerFormHost from "@/shells/desktop/DrawerFormHost";
-import type { VoiceMessageFormTarget } from "../form/useVoiceMessageFormRoute";
+import DrawerHistoryLayout from "@/features/records/desktop/DrawerHistoryLayout";
+import DrawerFormHost from "@/shells/desktop/drawer/DrawerFormHost";
+import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
+import type { VoiceMessageFormTarget } from "../form/useVoiceMessageFormSession";
 import { useVoiceMessagesHistory } from "../history/useVoiceMessagesHistory";
 import VoiceMessageCard from "../history/VoiceMessageCard";
+import { voiceMessageRecordKey } from "../voiceMessagesLogic";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 import VoiceMessageDrawerForm from "./VoiceMessageDrawerForm";
-
-const getRecordKey = (record: TraineeVoiceMessageRecordDto) => record.id;
 
 interface VoiceMessagesDrawerHistoryProps {
   traineeId: number;
@@ -66,7 +65,7 @@ export default function VoiceMessagesDrawerHistory({
         texts={VOICE_MESSAGES_TEXTS}
         records={voiceMessages}
         history={history}
-        getRecordKey={getRecordKey}
+        getRecordKey={voiceMessageRecordKey}
         renderCard={renderCard}
         onCreate={() => setFormTarget({ mode: "create", basedOnRef: null })}
       />

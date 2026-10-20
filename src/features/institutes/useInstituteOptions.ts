@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { IpsSelectOption } from "ui-library";
-import { useInstitutes } from "./InstitutesProvider";
+import { useInstitutes } from "@/store/institutesContext";
 
 interface InstituteOptions {
   options: IpsSelectOption[];

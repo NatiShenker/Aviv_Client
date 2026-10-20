@@ -1,4 +1,5 @@
-import { serviceClient } from "@/infrastructure/api/serviceClient";
+import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
+import { serviceClient } from "@/infrastructure/serviceClient";
 import type {
   CreateTraineeRestrictionRequest,
   CreateTraineeRestrictionResponse,
@@ -7,8 +8,7 @@ import type {
   TraineeRestrictionRecordDto,
   UpdateTraineeRestrictionRequest,
   UpdateTraineeRestrictionResponse,
-} from "@/schemas/trainee-restrictions.schema";
-import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
+} from "@/types/trainee-restrictions.schema";
 import { clearCachedTrainees } from "./traineesService";
 
 /** כל ההגבלות של החניך, פעילות ושהסתיימו (ספק 03 history §6). בלי זכרון - תמיד מהשרת */

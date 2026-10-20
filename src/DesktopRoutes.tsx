@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { FALLBACK_ROUTE_PATTERN, ROUTE_PATTERNS } from "./config/routes";
 import DesktopTraineesListScreen from "./features/trainees-list/desktop/DesktopTraineesListScreen";
-import { FALLBACK_ROUTE_PATTERN, ROUTE_PATTERNS } from "./routes";
-import { FormControlsProvider } from "./shared/form-controls/FormControlsProvider";
+import { FormControlsProvider } from "./shared/components/form/FormControlsProvider";
 import { DESKTOP_FORM_CONTROLS } from "./shells/desktop/form-controls/desktopFormControls";
 
 /**

@@ -1,7 +1,6 @@
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import { useInstitutes } from "./InstitutesProvider";
-import type { PermissionId } from "./permissionIds";
-import { isPermitted } from "./permissionsLogic";
+import { useInstitutes } from "@/store/institutesContext";
+import { isPermitted, type PermissionId } from "./permissions";
 
 export type PermissionCheckStatus = "loading" | "error" | "denied" | "granted";
 

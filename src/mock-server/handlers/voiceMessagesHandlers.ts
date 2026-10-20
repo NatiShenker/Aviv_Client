@@ -1,4 +1,4 @@
-import type { PhoneString } from "@/schemas/common.schema";
+import type { PhoneString } from "@/types/common.schema";
 import type {
   CreateTraineeVoiceMessageRequest,
   CreateTraineeVoiceMessageResponse,
@@ -8,8 +8,8 @@ import type {
   UpdateTraineeVoiceMessageRequest,
   UpdateTraineeVoiceMessageResponse,
   VoiceMessageScope,
-} from "@/schemas/voice-messages.schema";
-import { isValidPhone } from "@/shared/formatting/phoneFormat";
+} from "@/types/voice-messages.schema";
+import { isValidPhone } from "@/utils/phone";
 import { buildAuditMetadata } from "../data/recordMetadataBuilders";
 import { TRAINEE_VOICE_MESSAGES_MOCK_DATA } from "../data/traineeVoiceMessagesMockData";
 import type { MockRequest } from "../mockRequest";

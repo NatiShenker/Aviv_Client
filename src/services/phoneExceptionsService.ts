@@ -1,5 +1,6 @@
-import { serviceClient } from "@/infrastructure/api/serviceClient";
-import type { PhoneString } from "@/schemas/common.schema";
+import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
+import { serviceClient } from "@/infrastructure/serviceClient";
+import type { PhoneString } from "@/types/common.schema";
 import type {
   CreateTraineePhonePermitRequest,
   CreateTraineePhonePermitResponse,
@@ -15,8 +16,7 @@ import type {
   UpdateTraineePhonePermitResponse,
   UpdateTraineePhoneRestrictionRequest,
   UpdateTraineePhoneRestrictionResponse,
-} from "@/schemas/phone-exceptions.schema";
-import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
+} from "@/types/phone-exceptions.schema";
 import { clearCachedTrainees } from "./traineesService";
 
 const ENDPOINTS = SERVICE_ENDPOINTS.phoneExceptions;

@@ -8,4 +8,9 @@ export const INSTITUTES_TEXTS = {
   permissionsLoadFailed: "לא ניתן לטעון את ההרשאות לפנימייה",
   // מוצע - ממתין לאישור (pending-decisions)
   noPermissionForAction: "אין לך הרשאה לפעולה זו",
+
+  // מבנה הפנימייה, משותף לכמה מסכים
+  organization: {
+    wing: (wingName: string) => `אגף ${wingName}`,
+  },
 } as const;

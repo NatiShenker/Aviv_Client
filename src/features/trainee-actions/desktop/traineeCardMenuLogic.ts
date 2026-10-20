@@ -1,4 +1,4 @@
-import type { AppIconName } from "@/shared/icons/appIcons";
+import type { AppIconName } from "@/shared/components/appIcons";
 import { buildPermittedTraineeMenu } from "../traineeActionsLogic";
 import { TRAINEE_ACTIONS_TEXTS } from "../traineeActionsTexts";
 import { ACTIONS_SCREEN, drawerActionKeyOf, type TraineeDrawerScreen } from "./traineeDrawerScreens";

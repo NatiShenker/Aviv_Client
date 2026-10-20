@@ -17,9 +17,9 @@ Prototype source: `client/pages/ExceptionForm.tsx`. Business rules and model: [o
 
 | Mode | Route | Notes |
 |---|---|---|
-| Create | `/trainee/:id/number-restriction/new` | Opens on type `"היתר למספר מוגבל"` |
-| Create based on | `/trainee/:id/number-restriction/new?basedOn={recordKey}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
-| Edit | `/trainee/:id/number-restriction/:recordKey/edit` | `recordKey` = record type + ID, e.g. `permit-12` or `restriction-12` (restrictions and permits come from separate tables, so IDs can repeat). The record is taken from the loaded history; unknown key or an ended record → redirect to `/trainee/:id/number-restriction` (replace) |
+| Create | `/trainee/:traineeId/number-restriction/new` | Opens on type `"היתר למספר מוגבל"` |
+| Create based on | `/trainee/:traineeId/number-restriction/new?basedOn={recordKey}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
+| Edit | `/trainee/:traineeId/number-restriction/:recordKey/edit` | `recordKey` = record type + ID, e.g. `permit-12` or `restriction-12` (restrictions and permits come from separate tables, so IDs can repeat). The record is taken from the loaded history; unknown key or an ended record → redirect to `/trainee/:traineeId/number-restriction` (replace) |
 
 ---
 
@@ -54,7 +54,7 @@ The create title follows the action type selected below. Close X (aria-label `"�
 | Restriction | PhoneNumbersField | `"הזן מספר אחד או יותר. כל מספר יישמר כהגבלה נפרדת"` (Enter one or more numbers. Each number is saved as a separate restriction) | `"הוסף"` + plus icon |
 
 4. **Permit lookup result** (16px below the number field, fade-in) – one of:
-   - **No results card** (white card, radius 8, padding 16, thin outline):
+   - **No results card** (white card, card radius, padding 16, thin outline):
      - Text (14/18): `"לא נמצאו הגבלות פעילות על המספר עבור החניך – המספר פתוח ואין צורך בהיתר"` (No active restrictions on this number for the trainee – the number is open and no permit is needed).
      - Link button (8px below, 14/18, `action` color, chevron pointing left): `"להגבלת המספר"` (Restrict the number).
    - **Restriction picker:**
@@ -66,7 +66,7 @@ The create title follows the action type selected below. Close X (aria-label `"�
 
 #### 3.2.1 RestrictionOption card
 
-White card, radius 8, outline 1px `action` when it is the selected restriction, 0.5px `divider` otherwise. The card body is information only and is **not** tappable; choosing happens only on the dedicated "בחירה" row, so a card is never chosen by accident while scrolling or reading.
+White card, card radius, outline 1px `action` when it is the selected restriction, 0.5px `divider` otherwise. The card body is information only and is **not** tappable; choosing happens only on the dedicated "בחירה" row, so a card is never chosen by accident while scrolling or reading.
 
 | Part | Content |
 |---|---|
@@ -77,7 +77,7 @@ White card, radius 8, outline 1px `action` when it is the selected restriction, 
 
 ### 3.3 Edit mode – locked number card (instead of block 0)
 
-White card, radius 8, padding 16, thin outline, 24px below the header:
+White card, card radius, padding 16, thin outline, 24px below the header:
 
 - RecordIcon (open lock, red); next to it the phone number (16/20, LTR) and below it the full type label (14/18 gray): `"היתר למספר מוגבל"` or `"הגבלת מספר"`.
 - **Permits only:** a 0.5px line, then `"על הגבלה"` (14/18 gray) and the restriction lines (scope label, then range · reason) as in §3.2.1 lines 1–2.

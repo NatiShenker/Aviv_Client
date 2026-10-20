@@ -3,7 +3,7 @@ import type {
   GlobalPhoneRestrictionRecordDto,
   SourceRestrictionSummaryDto,
   TraineePhoneRestrictionRecordDto,
-} from "@/schemas/phone-exceptions.schema";
+} from "@/types/phone-exceptions.schema";
 
 /*
  * תקציר "הגבלת המקור" של היתר (SourceRestrictionSummaryDto), כמו שהשרת מרכיב אותו ב-JOIN

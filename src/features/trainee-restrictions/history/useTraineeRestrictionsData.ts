@@ -1,6 +1,6 @@
-import type { TraineeRestrictionRecordDto } from "@/schemas/trainee-restrictions.schema";
 import { getTraineeRestrictions } from "@/services/traineeRestrictionsService";
 import { isEmptyList, useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
 
 /**
  * ההגבלות של החניך. נטענות מהשרת בכל כניסה למסך, בלי זכרון:

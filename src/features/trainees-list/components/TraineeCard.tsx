@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import { buildTraineeDisplayName } from "@/features/trainee/traineeDisplay";
-import type { TraineeListItemDto } from "@/schemas/trainees.schema";
-import AppIcon from "@/shared/icons/AppIcon";
+import TraineePhoto from "@/features/trainee/TraineePhoto";
+import TraineeStatusBadge from "@/features/trainee/TraineeStatusBadge";
+import AppIcon from "@/shared/components/AppIcon";
+import type { TraineeListItemDto } from "@/types/trainees.schema";
 import { buildTraineeLocationLabel } from "../traineesListLogic";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
-import TraineePhoto from "./TraineePhoto";
-import TraineeStatusBadge from "./TraineeStatusBadge";
 
 const TEXTS = TRAINEES_LIST_TEXTS.card;
 

@@ -1,5 +1,5 @@
-import { serviceClient } from "@/infrastructure/api/serviceClient";
-import type { ApproverRef } from "@/schemas/common.schema";
+import { serviceClient } from "@/infrastructure/serviceClient";
+import type { ApproverRef } from "@/types/common.schema";
 
 /*
  * הנתונים של התחליף ל-MFE של הגורם המאשר. ה-MFE האמיתי מביא את הגורמים בעצמו, ולכן כל הקובץ הזה

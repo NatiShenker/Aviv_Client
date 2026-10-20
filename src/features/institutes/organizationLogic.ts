@@ -1,13 +1,13 @@
 import type { IpsSelectOption } from "ui-library";
-import type { DeviceDto, WingDto } from "@/schemas/organization.schema";
-import { ORGANIZATION_TEXTS } from "./organizationTexts";
+import type { DeviceDto, WingDto } from "@/types/organization.schema";
+import { INSTITUTES_TEXTS } from "./institutesTexts";
 
 /**
  * שם האגף לתצוגה: "אגף X". אגף וירטואלי (למשל "מיקומים שונים", שמכיל את מכשירי הפנימייה כולה)
  * מוצג בשם שלו בלבד (ראו pending-decisions).
  */
 export function buildWingLabel(wing: Pick<WingDto, "name" | "isVirtualContainer">): string {
-  return wing.isVirtualContainer ? wing.name : ORGANIZATION_TEXTS.wing(wing.name);
+  return wing.isVirtualContainer ? wing.name : INSTITUTES_TEXTS.organization.wing(wing.name);
 }
 
 /** מכשיר שהאגף שלו לא ברשימת האגפים - בראש הרשימה, בלי קבוצה */

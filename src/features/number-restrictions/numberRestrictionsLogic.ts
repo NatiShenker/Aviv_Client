@@ -4,22 +4,21 @@ import {
   buildPermittedDevicesValue,
   buildPermittedHoursValue,
   hasPermittedHours,
-} from "@/features/records/form/callConditionsLogic";
-import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
+} from "@/features/records/form/call-conditions/callConditionsLogic";
 import {
   buildDecisionDetailItems,
   decisionSearchParts,
   type DetailItem,
-} from "@/features/records/history/recordDetails";
+} from "@/features/records/history/card/recordDetails";
+import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
 import type {
   SourceRestrictionSummaryDto,
   TraineePhonePermitRecordDto,
   TraineePhoneRecordDto,
   TraineePhoneRecordType,
-} from "@/schemas/phone-exceptions.schema";
-import { isolateLtr } from "@/shared/formatting/bidiText";
-import { formatDateRange } from "@/shared/formatting/dateFormat";
-import { filterBySearchQuery } from "@/shared/search/searchText";
+} from "@/types/phone-exceptions.schema";
+import { formatDateRange } from "@/utils/dates";
+import { isolateLtr, filterBySearchQuery } from "@/utils/text";
 import { NUMBER_RESTRICTIONS_TEXTS } from "./numberRestrictionsTexts";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS;

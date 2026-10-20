@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import type { TraineeListItemDto } from "@/schemas/trainees.schema";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { TraineeListItemDto } from "@/types/trainees.schema";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
 
 const TEXTS = TRAINEES_LIST_TEXTS.states;

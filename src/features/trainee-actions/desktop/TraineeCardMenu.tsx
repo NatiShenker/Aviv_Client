@@ -1,6 +1,6 @@
 import { IpsMenu, type IpsMenuValue } from "ui-library";
-import { useInstitutes } from "@/features/institutes/InstitutesProvider";
-import AppIcon from "@/shared/icons/AppIcon";
+import AppIcon from "@/shared/components/AppIcon";
+import { useInstitutes } from "@/store/institutesContext";
 import { TRAINEE_ACTIONS_TEXTS } from "../traineeActionsTexts";
 import { buildTraineeCardMenuEntries } from "./traineeCardMenuLogic";
 import type { TraineeDrawerScreen } from "./traineeDrawerScreens";

@@ -74,7 +74,7 @@ Everything shared by all screens. Screen files reference the components and patt
 | `fadeIn` | Opacity 0→1, 200ms ease-out | Sheet backdrop, accordion content, fields and blocks that appear conditionally |
 | `sheetUp` | translateY(100%)→0, 300ms ease-out | Bottom sheets |
 | Card expand | Height 0→content height, while the content fades in and moves down slightly (8px); 300ms ease-out. Collapse runs the same in reverse | Expandable record cards on history screens |
-| Chevron rotate | 180°, 200ms (300ms on expandable cards, in sync with the card expand) | Accordions, expandable cards, "אפשרויות נוספות" |
+| Chevron rotate | 180°, 200ms (300ms on expandable cards, in sync with the card expand) | Accordions, expandable cards |
 | `pageEnterForward` / `pageEnterBack` | translateX(-100%)→0 / translateX(100%)→0, 300ms ease-out. Only the incoming page moves; the outgoing page disappears at once | Navigation between pages: forward enters from the left, back from the right (RTL). No animation on the first page of a visit or on a replace |
 | Form sheet | Slides up on open and down on close. Covers the whole screen: no rounded corners, no grab handle, no drag to close | Create / edit forms open over their history screen instead of navigating sideways. Implemented by `IpsDialog` `fullScreen` + `transition="slide"` |
 | Drawer screens (desktop) | Like `pageEnterForward` / `pageEnterBack`, and **the outgoing screen moves too** (decided 2026-10-19 – a deviation from the mobile rule above, for the drawer only): forward, the new screen enters from the left while the old one is pushed out to the right; back, the reverse. 300ms ease-out | Screens inside the trainee drawer ([02 §8.5](02_child_actions.md)), including the form layer: it enters like a forward screen and leaves like a back, and the history under it moves with it. No slide when switching the action in the selector (like a replace) or on the first screen of an opening (the drawer itself slides in) |
@@ -174,8 +174,8 @@ Each entry: **structure**, **states**, **used in**.
 
 ### 3.12 NativeMultiSelect
 
-- Native `select multiple` shown as an open list box with all options visible (list height = number of options). Selected options get the `chip` background.
-- **Desktop:** a plain click toggles one option (no Ctrl/Cmd needed). **Mobile:** the OS multi-select picker.
+- A closed field that opens a multi-select picker. The closed value is a summary: one device's name, or `"{n} מכשירים"`.
+- **Mobile:** `IpsMultiSelectMobile` – the native `select multiple` picker on a real iPhone/iPad, `IpsSelect multiple` elsewhere. **Desktop:** `IpsSelect multiple` ([ui_library.md](../ui_library.md)).
 - FieldLabel `"בחר מכשיר"` (Pick a device).
 - **Devices are grouped by wing** (native `optgroup` / menu subheaders), in the institute's wing order, because an institute can have many devices. The group heading is `"אגף {name}"`, or just the name for a virtual wing (e.g. `"מיקומים שונים"`). **No `"הכל"` option** – nothing selected means all devices are allowed.
 - **Used in:** permitted devices.
@@ -272,7 +272,7 @@ Same structure and look as the children list header row 2 ([01 §3.1](01_childre
 2. **HistoryToolbar** (§3.23): section title row, then the search field and sort button row. The header and the toolbar stay in place; only the cards scroll under them.
 3. **Cards** (12px below the toolbar, 8px apart): ExpandableRecordCard per record, rendered incrementally (30 at a time, the next 30 near the end of the list).
 4. **EmptyState** when no record matches (or there are none).
-5. **StickyActionBar** with one primary "create" link (text + plus icon).
+5. **StickyActionBar** with one primary "create" button (text + plus icon).
 
 Rules shared by all history screens:
 
@@ -383,7 +383,7 @@ In production each lookup item is typed as `LookupItem<number> { id: number; nam
 
 Full TypeScript contracts live in `common.schema.ts`, `organization.schema.ts`, `trainees.schema.ts`, `trainee-restrictions.schema.ts`, `phone-exceptions.schema.ts`, and `voice-messages.schema.ts` (the last one approximate, drafted in the client – see pending-decisions):
 
-- **Style:** JSON over HTTP to Aviv_Service in `Controller/Action` form (e.g. `Institutions/GetInstitutionsAndWings`), through the internal HTTP client. Queries may use `POST` when they send arrays of IDs. The `/api/...` paths in the feature specs (03–05) are older placeholders until those endpoints are defined.
+- **Style:** JSON over HTTP to Aviv_Service in `Controller/Action` form (e.g. `Institutions/GetInstitutionsAndWings`), through the internal HTTP client. Queries may use `POST` when they send arrays of IDs. The feature specs (03–05) list placeholder `Controller/Action` names until those endpoints are defined ([pending-decisions](../pending-decisions.md)).
 - **IDs:** `number`.
 - **Scalability with Arrays:** `GET`, `Lookup`, and `POST` (create) endpoints accept arrays (`clientIds: number[]`, `instituteIds: number[]`, `traineeIds: number[]`, `phoneNumbers: PhoneString[]`, `deviceIds: number[]`) where cost is low. `PUT` (update) targets a single record ID (`previousId: number`).
 - **Immutable Updates:** Updating an existing record (`PUT`) sets `LOGI_ACTIVE = 0` on the previous DB record and inserts a new active record (`LOGI_ACTIVE = 1`), returning the new ID(s) in `MutationResultDto`.

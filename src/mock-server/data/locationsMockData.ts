@@ -1,5 +1,5 @@
-import { AVIV_CLIENT_ID } from "@/appConstants";
-import type { WingLocationDto } from "@/schemas/organization.schema";
+import { AVIV_CLIENT_ID } from "@/config/appConstants";
+import type { WingLocationDto } from "@/types/organization.schema";
 
 interface LocationFlags {
   isVirtual?: boolean;

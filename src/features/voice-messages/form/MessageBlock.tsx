@@ -1,9 +1,9 @@
 import PhoneNumbersField from "@/features/records/form/phone/PhoneNumbersField";
-import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
 import FieldIntro from "@/shared/components/form/FieldIntro";
+import type { FieldOptionValue } from "@/shared/components/form/formControls";
+import { useFormControls } from "@/shared/components/form/FormControlsProvider";
 import FormSection from "@/shared/components/form/FormSection";
-import type { FieldOptionValue } from "@/shared/form-controls/formControls";
-import { useFormControls } from "@/shared/form-controls/FormControlsProvider";
+import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 import LockedScopeCard from "./LockedScopeCard";
 import type { VoiceMessageFormController } from "./useVoiceMessageForm";

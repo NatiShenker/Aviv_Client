@@ -1,5 +1,5 @@
-import type { FileAttachmentRef } from "@/schemas/common.schema";
 import type { RegisterApprovedFileRequest } from "@/services/approvedFilesService";
+import type { FileAttachmentRef } from "@/types/common.schema";
 import { APPROVED_FILES_MOCK_DATA } from "../data/approvedFilesMockData";
 import type { MockRequest } from "../mockRequest";
 

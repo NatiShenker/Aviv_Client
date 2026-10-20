@@ -1,6 +1,11 @@
-import { DRAWER_SCROLL_AREA_CLASS } from "@/shells/desktop/drawerSpacing";
-import { ActionButtonRow, DisabledActionRow } from "../components/ActionRow";
-import TraineeActionsMenu from "../components/TraineeActionsMenu";
+import { DRAWER_SCROLL_AREA_CLASS } from "@/shells/desktop/drawer/drawerSpacing";
+import {
+  ACTION_ROW_CLASS,
+  ActionRowContent,
+  DisabledActionRow,
+  type ActionRowContentProps,
+} from "../ActionRow";
+import TraineeActionsMenu from "../TraineeActionsMenu";
 import type { TraineeMenuItem } from "../traineeActionsOptions";
 import { drawerActionKeyOf, type DrawerActionKey } from "./traineeDrawerScreens";
 
@@ -38,5 +43,22 @@ function DrawerActionRow({ item, onSelectAction }: DrawerActionRowProps) {
     <div className="rounded-card border border-divider transition-colors hover:border-border-strong">
       <ActionButtonRow label={item.label} icon={item.icon} onClick={() => onSelectAction(actionKey)} />
     </div>
+  );
+}
+
+interface ActionButtonRowProps extends ActionRowContentProps {
+  onClick: () => void;
+}
+
+/** שורה שפותחת את המסך של הפעולה בתוך המגירה */
+function ActionButtonRow({ label, icon, onClick }: ActionButtonRowProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${ACTION_ROW_CLASS} cursor-pointer text-start text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
+    >
+      <ActionRowContent label={label} icon={icon} />
+    </button>
   );
 }

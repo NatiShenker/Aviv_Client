@@ -1,5 +1,5 @@
-import type { LookupItem, PhoneString } from "@/schemas/common.schema";
-import type { GlobalPhoneRestrictionRecordDto } from "@/schemas/phone-exceptions.schema";
+import type { LookupItem, PhoneString } from "@/types/common.schema";
+import type { GlobalPhoneRestrictionRecordDto } from "@/types/phone-exceptions.schema";
 import { daysFromToday } from "../mockDates";
 import { INSTITUTES_MOCK_DATA } from "./institutesMockData";
 import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";

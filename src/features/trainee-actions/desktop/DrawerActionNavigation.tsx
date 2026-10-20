@@ -1,7 +1,7 @@
 import { IpsIconButton, IpsSelect } from "ui-library";
-import { useInstitutes } from "@/features/institutes/InstitutesProvider";
-import AppIcon from "@/shared/icons/AppIcon";
+import AppIcon from "@/shared/components/AppIcon";
 import { CONTEXT_SELECT_SX } from "@/shells/desktop/contextSelectSx";
+import { useInstitutes } from "@/store/institutesContext";
 import { buildPermittedTraineeMenu } from "../traineeActionsLogic";
 import { TRAINEE_ACTIONS_TEXTS } from "../traineeActionsTexts";
 import { drawerActionKeyOf, type DrawerActionKey } from "./traineeDrawerScreens";

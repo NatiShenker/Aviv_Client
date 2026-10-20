@@ -1,7 +1,7 @@
-import ExpandableRecordCard from "@/features/records/history/ExpandableRecordCard";
-import { isRecordActive } from "@/features/records/history/historySort";
-import RecordPeriodSummary from "@/features/records/history/RecordPeriodSummary";
-import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
+import ExpandableRecordCard from "@/features/records/history/card/ExpandableRecordCard";
+import RecordPeriodSummary from "@/features/records/history/card/RecordPeriodSummary";
+import { isRecordActive } from "@/features/records/history/recordStatus";
+import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
 import { buildVoiceMessageDetails, isAllCallsMessage, voiceMessageCardDomId } from "../voiceMessagesLogic";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 

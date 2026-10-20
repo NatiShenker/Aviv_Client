@@ -1,4 +1,4 @@
-import type { AuditMetadataDto, DecisionApprovalDto, ISODateString } from "@/schemas/common.schema";
+import type { AuditMetadataDto, DecisionApprovalDto, ISODateString } from "@/types/common.schema";
 import { dateTimeDaysFromToday, temporalStatusOf } from "../mockDates";
 import { APPROVERS_MOCK_DATA } from "./approversMockData";
 

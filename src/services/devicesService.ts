@@ -1,11 +1,11 @@
-import { createQueryCache, idsKey } from "@/infrastructure/api/queryCache";
-import { serviceClient } from "@/infrastructure/api/serviceClient";
+import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
+import { createQueryCache, idsKey } from "@/infrastructure/queryCache";
+import { serviceClient } from "@/infrastructure/serviceClient";
 import type {
   DeviceDto,
   GetInstituteDevicesRequest,
   GetInstituteDevicesResponse,
-} from "@/schemas/organization.schema";
-import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
+} from "@/types/organization.schema";
 
 // המכשירים כמעט לא משתנים, ולכן נשמרים עד רענון הדף (ספק 00 §6)
 const devicesCache = createQueryCache<number[], DeviceDto[]>(idsKey);

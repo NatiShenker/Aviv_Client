@@ -1,6 +1,6 @@
 # Aviv – Screen Specifications
 
-Development specs for the trainee-calls management app (mobile web, Hebrew, RTL). Each file describes one screen or one feature area well enough to build it in the production system without guessing: what is shown, how it behaves, what data it reads and writes, and how to verify it.
+Development specs for the trainee-calls management app (web, mobile and desktop layouts, Hebrew, RTL). Each file describes one screen or one feature area well enough to build it in the production system without guessing: what is shown, how it behaves, what data it reads and writes, and how to verify it.
 
 ---
 
@@ -32,12 +32,14 @@ The same concept has a product name (the UI and the specs), a client name (route
 
 | Concept | UI name | Spec | Route | Feature folder (`src/features`) | Server and schema names |
 |---|---|---|---|---|---|
-| Trainee ("child" in the sketches) | חניך | 01, 02 | `/trainee/:traineeId` | `trainees-list`, `trainee-actions` | `Trainees/…`, `TraineeListItemDto` |
+| Trainee ("child" in the sketches) | חניך | 01, 02 | `/trainee/:traineeId` | `trainees-list`, `trainee-actions`, `trainee` | `Trainees/…`, `TraineeListItemDto` |
 | Trainee restriction ("block" in the sketches) | הגבלה/היתר לחניך | 03 | `/trainee/:traineeId/trainee-restriction` | `trainee-restrictions` | `TraineeRestrictions/…`, `TraineeRestrictionRecordDto` |
 | Number restriction or permit ("exception" in the sketches). One record is a "number record": a restriction or a permit | הגבלה/היתר למספר | 04 | `/trainee/:traineeId/number-restriction` | `number-restrictions` | `PhoneExceptions/…`, `TraineePhoneRecordDto`, `phone-exceptions.schema.ts`; trainee flag group `phoneException` |
 | Voice message ("recipient message" in the trainee flags) | הודעה קולית לנמען | 05 | `/trainee/:traineeId/voice-message` | `voice-messages` | `VoiceMessages/…`, `TraineeVoiceMessageRecordDto` |
 | Institute ("institution" on the server) | פנימייה | 01 | – | `institutes` | `Institutions/…`, `organization.schema.ts` |
 | Wing / location in a wing | אגף / מיקום באגף | 01 | – | – | `WingDto`, `WingLocationDto` |
+
+In the code, every feature folder has `mobile/` and `desktop/` for each layout's composition (screens, histories, form sheets or drawer forms); the parts both layouts use sit beside them ([infrastructure.md](../infrastructure.md) › Folder layout).
 
 ---
 

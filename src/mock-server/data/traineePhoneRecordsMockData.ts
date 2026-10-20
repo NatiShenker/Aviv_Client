@@ -1,15 +1,15 @@
-import type { LookupItem, PermittedCallConditionsDto, PhoneString, TimeString } from "@/schemas/common.schema";
+import type { LookupItem, PermittedCallConditionsDto, PhoneString, TimeString } from "@/types/common.schema";
 import type {
   SourceRestrictionSummaryDto,
   TraineePhonePermitRecordDto,
   TraineePhoneRecordDto,
   TraineePhoneRestrictionRecordDto,
-} from "@/schemas/phone-exceptions.schema";
+} from "@/types/phone-exceptions.schema";
 import { daysFromToday } from "../mockDates";
 import { DEVICES_MOCK_DATA } from "./devicesMockData";
 import { GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA, GLOBAL_RESTRICTION_IDS } from "./globalPhoneRestrictionsMockData";
-import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
 import { PHONE_EXCEPTION_REASONS_MOCK_DATA } from "./reasonsMockData";
+import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
 import { summarizeGlobalRestriction, summarizeTraineeRestriction } from "./sourceRestrictionBuilders";
 import {
   SHOWCASE_TRAINEES,

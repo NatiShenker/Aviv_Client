@@ -1,6 +1,6 @@
-import { serviceClient } from "@/infrastructure/api/serviceClient";
-import type { GetTraineePhotoRequest } from "@/schemas/trainees.schema";
-import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
+import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
+import { serviceClient } from "@/infrastructure/serviceClient";
+import type { GetTraineePhotoRequest } from "@/types/trainees.schema";
 
 /** כתובת תמונת החניך, לשימוש ישיר ב-src. הדפדפן טוען אותה רק כשהתמונה מוצגת */
 export function getTraineePhotoUrl(traineeId: number): string {

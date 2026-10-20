@@ -1,4 +1,4 @@
-import type { DeviceDto } from "@/schemas/organization.schema";
+import type { DeviceDto } from "@/types/organization.schema";
 
 // התוויות הראשונות לפי ספק 00 §6. לכל מכשיר יש אגף; מכשירי הפנימייה כולה - באגף הווירטואלי "מיקומים שונים".
 // המזהים 1–8 משמשים את הרשומות שבמוק, ולכן לא משתנים. השאר - כדי שתהיה רשימה ארוכה לבחירה

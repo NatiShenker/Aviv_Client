@@ -26,8 +26,8 @@ Every restriction has one of two types, chosen with the "סוג ההגבלה" se
 
 | Type | Label | Meaning | Stored as |
 |---|---|---|---|
-| Full | `"הגבלה מלאה"` | Calls are blocked, except for the permits defined (hours / devices) | `callDurationMinutes = null` |
-| Duration-limited | `"הגבלת משך שיחה"` | Calls are allowed, up to a maximum duration per call | `callDurationMinutes = 1…120` |
+| Full | `"הגבלה מלאה"` | Calls are blocked, except for the permits defined (hours / devices) | `durationMinutes = null` |
+| Duration-limited | `"הגבלת משך שיחה"` | Calls are allowed, up to a maximum duration per call | `durationMinutes = 1…120` |
 
 Choosing "הגבלת משך שיחה" in effect creates an all-day permit with a minutes cap, which hours and devices can then narrow.
 
@@ -61,7 +61,7 @@ Used by the history card ([history.md](03_trainee_restriction_history.md)) and b
 
 ### 3.1 Type label
 
-| `callDurationMinutes` | Label |
+| `durationMinutes` | Label |
 |---|---|
 | `null` | `"הגבלה מלאה"` |
 | X | `"הגבלת משך שיחה – עד X דק'"` (the spaces in "עד X דק'" are non-breaking) |
@@ -83,6 +83,6 @@ Examples: full + nothing → `"לא הוגדרו"` / `"לא הוגדרו"`; full
 
 | Method & path | Request Schema | Response Schema | Used by |
 |---|---|---|---|
-| `GET /api/trainees/{traineeId}/restrictions` | `GetTraineeRestrictionsRequest` (`traineeIds: [traineeId]`) | `GetTraineeRestrictionsResponse` (`records: TraineeRestrictionRecordDto[]`) | History & Edit cache |
-| `POST /api/trainee-restrictions` | `CreateTraineeRestrictionRequest` | `CreateTraineeRestrictionResponse` (`MutationResultDto`) | Form, create |
-| `PUT /api/trainee-restrictions/{id}` | `UpdateTraineeRestrictionRequest` | `UpdateTraineeRestrictionResponse` (`MutationResultDto`) | Form, edit |
+| `POST TraineeRestrictions/GetTraineeRestrictions` | `GetTraineeRestrictionsRequest` (`traineeIds: [traineeId]`) | `GetTraineeRestrictionsResponse` (`records: TraineeRestrictionRecordDto[]`) | History & Edit cache |
+| `POST TraineeRestrictions/CreateTraineeRestriction` | `CreateTraineeRestrictionRequest` | `CreateTraineeRestrictionResponse` (`MutationResultDto`) | Form, create |
+| `PUT TraineeRestrictions/UpdateTraineeRestriction` | `UpdateTraineeRestrictionRequest` | `UpdateTraineeRestrictionResponse` (`MutationResultDto`) | Form, edit |

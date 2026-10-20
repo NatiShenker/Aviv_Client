@@ -1,6 +1,6 @@
-import { serviceClient } from "@/infrastructure/api/serviceClient";
-import type { FileAttachmentRef } from "@/schemas/common.schema";
-import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
+import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
+import { serviceClient } from "@/infrastructure/serviceClient";
+import type { FileAttachmentRef } from "@/types/common.schema";
 
 /**
  * קובץ שהועלה ל-SharePoint (התשובה של IpsFileUpload).

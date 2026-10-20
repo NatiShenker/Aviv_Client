@@ -55,6 +55,10 @@
 	 */
 	--grid-template-columns-cards: repeat(auto-fill, minmax(calc(var(--spacing) * 85), 1fr));
 
+	/* פריסה: תוכן נפתח (Collapsible) - שורת grid שגדלה מ-0 לגובה התוכן (grid-rows-collapsed / grid-rows-expanded) */
+	--grid-template-rows-collapsed: 0fr;
+	--grid-template-rows-expanded: 1fr;
+
 	/*
 	 * זמני — מהסקיצות, לתפקידים שאין להם טוקן בספרייה.
 	 * גוונים קרובים מהסקיצות אוחדו לטוקן אחד. יוחלף כשיסופק קובץ טוקנים מחייב.

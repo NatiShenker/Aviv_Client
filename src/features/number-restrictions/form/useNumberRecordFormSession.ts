@@ -1,18 +1,20 @@
-import { useInstitutes } from "@/features/institutes/InstitutesProvider";
-import type { FormSaveProps } from "@/features/records/form/FormFooter";
-import { editedRecordOf, resolveFormStartingPoint } from "@/features/records/form/formStartingPoint";
-import { useInstituteDevices } from "@/features/records/form/useInstituteDevices";
-import { useReasons } from "@/features/records/form/useReasons";
-import type { WingDto } from "@/schemas/organization.schema";
-import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
+import { useInstituteDevices, useReasons } from "@/features/records/form/formReferenceData";
+import { editedRecordOf, resolveFormStartingPoint, type RecordFormTarget } from "@/features/records/form/formStartingPoint";
+import type { RecordFormSession } from "@/features/records/form/recordFormSession";
+import { useInstitutes } from "@/store/institutesContext";
+import type { WingDto } from "@/types/organization.schema";
+import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
+import type { NumberRecordRef } from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import { NUMBER_RECORD_FORM_ID, type NumberRecordFormProps } from "./NumberRecordForm";
 import { buildFormTitle } from "./numberRecordFormLogic";
 import { useNumberRecordForm } from "./useNumberRecordForm";
-import type { NumberRecordFormTarget } from "./useNumberRecordFormRoute";
 
 // הפניה קבועה, כדי שרשימה ריקה לא תיחשב "רשימה חדשה" בכל רינדור
 const NO_WINGS: WingDto[] = [];
+
+/** הטופס שנפתח מעל ההיסטוריה. בעריכה (או ביצירה על בסיס רשומה) - סוג הרשומה והמזהה שלה */
+export type NumberRecordFormTarget = RecordFormTarget<NumberRecordRef>;
 
 interface NumberRecordFormSessionOptions {
   /** הטופס שנפתח. null = הטופס סגור */
@@ -25,17 +27,8 @@ interface NumberRecordFormSessionOptions {
   onSaved: (savedRecordKey: string) => void;
 }
 
-/**
- * מה שפתיחה אחת של טופס ההגבלה / ההיתר צריכה, בלי המעטפת: כותרת, גוף הטופס, ומצב השמירה לפוטר.
- * רשימת ההגבלות לבחירה (בהיתר) לא כאן - כל פריסה מציגה אותה בדרך שלה
- */
-export interface NumberRecordFormSession {
-  title: string;
-  formProps: Omit<NumberRecordFormProps, "RestrictionOptionsList">;
-  saveProps: FormSaveProps;
-  /** המשתמש שינה ערך מאז שהטופס נפתח */
-  hasUserChanges: boolean;
-}
+/** רשימת ההגבלות לבחירה (בהיתר) לא כאן - כל פריסה מציגה אותה בדרך שלה */
+export type NumberRecordFormSession = RecordFormSession<Omit<NumberRecordFormProps, "SourceRestrictionOptionsList">>;
 
 /**
  * פתיחה אחת של טופס ההגבלה / ההיתר, לשתי הפריסות: נתוני העזר (מכשירים, סיבות), נקודת ההתחלה והטופס עצמו.

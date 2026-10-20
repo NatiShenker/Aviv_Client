@@ -1,4 +1,4 @@
-import type { TraineeListItemDto } from "@/schemas/trainees.schema";
+import type { TraineeListItemDto } from "@/types/trainees.schema";
 import { TRAINEE_TEXTS } from "./traineeTexts";
 
 /** השם המוצג: "שם מלא | מספר אישי" - בכרטיס ברשימת החניכים ובכותרת מסך הפעולות */

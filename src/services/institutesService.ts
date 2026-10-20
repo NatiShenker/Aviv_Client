@@ -1,13 +1,13 @@
-import { AVIV_CLIENT_ID } from "@/appConstants";
-import { serviceClient } from "@/infrastructure/api/serviceClient";
+import { AVIV_CLIENT_ID } from "@/config/appConstants";
+import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
+import { serviceClient } from "@/infrastructure/serviceClient";
 import type {
   GetInstitutesAndWingsRequest,
   GetInstitutesAndWingsResponse,
   GetPermissionsForInstituteRequest,
   GetPermissionsForInstituteResponse,
   InstituteWithWingsDto,
-} from "@/schemas/organization.schema";
-import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
+} from "@/types/organization.schema";
 
 /** הפנימיות שהמשתמש מורשה אליהן, וכל אחת עם האגפים שלה */
 export async function getInstitutesAndWings(): Promise<InstituteWithWingsDto[]> {

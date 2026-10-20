@@ -33,18 +33,16 @@ export const TRAINEES_LIST_TEXTS = {
   },
 
   card: {
-    activeBadge: "פעיל",
-    restrictedUntil: "מוגבל עד",
     locationSeparator: ", ",
     minutes: (minutes: number) => `${minutes} דקות`,
     cellcomDiscrepancy: "קיים פער בנתונים בסלקום",
   },
 
-  drawers: {
+  sheets: {
     close: "סגירה",
   },
 
-  filterDrawer: {
+  filters: {
     title: "סינון",
     showResults: (resultCount: number) => `הצג תוצאות (${resultCount})`,
     all: "הכל",
@@ -80,7 +78,7 @@ export const TRAINEES_LIST_TEXTS = {
     retry: "נסה שוב",
   },
 
-  sortDrawer: {
+  sort: {
     options: {
       nameAscending: "שם – א׳ עד ת׳",
       nameDescending: "שם – ת׳ עד א׳",

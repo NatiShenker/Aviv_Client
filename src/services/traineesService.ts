@@ -1,11 +1,11 @@
-import { createQueryCache, idsKey } from "@/infrastructure/api/queryCache";
-import { serviceClient } from "@/infrastructure/api/serviceClient";
+import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
+import { createQueryCache, idsKey } from "@/infrastructure/queryCache";
+import { serviceClient } from "@/infrastructure/serviceClient";
 import type {
   GetTraineesRequest,
   GetTraineesResponse,
   TraineeListItemDto,
-} from "@/schemas/trainees.schema";
-import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
+} from "@/types/trainees.schema";
 
 // הרשימה האחרונה לכל צירוף פנימיות. גם מסכי החניך (ספק 02 ואילך) קוראים ממנה
 const traineesCache = createQueryCache<number[], TraineeListItemDto[]>(idsKey);

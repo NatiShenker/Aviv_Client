@@ -1,14 +1,11 @@
-import FormFooter from "@/features/records/form/FormFooter";
-import { useDrawerFormSlot } from "@/features/records/history/desktop/useDrawerFormSlot";
-import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
+import DrawerRecordFormFrame from "@/features/records/desktop/DrawerRecordFormFrame";
+import { useDrawerFormSlot } from "@/features/records/desktop/useDrawerFormSlot";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import DrawerFormLayer from "@/shells/desktop/DrawerFormLayer";
-import { useReportUnsavedChanges } from "@/shells/desktop/unsavedChanges";
+import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import NumberRecordForm from "../form/NumberRecordForm";
-import { useNumberRecordFormSession } from "../form/useNumberRecordFormSession";
-import type { NumberRecordFormTarget } from "../form/useNumberRecordFormRoute";
+import { useNumberRecordFormSession, type NumberRecordFormTarget } from "../form/useNumberRecordFormSession";
 import { matchesNumberRecordRef } from "../numberRestrictionsLogic";
-import RestrictionRadioCards from "./RestrictionRadioCards";
+import SourceRestrictionRadioCards from "./SourceRestrictionRadioCards";
 
 interface NumberRecordDrawerFormProps {
   target: NumberRecordFormTarget;
@@ -57,16 +54,11 @@ interface NumberRecordDrawerFormContentProps {
 
 function NumberRecordDrawerFormContent({ onClose, ...sessionOptions }: NumberRecordDrawerFormContentProps) {
   const formSession = useNumberRecordFormSession(sessionOptions);
-  useReportUnsavedChanges(formSession.hasUserChanges);
 
   return (
-    <DrawerFormLayer
-      title={formSession.title}
-      onClose={onClose}
-      footer={<FormFooter {...formSession.saveProps} onCancel={onClose} buttonSize="medium" />}
-    >
+    <DrawerRecordFormFrame session={formSession} onClose={onClose}>
       {/* בדסקטופ בוחרים הגבלה בכרטיסי רדיו - כל הכרטיס לחיץ (החלטת שלב 2) */}
-      <NumberRecordForm {...formSession.formProps} RestrictionOptionsList={RestrictionRadioCards} />
-    </DrawerFormLayer>
+      <NumberRecordForm {...formSession.formProps} SourceRestrictionOptionsList={SourceRestrictionRadioCards} />
+    </DrawerRecordFormFrame>
   );
 }

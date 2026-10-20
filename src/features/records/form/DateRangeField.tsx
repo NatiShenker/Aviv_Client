@@ -1,7 +1,7 @@
 import ErrorText from "@/shared/components/form/ErrorText";
 import FieldIntro from "@/shared/components/form/FieldIntro";
-import { useFormControls } from "@/shared/form-controls/FormControlsProvider";
-import { formatShortDate } from "@/shared/formatting/dateFormat";
+import { useFormControls } from "@/shared/components/form/FormControlsProvider";
+import { formatShortDate } from "@/utils/dates";
 import type { DateBounds, DateRangeValues, TouchedDates } from "./dateRangeLogic";
 import { FORM_TEXTS } from "./formTexts";
 

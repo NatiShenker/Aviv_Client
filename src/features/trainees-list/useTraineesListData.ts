@@ -1,7 +1,5 @@
 import { useEffect } from "react";
-import type { InstituteWithWingsDto, WingLocationDto } from "@/schemas/organization.schema";
 import { prefetchInstituteDevices } from "@/services/devicesService";
-import type { TraineeListItemDto } from "@/schemas/trainees.schema";
 import {
   getCachedLocations,
   getLocationsAndVirtualLocations,
@@ -9,6 +7,8 @@ import {
 } from "@/services/locationsService";
 import { getCachedTrainees, getTrainees } from "@/services/traineesService";
 import { isEmptyList, useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { InstituteWithWingsDto, WingLocationDto } from "@/types/organization.schema";
+import type { TraineeListItemDto } from "@/types/trainees.schema";
 
 interface TraineesListData {
   trainees: AsyncResource<TraineeListItemDto[]>;

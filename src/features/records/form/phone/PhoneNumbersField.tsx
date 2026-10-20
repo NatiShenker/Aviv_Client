@@ -1,8 +1,8 @@
 import { useId } from "react";
 import { IpsIconButton } from "ui-library";
-import type { PhoneString } from "@/schemas/common.schema";
+import AppIcon from "@/shared/components/AppIcon";
 import ErrorText from "@/shared/components/form/ErrorText";
-import AppIcon from "@/shared/icons/AppIcon";
+import type { PhoneString } from "@/types/common.schema";
 import { FORM_TEXTS } from "../formTexts";
 import PhoneInputRow from "./PhoneInputRow";
 

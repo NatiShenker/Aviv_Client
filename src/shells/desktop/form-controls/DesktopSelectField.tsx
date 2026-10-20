@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { IpsSelect } from "ui-library";
 import FieldLabelText from "@/shared/components/form/FieldLabelText";
-import type { SelectFieldProps } from "@/shared/form-controls/formControls";
+import type { SelectFieldProps } from "@/shared/components/form/formControls";
 
 /**
  * בחירה יחידה בדסקטופ: IpsSelect, עם התווית מעל השדה (design.md).

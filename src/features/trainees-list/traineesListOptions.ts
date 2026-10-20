@@ -1,12 +1,12 @@
+import type { SortDirection } from "@/types/common.schema";
 import type {
   BalanceFilter,
   PhoneExceptionFilter,
   RecipientMessageFilter,
-  SortDirection,
   TraineeListFiltersState,
   TraineeRestrictionFilter,
   TraineeSortField,
-} from "@/schemas/trainees.schema";
+} from "@/types/trainees.schema";
 import { TRAINEES_LIST_TEXTS } from "./traineesListTexts";
 
 export interface FilterOption<TValue extends string> {
@@ -22,8 +22,8 @@ export function findOptionValue<TValue extends string>(
   return options.find((option) => option.value === selectedValue)?.value;
 }
 
-const FILTER_TEXTS = TRAINEES_LIST_TEXTS.filterDrawer;
-const SORT_TEXTS = TRAINEES_LIST_TEXTS.sortDrawer.options;
+const FILTER_TEXTS = TRAINEES_LIST_TEXTS.filters;
+const SORT_TEXTS = TRAINEES_LIST_TEXTS.sort.options;
 
 export const DEFAULT_TRAINEE_FILTERS: TraineeListFiltersState = {
   searchQuery: "",

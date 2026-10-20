@@ -1,8 +1,8 @@
-import type { PhoneString } from "@/schemas/common.schema";
-import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
+import type { PhoneString } from "@/types/common.schema";
+import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
 import { daysFromToday } from "../mockDates";
-import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
 import { VOICE_MESSAGE_REASONS_MOCK_DATA } from "./reasonsMockData";
+import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
 import {
   SHOWCASE_TRAINEES,
   TRAINEES_MOCK_DATA,

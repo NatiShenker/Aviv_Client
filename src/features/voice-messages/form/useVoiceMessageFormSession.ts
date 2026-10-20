@@ -1,13 +1,15 @@
-import type { FormSaveProps } from "@/features/records/form/FormFooter";
-import { editedRecordOf, resolveFormStartingPoint } from "@/features/records/form/formStartingPoint";
-import { useReasons } from "@/features/records/form/useReasons";
-import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
+import { useReasons } from "@/features/records/form/formReferenceData";
+import { editedRecordOf, resolveFormStartingPoint, type RecordFormTarget } from "@/features/records/form/formStartingPoint";
+import type { RecordFormSession } from "@/features/records/form/recordFormSession";
+import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 import { useVoiceMessageForm } from "./useVoiceMessageForm";
-import type { VoiceMessageFormTarget } from "./useVoiceMessageFormRoute";
 import { VOICE_MESSAGE_FORM_ID, type VoiceMessageFormProps } from "./VoiceMessageForm";
 
 const TEXTS = VOICE_MESSAGES_TEXTS.form;
+
+/** הטופס שנפתח מעל ההיסטוריה. בעריכה (או ביצירה על בסיס רשומה) - מזהה ההודעה */
+export type VoiceMessageFormTarget = RecordFormTarget<number>;
 
 interface VoiceMessageFormSessionOptions {
   /** הטופס שנפתח. null = הטופס סגור */
@@ -22,14 +24,7 @@ interface VoiceMessageFormSessionOptions {
   onSaved: (savedRecordId: number) => void;
 }
 
-/** מה שפתיחה אחת של טופס ההודעה צריכה, בלי המעטפת: כותרת, גוף הטופס, ומצב השמירה לפוטר */
-export interface VoiceMessageFormSession {
-  title: string;
-  formProps: VoiceMessageFormProps;
-  saveProps: FormSaveProps;
-  /** המשתמש שינה ערך מאז שהטופס נפתח */
-  hasUserChanges: boolean;
-}
+export type VoiceMessageFormSession = RecordFormSession<VoiceMessageFormProps>;
 
 /**
  * פתיחה אחת של טופס ההודעה לנמען, לשתי הפריסות: רשימת הסיבות, נקודת ההתחלה והטופס עצמו.

@@ -1,15 +1,15 @@
-import CallDetailsBlock from "@/features/records/form/CallDetailsBlock";
-import DecisionBlock from "@/features/records/form/DecisionBlock";
-import PermittedConditionsBlock from "@/features/records/form/PermittedConditionsBlock";
-import type { LookupItem } from "@/schemas/common.schema";
-import type { DeviceDto, WingDto } from "@/schemas/organization.schema";
-import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
+import CallDetailsBlock from "@/features/records/form/call-conditions/CallDetailsBlock";
+import PermittedConditionsBlock from "@/features/records/form/call-conditions/PermittedConditionsBlock";
+import DecisionBlock from "@/features/records/form/decision/DecisionBlock";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { LookupItem } from "@/types/common.schema";
+import type { DeviceDto, WingDto } from "@/types/organization.schema";
+import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import ActionTypeBlock from "./ActionTypeBlock";
 import LockedNumberCard from "./LockedNumberCard";
 import { NUMBER_RECORD_FIELD_IDS, permitDateBounds, shouldShowDetailBlocks } from "./numberRecordFormLogic";
-import type { RestrictionOptionsListComponent } from "./RestrictionPicker";
+import type { SourceRestrictionOptionsListComponent } from "./source-restriction/SourceRestrictionPicker";
 import type { NumberRecordFormController } from "./useNumberRecordForm";
 
 /** כפתור השמירה נמצא בפוטר של הטופס, מחוץ ל-<form>, ומשויך אליו לפי המזהה */
@@ -35,7 +35,7 @@ export interface NumberRecordFormProps {
   wings: WingDto[];
   reasons: AsyncResource<LookupItem<number>[]>;
   /** רשימת ההגבלות לבחירה בהיתר - כל פריסה מציגה אותה בדרך שלה */
-  RestrictionOptionsList: RestrictionOptionsListComponent;
+  SourceRestrictionOptionsList: SourceRestrictionOptionsListComponent;
 }
 
 /**
@@ -49,7 +49,7 @@ export default function NumberRecordForm({
   devices,
   wings,
   reasons,
-  RestrictionOptionsList,
+  SourceRestrictionOptionsList,
 }: NumberRecordFormProps) {
   const { state } = form;
   const { values, errors, recordType } = state;
@@ -63,7 +63,7 @@ export default function NumberRecordForm({
       {editRecord ? (
         <LockedNumberCard record={editRecord} />
       ) : (
-        <ActionTypeBlock form={form} RestrictionOptionsList={RestrictionOptionsList} />
+        <ActionTypeBlock form={form} SourceRestrictionOptionsList={SourceRestrictionOptionsList} />
       )}
 
       <div

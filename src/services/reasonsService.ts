@@ -1,7 +1,7 @@
-import { createQueryCache } from "@/infrastructure/api/queryCache";
-import { serviceClient } from "@/infrastructure/api/serviceClient";
-import type { LookupItem } from "@/schemas/common.schema";
-import { SERVICE_ENDPOINTS } from "./serviceEndpoints";
+import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
+import { createQueryCache } from "@/infrastructure/queryCache";
+import { serviceClient } from "@/infrastructure/serviceClient";
+import type { LookupItem } from "@/types/common.schema";
 
 // לרשימות הסיבות עדיין אין חוזה בסכמה: הפעולות והתשובה (מערך LookupItem, ספק 00 §6) זמניות (ראו pending-decisions)
 type GetReasonsResponse = LookupItem<number>[];

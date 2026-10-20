@@ -5,17 +5,17 @@ import {
   findReasonIdByName,
   toValidatedDecision,
   type DecisionValues,
-} from "@/features/records/form/decisionLogic";
+} from "@/features/records/form/decision/decisionLogic";
 import { findFirstErrorSlot, hasErrors, splitByHiddenSlots, withoutErrors } from "@/features/records/form/formErrors";
 import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
 import { toAppError } from "@/infrastructure/errors/appError";
-import type { LookupItem, PhoneString } from "@/schemas/common.schema";
-import type { TraineeVoiceMessageRecordDto, VoiceMessageScope } from "@/schemas/voice-messages.schema";
 import { createTraineeVoiceMessage, updateTraineeVoiceMessage } from "@/services/voiceMessagesService";
-import { todayIsoDate } from "@/shared/dates/isoDate";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useFocusAfterRender } from "@/shared/hooks/useFocusAfterRender";
+import type { LookupItem, PhoneString } from "@/types/common.schema";
+import type { TraineeVoiceMessageRecordDto, VoiceMessageScope } from "@/types/voice-messages.schema";
+import { todayIsoDate } from "@/utils/dates";
 import {
   VOICE_MESSAGE_ERROR_SLOTS,
   VOICE_MESSAGE_FIELD_IDS,

@@ -6,7 +6,7 @@ import type {
   TraineeRestrictionRecordDto,
   UpdateTraineeRestrictionRequest,
   UpdateTraineeRestrictionResponse,
-} from "@/schemas/trainee-restrictions.schema";
+} from "@/types/trainee-restrictions.schema";
 import { buildAuditMetadata } from "../data/recordMetadataBuilders";
 import { TRAINEE_RESTRICTIONS_MOCK_DATA } from "../data/traineeRestrictionsMockData";
 import type { MockRequest } from "../mockRequest";

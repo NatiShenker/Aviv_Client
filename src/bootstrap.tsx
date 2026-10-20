@@ -6,11 +6,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
+import { prepareAppEntry } from "./appEntry";
 import { registerGlobalErrorHandlers } from "./infrastructure/errors/errorReporting";
 import { initHttpClient } from "./infrastructure/http";
-import { prepareAppEntry } from "./shells/mobile/navigation/appEntry";
 
-// נקודת כניסה למצב העצמאי: iframe במובייל וטאבלט. במצב MFE בדסקטופ הראוטר ייקבע בנפרד.
+// נקודת כניסה למצב העצמאי: iframe במובייל, ואפליקציה עצמאית בטאבלט ובדסקטופ. במצב MFE בדסקטופ הראוטר ייקבע בנפרד.
 const ROOT_ELEMENT_ID = "root";
 
 registerGlobalErrorHandlers();

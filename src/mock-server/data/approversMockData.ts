@@ -1,4 +1,4 @@
-import type { ApproverRef } from "@/schemas/common.schema";
+import type { ApproverRef } from "@/types/common.schema";
 
 // סימולציה של הגורמים המאשרים. בפרודקשן הבחירה נעשית ב-MFE חיצוני
 export const APPROVERS_MOCK_DATA: ApproverRef[] = [

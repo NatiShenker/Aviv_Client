@@ -1,5 +1,5 @@
-import type { ApproverRef } from "@/schemas/common.schema";
 import type { SearchApproversRequest } from "@/integrations/approver-mfe/approversStandInService";
+import type { ApproverRef } from "@/types/common.schema";
 import { APPROVERS_MOCK_DATA } from "../data/approversMockData";
 import type { MockRequest } from "../mockRequest";
 

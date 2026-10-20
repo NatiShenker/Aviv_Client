@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from "react";
-import DrawerHistoryLayout from "@/features/records/history/desktop/DrawerHistoryLayout";
-import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
-import DrawerFormHost from "@/shells/desktop/DrawerFormHost";
-import type { NumberRecordFormTarget } from "../form/useNumberRecordFormRoute";
+import DrawerHistoryLayout from "@/features/records/desktop/DrawerHistoryLayout";
+import DrawerFormHost from "@/shells/desktop/drawer/DrawerFormHost";
+import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
+import type { NumberRecordFormTarget } from "../form/useNumberRecordFormSession";
 import NumberRecordCard from "../history/NumberRecordCard";
 import { useNumberRestrictionsHistory } from "../history/useNumberRestrictionsHistory";
 import { buildNumberRecordKey, numberRecordRefOf } from "../numberRestrictionsLogic";

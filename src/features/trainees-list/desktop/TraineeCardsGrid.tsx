@@ -1,10 +1,10 @@
 import TraineeCardMenu from "@/features/trainee-actions/desktop/TraineeCardMenu";
 import type { TraineeDrawerScreen } from "@/features/trainee-actions/desktop/traineeDrawerScreens";
 import { buildTraineeDisplayName } from "@/features/trainee/traineeDisplay";
-import type { TraineeListItemDto } from "@/schemas/trainees.schema";
 import LoadMoreSentinel from "@/shared/components/LoadMoreSentinel";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useIncrementalList } from "@/shared/hooks/useIncrementalList";
+import type { TraineeListItemDto } from "@/types/trainees.schema";
 import TraineeCard from "../components/TraineeCard";
 import TraineeCardSkeleton from "../components/TraineeCardSkeleton";
 import TraineesListStates from "../components/TraineesListStates";

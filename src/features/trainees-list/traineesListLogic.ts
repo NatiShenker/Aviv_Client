@@ -1,18 +1,13 @@
-import { HEBREW_LOCALE } from "@/appConstants";
-import { ORGANIZATION_TEXTS } from "@/features/institutes/organizationTexts";
-import type { WingLocationDto } from "@/schemas/organization.schema";
-import {
-  matchesTraineeFilters,
-  type TraineeListFiltersState,
-  type TraineeListItemDto,
-  type TraineeSortField,
-} from "@/schemas/trainees.schema";
+import { HEBREW_LOCALE } from "@/config/appConstants";
+import { INSTITUTES_TEXTS } from "@/features/institutes/institutesTexts";
+import type { WingLocationDto } from "@/types/organization.schema";
+import type { TraineeListFiltersState, TraineeListItemDto, TraineeSortField } from "@/types/trainees.schema";
 import type { TraineeSortOption } from "./traineesListOptions";
 import { TRAINEES_LIST_TEXTS } from "./traineesListTexts";
 
 /** המיקום שמוצג בכרטיס: "אגף X", ואחריו המיקום באגף כשיש */
 export function buildTraineeLocationLabel(trainee: TraineeListItemDto): string {
-  const wingLabel = ORGANIZATION_TEXTS.wing(trainee.wing.name);
+  const wingLabel = INSTITUTES_TEXTS.organization.wing(trainee.wing.name);
   if (!trainee.location) {
     return wingLabel;
   }
@@ -73,6 +68,67 @@ export function filterAndSortTrainees(
       // בשוויון - לפי השם, תמיד מא׳ עד ת׳
       return bySortField !== 0 ? bySortField : compareHebrew(first.fullName, second.fullName);
     });
+}
+
+/** החניך עונה על החיפוש ועל כל קבוצות הסינון שנבחרו */
+function matchesTraineeFilters(
+  trainee: TraineeListItemDto,
+  filters: TraineeListFiltersState,
+): boolean {
+  const { flags } = trainee;
+
+  // 1. חיפוש טקסטואלי (שם או קוד חניך)
+  const q = filters.searchQuery.trim();
+  if (q && !trainee.fullName.includes(q) && !trainee.traineeCode.includes(q)) {
+    return false;
+  }
+
+  // 2. סינון אגף ומיקום באגף
+  if (filters.wingIds.length > 0 && !filters.wingIds.includes(trainee.wing.id)) {
+    return false;
+  }
+  if (
+    filters.locationIds.length > 0 &&
+    (!trainee.location || !filters.locationIds.includes(trainee.location.id))
+  ) {
+    return false;
+  }
+
+  // 3. c. סינון לפי הגבלה לחניך
+  if (filters.traineeRestriction === "full" && !flags.hasActiveFullRestriction) return false;
+  if (filters.traineeRestriction === "minutes" && !flags.hasActiveMinutesRestriction) return false;
+  if (
+    filters.traineeRestriction === "none" &&
+    (flags.hasActiveFullRestriction || flags.hasActiveMinutesRestriction)
+  ) {
+    return false;
+  }
+
+  // 4. d. סינון לפי הודעה לנמען
+  if (filters.recipientMessage === "regular" && !flags.hasActiveMessage) return false;
+  if (filters.recipientMessage === "interactive" && !flags.hasActiveInteractiveMessage) return false;
+  if (
+    filters.recipientMessage === "none" &&
+    (flags.hasActiveMessage || flags.hasActiveInteractiveMessage)
+  ) {
+    return false;
+  }
+
+  // 5. e. סינון לפי הגבלה/היתר למספר
+  if (filters.phoneException === "restriction" && !flags.hasActivePhoneRestriction) return false;
+  if (filters.phoneException === "permit" && !flags.hasActivePhonePermit) return false;
+  if (
+    filters.phoneException === "none" &&
+    (flags.hasActivePhoneRestriction || flags.hasActivePhonePermit)
+  ) {
+    return false;
+  }
+
+  // 6. f. סינון לפי יתרה
+  if (filters.balance === "has_balance" && !flags.hasBalance) return false;
+  if (filters.balance === "no_balance" && flags.hasBalance) return false;
+
+  return true;
 }
 
 function compareTraineesBy(field: TraineeSortField, first: TraineeListItemDto, second: TraineeListItemDto): number {

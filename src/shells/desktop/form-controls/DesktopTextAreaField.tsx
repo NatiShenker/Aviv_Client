@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { IpsTextArea } from "ui-library";
 import FieldLabelText from "@/shared/components/form/FieldLabelText";
-import type { TextAreaFieldProps } from "@/shared/form-controls/formControls";
+import type { TextAreaFieldProps } from "@/shared/components/form/formControls";
 
 // שלוש שורות, כמו במובייל (ספק 00 §3.14)
 const TEXT_AREA_ROWS = 3;

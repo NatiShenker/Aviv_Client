@@ -1,6 +1,6 @@
 import { useRecordHistoryState, type RecordHistoryState } from "@/features/records/history/useRecordHistoryState";
-import type { TraineePhoneRecordDto } from "@/schemas/phone-exceptions.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import { filterAndSortNumberRecords, numberRecordCardDomId } from "../numberRestrictionsLogic";
 import { useNumberRestrictionsData } from "./useNumberRestrictionsData";
 

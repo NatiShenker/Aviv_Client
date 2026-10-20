@@ -1,5 +1,5 @@
-import type { VoiceMessageScope } from "@/schemas/voice-messages.schema";
-import type { RadioFieldOption } from "@/shared/form-controls/formControls";
+import type { RadioFieldOption } from "@/shared/components/form/formControls";
+import type { VoiceMessageScope } from "@/types/voice-messages.schema";
 import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 
 const SCOPE_TEXTS = VOICE_MESSAGES_TEXTS.form.messageBlock.scopes;

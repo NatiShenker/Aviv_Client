@@ -1,6 +1,6 @@
 import { useRecordHistoryState, type RecordHistoryState } from "@/features/records/history/useRecordHistoryState";
-import type { TraineeVoiceMessageRecordDto } from "@/schemas/voice-messages.schema";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
 import { filterAndSortVoiceMessages, voiceMessageCardDomId } from "../voiceMessagesLogic";
 import { useVoiceMessagesData } from "./useVoiceMessagesData";
 
