@@ -22,8 +22,8 @@ export function findOptionValue<TValue extends string>(
   return options.find((option) => option.value === selectedValue)?.value;
 }
 
-const FILTER_TEXTS = TRAINEES_LIST_TEXTS.filterDrawer;
-const SORT_TEXTS = TRAINEES_LIST_TEXTS.sortDrawer.options;
+const FILTER_TEXTS = TRAINEES_LIST_TEXTS.filters;
+const SORT_TEXTS = TRAINEES_LIST_TEXTS.sort.options;
 
 export const DEFAULT_TRAINEE_FILTERS: TraineeListFiltersState = {
   searchQuery: "",

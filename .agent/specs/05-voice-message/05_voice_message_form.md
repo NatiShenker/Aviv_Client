@@ -14,13 +14,13 @@ Prototype source: `client/pages/VoiceMessageForm.tsx` (superseded where this spe
 
 ## 2. Route & parameters
 
-- **Presentation:** a full-height sheet over the history screen ([00 §2.4](../00_foundations.md)). The route opens and closes it, so browser back closes it too.
+- **Presentation:** a full-screen form sheet over the history screen ([00 §2.4](../00_foundations.md)). The route opens and closes it, so browser back closes it too.
 
 | Mode | Route | Notes |
 |---|---|---|
-| Create | `/trainee/:id/voice-message/new` | |
-| Create based on | `/trainee/:id/voice-message/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
-| Edit | `/trainee/:id/voice-message/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/trainee/:id/voice-message` (replace) |
+| Create | `/trainee/:traineeId/voice-message/new` | |
+| Create based on | `/trainee/:traineeId/voice-message/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
+| Edit | `/trainee/:traineeId/voice-message/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/trainee/:traineeId/voice-message` (replace) |
 
 ---
 
@@ -70,7 +70,7 @@ StickyActionBar, two columns: outline `"ביטול"` and primary submit `"שמו
 
 | Item | Create | Edit |
 |---|---|---|
-| Scope | `"בכל השיחות"` | Locked card (§3.2.4) |
+| Scope | `"בכל השיחות"` | Locked card (§3.2, item 4) |
 | Numbers | None | – |
 | Repeat | Off | From the record |
 | Dates | Today / tomorrow, muted | From the record, not muted |

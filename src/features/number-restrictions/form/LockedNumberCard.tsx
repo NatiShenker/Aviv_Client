@@ -1,7 +1,7 @@
 import RecordIconCircle from "@/features/records/history/card/RecordIconCircle";
 import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
-import RestrictionSummaryLines from "./source-restriction/RestrictionSummaryLines";
+import SourceRestrictionSummaryLines from "./source-restriction/SourceRestrictionSummaryLines";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS;
 
@@ -28,7 +28,7 @@ export default function LockedNumberCard({ record }: LockedNumberCardProps) {
           <div className="mt-3 border-t border-divider pt-3">
             <p className="text-sm text-text-muted">{TEXTS.form.lockedCard.onRestriction}</p>
             <div className="mt-0.5">
-              <RestrictionSummaryLines restriction={record.sourceRestriction} />
+              <SourceRestrictionSummaryLines restriction={record.sourceRestriction} />
             </div>
           </div>
         )}

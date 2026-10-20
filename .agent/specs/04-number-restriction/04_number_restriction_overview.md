@@ -99,12 +99,12 @@ Active while `endDate >= today`, else ended ([OQ-01](../../pending-decisions.md#
 
 | Method & path | Request / Query Schema (`phone-exceptions.schema.ts`) | Response Schema | Used by |
 |---|---|---|---|
-| `GET /api/trainees/{traineeId}/phone-records` | `GetTraineePhoneRecordsRequest` (`traineeIds: [traineeId]`) | `GetTraineePhoneRecordsResponse` (`records: TraineePhoneRecordDto[]`) | History & Edit cache |
-| `GET /api/phone-restrictions/lookup` | `LookupPhoneRestrictionsForPermitRequest` (`traineeId`, `instituteId`, `phoneNumbers: [phone]`) | `LookupPhoneRestrictionsForPermitResponse` (returns all active national, institute, and trainee restrictions for the phone + existing permits) | Form, permit search (no lookup is needed in restriction mode) |
-| `POST /api/trainee-phone-restrictions` | `CreateTraineePhoneRestrictionRequest` | `CreateTraineePhoneRestrictionResponse` (one record created per phone in `phoneNumbers[]`) | Form, create restriction |
-| `PUT /api/trainee-phone-restrictions/{id}` | `UpdateTraineePhoneRestrictionRequest` | `UpdateTraineePhoneRestrictionResponse` (deactivates old ID `LOGI_ACTIVE = 0`, returns new record) | Form, edit restriction |
-| `POST /api/trainee-phone-permits` | `CreateTraineePhonePermitRequest` | `CreateTraineePhonePermitResponse` | Form, create permit |
-| `PUT /api/trainee-phone-permits/{id}` | `UpdateTraineePhonePermitRequest` | `UpdateTraineePhonePermitResponse` (deactivates old ID `LOGI_ACTIVE = 0`, returns new record) | Form, edit permit |
+| `POST PhoneExceptions/GetTraineePhoneRecords` | `GetTraineePhoneRecordsRequest` (`traineeIds: [traineeId]`) | `GetTraineePhoneRecordsResponse` (`records: TraineePhoneRecordDto[]`) | History & Edit cache |
+| `POST PhoneExceptions/LookupPhoneRestrictionsForPermit` | `LookupPhoneRestrictionsForPermitRequest` (`traineeId`, `instituteId`, `phoneNumbers: [phone]`) | `LookupPhoneRestrictionsForPermitResponse` (returns all active national, institute, and trainee restrictions for the phone + existing permits) | Form, permit search (no lookup is needed in restriction mode) |
+| `POST PhoneExceptions/CreateTraineePhoneRestriction` | `CreateTraineePhoneRestrictionRequest` | `CreateTraineePhoneRestrictionResponse` (one record created per phone in `phoneNumbers[]`) | Form, create restriction |
+| `PUT PhoneExceptions/UpdateTraineePhoneRestriction` | `UpdateTraineePhoneRestrictionRequest` | `UpdateTraineePhoneRestrictionResponse` (deactivates old ID `LOGI_ACTIVE = 0`, returns new record) | Form, edit restriction |
+| `POST PhoneExceptions/CreateTraineePhonePermit` | `CreateTraineePhonePermitRequest` | `CreateTraineePhonePermitResponse` | Form, create permit |
+| `PUT PhoneExceptions/UpdateTraineePhonePermit` | `UpdateTraineePhonePermitRequest` | `UpdateTraineePhonePermitResponse` (deactivates old ID `LOGI_ACTIVE = 0`, returns new record) | Form, edit permit |
 
 ---
 

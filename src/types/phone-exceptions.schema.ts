@@ -64,7 +64,7 @@ export interface SourceRestrictionSummaryDto {
 }
 
 // ============================================================================
-// 2. שליפת רשומות "הגבלה/היתר למספר" של החניך (GET /api/trainees/{traineeId}/phone-records)
+// 2. שליפת רשומות "הגבלה/היתר למספר" של החניך (POST PhoneExceptions/GetTraineePhoneRecords)
 // ============================================================================
 
 export interface GetTraineePhoneRecordsRequest {
@@ -124,7 +124,7 @@ export interface GetTraineePhoneRecordsResponse {
 
 // ============================================================================
 // 3. איתור הגבלות פעילות למספר בעת יצירת "היתר חדש" (סעיף 3a)
-// GET /api/phone-restrictions/lookup
+// POST PhoneExceptions/LookupPhoneRestrictionsForPermit
 // ============================================================================
 
 export interface LookupPhoneRestrictionsForPermitRequest {
@@ -146,7 +146,7 @@ export interface LookupPhoneRestrictionsForPermitResponse {
 
 // ============================================================================
 // 4. אנדפוינט נפרד א': יצירה ועדכון של "הגבלה למספר" לחניך (מבט)
-// POST / PUT /api/trainee-phone-restrictions
+// POST PhoneExceptions/CreateTraineePhoneRestriction / PUT PhoneExceptions/UpdateTraineePhoneRestriction
 // ============================================================================
 
 export interface CreateTraineePhoneRestrictionRequest
@@ -180,7 +180,7 @@ export type UpdateTraineePhoneRestrictionResponse =
 
 // ============================================================================
 // 5. אנדפוינט נפרד ב': יצירה ועדכון של "היתר למספר" לחניך (מבט)
-// POST / PUT /api/trainee-phone-permits
+// POST PhoneExceptions/CreateTraineePhonePermit / PUT PhoneExceptions/UpdateTraineePhonePermit
 // ============================================================================
 
 export interface CreateTraineePhonePermitRequest
@@ -213,7 +213,7 @@ export type UpdateTraineePhonePermitResponse =
 
 // ============================================================================
 // 6. אנדפוינט ג': חסימת מספר גלובלית / פנימייתית (קליינט "חוסאם")
-// POST / PUT /api/global-phone-restrictions
+// הפעולות האלה שייכות לקליינט "חוסאם", ולא מוגדרות באביב
 // ============================================================================
 
 export interface GlobalPhoneRestrictionRecordDto

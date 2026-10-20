@@ -71,7 +71,7 @@ export interface TraineeListItemDto {
   /** b. מיקום באגף */
   location: LookupItem<number> | null;
 
-  /** תאריך עדכון/שהייה להצגה ולמיון */
+  /** תאריך עדכון/שהייה. חלק מחוזה השרת, אבל לא מוצג ולא משמש למיון (OQ-07) */
   lastActivityDate: ISODateString;
   /** תאריך סיום ההגבלה הפעילה (להצגת התגית "מוגבל עד DD/MM" בכרטיס החניך) */
   restrictedUntilDate?: ISODateString | null;

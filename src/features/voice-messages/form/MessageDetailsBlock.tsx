@@ -17,7 +17,7 @@ const SWITCH_THUMB_INSET_PX = (SWITCH_TRACK_HEIGHT_PX - SWITCH_THUMB_SIZE_PX) / 
 const SWITCH_THUMB_TRAVEL_PX = SWITCH_TRACK_WIDTH_PX - SWITCH_THUMB_SIZE_PX - SWITCH_THUMB_INSET_PX * 2;
 
 // ערכת הנושא של הספרייה ממקמת את הכפתור ב-margin (ולא ב-padding), ולכן גם כאן: padding אפס, והמרווח ב-margin
-const MOBILE_SWITCH_SX = {
+const SWITCH_SX = {
   width: SWITCH_TRACK_WIDTH_PX,
   height: SWITCH_TRACK_HEIGHT_PX,
   padding: 0,
@@ -67,7 +67,7 @@ export default function MessageDetailsBlock({ form }: MessageDetailsBlockProps) 
           checked={values.repeatDuringCall}
           onChange={(event) => form.changeRepeatDuringCall(event.target.checked)}
           slotProps={{ input: { "aria-describedby": hintId } }}
-          sx={MOBILE_SWITCH_SX}
+          sx={SWITCH_SX}
         />
       </div>
 

@@ -2,26 +2,26 @@ import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from
 import { IpsRadioGroup, type IpsRadioGroupOption, type IpsRadioGroupValue } from "ui-library";
 import type { SourceRestrictionSummaryDto } from "@/types/phone-exceptions.schema";
 import { formatDateRange } from "@/utils/dates";
+import { ENTER_KEY } from "@/utils/dom";
 import { RESTRICTION_PICKER_HEADING_ID } from "../form/numberRecordFormLogic";
-import type { RestrictionOptionsListProps } from "../form/source-restriction/RestrictionPicker";
-import { formatExistingPermitsSummary } from "../form/source-restriction/restrictionPickerLogic";
+import type { SourceRestrictionOptionsListProps } from "../form/source-restriction/SourceRestrictionPicker";
+import { formatExistingPermitsSummary } from "../form/source-restriction/sourceRestrictionPickerLogic";
 import { buildRestrictionReasonText, buildScopeLabel } from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 
-const ENTER_KEY = "Enter";
 
 /**
  * ההגבלות לבחירה בדסקטופ (החלטת שלב 2): כרטיסי רדיו - כל הכרטיס לחיץ, והבחירה מכווצת את הרשימה לכרטיס שנבחר.
  * בעכבר לחיצה בוחרת מיד. במקלדת החצים רק מסמנים כרטיס, כדי שאפשר יהיה לעבור על כולם בלי שהרשימה תתכווץ;
  * הבחירה ננעלת ב-Enter, או כשהפוקוס יוצא מהרשימה. הרשימות קצרות, ולכן בלי טעינה הדרגתית
  */
-export default function RestrictionRadioCards({
+export default function SourceRestrictionRadioCards({
   restrictions,
   selectedRestrictionId,
   isChoosing,
   hintId,
   onChoose,
-}: RestrictionOptionsListProps) {
+}: SourceRestrictionOptionsListProps) {
   const [markedRestrictionId, setMarkedRestrictionId] = useState(selectedRestrictionId);
   // הלחיצה האחרונה הייתה בעכבר (ולא במקלדת) - אז הבחירה ננעלת מיד
   const isPointerChoiceRef = useRef(false);

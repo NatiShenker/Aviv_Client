@@ -13,7 +13,7 @@ Prototype source: `client/pages/ExceptionList.tsx`. Business rules and model: [o
 
 ## 2. Route & parameters
 
-- **Route:** `/trainee/:id/number-restriction` (renamed from the sketch slug `exception`, [OQ-19](../../pending-decisions.md#oq-19))
+- **Route:** `/trainee/:traineeId/number-restriction` (renamed from the sketch slug `exception`, [OQ-19](../../pending-decisions.md#oq-19))
 - **`id`:** trainee ID. Unknown trainee → not-found screen (production).
 - **After save:** the list reloads and opens the **first** saved record. The key passes from the form to the list in memory, not in the URL. A record key is the type + ID (e.g. `permit-12`), because restrictions and permits come from separate tables and their IDs can repeat; the edit route uses the same key ([form §2](04_number_restriction_form.md)).
 
@@ -25,10 +25,10 @@ Prototype source: `client/pages/ExceptionList.tsx`. Business rules and model: [o
 2. **HistoryToolbar** ([00 §3.23](../00_foundations.md))
    - Section title `"היסטוריית הגבלות והיתרים"` (Restrictions and permits history).
    - Search field: aria-label `"חיפוש הגבלות והיתרים"`, placeholder `"חיפוש לפי מספר, סיבה או תאריך"` (Search by number, reason or date).
-   - Round sort button (aria-label `"מיון"`).
+   - Square sort button, outlined like the fields (aria-label `"מיון"`).
 3. **Cards** – one ExpandableRecordCard per record (each permit and each restriction separately).
 4. **EmptyState** – `"לא נמצאו הגבלות או היתרים"` (No restrictions or permits found).
-5. **StickyActionBar** – primary link `"הוספת הגבלה/היתר"` (Add restriction/permit) + plus icon → `/trainee/{id}/number-restriction/new`.
+5. **StickyActionBar** – primary button `"הוספת הגבלה/היתר"` (Add restriction/permit) + plus icon → `/trainee/{id}/number-restriction/new`.
 
 ### 3.1 Card – closed
 
@@ -73,7 +73,7 @@ Below the grid: outline button `"עריכה"` with edit icon – or, on an ended
 
 | When | Call | Schema |
 |---|---|---|
-| Screen opens; returning from the form | `GET /api/trainees/{traineeId}/phone-records` | Request: `GetTraineePhoneRecordsRequest` (`traineeIds: [traineeId]`)<br>Response: `GetTraineePhoneRecordsResponse` (`records: TraineePhoneRecordDto[]`) |
+| Screen opens; returning from the form | `POST PhoneExceptions/GetTraineePhoneRecords` | Request: `GetTraineePhoneRecordsRequest` (`traineeIds: [traineeId]`)<br>Response: `GetTraineePhoneRecordsResponse` (`records: TraineePhoneRecordDto[]`) |
 
 - Search and sort run on the client over `records`.
 - Display values come from `TraineePhoneRecordDto` (`TraineePhoneRestrictionRecordDto | TraineePhonePermitRecordDto`); `"על הגבלה"` uses `record.sourceRestriction` (joined by the server from `AVIV_RESTRICTION_NUMBER`).

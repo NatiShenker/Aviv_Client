@@ -10,7 +10,7 @@ import { prepareAppEntry } from "./appEntry";
 import { registerGlobalErrorHandlers } from "./infrastructure/errors/errorReporting";
 import { initHttpClient } from "./infrastructure/http";
 
-// נקודת כניסה למצב העצמאי: iframe במובייל וטאבלט. במצב MFE בדסקטופ הראוטר ייקבע בנפרד.
+// נקודת כניסה למצב העצמאי: iframe במובייל, ואפליקציה עצמאית בטאבלט ובדסקטופ. במצב MFE בדסקטופ הראוטר ייקבע בנפרד.
 const ROOT_ELEMENT_ID = "root";
 
 registerGlobalErrorHandlers();

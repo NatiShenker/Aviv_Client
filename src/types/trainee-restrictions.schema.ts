@@ -15,7 +15,7 @@ import type {
 } from "./common.schema.ts";
 
 // ============================================================================
-// 1. שליפת הגבלות קיימות של חניך (GET /api/trainees/{traineeId}/restrictions)
+// 1. שליפת הגבלות קיימות של חניך (POST TraineeRestrictions/GetTraineeRestrictions)
 // ============================================================================
 
 export interface GetTraineeRestrictionsRequest {
@@ -46,7 +46,7 @@ export interface GetTraineeRestrictionsResponse {
 }
 
 // ============================================================================
-// 2. יצירת הגבלה חדשה לחניך (POST /api/trainee-restrictions)
+// 2. יצירת הגבלה חדשה לחניך (POST TraineeRestrictions/CreateTraineeRestriction)
 // ============================================================================
 
 export interface CreateTraineeRestrictionRequest
@@ -61,7 +61,7 @@ export interface CreateTraineeRestrictionRequest
 export type CreateTraineeRestrictionResponse = MutationResultDto<TraineeRestrictionRecordDto>;
 
 // ============================================================================
-// 3. עדכון הגבלה קיימת לחניך (PUT /api/trainee-restrictions/{id})
+// 3. עדכון הגבלה קיימת לחניך (PUT TraineeRestrictions/UpdateTraineeRestriction)
 // (מכבה את הרשומה הקודמת LOGI_ACTIVE = 0 ויוצר רשומה חדשה פעילה)
 // ============================================================================
 

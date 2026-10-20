@@ -5,11 +5,11 @@ import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import type { LookupItem } from "@/types/common.schema";
 import type { DeviceDto, WingDto } from "@/types/organization.schema";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
-import { RESTRICTION_FIELD_IDS } from "./restrictionFormLogic";
-import type { RestrictionFormController } from "./useRestrictionForm";
+import { RESTRICTION_FIELD_IDS } from "./traineeRestrictionFormLogic";
+import type { TraineeRestrictionFormController } from "./useTraineeRestrictionForm";
 
 /** כפתור השמירה נמצא בפוטר של הטופס, מחוץ ל-<form>, ומשויך אליו לפי המזהה */
-export const RESTRICTION_FORM_ID = "trainee-restriction-form";
+export const TRAINEE_RESTRICTION_FORM_ID = "trainee-restriction-form";
 
 const TEXTS = TRAINEE_RESTRICTIONS_TEXTS.form;
 // כל הרשומות בטופס הזה הן הגבלות
@@ -24,8 +24,8 @@ const DECISION_FIELD_IDS = {
   file: RESTRICTION_FIELD_IDS.file,
 };
 
-export interface RestrictionFormProps {
-  form: RestrictionFormController;
+export interface TraineeRestrictionFormProps {
+  form: TraineeRestrictionFormController;
   devices: AsyncResource<DeviceDto[]>;
   /** אגפי הפנימייה - המכשירים מקובצים לפיהם */
   wings: WingDto[];
@@ -33,11 +33,11 @@ export interface RestrictionFormProps {
 }
 
 /** שלושת הבלוקים של טופס ההגבלה, מופרדים בקו (ספק 03 form §3) */
-export default function RestrictionForm({ form, devices, wings, reasons }: RestrictionFormProps) {
+export default function TraineeRestrictionForm({ form, devices, wings, reasons }: TraineeRestrictionFormProps) {
   const { values, errors } = form;
 
   return (
-    <form id={RESTRICTION_FORM_ID} noValidate onSubmit={form.submit} className="divide-y divide-divider">
+    <form id={TRAINEE_RESTRICTION_FORM_ID} noValidate onSubmit={form.submit} className="divide-y divide-divider">
       <CallDetailsBlock
         title={TEXTS.detailsBlock.title}
         dateRangeDescription={TEXTS.detailsBlock.dateRangeDescription}

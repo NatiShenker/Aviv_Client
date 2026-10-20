@@ -70,7 +70,7 @@ function isActiveToday(record: DatedRecord): boolean {
   return record.isActive && isTodayInRange(record.startDate, record.endDate);
 }
 
-// "מוגבל עד" = תאריך הסיום המאוחר מבין ההגבלות הפעילות (לפי ההצעה ב-OQ-03)
+// "מוגבל עד" = תאריך הסיום המאוחר מבין ההגבלות הפעילות (OQ-03)
 function latestEndDate(records: DatedRecord[]): ISODateString | null {
   if (records.length === 0) {
     return null;

@@ -11,7 +11,7 @@ const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.picker;
 const PARTS_SEPARATOR = NUMBER_RESTRICTIONS_TEXTS.values.partsSeparator;
 
 /** מה שבוחר ההגבלה מציג במצב הנוכחי */
-export interface RestrictionPickerView {
+export interface SourceRestrictionPickerView {
   title: string;
   hint: string | null;
   visibleRestrictions: SourceRestrictionSummaryDto[];
@@ -26,11 +26,11 @@ export interface RestrictionPickerView {
  * תוצאה אחת - נבחרה אוטומטית; כמה ואין בחירה - כל הכרטיסים לבחירה;
  * נבחרה - רק הכרטיס הנבחר ו"החלפה"; אחרי "החלפה" - כל הכרטיסים ו"ביטול".
  */
-export function buildRestrictionPickerView(
+export function buildSourceRestrictionPickerView(
   results: SourceRestrictionSummaryDto[],
   selectedRestriction: SourceRestrictionSummaryDto | null,
   isPickerOpen: boolean,
-): RestrictionPickerView {
+): SourceRestrictionPickerView {
   if (results.length === 1) {
     return {
       title: TEXTS.selectedTitle,
@@ -69,7 +69,7 @@ export function buildLookupAnnouncement(lookup: PermitLookup): string {
 }
 
 /** שם הכפתור "בחירה" לקורא מסך: איזו הגבלה בוחרים */
-export function buildChooseRestrictionLabel(restriction: SourceRestrictionSummaryDto): string {
+export function buildChooseSourceRestrictionLabel(restriction: SourceRestrictionSummaryDto): string {
   const range = formatDateRange(restriction.startDate, restriction.endDate);
   return TEXTS.chooseLabel(buildScopeLabel(restriction), isolateLtr(range));
 }

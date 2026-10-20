@@ -15,13 +15,13 @@ Prototype source: `client/pages/BlockForm.tsx`. Business rules and model: [overv
 
 ## 2. Route & parameters
 
-- **Presentation:** a full-height bottom sheet over the history screen ([00 §2.4](../00_foundations.md)). The route opens and closes it, so browser back closes it too. Close goes one step back in history ([00 §3.1](../00_foundations.md)).
+- **Presentation:** a full-screen form sheet over the history screen ([00 §2.4](../00_foundations.md)). The route opens and closes it, so browser back closes it too. Close goes one step back in history ([00 §3.1](../00_foundations.md)).
 
 | Mode | Route | Notes |
 |---|---|---|
-| Create | `/trainee/:id/trainee-restriction/new` | |
-| Create based on | `/trainee/:id/trainee-restriction/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
-| Edit | `/trainee/:id/trainee-restriction/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/trainee/:id/trainee-restriction` (replace). A direct URL starts at the app start ([00 §1](../00_foundations.md)) |
+| Create | `/trainee/:traineeId/trainee-restriction/new` | |
+| Create based on | `/trainee/:traineeId/trainee-restriction/new?basedOn={recordId}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
+| Edit | `/trainee/:traineeId/trainee-restriction/:recordId/edit` | The record is taken by ID from the history that is already loaded; the form opens only when it exists and has not ended. Unknown ID (e.g. a record replaced by a newer version) or an ended record → redirect to `/trainee/:traineeId/trainee-restriction` (replace). A direct URL starts at the app start ([00 §1](../00_foundations.md)) |
 
 ---
 
@@ -148,7 +148,7 @@ All rules run on submit.
 | Approver | An approver is chosen | `"יש לבחור גורם מאשר"` **(proposed)** | An approver is chosen |
 | File | One file attached | `"יש לצרף קובץ"` (A file must be attached) | A file is attached |
 
-Only one message per slot is shown (the first failing rule). Devices have no rules. Reason, details and approver are required (decided 2026-10-18, closing this part of [OQ-15](../../pending-decisions.md#oq-15)).
+Only one message per slot is shown (the first failing rule). Devices have no rules. Details and approver are required (decided 2026-10-18), and so is the reason (decided 2026-10-19); together they close [OQ-15](../../pending-decisions.md#oq-15).
 
 ---
 

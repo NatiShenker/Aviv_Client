@@ -9,7 +9,7 @@ import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import ActionTypeBlock from "./ActionTypeBlock";
 import LockedNumberCard from "./LockedNumberCard";
 import { NUMBER_RECORD_FIELD_IDS, permitDateBounds, shouldShowDetailBlocks } from "./numberRecordFormLogic";
-import type { RestrictionOptionsListComponent } from "./source-restriction/RestrictionPicker";
+import type { SourceRestrictionOptionsListComponent } from "./source-restriction/SourceRestrictionPicker";
 import type { NumberRecordFormController } from "./useNumberRecordForm";
 
 /** כפתור השמירה נמצא בפוטר של הטופס, מחוץ ל-<form>, ומשויך אליו לפי המזהה */
@@ -35,7 +35,7 @@ export interface NumberRecordFormProps {
   wings: WingDto[];
   reasons: AsyncResource<LookupItem<number>[]>;
   /** רשימת ההגבלות לבחירה בהיתר - כל פריסה מציגה אותה בדרך שלה */
-  RestrictionOptionsList: RestrictionOptionsListComponent;
+  SourceRestrictionOptionsList: SourceRestrictionOptionsListComponent;
 }
 
 /**
@@ -49,7 +49,7 @@ export default function NumberRecordForm({
   devices,
   wings,
   reasons,
-  RestrictionOptionsList,
+  SourceRestrictionOptionsList,
 }: NumberRecordFormProps) {
   const { state } = form;
   const { values, errors, recordType } = state;
@@ -63,7 +63,7 @@ export default function NumberRecordForm({
       {editRecord ? (
         <LockedNumberCard record={editRecord} />
       ) : (
-        <ActionTypeBlock form={form} RestrictionOptionsList={RestrictionOptionsList} />
+        <ActionTypeBlock form={form} SourceRestrictionOptionsList={SourceRestrictionOptionsList} />
       )}
 
       <div

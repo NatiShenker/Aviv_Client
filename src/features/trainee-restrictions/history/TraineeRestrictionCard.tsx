@@ -3,11 +3,11 @@ import RecordPeriodSummary from "@/features/records/history/card/RecordPeriodSum
 import { isRecordActive } from "@/features/records/history/recordStatus";
 import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
-import { buildRestrictionDetails, buildRestrictionTypeLabel, restrictionCardDomId } from "./traineeRestrictionsLogic";
+import { buildTraineeRestrictionDetails, buildTraineeRestrictionTypeLabel, traineeRestrictionCardDomId } from "./traineeRestrictionsLogic";
 
 const CARD_TEXTS = TRAINEE_RESTRICTIONS_TEXTS.card;
 
-interface RestrictionCardProps {
+interface TraineeRestrictionCardProps {
   record: TraineeRestrictionRecordDto;
   isOpen: boolean;
   onToggle: () => void;
@@ -16,15 +16,15 @@ interface RestrictionCardProps {
 }
 
 /** כרטיס הגבלה בהיסטוריה: סוג ההגבלה, ומתחתיו התאריכים והסטטוס (ספק 03 history §3.1-3.2) */
-export default function RestrictionCard({ record, isOpen, onToggle, onEdit, onCreateBasedOn }: RestrictionCardProps) {
+export default function TraineeRestrictionCard({ record, isOpen, onToggle, onEdit, onCreateBasedOn }: TraineeRestrictionCardProps) {
   return (
     <ExpandableRecordCard
-      id={restrictionCardDomId(record.id)}
+      id={traineeRestrictionCardDomId(record.id)}
       icon="traineeRestriction"
       iconTone="danger"
-      summaryTitle={<span className="truncate">{buildRestrictionTypeLabel(record)}</span>}
+      summaryTitle={<span className="truncate">{buildTraineeRestrictionTypeLabel(record)}</span>}
       summaryMeta={<RecordPeriodSummary record={record} activeLabel={CARD_TEXTS.activeBadge} />}
-      details={buildRestrictionDetails(record)}
+      details={buildTraineeRestrictionDetails(record)}
       isOpen={isOpen}
       onToggle={onToggle}
       isEnded={!isRecordActive(record)}

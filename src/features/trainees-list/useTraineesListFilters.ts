@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { SELECTION_TTL_DAYS, STORAGE_KEYS } from "@/config/appConstants";
-import { readWithExpiry, saveWithExpiry } from "@/infrastructure/expiringStorage";
 import type { InstituteWithWingsDto, WingLocationDto } from "@/types/organization.schema";
 import type { TraineeListFiltersState, TraineeListItemDto } from "@/types/trainees.schema";
 import { countActiveFilterGroups, filterAndSortTrainees, keepLocationsOfWings } from "./traineesListLogic";
@@ -11,6 +9,7 @@ import {
   findSortOption,
   type TraineeSortOption,
 } from "./traineesListOptions";
+import { readStoredWingIds, storeWingIds } from "./wingFilterSelection";
 
 /** קבוצות הסינון שמתעדכנות ישירות (בלי שמירה ובלי תלות באחרות) */
 export type TraineeFilterGroupsUpdate = Partial<
@@ -128,39 +127,4 @@ function initialFiltersFor(institute: InstituteWithWingsDto | null): TraineeList
 function initialSortFor(institute: InstituteWithWingsDto | null): TraineeSortOption {
   const remembered = institute ? readRememberedTraineesList(institute.id) : null;
   return remembered ? findSortOption(remembered.sortKey) : DEFAULT_TRAINEE_SORT_OPTION;
-}
-
-// ── שמירת סינון האגף (30 יום), יחד עם הפנימייה שאליה הוא שייך ──
-
-interface StoredWingFilter {
-  instituteId: number;
-  wingIds: number[];
-}
-
-function isStoredWingFilter(value: unknown): value is StoredWingFilter {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-  const candidate = value as Partial<StoredWingFilter>;
-  return (
-    typeof candidate.instituteId === "number" &&
-    Array.isArray(candidate.wingIds) &&
-    candidate.wingIds.every((wingId) => typeof wingId === "number")
-  );
-}
-
-/** משוחזר רק אם נשמר לאותה פנימייה, ורק אגפים שעדיין קיימים בה */
-function readStoredWingIds(institute: InstituteWithWingsDto): number[] {
-  const stored = readWithExpiry(STORAGE_KEYS.traineesWingFilter, isStoredWingFilter);
-  if (!stored || stored.instituteId !== institute.id) {
-    return [];
-  }
-  const existingWingIds = new Set(institute.wings.map((wing) => wing.id));
-  return stored.wingIds.filter((wingId) => existingWingIds.has(wingId));
-}
-
-/** נשמר בכל בחירה של המשתמש, והתוקף מתחדש */
-function storeWingIds(instituteId: number, wingIds: number[]): void {
-  const entry: StoredWingFilter = { instituteId, wingIds };
-  saveWithExpiry(STORAGE_KEYS.traineesWingFilter, entry, SELECTION_TTL_DAYS);
 }

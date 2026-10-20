@@ -3,24 +3,28 @@
  * דוגמה: ?mockDelayMs=2000&mockError=trainees&mockNetworkError=locations&mockEmpty=trainees&mockSingleInstitute=true
  */
 
+/** קבוצות הנתונים שאפשר לכוון אליהן תרחיש */
+const ALL_SCENARIO_KEYS = [
+  "institutes",
+  "permissions",
+  "trainees",
+  "locations",
+  "traineeRestrictions",
+  "saveTraineeRestriction",
+  "phoneRecords",
+  "phoneRestrictionsLookup",
+  "savePhoneRecord",
+  "voiceMessages",
+  "saveVoiceMessage",
+  "devices",
+  "reasons",
+  "approvers",
+  "approvedFiles",
+  "sharePointUpload",
+] as const;
+
 /** שם קבוצת הנתונים שאפשר לכוון אליה תרחיש */
-export type MockScenarioKey =
-  | "institutes"
-  | "permissions"
-  | "trainees"
-  | "locations"
-  | "traineeRestrictions"
-  | "saveTraineeRestriction"
-  | "phoneRecords"
-  | "phoneRestrictionsLookup"
-  | "savePhoneRecord"
-  | "voiceMessages"
-  | "saveVoiceMessage"
-  | "devices"
-  | "reasons"
-  | "approvers"
-  | "approvedFiles"
-  | "sharePointUpload";
+export type MockScenarioKey = (typeof ALL_SCENARIO_KEYS)[number];
 
 export interface MockScenarios {
   delayMs: number;
@@ -45,24 +49,6 @@ const QUERY_PARAMS = {
 const DEFAULT_DELAY_MS = 700;
 const KEYS_SEPARATOR = ",";
 const TRUE_VALUE = "true";
-const ALL_SCENARIO_KEYS: MockScenarioKey[] = [
-  "institutes",
-  "permissions",
-  "trainees",
-  "locations",
-  "traineeRestrictions",
-  "saveTraineeRestriction",
-  "phoneRecords",
-  "phoneRestrictionsLookup",
-  "savePhoneRecord",
-  "voiceMessages",
-  "saveVoiceMessage",
-  "devices",
-  "reasons",
-  "approvers",
-  "approvedFiles",
-  "sharePointUpload",
-];
 
 export function readMockScenarios(search: string): MockScenarios {
   const params = new URLSearchParams(search);

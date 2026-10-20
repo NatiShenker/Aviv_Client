@@ -1,20 +1,20 @@
 import LoadMoreSentinel from "@/shared/components/LoadMoreSentinel";
 import { useIncrementalList } from "@/shared/hooks/useIncrementalList";
 import { RESTRICTION_PICKER_HEADING_ID } from "../form/numberRecordFormLogic";
-import type { RestrictionOptionsListProps } from "../form/source-restriction/RestrictionPicker";
-import RestrictionOptionCard from "./RestrictionOptionCard";
+import type { SourceRestrictionOptionsListProps } from "../form/source-restriction/SourceRestrictionPicker";
+import SourceRestrictionOptionCard from "./SourceRestrictionOptionCard";
 
 /**
  * ההגבלות לבחירה במובייל: כרטיסי מידע עם שורת "בחירה" בתחתית (ספק 04 form §3.2.1).
  * טעינה הדרגתית, כמו בשאר הרשימות: 30 כרטיסים, ועוד 30 בכל הגעה לסוף
  */
-export default function RestrictionOptionCards({
+export default function SourceRestrictionOptionCards({
   restrictions,
   selectedRestrictionId,
   isChoosing,
   hintId,
   onChoose,
-}: RestrictionOptionsListProps) {
+}: SourceRestrictionOptionsListProps) {
   const { visibleItems, hasMore, showMore } = useIncrementalList(restrictions);
 
   return (
@@ -22,7 +22,7 @@ export default function RestrictionOptionCards({
       <ul aria-labelledby={RESTRICTION_PICKER_HEADING_ID} aria-describedby={hintId} className="mt-2 flex flex-col gap-2">
         {visibleItems.map((restriction) => (
           <li key={restriction.restrictionId}>
-            <RestrictionOptionCard
+            <SourceRestrictionOptionCard
               restriction={restriction}
               isSelected={restriction.restrictionId === selectedRestrictionId}
               isChoosing={isChoosing}

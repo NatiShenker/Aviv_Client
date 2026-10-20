@@ -2,14 +2,14 @@ import { useState, type ReactNode } from "react";
 import DrawerHistoryLayout from "@/features/records/desktop/DrawerHistoryLayout";
 import DrawerFormHost from "@/shells/desktop/drawer/DrawerFormHost";
 import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
-import type { RestrictionFormTarget } from "../form/useRestrictionFormSession";
-import RestrictionCard from "../history/RestrictionCard";
-import { restrictionRecordKey } from "../history/traineeRestrictionsLogic";
-import { useRestrictionsHistory } from "../history/useRestrictionsHistory";
+import type { TraineeRestrictionFormTarget } from "../form/useTraineeRestrictionFormSession";
+import TraineeRestrictionCard from "../history/TraineeRestrictionCard";
+import { traineeRestrictionRecordKey } from "../history/traineeRestrictionsLogic";
+import { useTraineeRestrictionsHistory } from "../history/useTraineeRestrictionsHistory";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
-import RestrictionDrawerForm from "./RestrictionDrawerForm";
+import TraineeRestrictionDrawerForm from "./TraineeRestrictionDrawerForm";
 
-interface RestrictionsDrawerHistoryProps {
+interface TraineeRestrictionsDrawerHistoryProps {
   traineeId: number;
   /** חזרה ושם הפעולה, בתחילת השורה העליונה */
   navigation: ReactNode;
@@ -18,10 +18,10 @@ interface RestrictionsDrawerHistoryProps {
 }
 
 /** היסטוריית ההגבלות של החניך במגירה, וטופס ההגבלה מעליה (ספק 03, פריסת דסקטופ) */
-export default function RestrictionsDrawerHistory({ traineeId, navigation, onRecordSaved }: RestrictionsDrawerHistoryProps) {
-  const { restrictions, history } = useRestrictionsHistory(traineeId);
+export default function TraineeRestrictionsDrawerHistory({ traineeId, navigation, onRecordSaved }: TraineeRestrictionsDrawerHistoryProps) {
+  const { restrictions, history } = useTraineeRestrictionsHistory(traineeId);
   // הטופס שנפתח מעל ההיסטוריה. בזכרון בלבד, כמו כל המגירה
-  const [formTarget, setFormTarget] = useState<RestrictionFormTarget | null>(null);
+  const [formTarget, setFormTarget] = useState<TraineeRestrictionFormTarget | null>(null);
 
   // אחרי שמירה: חזרה להיסטוריה, עם הרשומה שנשמרה פתוחה (ספק 00 §4.1)
   const handleSaved = (savedRecordId: number) => {
@@ -31,7 +31,7 @@ export default function RestrictionsDrawerHistory({ traineeId, navigation, onRec
   };
 
   const renderCard = (record: TraineeRestrictionRecordDto) => (
-    <RestrictionCard
+    <TraineeRestrictionCard
       record={record}
       isOpen={history.isRecordOpen(record.id)}
       onToggle={() => history.toggleRecord(record.id)}
@@ -40,8 +40,8 @@ export default function RestrictionsDrawerHistory({ traineeId, navigation, onRec
     />
   );
 
-  const renderForm = (target: RestrictionFormTarget) => (
-    <RestrictionDrawerForm
+  const renderForm = (target: TraineeRestrictionFormTarget) => (
+    <TraineeRestrictionDrawerForm
       target={target}
       traineeId={traineeId}
       restrictions={restrictions}
@@ -57,7 +57,7 @@ export default function RestrictionsDrawerHistory({ traineeId, navigation, onRec
         texts={TRAINEE_RESTRICTIONS_TEXTS}
         records={restrictions}
         history={history}
-        getRecordKey={restrictionRecordKey}
+        getRecordKey={traineeRestrictionRecordKey}
         renderCard={renderCard}
         onCreate={() => setFormTarget({ mode: "create", basedOnRef: null })}
       />

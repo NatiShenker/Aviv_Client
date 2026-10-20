@@ -1,5 +1,4 @@
-import FormFooter from "@/features/records/form/FormFooter";
-import FormSheet from "@/shells/mobile/FormSheet";
+import RecordFormSheetFrame from "@/features/records/mobile/RecordFormSheetFrame";
 import { useFormSheetSession } from "@/shells/mobile/useFormSheetSession";
 import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
 import { useVoiceMessageFormSession, type VoiceMessageFormTarget } from "../form/useVoiceMessageFormSession";
@@ -37,13 +36,8 @@ function VoiceMessageFormDialog({ isOpen, onClose, ...sessionOptions }: VoiceMes
   const formSession = useVoiceMessageFormSession(sessionOptions);
 
   return (
-    <FormSheet
-      open={isOpen}
-      title={formSession.title}
-      onClose={onClose}
-      actions={<FormFooter {...formSession.saveProps} onCancel={onClose} buttonSize="large" />}
-    >
+    <RecordFormSheetFrame isOpen={isOpen} session={formSession} onClose={onClose}>
       <VoiceMessageForm {...formSession.formProps} />
-    </FormSheet>
+    </RecordFormSheetFrame>
   );
 }

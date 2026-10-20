@@ -1,8 +1,6 @@
+import DrawerRecordFormFrame from "@/features/records/desktop/DrawerRecordFormFrame";
 import { useDrawerFormSlot } from "@/features/records/desktop/useDrawerFormSlot";
-import FormFooter from "@/features/records/form/FormFooter";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import DrawerFormLayer from "@/shells/desktop/drawer/DrawerFormLayer";
-import { useReportUnsavedChanges } from "@/shells/desktop/drawer/unsavedChanges";
 import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
 import { useVoiceMessageFormSession, type VoiceMessageFormTarget } from "../form/useVoiceMessageFormSession";
 import VoiceMessageForm from "../form/VoiceMessageForm";
@@ -60,15 +58,10 @@ interface VoiceMessageDrawerFormContentProps {
 
 function VoiceMessageDrawerFormContent({ onClose, ...sessionOptions }: VoiceMessageDrawerFormContentProps) {
   const formSession = useVoiceMessageFormSession(sessionOptions);
-  useReportUnsavedChanges(formSession.hasUserChanges);
 
   return (
-    <DrawerFormLayer
-      title={formSession.title}
-      onClose={onClose}
-      footer={<FormFooter {...formSession.saveProps} onCancel={onClose} buttonSize="medium" />}
-    >
+    <DrawerRecordFormFrame session={formSession} onClose={onClose}>
       <VoiceMessageForm {...formSession.formProps} />
-    </DrawerFormLayer>
+    </DrawerRecordFormFrame>
   );
 }

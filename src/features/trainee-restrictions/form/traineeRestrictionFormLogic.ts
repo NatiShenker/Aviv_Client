@@ -33,16 +33,16 @@ import type {
 
 // ── ערכי הטופס ──
 
-export interface RestrictionFormValues extends CallConditionsValues, DecisionValues {}
+export interface TraineeRestrictionFormValues extends CallConditionsValues, DecisionValues {}
 
 /**
  * ערכי פתיחה (ספק 03 form §4.1): הגבלה חדשה, עריכה של רשומה, או הגבלה חדשה על בסיס רשומה שהסתיימה -
  * הסוג והתנאים, הסיבה והפירוט עוברים; התאריכים, הגורם המאשר והקובץ חדשים
  */
-export function createInitialRestrictionValues(
+export function createInitialTraineeRestrictionValues(
   startingPoint: FormStartingPoint<TraineeRestrictionRecordDto>,
   today: ISODateString,
-): RestrictionFormValues {
+): TraineeRestrictionFormValues {
   switch (startingPoint.kind) {
     case "new":
       return { ...createNewConditionsValues(today), ...createEmptyDecisionValues() };
@@ -59,12 +59,12 @@ export function createInitialRestrictionValues(
 
 // ── שגיאות ──
 
-export type RestrictionErrorSlot = CallFormErrorSlot;
+export type TraineeRestrictionErrorSlot = CallFormErrorSlot;
 
-export type RestrictionFormErrors = FormErrors<RestrictionErrorSlot>;
+export type TraineeRestrictionFormErrors = FormErrors<TraineeRestrictionErrorSlot>;
 
 /** מקומות השגיאה בטופס, לפי סדר ההופעה שלהם מלמעלה למטה */
-export const RESTRICTION_ERROR_SLOTS: readonly RestrictionErrorSlot[] = [
+export const RESTRICTION_ERROR_SLOTS: readonly TraineeRestrictionErrorSlot[] = [
   "duration",
   "dates",
   "hours",
@@ -76,7 +76,7 @@ export const RESTRICTION_ERROR_SLOTS: readonly RestrictionErrorSlot[] = [
 ];
 
 /** השדה שמקבל פוקוס כשיש שגיאה במקום הזה */
-export const RESTRICTION_FIELD_IDS: Record<RestrictionErrorSlot, string> = {
+export const RESTRICTION_FIELD_IDS: Record<TraineeRestrictionErrorSlot, string> = {
   dates: "restriction-start-date",
   duration: "restriction-duration",
   hours: "restriction-start-time",
@@ -90,8 +90,8 @@ export const RESTRICTION_FIELD_IDS: Record<RestrictionErrorSlot, string> = {
 // ── ולידציה (ספק 03 form §5, ובנוסף סיבה וגורם מאשר חובה - ספק 00 §4.3) ──
 
 /** כל הכללים רצים יחד, ובכל מקום מוצגת רק השגיאה הראשונה */
-export function validateRestrictionForm(values: RestrictionFormValues): RestrictionFormErrors {
-  return removeEmptyErrors<RestrictionErrorSlot>({
+export function validateTraineeRestrictionForm(values: TraineeRestrictionFormValues): TraineeRestrictionFormErrors {
+  return removeEmptyErrors<TraineeRestrictionErrorSlot>({
     duration: validateDuration(values),
     dates: validateDateRange(values),
     hours: validateHours(values),
@@ -100,14 +100,14 @@ export function validateRestrictionForm(values: RestrictionFormValues): Restrict
 }
 
 /** שגיאות שרת (400) → מקומות בטופס (ספק 03 form §6.3) */
-export function mapRestrictionServerErrors(fieldErrors: Record<string, string>): RestrictionFormErrors {
+export function mapTraineeRestrictionServerErrors(fieldErrors: Record<string, string>): TraineeRestrictionFormErrors {
   return mapServerFieldErrors(fieldErrors, CALL_FORM_SERVER_FIELD_SLOTS);
 }
 
 // ── בניית הבקשה (ספק 03 form §4.7, §6.1) ──
 
-export function buildCreateRestrictionRequest(
-  values: RestrictionFormValues,
+export function buildCreateTraineeRestrictionRequest(
+  values: TraineeRestrictionFormValues,
   decision: ValidatedDecision,
   traineeId: number,
 ): CreateTraineeRestrictionRequest {
@@ -120,8 +120,8 @@ export function buildCreateRestrictionRequest(
   };
 }
 
-export function buildUpdateRestrictionRequest(
-  values: RestrictionFormValues,
+export function buildUpdateTraineeRestrictionRequest(
+  values: TraineeRestrictionFormValues,
   decision: ValidatedDecision,
   record: TraineeRestrictionRecordDto,
 ): UpdateTraineeRestrictionRequest {

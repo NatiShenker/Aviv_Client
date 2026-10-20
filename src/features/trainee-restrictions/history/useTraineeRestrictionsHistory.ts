@@ -1,21 +1,21 @@
 import { useRecordHistoryState, type RecordHistoryState } from "@/features/records/history/useRecordHistoryState";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
-import { filterAndSortRestrictions, restrictionCardDomId } from "./traineeRestrictionsLogic";
+import { filterAndSortTraineeRestrictions, traineeRestrictionCardDomId } from "./traineeRestrictionsLogic";
 import { useTraineeRestrictionsData } from "./useTraineeRestrictionsData";
 
-interface RestrictionsHistory {
+interface TraineeRestrictionsHistory {
   restrictions: AsyncResource<TraineeRestrictionRecordDto[]>;
   history: RecordHistoryState<TraineeRestrictionRecordDto, number>;
 }
 
 /** ההגבלות של החניך יחד עם מצב ההיסטוריה (חיפוש, מיון, כרטיס פתוח) - בלי ניווט ובלי תצוגה, לשתי הפריסות */
-export function useRestrictionsHistory(traineeId: number): RestrictionsHistory {
+export function useTraineeRestrictionsHistory(traineeId: number): TraineeRestrictionsHistory {
   const restrictions = useTraineeRestrictionsData(traineeId);
   const history = useRecordHistoryState({
     records: restrictions,
-    filterAndSort: filterAndSortRestrictions,
-    cardDomIdOf: restrictionCardDomId,
+    filterAndSort: filterAndSortTraineeRestrictions,
+    cardDomIdOf: traineeRestrictionCardDomId,
   });
   return { restrictions, history };
 }

@@ -15,16 +15,17 @@ import {
   RECIPIENT_MESSAGE_FILTER_OPTIONS,
   TRAINEE_RESTRICTION_FILTER_OPTIONS,
   findOptionValue,
+  type FilterOption,
 } from "../traineesListOptions";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
 import { useTraineeFilterOptions } from "../useTraineeFilterOptions";
 import type { TraineeFilterGroupsUpdate } from "../useTraineesListFilters";
 
-const TEXTS = TRAINEES_LIST_TEXTS.filterDrawer;
-// גובה לפי התוכן; המגירה מגבילה את עצמה ל-90% מהמסך ומוסיפה גלילה כשצריך
-const DRAWER_HEIGHT = "auto";
+const TEXTS = TRAINEES_LIST_TEXTS.filters;
+// גובה לפי התוכן; הגיליון מגביל את עצמו ל-90% מהמסך ומוסיף גלילה כשצריך
+const SHEET_HEIGHT = "auto";
 
-interface TraineesFilterDrawerProps {
+interface TraineesFilterSheetProps {
   open: boolean;
   onClose: () => void;
   filters: TraineeListFiltersState;
@@ -35,8 +36,8 @@ interface TraineesFilterDrawerProps {
   onFiltersChange: (update: TraineeFilterGroupsUpdate) => void;
 }
 
-/** מגירת הסינון. כל בחירה מוחלת מיד על הרשימה שמאחוריה (ספק 01 §3.4, §4.3) */
-export default function TraineesFilterDrawer({
+/** גיליון הסינון. כל בחירה מוחלת מיד על הרשימה שמאחוריו (ספק 01 §3.4, §4.3) */
+export default function TraineesFilterSheet({
   open,
   onClose,
   filters,
@@ -45,16 +46,16 @@ export default function TraineesFilterDrawer({
   resultCount,
   onWingIdsChange,
   onFiltersChange,
-}: TraineesFilterDrawerProps) {
+}: TraineesFilterSheetProps) {
   const { wingOptions, locationOptions } = useTraineeFilterOptions(wings, locations.data, filters.wingIds);
 
   return (
     <IpsDrawer
       open={open}
       anchor="bottom"
-      size={DRAWER_HEIGHT}
+      size={SHEET_HEIGHT}
       title={TEXTS.title}
-      closeButtonLabel={TRAINEES_LIST_TEXTS.drawers.close}
+      closeButtonLabel={TRAINEES_LIST_TEXTS.sheets.close}
       onClose={onClose}
       rtl
       actions={
@@ -78,52 +79,60 @@ export default function TraineesFilterDrawer({
           selectedLocationIds={filters.locationIds}
           onChange={(locationIds) => onFiltersChange({ locationIds })}
         />
-        <IpsPillSelect
+        <PillFilter
           label={TEXTS.groups.traineeRestriction}
           options={TRAINEE_RESTRICTION_FILTER_OPTIONS}
           value={filters.traineeRestriction}
-          allowDeselect={false}
-          size="large"
-          onChange={(value) => {
-            const traineeRestriction = findOptionValue(TRAINEE_RESTRICTION_FILTER_OPTIONS, value);
-            if (traineeRestriction) onFiltersChange({ traineeRestriction });
-          }}
+          onChange={(traineeRestriction) => onFiltersChange({ traineeRestriction })}
         />
-        <IpsPillSelect
+        <PillFilter
           label={TEXTS.groups.recipientMessage}
           options={RECIPIENT_MESSAGE_FILTER_OPTIONS}
           value={filters.recipientMessage}
-          allowDeselect={false}
-          size="large"
-          onChange={(value) => {
-            const recipientMessage = findOptionValue(RECIPIENT_MESSAGE_FILTER_OPTIONS, value);
-            if (recipientMessage) onFiltersChange({ recipientMessage });
-          }}
+          onChange={(recipientMessage) => onFiltersChange({ recipientMessage })}
         />
-        <IpsPillSelect
+        <PillFilter
           label={TEXTS.groups.phoneException}
           options={PHONE_EXCEPTION_FILTER_OPTIONS}
           value={filters.phoneException}
-          allowDeselect={false}
-          size="large"
-          onChange={(value) => {
-            const phoneException = findOptionValue(PHONE_EXCEPTION_FILTER_OPTIONS, value);
-            if (phoneException) onFiltersChange({ phoneException });
-          }}
+          onChange={(phoneException) => onFiltersChange({ phoneException })}
         />
-        <IpsPillSelect
+        <PillFilter
           label={TEXTS.groups.balance}
           options={BALANCE_FILTER_OPTIONS}
           value={filters.balance}
-          allowDeselect={false}
-          size="large"
-          onChange={(value) => {
-            const balance = findOptionValue(BALANCE_FILTER_OPTIONS, value);
-            if (balance) onFiltersChange({ balance });
-          }}
+          onChange={(balance) => onFiltersChange({ balance })}
         />
       </div>
     </IpsDrawer>
+  );
+}
+
+interface PillFilterProps<TValue extends string> {
+  label: string;
+  options: FilterOption<TValue>[];
+  value: TValue;
+  onChange: (value: TValue) => void;
+}
+
+// בחירה יחידה מתוך אפשרויות קבועות, ו"הכל" היא אחת מהן - ולכן תמיד נשארת בחירה (כמו FilterSelect בדסקטופ)
+function PillFilter<TValue extends string>({ label, options, value, onChange }: PillFilterProps<TValue>) {
+  const handleChange = (selectedValue: unknown) => {
+    const optionValue = findOptionValue(options, selectedValue);
+    if (optionValue) {
+      onChange(optionValue);
+    }
+  };
+
+  return (
+    <IpsPillSelect
+      label={label}
+      options={options}
+      value={value}
+      allowDeselect={false}
+      size="large"
+      onChange={handleChange}
+    />
   );
 }
 

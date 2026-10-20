@@ -5,12 +5,12 @@ import type { SourceRestrictionSummaryDto } from "@/types/phone-exceptions.schem
 import { NUMBER_RESTRICTIONS_TEXTS } from "../../numberRestrictionsTexts";
 import { NUMBER_RECORD_FIELD_IDS, RESTRICTION_PICKER_HEADING_ID } from "../numberRecordFormLogic";
 import type { ChooseRestrictionOptions, NumberRecordFormController } from "../useNumberRecordForm";
-import { buildRestrictionPickerView } from "./restrictionPickerLogic";
+import { buildSourceRestrictionPickerView } from "./sourceRestrictionPickerLogic";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.picker;
 
 /** רשימת ההגבלות לבחירה. כל פריסה מציגה אותה בדרך שלה; הכותרת, הרמז והמצבים משותפים */
-export interface RestrictionOptionsListProps {
+export interface SourceRestrictionOptionsListProps {
   /** הכרטיסים שמוצגים עכשיו: כולם בזמן בחירה, או רק הנבחר */
   restrictions: SourceRestrictionSummaryDto[];
   selectedRestrictionId: number | null;
@@ -22,22 +22,22 @@ export interface RestrictionOptionsListProps {
   onChoose: (restriction: SourceRestrictionSummaryDto, options?: ChooseRestrictionOptions) => void;
 }
 
-export type RestrictionOptionsListComponent = ComponentType<RestrictionOptionsListProps>;
+export type SourceRestrictionOptionsListComponent = ComponentType<SourceRestrictionOptionsListProps>;
 
-interface RestrictionPickerProps {
+interface SourceRestrictionPickerProps {
   form: NumberRecordFormController;
-  RestrictionOptionsList: RestrictionOptionsListComponent;
+  SourceRestrictionOptionsList: SourceRestrictionOptionsListComponent;
 }
 
 /**
  * ההגבלות שהיתר יכול לחול עליהן (ספק 04 form §3.2, §4.4). כשהרשימה פתוחה לבחירה היא תופסת את הטופס,
  * ובלוקים 1–3 מוסתרים עד שבוחרים.
  */
-export default function RestrictionPicker({ form, RestrictionOptionsList }: RestrictionPickerProps) {
+export default function SourceRestrictionPicker({ form, SourceRestrictionOptionsList }: SourceRestrictionPickerProps) {
   const { lookup, selectedRestriction, isPickerOpen, errors } = form.state;
   const hintId = useId();
   const view = useMemo(
-    () => buildRestrictionPickerView(lookup.results, selectedRestriction, isPickerOpen),
+    () => buildSourceRestrictionPickerView(lookup.results, selectedRestriction, isPickerOpen),
     [lookup.results, selectedRestriction, isPickerOpen],
   );
 
@@ -69,7 +69,7 @@ export default function RestrictionPicker({ form, RestrictionOptionsList }: Rest
         </p>
       )}
 
-      <RestrictionOptionsList
+      <SourceRestrictionOptionsList
         restrictions={view.visibleRestrictions}
         selectedRestrictionId={selectedRestriction?.restrictionId ?? null}
         isChoosing={view.isChoosing}

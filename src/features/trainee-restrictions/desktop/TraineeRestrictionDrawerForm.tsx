@@ -1,15 +1,13 @@
+import DrawerRecordFormFrame from "@/features/records/desktop/DrawerRecordFormFrame";
 import { useDrawerFormSlot } from "@/features/records/desktop/useDrawerFormSlot";
-import FormFooter from "@/features/records/form/FormFooter";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
-import DrawerFormLayer from "@/shells/desktop/drawer/DrawerFormLayer";
-import { useReportUnsavedChanges } from "@/shells/desktop/drawer/unsavedChanges";
 import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
-import RestrictionForm from "../form/RestrictionForm";
-import { useRestrictionFormSession, type RestrictionFormTarget } from "../form/useRestrictionFormSession";
-import { matchesRestrictionId } from "../history/traineeRestrictionsLogic";
+import TraineeRestrictionForm from "../form/TraineeRestrictionForm";
+import { useTraineeRestrictionFormSession, type TraineeRestrictionFormTarget } from "../form/useTraineeRestrictionFormSession";
+import { matchesTraineeRestrictionId } from "../history/traineeRestrictionsLogic";
 
-interface RestrictionDrawerFormProps {
-  target: RestrictionFormTarget;
+interface TraineeRestrictionDrawerFormProps {
+  target: TraineeRestrictionFormTarget;
   traineeId: number;
   /** ההיסטוריה שכבר נטענה: הרשומה לעריכה או ל"על בסיס" נלקחת ממנה */
   restrictions: AsyncResource<TraineeRestrictionRecordDto[]>;
@@ -18,14 +16,14 @@ interface RestrictionDrawerFormProps {
 }
 
 /** טופס ההגבלה במגירה: שכבה מעל ההיסטוריה (ספק 03 form, פריסת דסקטופ) */
-export default function RestrictionDrawerForm({
+export default function TraineeRestrictionDrawerForm({
   target,
   traineeId,
   restrictions,
   onClose,
   onSaved,
-}: RestrictionDrawerFormProps) {
-  const slot = useDrawerFormSlot({ formTarget: target, records: restrictions, matchesRecordRef: matchesRestrictionId, onClose });
+}: TraineeRestrictionDrawerFormProps) {
+  const slot = useDrawerFormSlot({ formTarget: target, records: restrictions, matchesRecordRef: matchesTraineeRestrictionId, onClose });
 
   // הטופס מאתחל את ערכיו פעם אחת כשהוא עולה, ולכן הוא עולה רק כשהרשומה שהוא מתחיל ממנה זמינה
   if (slot.openTarget === null) {
@@ -33,7 +31,7 @@ export default function RestrictionDrawerForm({
   }
 
   return (
-    <RestrictionDrawerFormContent
+    <TraineeRestrictionDrawerFormContent
       target={slot.openTarget}
       traineeId={traineeId}
       editRecord={slot.editRecord}
@@ -44,8 +42,8 @@ export default function RestrictionDrawerForm({
   );
 }
 
-interface RestrictionDrawerFormContentProps {
-  target: RestrictionFormTarget;
+interface TraineeRestrictionDrawerFormContentProps {
+  target: TraineeRestrictionFormTarget;
   traineeId: number;
   editRecord: TraineeRestrictionRecordDto | null;
   basedOnRecord: TraineeRestrictionRecordDto | null;
@@ -53,17 +51,12 @@ interface RestrictionDrawerFormContentProps {
   onSaved: (savedRecordId: number) => void;
 }
 
-function RestrictionDrawerFormContent({ onClose, ...sessionOptions }: RestrictionDrawerFormContentProps) {
-  const formSession = useRestrictionFormSession(sessionOptions);
-  useReportUnsavedChanges(formSession.hasUserChanges);
+function TraineeRestrictionDrawerFormContent({ onClose, ...sessionOptions }: TraineeRestrictionDrawerFormContentProps) {
+  const formSession = useTraineeRestrictionFormSession(sessionOptions);
 
   return (
-    <DrawerFormLayer
-      title={formSession.title}
-      onClose={onClose}
-      footer={<FormFooter {...formSession.saveProps} onCancel={onClose} buttonSize="medium" />}
-    >
-      <RestrictionForm {...formSession.formProps} />
-    </DrawerFormLayer>
+    <DrawerRecordFormFrame session={formSession} onClose={onClose}>
+      <TraineeRestrictionForm {...formSession.formProps} />
+    </DrawerRecordFormFrame>
   );
 }

@@ -23,29 +23,29 @@ const RULE_KIND = "restriction";
 // ── זיהוי רשומה ──
 
 /** המפתח של רשומה בהיסטוריה: הכרטיס הפתוח והרשומה שנשמרה */
-export function restrictionRecordKey(record: TraineeRestrictionRecordDto): number {
+export function traineeRestrictionRecordKey(record: TraineeRestrictionRecordDto): number {
   return record.id;
 }
 
 /** הרשומה שהטופס נפתח עליה (בעריכה או ביצירה על בסיס רשומה) */
-export function matchesRestrictionId(record: TraineeRestrictionRecordDto, recordId: number): boolean {
+export function matchesTraineeRestrictionId(record: TraineeRestrictionRecordDto, recordId: number): boolean {
   return record.id === recordId;
 }
 
 // ── ערכי התצוגה של רשומה (ספק 03 overview §3) ──
 
-export function buildRestrictionDateRange(record: TraineeRestrictionRecordDto): string {
+export function buildTraineeRestrictionDateRange(record: TraineeRestrictionRecordDto): string {
   return formatDateRange(record.startDate, record.endDate);
 }
 
-export function buildRestrictionTypeLabel(record: TraineeRestrictionRecordDto): string {
+export function buildTraineeRestrictionTypeLabel(record: TraineeRestrictionRecordDto): string {
   return buildDurationTypeLabel(record.durationMinutes, RULE_KIND);
 }
 
 const CARD_DOM_ID_PREFIX = "restriction-card-";
 
 /** מזהה ה-DOM של כרטיס, כדי לגלול אליו אחרי שמירה */
-export function restrictionCardDomId(recordId: number): string {
+export function traineeRestrictionCardDomId(recordId: number): string {
   return `${CARD_DOM_ID_PREFIX}${recordId}`;
 }
 
@@ -53,7 +53,7 @@ export function restrictionCardDomId(recordId: number): string {
  * הפרטים בכרטיס פתוח, לפי הסדר בספק 03 history §3.2 (בכל שורה - הפרט הימני ראשון).
  * הסוג והתאריכים כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן
  */
-export function buildRestrictionDetails(record: TraineeRestrictionRecordDto): DetailItem[] {
+export function buildTraineeRestrictionDetails(record: TraineeRestrictionRecordDto): DetailItem[] {
   return [
     {
       key: "hours",
@@ -69,23 +69,23 @@ export function buildRestrictionDetails(record: TraineeRestrictionRecordDto): De
 // ── חיפוש ומיון (ספק 03 history §4, ספק 00 §4.1) ──
 
 /** הערכים הגלויים של הרשומה, שהחיפוש בודק */
-function buildRestrictionSearchParts(record: TraineeRestrictionRecordDto): string[] {
+function buildTraineeRestrictionSearchParts(record: TraineeRestrictionRecordDto): string[] {
   return [
     ...decisionSearchParts(record),
-    buildRestrictionTypeLabel(record),
+    buildTraineeRestrictionTypeLabel(record),
     buildPermittedHoursValue(record, RULE_KIND),
     buildPermittedDevicesValue(record, RULE_KIND),
     ...buildPermittedDeviceNames(record),
-    buildRestrictionDateRange(record),
+    buildTraineeRestrictionDateRange(record),
     record.startDate,
     record.endDate,
   ];
 }
 
-export function filterAndSortRestrictions(
+export function filterAndSortTraineeRestrictions(
   records: TraineeRestrictionRecordDto[],
   searchQuery: string,
   sort: HistorySortOption,
 ): TraineeRestrictionRecordDto[] {
-  return sortHistoryRecords(filterBySearchQuery(records, searchQuery, buildRestrictionSearchParts), sort);
+  return sortHistoryRecords(filterBySearchQuery(records, searchQuery, buildTraineeRestrictionSearchParts), sort);
 }

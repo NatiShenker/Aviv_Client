@@ -13,7 +13,7 @@ Prototype source: `client/pages/VoiceMessageList.tsx` (superseded where this spe
 
 ## 2. Route & parameters
 
-- **Route:** `/trainee/:id/voice-message`
+- **Route:** `/trainee/:traineeId/voice-message`
 - **`id`:** trainee ID. Unknown trainee → `"החניך לא נמצא"` under the header.
 - **After save:** the list reloads and opens the first saved record.
 

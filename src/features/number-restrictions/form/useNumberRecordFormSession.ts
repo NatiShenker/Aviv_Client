@@ -28,7 +28,7 @@ interface NumberRecordFormSessionOptions {
 }
 
 /** רשימת ההגבלות לבחירה (בהיתר) לא כאן - כל פריסה מציגה אותה בדרך שלה */
-export type NumberRecordFormSession = RecordFormSession<Omit<NumberRecordFormProps, "RestrictionOptionsList">>;
+export type NumberRecordFormSession = RecordFormSession<Omit<NumberRecordFormProps, "SourceRestrictionOptionsList">>;
 
 /**
  * פתיחה אחת של טופס ההגבלה / ההיתר, לשתי הפריסות: נתוני העזר (מכשירים, סיבות), נקודת ההתחלה והטופס עצמו.

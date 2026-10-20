@@ -1,3 +1,6 @@
+/** הערך של KeyboardEvent.key במקש Enter */
+export const ENTER_KEY = "Enter";
+
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 /** האם המשתמש ביקש בהגדרות המערכת להפחית תנועה */

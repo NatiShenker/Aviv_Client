@@ -1,13 +1,13 @@
 import { IpsButton } from "ui-library";
 import AppIcon from "@/shared/components/AppIcon";
 import type { SourceRestrictionSummaryDto } from "@/types/phone-exceptions.schema";
-import { buildChooseRestrictionLabel, formatExistingPermitsSummary } from "../form/source-restriction/restrictionPickerLogic";
-import RestrictionSummaryLines from "../form/source-restriction/RestrictionSummaryLines";
+import { buildChooseSourceRestrictionLabel, formatExistingPermitsSummary } from "../form/source-restriction/sourceRestrictionPickerLogic";
+import SourceRestrictionSummaryLines from "../form/source-restriction/SourceRestrictionSummaryLines";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.picker;
 
-interface RestrictionOptionCardProps {
+interface SourceRestrictionOptionCardProps {
   restriction: SourceRestrictionSummaryDto;
   isSelected: boolean;
   /** בזמן בחירה: שורת "בחירה" בתחתית הכרטיס (בכרטיס הנבחר - "נבחרה") */
@@ -19,19 +19,19 @@ interface RestrictionOptionCardProps {
  * הגבלה שהיתר יכול לחול עליה. גוף הכרטיס הוא מידע בלבד; הבחירה רק בכפתור "בחירה" בתחתית,
  * כדי שלא ייבחר כרטיס בטעות בזמן גלילה או קריאה.
  */
-export default function RestrictionOptionCard({
+export default function SourceRestrictionOptionCard({
   restriction,
   isSelected,
   isChoosing,
   onChoose,
-}: RestrictionOptionCardProps) {
+}: SourceRestrictionOptionCardProps) {
   const hasExistingPermits = restriction.existingTraineePermits.length > 0;
   const borderClass = isSelected ? "border-primary" : "border-divider";
 
   return (
     <article className={`rounded-card border bg-paper ${borderClass}`}>
       <div className="p-4">
-        <RestrictionSummaryLines restriction={restriction} />
+        <SourceRestrictionSummaryLines restriction={restriction} />
         {/* מידע בלבד - לא מונע היתר נוסף (OQ-12) */}
         {hasExistingPermits && (
           <p className="mt-1 text-sm text-text-primary">
@@ -49,7 +49,7 @@ export default function RestrictionOptionCard({
               variant="text"
               size="large"
               endIcon={<AppIcon name="chevronLeft" />}
-              aria-label={buildChooseRestrictionLabel(restriction)}
+              aria-label={buildChooseSourceRestrictionLabel(restriction)}
               onClick={onChoose}
             >
               {TEXTS.choose}

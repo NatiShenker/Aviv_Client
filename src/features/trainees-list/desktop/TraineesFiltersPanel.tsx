@@ -23,8 +23,8 @@ import { useTraineeFilterOptions } from "../useTraineeFilterOptions";
 import type { TraineeFilterGroupsUpdate } from "../useTraineesListFilters";
 
 const PANEL_TEXTS = TRAINEES_LIST_TEXTS.filterPanel;
-const GROUP_TEXTS = TRAINEES_LIST_TEXTS.filterDrawer.groups;
-const FILTER_TEXTS = TRAINEES_LIST_TEXTS.filterDrawer;
+const GROUP_TEXTS = TRAINEES_LIST_TEXTS.filters.groups;
+const FILTER_TEXTS = TRAINEES_LIST_TEXTS.filters;
 
 interface TraineesFiltersPanelProps {
   filters: TraineeListFiltersState;

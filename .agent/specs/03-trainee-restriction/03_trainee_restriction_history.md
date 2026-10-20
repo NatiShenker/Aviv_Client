@@ -13,7 +13,7 @@ Prototype source: `client/pages/BlockList.tsx`. Business rules and model: [overv
 
 ## 2. Route & parameters
 
-- **Route:** `/trainee/:id/trainee-restriction` (renamed from the sketch slug `block`, [OQ-19](../../pending-decisions.md#oq-19))
+- **Route:** `/trainee/:traineeId/trainee-restriction` (renamed from the sketch slug `block`, [OQ-19](../../pending-decisions.md#oq-19))
 - **`id`:** trainee ID. Unknown trainee → not-found screen (production).
 - **After save:** the list reloads and opens the saved record. The ID passes from the form to the list in memory, not in the URL.
 
@@ -25,7 +25,7 @@ Prototype source: `client/pages/BlockList.tsx`. Business rules and model: [overv
 2. **HistoryToolbar** ([00 §3.23](../00_foundations.md))
    - Section title `"היסטוריית הגבלות"` (Restrictions history).
    - Search field: aria-label `"חיפוש הגבלות"`, placeholder `"חיפוש לפי סיבה, גורם או תאריך"` (Search by reason, approver or date).
-   - Round sort button (aria-label `"מיון"`).
+   - Square sort button, outlined like the fields (aria-label `"מיון"`).
 3. **Cards** – one ExpandableRecordCard per restriction, rendered incrementally.
 4. **EmptyState** – `"לא נמצאו הגבלות"` (No restrictions found).
 5. **StickyActionBar** – primary button `"הוספת הגבלה"` (Add restriction) + plus icon → `/trainee/{id}/trainee-restriction/new` (decided 2026-10-18, like the other history screens).

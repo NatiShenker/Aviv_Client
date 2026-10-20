@@ -6,7 +6,7 @@ import NumberRestrictionsDrawerHistory from "@/features/number-restrictions/desk
 import { NUMBER_RESTRICTIONS_TEXTS } from "@/features/number-restrictions/numberRestrictionsTexts";
 import { renderDrawerCardFrame } from "@/features/records/desktop/DrawerHistoryLayout";
 import HistorySkeleton from "@/features/records/history/HistorySkeleton";
-import RestrictionsDrawerHistory from "@/features/trainee-restrictions/desktop/RestrictionsDrawerHistory";
+import TraineeRestrictionsDrawerHistory from "@/features/trainee-restrictions/desktop/TraineeRestrictionsDrawerHistory";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "@/features/trainee-restrictions/traineeRestrictionsTexts";
 import VoiceMessagesDrawerHistory from "@/features/voice-messages/desktop/VoiceMessagesDrawerHistory";
 import { VOICE_MESSAGES_TEXTS } from "@/features/voice-messages/voiceMessagesTexts";
@@ -35,7 +35,7 @@ const DRAWER_ACTION_VIEWS: Record<DrawerActionKey, DrawerActionView> = {
     permissionId: PERMISSION_IDS.traineeRestriction,
     loadingLabel: TRAINEE_RESTRICTIONS_TEXTS.states.loading,
     renderHistory: ({ trainee, navigation, onRecordSaved }) => (
-      <RestrictionsDrawerHistory traineeId={trainee.id} navigation={navigation} onRecordSaved={onRecordSaved} />
+      <TraineeRestrictionsDrawerHistory traineeId={trainee.id} navigation={navigation} onRecordSaved={onRecordSaved} />
     ),
   },
   numberRestriction: {
@@ -59,7 +59,7 @@ const DRAWER_ACTION_VIEWS: Record<DrawerActionKey, DrawerActionView> = {
   },
 };
 
-interface DrawerActionScreenProps {
+interface DrawerActionHistoryScreenProps {
   actionKey: DrawerActionKey;
   trainee: TraineeListItemDto;
   onBack: () => void;
@@ -72,13 +72,13 @@ interface DrawerActionScreenProps {
  * מסך של פעולה במגירה: ההיסטוריה שלה, או - לפני שההרשאות נטענו או בלי הרשאה - השורה העליונה והמצב (ספק 02 §7).
  * החזרה ומחליף הפעולה זמינים בכל מצב
  */
-export default function DrawerActionScreen({
+export default function DrawerActionHistoryScreen({
   actionKey,
   trainee,
   onBack,
   onSwitchAction,
   onRecordSaved,
-}: DrawerActionScreenProps) {
+}: DrawerActionHistoryScreenProps) {
   const view = DRAWER_ACTION_VIEWS[actionKey];
   const permission = usePermissionCheck(view.permissionId);
   const navigation = <DrawerActionNavigation actionKey={actionKey} onBack={onBack} onSwitchAction={onSwitchAction} />;

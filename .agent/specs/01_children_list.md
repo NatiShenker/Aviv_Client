@@ -88,7 +88,7 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 
 ### 3.4 Filter sheet (6 business filter categories: 1a–1f)
 
-BottomSheet titled `"סינון"`, filtering trainees via `matchesTraineeFilters(trainee, filters)` (`trainees.schema.ts`):
+BottomSheet titled `"סינון"`, filtering trainees via `matchesTraineeFilters(trainee, filters)` (`traineesListLogic.ts`):
 
 | # | Group heading (14, weight 500, gray) | Options | Mapped Schema Field (`trainees.schema.ts`) |
 |---|---|---|---|

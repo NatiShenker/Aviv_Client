@@ -12,7 +12,7 @@ The UI is in Hebrew only and is laid out right-to-left (RTL).
 
 - Mobile: the app runs inside a full-page iframe; the host provides only a top and bottom frame.
 - Desktop: for now the same standalone app in a wide browser. Mounting it in the host Shell (MFE) is an open decision (`.agent/pending-decisions.md`).
-- **CURRENT PHASE: MOBILE + DESKTOP.** Desktop phase 1 covers the trainees list. The layout comes only from `usePlatform().layout` (container ≥ 1024px = desktop). There is no tablet layout; do not build one.
+- **CURRENT PHASE: MOBILE + DESKTOP.** Desktop phase 1 (the trainees list) and phase 2 (the trainee drawer: actions, histories and forms) are built. The layout comes only from `usePlatform().layout` (container ≥ 1024px = desktop). There is no tablet layout; do not build one.
 
 ## Role and Workflow
 

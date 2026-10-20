@@ -20,17 +20,17 @@ import { todayIsoDate } from "@/utils/dates";
 import {
   RESTRICTION_ERROR_SLOTS,
   RESTRICTION_FIELD_IDS,
-  buildCreateRestrictionRequest,
-  buildUpdateRestrictionRequest,
-  createInitialRestrictionValues,
-  mapRestrictionServerErrors,
-  validateRestrictionForm,
-  type RestrictionErrorSlot,
-  type RestrictionFormErrors,
-  type RestrictionFormValues,
-} from "./restrictionFormLogic";
+  buildCreateTraineeRestrictionRequest,
+  buildUpdateTraineeRestrictionRequest,
+  createInitialTraineeRestrictionValues,
+  mapTraineeRestrictionServerErrors,
+  validateTraineeRestrictionForm,
+  type TraineeRestrictionErrorSlot,
+  type TraineeRestrictionFormErrors,
+  type TraineeRestrictionFormValues,
+} from "./traineeRestrictionFormLogic";
 
-interface UseRestrictionFormOptions {
+interface UseTraineeRestrictionFormOptions {
   traineeId: number;
   /** הגבלה חדשה, עריכה, או הגבלה חדשה על בסיס רשומה שהסתיימה. ערכי הטופס נקבעים ממנה כשהטופס נפתח */
   startingPoint: FormStartingPoint<TraineeRestrictionRecordDto>;
@@ -40,11 +40,11 @@ interface UseRestrictionFormOptions {
 }
 
 /** המצב וההתנהגות של טופס ההגבלה (ספק 03 form §4) */
-export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved }: UseRestrictionFormOptions) {
+export function useTraineeRestrictionForm({ traineeId, startingPoint, reasons, onSaved }: UseTraineeRestrictionFormOptions) {
   const editedRecord = editedRecordOf(startingPoint);
   const sourceRecord = sourceRecordOf(startingPoint);
-  const [values, setValues] = useState(() => createInitialRestrictionValues(startingPoint, todayIsoDate()));
-  const [errors, setErrors] = useState<RestrictionFormErrors>({});
+  const [values, setValues] = useState(() => createInitialTraineeRestrictionValues(startingPoint, todayIsoDate()));
+  const [errors, setErrors] = useState<TraineeRestrictionFormErrors>({});
   const [touchedDates, setTouchedDates] = useState(() => touchedDatesFor(editedRecord !== null));
   const [openConditions, setOpenConditions] = useState(() => openConditionsForRecord(sourceRecord));
   const [isSaving, setIsSaving] = useState(false);
@@ -65,13 +65,13 @@ export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved 
   }, [sourceRecord, reasons.data]);
 
   // כל שינוי של המשתמש עובר כאן (בחירת הסיבה לפי השם, כשהרשימה מגיעה, לא נחשבת שינוי)
-  const changeValues = (update: Partial<RestrictionFormValues>, clearedSlots: RestrictionErrorSlot[] = []) => {
+  const changeValues = (update: Partial<TraineeRestrictionFormValues>, clearedSlots: TraineeRestrictionErrorSlot[] = []) => {
     setValues((current) => ({ ...current, ...update }));
     setErrors((current) => withoutErrors(current, clearedSlots));
     setHasUserChanges(true);
   };
 
-  const showErrors = (nextErrors: RestrictionFormErrors) => {
+  const showErrors = (nextErrors: TraineeRestrictionFormErrors) => {
     setErrors(nextErrors);
     setOpenConditions((current) => ({
       hours: current.hours || Boolean(nextErrors.hours),
@@ -83,19 +83,19 @@ export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved 
     }
   };
 
-  const saveRestriction = async (formValues: RestrictionFormValues): Promise<number | null> => {
+  const saveRestriction = async (formValues: TraineeRestrictionFormValues): Promise<number | null> => {
     const decision = toValidatedDecision(formValues, reasons.data ?? []);
     if (!decision) return null;
 
     const result = editedRecord
-      ? await updateTraineeRestriction(buildUpdateRestrictionRequest(formValues, decision, editedRecord))
-      : await createTraineeRestriction(buildCreateRestrictionRequest(formValues, decision, traineeId));
+      ? await updateTraineeRestriction(buildUpdateTraineeRestrictionRequest(formValues, decision, editedRecord))
+      : await createTraineeRestriction(buildCreateTraineeRestrictionRequest(formValues, decision, traineeId));
     return result.createdIds[0] ?? null;
   };
 
   const handleSaveError = (error: unknown) => {
     const appError = toAppError(error);
-    const serverErrors = appError.code === "VALIDATION_ERROR" ? mapRestrictionServerErrors(appError.fieldErrors) : {};
+    const serverErrors = appError.code === "VALIDATION_ERROR" ? mapTraineeRestrictionServerErrors(appError.fieldErrors) : {};
     if (hasErrors(serverErrors)) {
       showErrors(serverErrors);
     } else {
@@ -109,7 +109,7 @@ export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved 
     if (isSaving || isFileUploading) return;
 
     setSaveError(undefined);
-    const validationErrors = validateRestrictionForm(values);
+    const validationErrors = validateTraineeRestrictionForm(values);
     if (hasErrors(validationErrors)) {
       showErrors(validationErrors);
       return;
@@ -160,4 +160,4 @@ export function useRestrictionForm({ traineeId, startingPoint, reasons, onSaved 
   };
 }
 
-export type RestrictionFormController = ReturnType<typeof useRestrictionForm>;
+export type TraineeRestrictionFormController = ReturnType<typeof useTraineeRestrictionForm>;

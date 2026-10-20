@@ -3,12 +3,12 @@ import { formatDateRange } from "@/utils/dates";
 import { buildRestrictionReasonText, buildScopeLabel } from "../../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../../numberRestrictionsTexts";
 
-interface RestrictionSummaryLinesProps {
+interface SourceRestrictionSummaryLinesProps {
   restriction: SourceRestrictionSummaryDto;
 }
 
 /** שורות ההגבלה: היקף, ומתחתיו טווח התאריכים והסיבה (ספק 04 form §3.2.1 שורות 1–2) */
-export default function RestrictionSummaryLines({ restriction }: RestrictionSummaryLinesProps) {
+export default function SourceRestrictionSummaryLines({ restriction }: SourceRestrictionSummaryLinesProps) {
   return (
     <>
       <p className="text-base font-medium text-text-primary">{buildScopeLabel(restriction)}</p>

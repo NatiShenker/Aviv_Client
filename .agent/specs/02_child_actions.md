@@ -8,13 +8,13 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 
 - The hub for one trainee: entry to the three management features and to additional information.
 - **Entry points:** tapping a card on the children list ([01](01_children_list.md)); the back arrow on any of the three history screens.
-- **Navigation:** a regular page – it enters sideways (forward from the left, back from the right), like every page. Forms open as full-height bottom sheets ([00 §2.4](00_foundations.md)).
+- **Navigation:** a regular page – it enters sideways (forward from the left, back from the right), like every page. Forms open as full-screen form sheets that slide up ([00 §2.4](00_foundations.md)).
 
 ---
 
 ## 2. Route & parameters
 
-- **Route:** `/trainee/:id`
+- **Route:** `/trainee/:traineeId`
 - **`id`:** trainee ID.
 - **Unknown ID:** the not-found screen is shown ([OQ-21](../pending-decisions.md#oq-21)).
 

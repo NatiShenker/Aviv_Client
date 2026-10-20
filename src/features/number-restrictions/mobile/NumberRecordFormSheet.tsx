@@ -1,10 +1,9 @@
-import FormFooter from "@/features/records/form/FormFooter";
-import FormSheet from "@/shells/mobile/FormSheet";
+import RecordFormSheetFrame from "@/features/records/mobile/RecordFormSheetFrame";
 import { useFormSheetSession } from "@/shells/mobile/useFormSheetSession";
 import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import NumberRecordForm from "../form/NumberRecordForm";
 import { useNumberRecordFormSession, type NumberRecordFormTarget } from "../form/useNumberRecordFormSession";
-import RestrictionOptionCards from "./RestrictionOptionCards";
+import SourceRestrictionOptionCards from "./SourceRestrictionOptionCards";
 
 interface NumberRecordFormSheetProps {
   /** הטופס שהכתובת מבקשת. null = הטופס סגור */
@@ -37,14 +36,9 @@ function NumberRecordFormDialog({ isOpen, onClose, ...sessionOptions }: NumberRe
   const formSession = useNumberRecordFormSession(sessionOptions);
 
   return (
-    <FormSheet
-      open={isOpen}
-      title={formSession.title}
-      onClose={onClose}
-      actions={<FormFooter {...formSession.saveProps} onCancel={onClose} buttonSize="large" />}
-    >
+    <RecordFormSheetFrame isOpen={isOpen} session={formSession} onClose={onClose}>
       {/* במובייל בוחרים הגבלה בכפתור "בחירה" בכל כרטיס (ספק 04 form §3.2.1) */}
-      <NumberRecordForm {...formSession.formProps} RestrictionOptionsList={RestrictionOptionCards} />
-    </FormSheet>
+      <NumberRecordForm {...formSession.formProps} SourceRestrictionOptionsList={SourceRestrictionOptionCards} />
+    </RecordFormSheetFrame>
   );
 }

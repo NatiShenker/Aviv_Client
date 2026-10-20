@@ -6,12 +6,12 @@ import PinnedPageTop from "@/shells/mobile/PinnedPageTop";
 import { useInstitutes } from "@/store/institutesContext";
 import { readRememberedTraineesList, rememberTraineesListPosition } from "../traineesListMemory";
 import { useTraineesListState } from "../useTraineesListState";
-import TraineesFilterDrawer from "./TraineesFilterDrawer";
+import TraineesFilterSheet from "./TraineesFilterSheet";
 import TraineesList from "./TraineesList";
 import TraineesListHeader from "./TraineesListHeader";
-import TraineesSortDrawer from "./TraineesSortDrawer";
+import TraineesSortSheet from "./TraineesSortSheet";
 
-type OpenDrawer = "filter" | "sort" | null;
+type OpenSheet = "filter" | "sort" | null;
 
 /** מסך הבית: רשימת החניכים בפנימייה הנבחרת (ספק 01) */
 export default function TraineesListScreen() {
@@ -28,7 +28,7 @@ export default function TraineesListScreen() {
 function TraineesListContent() {
   const { selectedInstitute } = useInstitutes();
   const { trainees, locations, listFilters } = useTraineesListState(selectedInstitute);
-  const [openDrawer, setOpenDrawer] = useState<OpenDrawer>(null);
+  const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
 
   // המיקום ברשימה כפי שהיה כשעזבו את המסך: נקרא פעם אחת, כשהמסך עולה
   const [restoredPosition] = useState(() =>
@@ -38,7 +38,7 @@ function TraineesListContent() {
     rememberTraineesListPosition({ scrollY }),
   );
 
-  const closeDrawer = () => setOpenDrawer(null);
+  const closeSheet = () => setOpenSheet(null);
 
   return (
     <>
@@ -48,8 +48,8 @@ function TraineesListContent() {
           onSearchQueryChange={listFilters.setSearchQuery}
           isFilterActive={listFilters.isFilterActive}
           areToolsDisabled={trainees.status !== "success"}
-          onFilterClick={() => setOpenDrawer("filter")}
-          onSortClick={() => setOpenDrawer("sort")}
+          onFilterClick={() => setOpenSheet("filter")}
+          onSortClick={() => setOpenSheet("sort")}
         />
       </PinnedPageTop>
 
@@ -62,9 +62,9 @@ function TraineesListContent() {
       />
 
       {selectedInstitute && (
-        <TraineesFilterDrawer
-          open={openDrawer === "filter"}
-          onClose={closeDrawer}
+        <TraineesFilterSheet
+          open={openSheet === "filter"}
+          onClose={closeSheet}
           filters={listFilters.filters}
           wings={selectedInstitute.wings}
           locations={locations}
@@ -74,9 +74,9 @@ function TraineesListContent() {
         />
       )}
 
-      <TraineesSortDrawer
-        open={openDrawer === "sort"}
-        onClose={closeDrawer}
+      <TraineesSortSheet
+        open={openSheet === "sort"}
+        onClose={closeSheet}
         sort={listFilters.sort}
         onSortChange={listFilters.setSort}
       />
