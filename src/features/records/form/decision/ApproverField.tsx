@@ -3,6 +3,7 @@ import { IpsButton } from "ui-library";
 import ApproverPicker from "@/integrations/approver-mfe/ApproverPicker";
 import ErrorText from "@/shared/components/form/ErrorText";
 import FieldLabelText from "@/shared/components/form/FieldLabelText";
+import { EXPANDED_TOUCH_TARGET_SX } from "@/shared/components/touchTarget";
 import type { ApproverRef } from "@/types/common.schema";
 import { FORM_TEXTS } from "../formTexts";
 
@@ -39,7 +40,7 @@ export default function ApproverField({ id, value, onChange, error }: ApproverFi
         <>
           <ApproverPicker onSelect={handleSelect} />
           {value !== null && (
-            <IpsButton variant="text" size="small" onClick={() => setIsChanging(false)}>
+            <IpsButton variant="text" size="small" sx={EXPANDED_TOUCH_TARGET_SX} onClick={() => setIsChanging(false)}>
               {TEXTS.cancelApproverChange}
             </IpsButton>
           )}
@@ -65,7 +66,7 @@ function SelectedApprover({ approver, onChangeClick }: SelectedApproverProps) {
         <p className="truncate text-base text-text-primary">{approver.fullName}</p>
         {approver.roleTitle && <p className="truncate text-sm text-text-muted">{approver.roleTitle}</p>}
       </div>
-      <IpsButton variant="text" onClick={onChangeClick}>
+      <IpsButton variant="text" sx={EXPANDED_TOUCH_TARGET_SX} onClick={onChangeClick}>
         {TEXTS.changeApprover}
       </IpsButton>
     </div>

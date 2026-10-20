@@ -3,6 +3,7 @@ import { IpsButton } from "ui-library";
 import { buildDeviceOptions } from "@/features/institutes/organizationLogic";
 import { useFormControls } from "@/shared/components/form/FormControlsProvider";
 import FormSection from "@/shared/components/form/FormSection";
+import { EXPANDED_TOUCH_TARGET_SX } from "@/shared/components/touchTarget";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import type { DeviceDto, WingDto } from "@/types/organization.schema";
 import { FORM_TEXTS } from "../formTexts";
@@ -148,7 +149,7 @@ function DevicesSelect({ id, devices, wings, selectedDeviceIds, onChange, hasErr
         helperText={hasFailed ? TEXTS.devicesLoadFailed : undefined}
       />
       {hasFailed && (
-        <IpsButton variant="text" size="small" onClick={devices.reload}>
+        <IpsButton variant="text" size="small" sx={EXPANDED_TOUCH_TARGET_SX} onClick={devices.reload}>
           {TEXTS.retry}
         </IpsButton>
       )}

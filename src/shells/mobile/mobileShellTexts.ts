@@ -7,8 +7,11 @@ export const MOBILE_SHELL_TEXTS = {
   formSheet: {
     closeWithoutSaving: "סגירה ללא שמירה",
   },
+  // משותף לכל המגירות התחתונות (ספק 00 §3.24)
+  bottomSheet: {
+    close: "סגירה",
+  },
   sortSheet: {
     title: "מיון",
-    close: "סגירה",
   },
 } as const;

@@ -25,7 +25,7 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 ### 3.1 Header (side padding 16px)
 
 - **Right:** back arrow, one step back to the children list (aria-label `"חזרה"`, [00 §3.1](00_foundations.md)).
-- **Next to it (16px gap):** the trainee's full name and personal number as `h1`, 20/24, weight 500, in the same format as the children card: `"יוסי כהן | 012453"` (decided 2026-10-18).
+- **Next to it (16px gap):** the trainee's full name as `h1`, 20/24, weight 500, and the personal number in a line under it (14px, `text-secondary`) – the same order as the children card, and the same header shape as the history and form screens (a title and a gray line under it). Decided 2026-10-20; before it the `h1` was `"{name} | {code}"` (decided 2026-10-18), which was cut on narrow screens.
 - **Divider:** 17px below, 1px `#ededed`, 16px side margins.
 
 ### 3.2 Actions section (side padding 19px)

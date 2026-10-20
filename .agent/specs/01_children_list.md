@@ -51,6 +51,8 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 | Left | Sort button | Sort icon only, aria-label `"מיון"` |
 
 - The row is uniform: the search field and both buttons are 44px tall, white, and outlined like the form fields ([00 §2.3](00_foundations.md)). The buttons are squares with the button radius (`IpsIconButton variant="surface"`).
+
+**Row 3** (decided 2026-10-20): the results count, the same text as on desktop – `"מוצגים {n} חניכים"` / `"מוצג חניך אחד"` **(proposed)** – 14px, `text-muted`, at the start. It is part of the pinned header, so it updates in view while typing and filtering, and is shown only once the list has loaded.
 - The search field and both buttons are disabled until the list has loaded.
 
 ### 3.1a Institute selector
@@ -71,7 +73,7 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 
 1. **Top row**
    - **Right:** photo 60×60 (radius 6, cover), loaded from the trainee photo call (§6.2) only for rendered cards. When it fails to load (no photo): gradient placeholder with a white person icon.
-   - **Next to the photo:** name (14/17, weight 500, one line), e.g. `"יוסי כהן | 012453"` (name | personal number). No date (removed 2026-10-18).
+   - **Next to the photo:** the name (14/17, weight 500, one line, truncated), e.g. `"מוחמד אבו סאלח"`, and the personal number under it (12px, `text-secondary`), e.g. `3445874` (decided 2026-10-20: in one line `"{name} | {code}"` the code was cut next to the `"מוגבל עד …"` badge; now the name gets the full width and the code is always readable). No date (removed 2026-10-18).
    - **Left:** status badge (pill, 12/14, 6px dot):
      - Active: `"פעיל"` – bg `#e7ffef`, text `#15833a`, dot `#22c55e`.
      - Restricted: `"מוגבל עד {DD/MM}"` (Restricted until) – bg `#ffe8e8`, text `#d4262b`, dot `#ff3b3b`.
@@ -90,7 +92,7 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 
 BottomSheet titled `"סינון"`, filtering trainees via `matchesTraineeFilters(trainee, filters)` (`traineesListLogic.ts`):
 
-| # | Group heading (14, weight 500, gray) | Options | Mapped Schema Field (`trainees.schema.ts`) |
+| # | Group label (12, `text-secondary`, like every field label – decided 2026-10-20) | Options | Mapped Schema Field (`trainees.schema.ts`) |
 |---|---|---|---|
 | **a** | `"אגף"` (Wing) | **Multi-select** (`IpsMultiSelectMobile`): an explicit `"הכל"` option first, then the institute's wings (`InstituteWithWingsDto.wings`) | `trainee.wing.id` |
 | **b** | `"מיקום באגף"` (Location in wing) | **Multi-select**: `"הכל"` first, then the locations of the selected wings (of the whole institute when no wing is selected), **grouped by wing** (native `optgroup` / menu subheaders). Disabled with a status text while locations load or after they fail (+ `"נסה שוב"`) | `trainee.location?.id` |
@@ -101,15 +103,17 @@ BottomSheet titled `"סינון"`, filtering trainees via `matchesTraineeFilters
 
 - **Multi-select text:** `"הכל"` when nothing is selected; one selected → its name; more → `"{n} נבחרו"`.
 - **`"הכל"` and specific options exclude each other:** choosing `"הכל"` clears the selected options, and choosing an option while `"הכל"` is selected keeps only that option.
-- **Groups c–f:** `IpsPillSelect` with a group label; tapping the selected chip again keeps it (`allowDeselect={false}`).
+- **Groups c–f:** `IpsPillSelect` with a group label (built by the app, so it matches the other labels); tapping the selected chip again keeps it (`allowDeselect={false}`). The selected chip is navy (`text-primary`) with white text and the others are white with a gray outline and navy text (decided 2026-10-20, as in the sketch and §2.1 of spec 00), so `"הצג תוצאות"` is the only blue in the sheet.
 - **Wing → location dependency:** changing the wings removes selected locations that no longer belong to the selected wings. Changing the institute reloads both.
 - **Button:** `"הצג תוצאות ({count})"` (Show results), full width. Closes the sheet.
+- **`"נקה מסננים ({n})"`** (decided 2026-10-20): the first row of the sheet's content, a small text button at the end (left), 14/500 in the primary color, with a 44px touch target. Same rule and text as on desktop (§8.2): it resets the six groups, including the stored wing filter, but not the search and the sort; disabled (not hidden, so the content does not jump) when no group is active, and then shown without the count.
+- **Text sizes in the sheet:** title 18/500 · `"נקה מסננים"` and the chips 14 · labels 12 · field values 16.
 
 ### 3.5 Sort sheet
 
 SortSheet titled `"מיון"`: one row per field **and** direction (`IpsRadioListMobile`), no separate direction row. The selected row is bold, in the primary color, with a check icon. Rows:
 
-`"שם – א׳ עד ת׳"` (default), `"שם – ת׳ עד א׳"`, `"סטטוס – עם הגבלה לחניך קודם"`, `"סטטוס – פעילים קודם"` **(proposed labels)**, `"יתרת דקות – מהגבוהה לנמוכה"`, `"יתרת דקות – מהנמוכה לגבוהה"`, `"אגף – א׳ עד ת׳"`, `"אגף – ת׳ עד א׳"`, `"מיקום באגף – א׳ עד ת׳"`, `"מיקום באגף – ת׳ עד א׳"`.
+`"שם: א׳ עד ת׳"` (default), `"שם: ת׳ עד א׳"`, `"סטטוס: עם הגבלה לחניך קודם"`, `"סטטוס: פעילים קודם"` **(proposed labels)**, `"יתרת דקות: מהגבוהה לנמוכה"`, `"יתרת דקות: מהנמוכה לגבוהה"`, `"אגף: א׳ עד ת׳"`, `"אגף: ת׳ עד א׳"`, `"מיקום באגף: א׳ עד ת׳"`, `"מיקום באגף: ת׳ עד א׳"`.
 
 ---
 
@@ -117,7 +121,7 @@ SortSheet titled `"מיון"`: one row per field **and** direction (`IpsRadioLis
 
 ### 4.1 Defaults
 
-- Search empty; every filter group `"הכל"` (except the wing, which is restored from storage when available, §2); sort `"שם – א׳ עד ת׳"`.
+- Search empty; every filter group `"הכל"` (except the wing, which is restored from storage when available, §2); sort `"שם: א׳ עד ת׳"`.
 
 ### 4.2 Search
 

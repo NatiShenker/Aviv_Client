@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useRouteTrainee } from "@/features/trainee/mobile/useRouteTrainee";
-import { buildTraineeDisplayName } from "@/features/trainee/traineeDisplay";
 import { TRAINEE_TEXTS } from "@/features/trainee/traineeTexts";
+import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
 import AppPage from "@/shells/mobile/AppPage";
 import { useScrollToTopOnOpen } from "@/shells/mobile/navigation/useScrollToTopOnOpen";
@@ -28,10 +28,11 @@ export default function TraineeActionsScreen() {
   );
 }
 
-// השם והמספר מגיעים מרשימת החניכים. עד שהם מגיעים (או אם הטעינה נכשלה) הכותרת ריקה והתפריט עובד (ספק 02 §7)
+// השם והמספר מגיעים מרשימת החניכים. עד שהם מגיעים (או אם הטעינה נכשלה) הכותרת ריקה והתפריט עובד (ספק 02 §7).
+// כמו בכרטיס: השם ככותרת והמספר בשורה מתחתיו - אותו מבנה כותרת כמו בהיסטוריה ובטופס
 function TraineeActionsContent() {
   const { traineeId, trainee } = useRouteTrainee();
-  const header = <PageHeader title={trainee.data ? buildTraineeDisplayName(trainee.data) : ""} />;
+  const header = <PageHeader title={trainee.data?.fullName ?? ""} subtitle={trainee.data?.traineeCode} />;
 
   // חניך שכבר לא ברשימת הפנימייה (הרשימה נטענת מחדש אחרי שינוי נתונים)
   if (traineeId === null || trainee.status === "empty") {
@@ -71,10 +72,10 @@ interface ActionLinkRowProps extends ActionRowContentProps {
   to: string;
 }
 
-/** שורה שמובילה לעמוד של הפעולה */
+/** שורה שמובילה לעמוד של הפעולה. מוכהית ברגע הנגיעה, עד שהמסך הבא נכנס */
 function ActionLinkRow({ label, icon, to }: ActionLinkRowProps) {
   return (
-    <Link to={to} className={`${ACTION_ROW_CLASS} text-text-primary`}>
+    <Link to={to} className={`${ACTION_ROW_CLASS} text-text-primary active:bg-grey-50 ${FOCUS_RING_CLASS}`}>
       <ActionRowContent label={label} icon={icon} />
     </Link>
   );

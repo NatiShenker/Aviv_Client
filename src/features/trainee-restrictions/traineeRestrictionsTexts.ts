@@ -9,6 +9,7 @@ export const TRAINEE_RESTRICTIONS_TEXTS = {
 
   card: {
     activeBadge: "פעילה",
+    endedBadge: "הסתיימה",
     // מוצע - ממתין לאישור (pending-decisions)
     createBasedOn: "צור הגבלה חדשה על בסיס זו",
   },
@@ -31,6 +32,8 @@ export const TRAINEE_RESTRICTIONS_TEXTS = {
     createTitle: "הגבלה חדשה",
     editTitle: "עריכת הגבלה",
     save: "שמור",
+    // מוצע - ממתין לאישור (pending-decisions)
+    savedToast: "ההגבלה נשמרה",
 
     detailsBlock: {
       title: "פרטי ההגבלה",
@@ -40,8 +43,8 @@ export const TRAINEE_RESTRICTIONS_TEXTS = {
     permitsBlock: {
       title: "היתרים להגבלה",
       hint: {
-        full: "ללא היתרים – חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח",
-        limited: "ללא הגדרה – מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה",
+        full: "ללא היתרים - חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח",
+        limited: "ללא הגדרה - מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה",
       },
     },
   },

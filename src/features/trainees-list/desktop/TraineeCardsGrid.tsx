@@ -1,6 +1,7 @@
 import TraineeCardMenu from "@/features/trainee-actions/desktop/TraineeCardMenu";
 import type { TraineeDrawerScreen } from "@/features/trainee-actions/desktop/traineeDrawerScreens";
 import { buildTraineeDisplayName } from "@/features/trainee/traineeDisplay";
+import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
 import LoadMoreSentinel from "@/shared/components/LoadMoreSentinel";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useIncrementalList } from "@/shared/hooks/useIncrementalList";
@@ -99,7 +100,7 @@ function CardsGrid({ trainees, activeTraineeId, onOpenTrainee, resetVisibleCount
                 type="button"
                 aria-label={TRAINEES_LIST_TEXTS.openTraineeActions(displayName)}
                 onClick={() => onOpenTrainee(trainee.id)}
-                className="absolute inset-0 cursor-pointer rounded-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                className={`absolute inset-0 cursor-pointer rounded-card ${FOCUS_RING_CLASS}`}
               />
               <TraineeCard
                 trainee={trainee}

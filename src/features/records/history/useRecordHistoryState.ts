@@ -55,11 +55,12 @@ export function useRecordHistoryState<TRecord, TRecordKey extends string | numbe
     setOpenRecordKey((currentKey) => (currentKey === recordKey ? null : recordKey));
   };
 
-  // אחרי שמירה: ההיסטוריה נטענת מחדש, והרשומה שנשמרה פתוחה וגלויה (ספק 00 §4.1)
+  // אחרי שמירה: ההיסטוריה מתרעננת ברקע, והרשומה שנשמרה נפתחת וגלויה כשהנתונים החדשים מגיעים (ספק 00 §4.1).
+  // בלי שלד: הכרטיסים הקיימים נשארים עד אז, וכשל ברענון משאיר אותם - בלי הודעת שגיאה מיד אחרי שמירה שהצליחה
   const showSavedRecord = (savedRecordKey: TRecordKey) => {
     setOpenRecordKey(savedRecordKey);
     revealSavedRecord(cardDomIdOf(savedRecordKey));
-    records.reload();
+    records.refreshInBackground();
   };
 
   return {

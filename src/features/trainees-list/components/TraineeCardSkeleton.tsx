@@ -1,4 +1,4 @@
-// שלד בצורת כרטיס חניך, באותו מבנה כמו הכרטיס: תמונה, שם ותגית; ומתחת לקו - מיקום ודקות.
+// שלד בצורת כרטיס חניך, באותו מבנה כמו הכרטיס: תמונה, שם ומספר ותגית; ומתחת לקו - מיקום ודקות.
 // ההבהוב פועל רק כשהמשתמש לא ביקש להפחית תנועה
 export default function TraineeCardSkeleton() {
   return (
@@ -6,8 +6,9 @@ export default function TraineeCardSkeleton() {
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-1 items-start gap-3">
           <div className="size-15 shrink-0 rounded-input bg-grey-100" />
-          <div className="flex-1 pt-1">
+          <div className="flex flex-1 flex-col gap-1.5 pt-1">
             <div className="h-4 w-2/3 rounded-sm bg-grey-100" />
+            <div className="h-3 w-1/4 rounded-sm bg-grey-100" />
           </div>
         </div>
         <div className="h-6 w-14 shrink-0 rounded-full bg-grey-100" />

@@ -100,8 +100,8 @@ Each rule is checked by path, and the check must come back empty.
   - `FormFooter`'s `buttonSize`.
 - **Gutters:** content components have no side gutter. The containers set it: `SCREEN_SIDE_GUTTER_CLASS` on mobile, `DRAWER_ROW_GUTTER_CLASS` / `DRAWER_SCROLL_AREA_CLASS` in the drawer.
 - **Form controls per layout:** the shared form blocks never use a mobile or a desktop control directly. They take their controls from `useFormControls()`.
-  - **Contract:** `shared/components/form/formControls.ts` – date, time, select, multi-select, text, text area, radio group. It holds only the props the blocks use, with values as strings (`'YYYY-MM-DD'`, `'HH:mm'`).
-  - **Providers:** `MobileRoutes` provides `MOBILE_FORM_CONTROLS` (the `Ips*Mobile` controls as they are); `DesktopRoutes` provides `DESKTOP_FORM_CONTROLS` (`shells/desktop/form-controls/`: the MUI `Ips*` controls).
+  - **Contract:** `shared/components/form/formControls.ts` – date, time, select, multi-select, text, text area, radio group, file upload. It holds only the props the blocks use, with values as strings (`'YYYY-MM-DD'`, `'HH:mm'`).
+  - **Providers:** `MobileRoutes` provides `MOBILE_FORM_CONTROLS` (the `Ips*Mobile` controls as they are; the file upload through `shells/mobile/MobileFileUploadField`, which drops the desktop-only hint); `DesktopRoutes` provides `DESKTOP_FORM_CONTROLS` (`shells/desktop/form-controls/`: the MUI `Ips*` controls, and `IpsFileUpload` with its "שמור קבצים" hint).
   - **Desktop adapters:**
     - the value conversions (`pickerValues.ts`);
     - the typed draft of a picker (`usePickerDraft`): a partly typed date or time reaches the form as `''`;
@@ -158,6 +158,7 @@ A small component used by one parent stays a private component in the parent's f
 - Mock data exists for every schema type, one file per type, in `mock-server/data`. Derived values (such as trainee flags) are computed in handlers from the records, as the server would.
 - Add a route in `mockRoutes.ts` together with the screen that needs it. Resources loaded directly by the browser (images) use `MOCK_RESOURCE_ROUTES`, which return a data URI or a missing path (like a 404).
 - Scenarios are set by URL parameters read once at startup: `mockDelayMs`, `mockError`, `mockNetworkError`, `mockEmpty` (comma-separated keys such as `trainees,locations`), and `mockSingleInstitute=true`.
+- A resource the browser loads by itself (the trainee photo in an `img`) has no error response: under `mockError` / `mockNetworkError` its key (`traineePhotos`) returns an address that fails to load, so the fallback shows. The mock photo is one real image for every trainee (`src/assets`, loaded through webpack's built-in `asset/resource` rule; imported only by the mock layer).
 
 ## Local persistence
 

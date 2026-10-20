@@ -1,6 +1,7 @@
 import { IpsButton } from "ui-library";
 import { useFormControls } from "@/shared/components/form/FormControlsProvider";
 import FormSection from "@/shared/components/form/FormSection";
+import { EXPANDED_TOUCH_TARGET_SX } from "@/shared/components/touchTarget";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import type { LookupItem } from "@/types/common.schema";
 import { FORM_TEXTS } from "../formTexts";
@@ -56,7 +57,7 @@ export default function DecisionBlock({
             helperText={hasReasonsFailed ? TEXTS.reasonsLoadFailed : errors.reason}
           />
           {hasReasonsFailed && (
-            <IpsButton variant="text" size="small" onClick={reasons.reload}>
+            <IpsButton variant="text" size="small" sx={EXPANDED_TOUCH_TARGET_SX} onClick={reasons.reload}>
               {TEXTS.retry}
             </IpsButton>
           )}

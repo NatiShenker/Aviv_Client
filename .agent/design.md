@@ -20,6 +20,11 @@ Excellent UX across all platforms is a primary goal. When building screens, you 
 - **Form UX:** Clearly distinguish mandatory fields from optional ones. Dependent fields must be logically grouped and their disabled/enabled states clearly communicated visually.
 - **Transitions & Feedback:** Use smooth, standard transitions (e.g., sheets sliding up, skeleton loaders). Use toast notifications (`useToast()`) or inline alerts for success/failure feedback on actions.
 - **Icons & Affordance:** Actions must be recognizable. Ensure touch targets are adequately sized for mobile fingers (minimum 44x44px functional area).
+  - A small library button (an X in a chip, a small text button) keeps its look and grows only its touch area: `EXPANDED_TOUCH_TARGET_SX` (`shared/components/touchTarget.ts`) – a transparent `::after` layer, so the layout does not move.
+  - Surfaces the app builds itself (a card, a row) show keyboard focus with `FOCUS_RING_CLASS` (`shared/components/focusRing.ts`, `focus-visible` only – never on touch), in both layouts. On mobile a row or card that navigates darkens slightly while pressed (`active:` / `group-active:`); a card or accordion that opens in place needs no pressed state – it responds at once.
+- **Contrast:** small secondary text must pass WCAG AA (4.5:1). The provisional `text-muted` token is `#667085` for that reason (the sketch shade was 3.1:1).
+- **Toasts:** at the bottom, near where the user tapped (like a snackbar). On mobile they sit above the bottom action bar (`STICKY_ACTION_BAR_HEIGHT_PX` + a gap, through `IpsToastProvider bottomOffset`), not over it (`LayoutToastProvider` in `App.tsx`).
+- **Trainee identity:** where the trainee is the subject (the card, the actions screen header) the name comes first and the personal number in a gray line under it; where the trainee is context (the history and form headers) it is one gray line, `"{name} | {code}"`.
 - **Width:** every mobile screen must fit 320px width without horizontal scroll.
 - **Filters:** filters with many or dynamic options use a select (multi-select where relevant), not chips.
 

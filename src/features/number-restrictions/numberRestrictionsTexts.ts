@@ -16,6 +16,7 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
   card: {
     typeTag: { permit: "היתר", restriction: "הגבלה" },
     activeBadge: { permit: "פעיל", restriction: "פעילה" },
+    endedBadge: { permit: "הסתיים", restriction: "הסתיימה" },
     // מוצעים - ממתינים לאישור (pending-decisions)
     createBasedOn: { permit: "צור היתר חדש על בסיס זה", restriction: "צור הגבלה חדשה על בסיס זו" },
     /** בשורות ההגבלה שעליה יושב היתר (בבוחר ובכרטיס הנעול) */
@@ -25,7 +26,7 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
   // היקף ההגבלה (ספק 04 overview §2.2)
   scopes: {
     national: "הגבלה ארצית",
-    institute: (instituteNames: string) => `הגבלת פנימייה – ${instituteNames}`,
+    institute: (instituteNames: string) => `הגבלת פנימייה - ${instituteNames}`,
     trainee: "הגבלה לחניך",
     institutesSeparator: ", ",
   },
@@ -57,6 +58,11 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
       edit: { permit: "עריכת היתר", restriction: "עריכת הגבלה" },
     },
     save: "שמור",
+    // מוצע - ממתין לאישור (pending-decisions). בהגבלה כל מספר נשמר כהגבלה נפרדת
+    savedToast: {
+      permit: "ההיתר נשמר",
+      restriction: (savedCount: number) => (savedCount > 1 ? "ההגבלות נשמרו" : "ההגבלה נשמרה"),
+    },
 
     actionType: {
       title: "הגבלה או היתר",
@@ -72,7 +78,7 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
     },
 
     noRestrictions: {
-      text: "לא נמצאו הגבלות פעילות על המספר עבור החניך – המספר פתוח ואין צורך בהיתר",
+      text: "לא נמצאו הגבלות פעילות על המספר עבור החניך - המספר פתוח ואין צורך בהיתר",
       restrictNumber: "להגבלת המספר",
     },
 
@@ -105,10 +111,10 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
 
     conditionsBlock: {
       title: { permit: "הגבלה להיתר", restriction: "היתרים להגבלה" },
-      permitHint: "ברירת מחדל – פתוח כל היום ובכל המכשירים",
+      permitHint: "ברירת מחדל - פתוח כל היום ובכל המכשירים",
       restrictionHint: {
-        full: "ללא היתרים – חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח",
-        limited: "ללא הגדרה – מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה",
+        full: "ללא היתרים - חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח",
+        limited: "ללא הגדרה - מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה",
       },
     },
 

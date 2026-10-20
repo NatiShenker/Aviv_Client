@@ -1,3 +1,4 @@
+import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
 import { DRAWER_SCROLL_AREA_CLASS } from "@/shells/desktop/drawer/drawerSpacing";
 import {
   ACTION_ROW_CLASS,
@@ -56,7 +57,7 @@ function ActionButtonRow({ label, icon, onClick }: ActionButtonRowProps) {
     <button
       type="button"
       onClick={onClick}
-      className={`${ACTION_ROW_CLASS} cursor-pointer text-start text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
+      className={`${ACTION_ROW_CLASS} cursor-pointer text-start text-text-primary ${FOCUS_RING_CLASS}`}
     >
       <ActionRowContent label={label} icon={icon} />
     </button>

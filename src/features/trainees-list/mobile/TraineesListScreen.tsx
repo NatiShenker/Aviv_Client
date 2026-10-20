@@ -48,6 +48,7 @@ function TraineesListContent() {
           onSearchQueryChange={listFilters.setSearchQuery}
           isFilterActive={listFilters.isFilterActive}
           areToolsDisabled={trainees.status !== "success"}
+          resultCount={trainees.status === "success" ? listFilters.visibleTrainees.length : null}
           onFilterClick={() => setOpenSheet("filter")}
           onSortClick={() => setOpenSheet("sort")}
         />
@@ -69,8 +70,10 @@ function TraineesListContent() {
           wings={selectedInstitute.wings}
           locations={locations}
           resultCount={listFilters.visibleTrainees.length}
+          activeFilterCount={listFilters.activeFilterCount}
           onWingIdsChange={listFilters.setWingIds}
           onFiltersChange={listFilters.updateFilters}
+          onClearFilters={listFilters.clearFilters}
         />
       )}
 

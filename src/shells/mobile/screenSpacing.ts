@@ -9,3 +9,9 @@ export const SCREEN_TOP_SPACING_CLASS = "pt-12";
  * כדי שאותם רכיבים ישמשו גם בפריסה אחרת עם ריווח משלה
  */
 export const SCREEN_SIDE_GUTTER_CLASS = "px-4";
+
+/**
+ * הגובה של פס הפעולה בתחתית המסך (StickyActionBar): 12 מעל הכפתור, כפתור של 48 ו-24 מתחתיו.
+ * ההודעות (toast) במובייל יושבות מעליו, כדי לא לכסות את הכפתור שבו. לעדכן יחד עם הריווח של StickyActionBar
+ */
+export const STICKY_ACTION_BAR_HEIGHT_PX = 84;

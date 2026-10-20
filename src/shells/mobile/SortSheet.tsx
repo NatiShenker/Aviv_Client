@@ -1,9 +1,8 @@
-import { IpsDrawer, IpsRadioListMobile, type IpsRadioListMobileValue } from "ui-library";
+import { IpsRadioListMobile, type IpsRadioListMobileValue } from "ui-library";
+import BottomSheet from "./BottomSheet";
 import { MOBILE_SHELL_TEXTS } from "./mobileShellTexts";
 
 const TEXTS = MOBILE_SHELL_TEXTS.sortSheet;
-
-const SHEET_HEIGHT = "auto";
 
 export interface SortSheetRow {
   value: string;
@@ -26,21 +25,8 @@ export default function SortSheet({ open, onClose, rows, selectedValue, onChange
   };
 
   return (
-    <IpsDrawer
-      open={open}
-      anchor="bottom"
-      size={SHEET_HEIGHT}
-      title={TEXTS.title}
-      closeButtonLabel={TEXTS.close}
-      onClose={onClose}
-      rtl
-    >
-      <IpsRadioListMobile
-        aria-label={TEXTS.title}
-        options={rows}
-        value={selectedValue}
-        onChange={handleChange}
-      />
-    </IpsDrawer>
+    <BottomSheet open={open} title={TEXTS.title} onClose={onClose}>
+      <IpsRadioListMobile aria-label={TEXTS.title} options={rows} value={selectedValue} onChange={handleChange} />
+    </BottomSheet>
   );
 }

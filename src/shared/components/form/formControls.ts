@@ -1,5 +1,5 @@
 import type { ComponentType, InputHTMLAttributes, KeyboardEventHandler, ReactNode, RefAttributes } from "react";
-import type { IpsSelectOption } from "ui-library";
+import type { IpsSelectOption, UploadResult } from "ui-library";
 
 /*
  * חוזה פקדי הטופס: הבלוקים המשותפים של הטפסים מקבלים את הפקדים מהפריסה (FormControlsProvider),
@@ -106,6 +106,29 @@ export interface RadioGroupFieldProps {
   "aria-label"?: string;
 }
 
+/**
+ * צירוף קובץ אחד, שמועלה ל-SharePoint. בשתי הפריסות אותו מנגנון העלאה של הספרייה;
+ * במובייל ההעלאה מתחילה מיד כשנבחר קובץ, ובדסקטופ אחרי "שמור קבצים" של הפקד
+ */
+export interface FileUploadFieldProps {
+  /** יעד ההעלאה: הסביבה ואתר ה-SharePoint */
+  sviva: string;
+  system: string;
+  /** מוסיף כניסה למצלמה */
+  camera?: boolean;
+  /** מסגרת שגיאה (למשל כשחסר קובץ חובה) */
+  error?: boolean;
+  /** מובייל: הטקסט בשדה לפני בחירה, ליד שם הקובץ בזמן העלאה, והשם הנגיש של כפתור המצלמה */
+  placeholder: string;
+  uploadingText: string;
+  cameraButtonLabel: string;
+  /** דסקטופ: ההסבר על "שמור קבצים" של התהליך הדו-שלבי. במובייל ההעלאה מיידית, ואין בו צורך */
+  saveFilesHint: string;
+  onBeforeSave: () => Promise<boolean>;
+  onSaveSuccess: (uploadedFiles: UploadResult[]) => void;
+  onSaveError: (error: unknown) => void;
+}
+
 /** הפקדים של פריסה אחת. אובייקט קבוע לכל פריסה */
 export interface FormControls {
   DateField: ComponentType<DateFieldProps>;
@@ -116,4 +139,5 @@ export interface FormControls {
   TextField: ComponentType<TextFieldProps & RefAttributes<HTMLInputElement>>;
   TextAreaField: ComponentType<TextAreaFieldProps>;
   RadioGroupField: ComponentType<RadioGroupFieldProps>;
+  FileUploadField: ComponentType<FileUploadFieldProps>;
 }

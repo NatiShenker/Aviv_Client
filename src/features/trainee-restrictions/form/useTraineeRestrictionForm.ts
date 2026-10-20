@@ -10,6 +10,7 @@ import {
 import { findFirstErrorSlot, hasErrors, withoutErrors } from "@/features/records/form/formErrors";
 import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
+import { useSaveSuccessToast } from "@/features/records/form/useSaveSuccessToast";
 import { toAppError } from "@/infrastructure/errors/appError";
 import { createTraineeRestriction, updateTraineeRestriction } from "@/services/traineeRestrictionsService";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
@@ -17,6 +18,7 @@ import { useFocusAfterRender } from "@/shared/hooks/useFocusAfterRender";
 import type { CallLimitKind, LookupItem } from "@/types/common.schema";
 import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
 import { todayIsoDate } from "@/utils/dates";
+import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import {
   RESTRICTION_ERROR_SLOTS,
   RESTRICTION_FIELD_IDS,
@@ -52,6 +54,7 @@ export function useTraineeRestrictionForm({ traineeId, startingPoint, reasons, o
   const [isFileUploading, setIsFileUploading] = useState(false);
   const [hasUserChanges, setHasUserChanges] = useState(false);
   const focusAfterRender = useFocusAfterRender();
+  const showSavedToast = useSaveSuccessToast();
 
   // הרשומה שמורה עם שם הסיבה: כשרשימת הסיבות מגיעה, הסיבה נבחרת בה לפי השם
   useEffect(() => {
@@ -121,6 +124,7 @@ export function useTraineeRestrictionForm({ traineeId, startingPoint, reasons, o
       const savedRecordId = await saveRestriction(values);
       if (savedRecordId !== null) {
         onSaved(savedRecordId);
+        showSavedToast(TRAINEE_RESTRICTIONS_TEXTS.form.savedToast);
       }
     } catch (error) {
       handleSaveError(error);

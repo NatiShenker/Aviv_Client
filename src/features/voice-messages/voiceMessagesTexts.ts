@@ -10,6 +10,7 @@ export const VOICE_MESSAGES_TEXTS = {
 
   card: {
     activeBadge: "פעילה",
+    endedBadge: "הסתיימה",
     allCalls: "כל השיחות",
     // מוצע - ממתין לאישור (pending-decisions)
     createBasedOn: "צור הודעה חדשה על בסיס זו",
@@ -34,6 +35,8 @@ export const VOICE_MESSAGES_TEXTS = {
     createTitle: "הודעה לנמען חדשה",
     editTitle: "עריכת הודעה לנמען",
     save: "שמור",
+    // מוצע - ממתין לאישור (pending-decisions). כל מספר נשמר כהודעה נפרדת
+    savedToast: (savedCount: number) => (savedCount > 1 ? "ההודעות נשמרו" : "ההודעה נשמרה"),
 
     messageBlock: {
       title: "ההודעה",

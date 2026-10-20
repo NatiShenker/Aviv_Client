@@ -8,6 +8,8 @@ const ALL_SCENARIO_KEYS = [
   "institutes",
   "permissions",
   "trainees",
+  // תמונות החניכים: הכתובת לא נטענת, והכרטיס מציג את התמונה החלופית
+  "traineePhotos",
   "locations",
   "traineeRestrictions",
   "saveTraineeRestriction",

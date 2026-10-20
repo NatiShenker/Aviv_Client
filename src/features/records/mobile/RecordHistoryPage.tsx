@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import PermissionBlockedMessage from "@/features/institutes/PermissionBlockedMessage";
 import type { PermissionId } from "@/features/institutes/permissions";
+import { useRouteTraineeDisplayName } from "@/features/trainee/mobile/useRouteTraineeDisplayName";
 import { useTraineeActionAccess, type TraineeActionAccess } from "@/features/trainee/mobile/useTraineeActionAccess";
 import { TRAINEE_TEXTS } from "@/features/trainee/traineeTexts";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
@@ -23,7 +24,7 @@ interface RecordHistoryPageProps {
 }
 
 /**
- * מסך היסטוריה של פעולה על חניך במובייל (ספק 00 §4.1): הכותרת, ובמקום הרשימה – חניך שלא נמצא,
+ * מסך היסטוריה של פעולה על חניך במובייל (ספק 00 §4.1): הכותרת עם החניך מתחתיה, ובמקום הרשימה – חניך שלא נמצא,
  * טעינת ההרשאות או חסימה (ספק 02 §7)
  */
 export default function RecordHistoryPage(props: RecordHistoryPageProps) {
@@ -38,7 +39,8 @@ export default function RecordHistoryPage(props: RecordHistoryPageProps) {
 
 function RecordHistoryPageContent({ title, permissionId, loadingLabel, renderHistory }: RecordHistoryPageProps) {
   const access = useTraineeActionAccess(permissionId);
-  const header = <PageHeader title={title} />;
+  const traineeDisplayName = useRouteTraineeDisplayName();
+  const header = <PageHeader title={title} subtitle={traineeDisplayName} />;
 
   if (access.status === "ready") {
     return <>{renderHistory(access, header)}</>;

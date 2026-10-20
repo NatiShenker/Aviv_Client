@@ -8,5 +8,5 @@ export const APPROVER_STAND_IN_TEXTS = {
   noResults: "לא נמצאו גורמים מאשרים",
   searchFailed: "החיפוש נכשל",
   retry: "נסה שוב",
-  roleSeparator: " – ",
+  roleSeparator: " - ",
 } as const;

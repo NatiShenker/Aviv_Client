@@ -38,10 +38,6 @@ export const TRAINEES_LIST_TEXTS = {
     cellcomDiscrepancy: "קיים פער בנתונים בסלקום",
   },
 
-  sheets: {
-    close: "סגירה",
-  },
-
   filters: {
     title: "סינון",
     showResults: (resultCount: number) => `הצג תוצאות (${resultCount})`,
@@ -80,17 +76,17 @@ export const TRAINEES_LIST_TEXTS = {
 
   sort: {
     options: {
-      nameAscending: "שם – א׳ עד ת׳",
-      nameDescending: "שם – ת׳ עד א׳",
+      nameAscending: "שם: א׳ עד ת׳",
+      nameDescending: "שם: ת׳ עד א׳",
       // מוצעים - ממתינים לאישור (pending-decisions). "הגבלה" כאן היא הגבלה לחניך, לא הגבלה למספר
-      statusRestrictedFirst: "סטטוס – עם הגבלה לחניך קודם",
-      statusActiveFirst: "סטטוס – פעילים קודם",
-      minutesDescending: "יתרת דקות – מהגבוהה לנמוכה",
-      minutesAscending: "יתרת דקות – מהנמוכה לגבוהה",
-      wingAscending: "אגף – א׳ עד ת׳",
-      wingDescending: "אגף – ת׳ עד א׳",
-      locationAscending: "מיקום באגף – א׳ עד ת׳",
-      locationDescending: "מיקום באגף – ת׳ עד א׳",
+      statusRestrictedFirst: "סטטוס: עם הגבלה לחניך קודם",
+      statusActiveFirst: "סטטוס: פעילים קודם",
+      minutesDescending: "יתרת דקות: מהגבוהה לנמוכה",
+      minutesAscending: "יתרת דקות: מהנמוכה לגבוהה",
+      wingAscending: "אגף: א׳ עד ת׳",
+      wingDescending: "אגף: ת׳ עד א׳",
+      locationAscending: "מיקום באגף: א׳ עד ת׳",
+      locationDescending: "מיקום באגף: ת׳ עד א׳",
     },
   },
 } as const;

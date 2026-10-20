@@ -17,11 +17,11 @@ export const CALL_CONDITIONS_TEXTS = {
   typeLabels: {
     restriction: {
       full: "הגבלה מלאה",
-      limited: (minutes: number) => `הגבלת משך שיחה – ${durationUpTo(minutes)}`,
+      limited: (minutes: number) => `הגבלת משך שיחה - ${durationUpTo(minutes)}`,
     },
     permit: {
       full: "היתר מלא",
-      limited: (minutes: number) => `היתר עם הגבלת משך – ${durationUpTo(minutes)}`,
+      limited: (minutes: number) => `היתר עם הגבלת משך - ${durationUpTo(minutes)}`,
     },
   },
 

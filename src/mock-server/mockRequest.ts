@@ -29,8 +29,12 @@ export interface MockRoute {
 /** משאב שהדפדפן טוען ישירות מכתובת (למשל תמונה ב-src), ולא דרך http().get */
 export interface MockResourceRoute {
   url: string;
-  /** מחזיר כתובת שהדפדפן יכול לטעון: data URI, או כתובת שלא קיימת כדי לדמות 404 */
+  /** מפתח התרחיש (mockError / mockNetworkError) שמדמה משאב שלא נטען */
+  scenarioKey: MockScenarioKey;
+  /** מחזיר כתובת שהדפדפן יכול לטעון, או כתובת שלא קיימת כדי לדמות 404 */
   resolveUri: (params: unknown) => string;
+  /** כתובת שלא נטענת, כשהתרחיש של המשאב פעיל */
+  unavailableUri: string;
 }
 
 /** נזרקת מ-handler כדי שהשרת המדומה יחזיר תשובת שגיאה (סטטוס + גוף בצורת ApiErrorDto) */

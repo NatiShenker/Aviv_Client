@@ -69,7 +69,11 @@ export const FORM_TEXTS = {
     changeApprover: "החלפה",
     cancelApproverChange: "ביטול",
     fileLabel: "צירוף קובץ",
-    // מוצע - IpsFileUpload מעלה רק אחרי לחיצה על הכפתור שלו (ראו pending-decisions)
+    // מובייל: השדה של IpsFileUploadMobile. מוצעים - ממתינים לאישור (pending-decisions)
+    filePlaceholder: "בחירת קובץ",
+    fileUploading: "מעלה…",
+    fileCamera: "מצלמה",
+    // מוצע. דסקטופ בלבד - IpsFileUpload מעלה רק אחרי לחיצה על הכפתור שלו (ראו pending-decisions)
     fileHint: "בחר קובץ ולחץ 'שמור קבצים' כדי לצרף אותו",
     removeFile: "הסרת הקובץ",
     retry: "נסה שוב",

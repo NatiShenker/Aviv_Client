@@ -31,7 +31,8 @@ export default function HistoryToolbar({
 }: HistoryToolbarProps) {
   return (
     <div className="mt-4 flex flex-col gap-3">
-      <h2 className="truncate text-lg font-medium">{title}</h2>
+      {/* כותרת מקטע: 16 רגיל, קטנה מכותרת המסך - כמו המקטעים בטופס ורמה 3 בדסקטופ (ספק 00 §3.23) */}
+      <h2 className="truncate text-base">{title}</h2>
 
       <div className="flex items-center gap-2">
         <div className="min-w-0 flex-1">

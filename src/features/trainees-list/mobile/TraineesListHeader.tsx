@@ -11,16 +11,19 @@ interface TraineesListHeaderProps {
   isFilterActive: boolean;
   /** כל עוד אין רשימה מוכנה, החיפוש, הסינון והמיון מושבתים */
   areToolsDisabled: boolean;
+  /** מספר החניכים אחרי חיפוש וסינון. null כל עוד הרשימה לא מוכנה */
+  resultCount: number | null;
   onFilterClick: () => void;
   onSortClick: () => void;
 }
 
-/** מעל הרשימה: שורה 1 - כותרת ובורר פנימייה; שורה 2 - חיפוש, סינון ומיון */
+/** מעל הרשימה: שורה 1 - כותרת ובורר פנימייה; שורה 2 - חיפוש, סינון ומיון; שורה 3 - מספר התוצאות */
 export default function TraineesListHeader({
   searchQuery,
   onSearchQueryChange,
   isFilterActive,
   areToolsDisabled,
+  resultCount,
   onFilterClick,
   onSortClick,
 }: TraineesListHeaderProps) {
@@ -55,6 +58,13 @@ export default function TraineesListHeader({
           onClick={onSortClick}
         />
       </div>
+
+      {/* ננעץ עם הכלים, כדי שהמספר יתעדכן לנגד העיניים בזמן הקלדה וסינון. אותו טקסט כמו בדסקטופ */}
+      {resultCount !== null && (
+        <p role="status" className="-mt-1 text-sm text-text-muted">
+          {TEXTS.toolbar.resultsCount(resultCount)}
+        </p>
+      )}
     </header>
   );
 }

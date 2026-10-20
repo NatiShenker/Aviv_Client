@@ -23,7 +23,9 @@ export default function TraineeRestrictionCard({ record, isOpen, onToggle, onEdi
       icon="traineeRestriction"
       iconTone="danger"
       summaryTitle={<span className="truncate">{buildTraineeRestrictionTypeLabel(record)}</span>}
-      summaryMeta={<RecordPeriodSummary record={record} activeLabel={CARD_TEXTS.activeBadge} />}
+      summaryMeta={
+        <RecordPeriodSummary record={record} activeLabel={CARD_TEXTS.activeBadge} endedLabel={CARD_TEXTS.endedBadge} />
+      }
       details={buildTraineeRestrictionDetails(record)}
       isOpen={isOpen}
       onToggle={onToggle}
