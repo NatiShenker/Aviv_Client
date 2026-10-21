@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { IpsButton, IpsRadioListMobile, IpsSearchFieldMobile, type IpsRadioListMobileValue } from "ui-library";
 import { isEmptyList, useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
 import type { ApproverRef } from "@/types/common.schema";
+import { ENTER_KEY } from "@/utils/dom";
 import type { ApproverPickerProps } from "./approverPickerContract";
 import { searchApprovers } from "./approversStandInService";
 import { APPROVER_STAND_IN_TEXTS } from "./approverStandInTexts";
@@ -34,6 +35,14 @@ export default function ApproverPickerStandIn({ onSelect }: ApproverPickerProps)
     }
   };
 
+  // החיפוש יושב בתוך הטופס: בלי זה Enter (או "חיפוש" במקלדת של הטלפון) היה שולח את כל הטופס.
+  // התוצאות מתעדכנות בזמן ההקלדה, ולכן ל-Enter אין כאן תפקיד (approverPickerContract)
+  const preventFormSubmit = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === ENTER_KEY) {
+      event.preventDefault();
+    }
+  };
+
   return (
     // שדה החיפוש לבן ובלי מסגרת, ולכן הוא יושב על משטח בצבע הרקע כדי שייראה על הטופס הלבן
     <div className="rounded-card bg-background p-2">
@@ -43,6 +52,7 @@ export default function ApproverPickerStandIn({ onSelect }: ApproverPickerProps)
         clearButtonLabel={TEXTS.clearSearch}
         value={query}
         onChange={setQuery}
+        onKeyDown={preventFormSubmit}
       />
       <SearchResults results={results} onSelect={handleSelect} />
     </div>

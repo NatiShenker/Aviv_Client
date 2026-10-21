@@ -2,7 +2,7 @@ import { useId } from "react";
 import { IpsTimePicker } from "ui-library";
 import FieldLabelText from "@/shared/components/form/FieldLabelText";
 import type { TimeFieldProps } from "@/shared/components/form/formControls";
-import { TIME_DISPLAY_FORMAT, TIME_FIELD_PLACEHOLDERS } from "./pickerFieldOptions";
+import { TIME_DISPLAY_FORMAT, TIME_FIELD_LOCALE_TEXT } from "./pickerFieldOptions";
 import { momentToTime, timeToMoment } from "./pickerValues";
 import { usePickerDraft } from "./usePickerDraft";
 
@@ -38,7 +38,7 @@ export default function DesktopTimeField({
         onChange={changeDraft}
         format={TIME_DISPLAY_FORMAT}
         ampm={false}
-        localeText={{ ...TIME_FIELD_PLACEHOLDERS, fieldClearLabel: clearButtonLabel }}
+        localeText={{ ...TIME_FIELD_LOCALE_TEXT, fieldClearLabel: clearButtonLabel }}
         enableAccessibleFieldDOMStructure={false}
         error={error}
         helperText={helperText}
@@ -47,7 +47,11 @@ export default function DesktopTimeField({
           textField: {
             id,
             fullWidth: true,
-            inputProps: { "aria-labelledby": ariaLabel ? undefined : labelId, "aria-label": ariaLabel },
+            inputProps: {
+              "aria-labelledby": ariaLabel ? undefined : labelId,
+              "aria-label": ariaLabel,
+              "aria-required": required,
+            },
           },
         }}
       />

@@ -3,7 +3,7 @@ import { he } from "date-fns/locale";
 import { IpsDatePicker } from "ui-library";
 import FieldLabelText from "@/shared/components/form/FieldLabelText";
 import type { DateFieldProps } from "@/shared/components/form/formControls";
-import { DATE_DISPLAY_FORMAT, DATE_FIELD_PLACEHOLDERS, MUTED_VALUE_SX } from "./pickerFieldOptions";
+import { DATE_DISPLAY_FORMAT, DATE_FIELD_LOCALE_TEXT, MUTED_VALUE_SX } from "./pickerFieldOptions";
 import { dateToIsoDate, isoDateToDate } from "./pickerValues";
 import { usePickerDraft } from "./usePickerDraft";
 
@@ -42,7 +42,7 @@ export default function DesktopDateField({
         maxDate={isoDateToDate(max ?? "") ?? undefined}
         format={DATE_DISPLAY_FORMAT}
         locale={he}
-        localeText={DATE_FIELD_PLACEHOLDERS}
+        localeText={DATE_FIELD_LOCALE_TEXT}
         enableAccessibleFieldDOMStructure={false}
         error={error}
         helperText={helperText}
@@ -50,7 +50,11 @@ export default function DesktopDateField({
           textField: {
             id,
             fullWidth: true,
-            inputProps: { "aria-labelledby": ariaLabel ? undefined : labelId, "aria-label": ariaLabel },
+            inputProps: {
+              "aria-labelledby": ariaLabel ? undefined : labelId,
+              "aria-label": ariaLabel,
+              "aria-required": required,
+            },
           },
         }}
         sx={muted ? MUTED_VALUE_SX : undefined}

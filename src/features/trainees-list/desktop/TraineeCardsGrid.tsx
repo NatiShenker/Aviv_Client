@@ -1,6 +1,6 @@
 import TraineeCardMenu from "@/features/trainee-actions/desktop/TraineeCardMenu";
 import type { TraineeDrawerScreen } from "@/features/trainee-actions/desktop/traineeDrawerScreens";
-import { buildTraineeDisplayName } from "@/features/trainee/traineeDisplay";
+import { buildTraineeAccessibleName } from "@/features/trainee/traineeDisplay";
 import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
 import LoadMoreSentinel from "@/shared/components/LoadMoreSentinel";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
@@ -17,9 +17,10 @@ const SKELETON_CARD_KEYS = Array.from({ length: SKELETON_CARD_COUNT }, (_, index
 
 // הכרטיסים יושבים על משטח לבן, ולכן מקבלים מסגרת (design.md). המסגרת על העוטף, כדי שהכרטיס יישאר זהה למובייל
 const CARD_FRAME_CLASS = "rounded-card border";
-// צבע המסגרת: רגיל, בריחוף, ושל החניך שהמגירה שלו פתוחה
+// צבע המסגרת: רגיל, בריחוף, ושל החניך שהמגירה שלו פתוחה.
+// לחניך הפתוח גם טבעת של 1px, כדי שיבלוט מאחורי הרקע הכהה של המגירה
 const CARD_BORDER_CLASS = "border-divider hover:border-border-strong";
-const ACTIVE_CARD_BORDER_CLASS = "border-primary";
+const ACTIVE_CARD_BORDER_CLASS = "border-primary ring-1 ring-primary";
 
 /** אזור הכרטיסים - הפוקוס חוזר אליו כשהכרטיס שפתח את המגירה כבר לא מוצג */
 export const TRAINEE_CARDS_REGION_ID = "trainee-cards-region";
@@ -55,7 +56,7 @@ export default function TraineeCardsGrid({
       tabIndex={0}
       role="region"
       aria-label={TRAINEES_LIST_TEXTS.cardsRegionLabel}
-      className="min-h-0 flex-1 overflow-y-auto p-4"
+      className={`min-h-0 flex-1 overflow-y-auto p-4 ${FOCUS_RING_CLASS}`}
     >
       <TraineesListStates
         hasSelectedInstitute={hasSelectedInstitute}
@@ -89,7 +90,7 @@ function CardsGrid({ trainees, activeTraineeId, onOpenTrainee, resetVisibleCount
       <ul className="grid grid-cols-cards gap-4">
         {visibleItems.map((trainee) => {
           const borderClass = trainee.id === activeTraineeId ? ACTIVE_CARD_BORDER_CLASS : CARD_BORDER_CLASS;
-          const displayName = buildTraineeDisplayName(trainee);
+          const accessibleName = buildTraineeAccessibleName(trainee);
           return (
             <li key={trainee.id} className={`relative transition-colors ${CARD_FRAME_CLASS} ${borderClass}`}>
               {/*
@@ -98,7 +99,7 @@ function CardsGrid({ trainees, activeTraineeId, onOpenTrainee, resetVisibleCount
               */}
               <button
                 type="button"
-                aria-label={TRAINEES_LIST_TEXTS.openTraineeActions(displayName)}
+                aria-label={TRAINEES_LIST_TEXTS.openTraineeActions(accessibleName)}
                 onClick={() => onOpenTrainee(trainee.id)}
                 className={`absolute inset-0 cursor-pointer rounded-card ${FOCUS_RING_CLASS}`}
               />
@@ -107,7 +108,7 @@ function CardsGrid({ trainees, activeTraineeId, onOpenTrainee, resetVisibleCount
                 menu={
                   <div className="relative z-10 -my-1 -me-2">
                     <TraineeCardMenu
-                      traineeDisplayName={displayName}
+                      traineeAccessibleName={accessibleName}
                       onOpenScreen={(screen) => onOpenTrainee(trainee.id, screen)}
                     />
                   </div>

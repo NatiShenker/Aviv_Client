@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { IpsButton } from "ui-library";
 import AppIcon from "@/shared/components/AppIcon";
+import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { DRAWER_ROW_GUTTER_CLASS, DRAWER_SCROLL_AREA_CLASS } from "@/shells/desktop/drawer/drawerSpacing";
 import DrawerTopBar from "@/shells/desktop/drawer/DrawerTopBar";
@@ -10,8 +11,16 @@ import type { RecordHistoryState } from "../history/useRecordHistoryState";
 import DesktopHistoryToolbar from "./DesktopHistoryToolbar";
 
 // כרטיס על משטח לבן (המגירה) מקבל מסגרת (design.md). המסגרת על העוטף, כדי שהכרטיס יישאר זהה למובייל
-export const renderDrawerCardFrame: RenderCardFrame = (card) => (
-  <div className="rounded-card border border-divider">{card}</div>
+const DRAWER_CARD_FRAME_CLASS = "rounded-card border border-divider";
+
+// כרטיס שנפתח בלחיצה: בריחוף המסגרת מתכהה, כמו כרטיסי החניכים ושורות הפעולות
+const renderDrawerCardFrame: RenderCardFrame = (card) => (
+  <div className={`${DRAWER_CARD_FRAME_CLASS} transition-colors hover:border-border-strong`}>{card}</div>
+);
+
+// שלד: אותה מסגרת, בלי ריחוף - אין עליו מה ללחוץ
+export const renderDrawerSkeletonCardFrame: RenderCardFrame = (card) => (
+  <div className={DRAWER_CARD_FRAME_CLASS}>{card}</div>
 );
 
 interface DrawerHistoryLayoutProps<TRecord, TRecordKey extends string | number> {
@@ -71,7 +80,7 @@ export default function DrawerHistoryLayout<TRecord, TRecordKey extends string |
         tabIndex={0}
         role="region"
         aria-label={texts.toolbar.sectionTitle}
-        className={`min-h-0 flex-1 pb-6 ${DRAWER_SCROLL_AREA_CLASS}`}
+        className={`min-h-0 flex-1 pb-6 ${DRAWER_SCROLL_AREA_CLASS} ${FOCUS_RING_CLASS}`}
       >
         <HistoryCardsList
           records={records}
@@ -80,6 +89,8 @@ export default function DrawerHistoryLayout<TRecord, TRecordKey extends string |
           renderCard={renderCard}
           texts={texts.states}
           renderCardFrame={renderDrawerCardFrame}
+          renderSkeletonCardFrame={renderDrawerSkeletonCardFrame}
+          resetVisibleCountOn={[history.searchQuery, history.sortKey]}
         />
       </div>
     </>

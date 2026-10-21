@@ -65,18 +65,16 @@ interface Distribution {
 
 const STATE_DISTRIBUTION = {
   cellcomDiscrepancy: { every: 9, offset: 4 },
-  withoutLocation: { every: 5, offset: 0 },
 } satisfies Record<string, Distribution>;
 
 function matchesDistribution(index: number, { every, offset }: Distribution): boolean {
   return index % every === offset;
 }
 
+// לכל חניך מיקום ספציפי באגף שלו, כדי שהכרטיס יציג את האגף יחד עם המיקום (בקשת המשתמש, 2026-10-21).
+// מיקום וירטואלי אינו מקום שחניך נמצא בו, ולכן לא משובץ. הכרטיס עדיין מטפל בחניך בלי מיקום - הסכמה מאפשרת זאת
 function pickLocation(wingId: number, index: number): LookupItem<number> | null {
-  if (matchesDistribution(index, STATE_DISTRIBUTION.withoutLocation)) {
-    return null;
-  }
-  const wingLocations = LOCATIONS_MOCK_DATA.filter((location) => location.wingId === wingId);
+  const wingLocations = LOCATIONS_MOCK_DATA.filter((location) => location.wingId === wingId && !location.isVirtual);
   if (wingLocations.length === 0) {
     return null;
   }

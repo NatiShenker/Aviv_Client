@@ -1,3 +1,5 @@
+import SectionHeading, { useSubsectionHeadingLevel } from "../SectionHeading";
+
 interface FieldIntroProps {
   title: string;
   /** שורה אחת. טקסט ארוך נחתך, והטקסט המלא מופיע ב-tooltip. בלי תיאור - רק הכותרת */
@@ -6,11 +8,15 @@ interface FieldIntroProps {
   isCompact?: boolean;
 }
 
-/** כותרת ושורת תיאור מעל קבוצת שדות (ספק 00 §3.3) */
+/** כותרת ושורת תיאור מעל קבוצת שדות (ספק 00 §3.3). הכותרת רמה אחת מתחת לבלוק שהיא בתוכו */
 export default function FieldIntro({ title, description, isCompact = false }: FieldIntroProps) {
+  const headingLevel = useSubsectionHeadingLevel();
+
   return (
     <div>
-      <h3 className="text-sm text-text-primary">{title}</h3>
+      <SectionHeading level={headingLevel} className="text-sm text-text-primary">
+        {title}
+      </SectionHeading>
       {description && (
         <p title={description} className={`truncate text-text-muted ${isCompact ? "text-xs" : "text-sm"}`}>
           {description}

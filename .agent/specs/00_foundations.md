@@ -233,7 +233,7 @@ Each entry: **structure**, **states**, **used in**.
   - **Active or future record:** `"עריכה"` (Edit) with an edit icon.
   - **Ended record** (decided 2026-10-19, closing the edit part of [OQ-14](../pending-decisions.md#oq-14)): an ended record **cannot be edited**. The button is `"יצירת … דומה"` (Create a similar …, worded per record type – decided 2026-10-21: `"יצירת הגבלה דומה"`, `"יצירת היתר דומה"`, `"יצירת הודעה דומה"`) with a copy icon, and opens the create form prefilled from the record (§4.2).
 - **Motion:** opening and closing animate smoothly ("Card expand", §2.4). While closed, the content is hidden from screen readers and the keyboard.
-- **Only one card is open at a time**; tapping an open card closes it.
+- **Each card opens and closes on its own; several can be open together** (decided 2026-10-21, both layouts; it was one at a time). Opening a card does not close another, so the tapped card does not jump up when an open card above it collapses, and records can be compared. Tapping an open card closes it. After a save the saved record opens, and the cards that were open stay open.
 
 ### 3.23 HistoryToolbar
 
@@ -319,10 +319,10 @@ Block title `"סיבות ואישורים"` (Reasons and approvals, decided 2026
 
 Fields 1–3 are stacked 8px apart; the file field is 16px below them. See [OQ-15](../pending-decisions.md#oq-15).
 
-- **Approver (ApproverField):** the MFE is a full-width search box with its own open results list, and reports the chosen approver through `onSelect`. Once chosen, the field shows the approver's name and role with a `"החלפה"` (Change) button, which shows the MFE again; `"ביטול"` (Cancel) returns to the chosen approver. Until the MFE is integrated, a stand-in with the same contract is used (`src/integrations/approver-mfe`).
+- **Approver (ApproverField):** the MFE is a full-width search box with its own open results list, and reports the chosen approver through `onSelect`. Once chosen, the field shows the approver's name and role with a `"החלפה"` (Change) button, which shows the MFE again; `"ביטול"` (Cancel), under the MFE at the end (left) – the side of `"החלפה"`, as in the permit's restriction picker (decided 2026-10-21) – returns to the chosen approver. Until the MFE is integrated, a stand-in with the same contract is used (`src/integrations/approver-mfe`).
 - **File (ApprovalFileField):** without a file, the layout's upload control (from `useFormControls()`), one file, camera allowed:
   - **Mobile** (decided 2026-10-20): `IpsFileUploadMobile` – a field (`"בחירת קובץ"`) and a camera button (`"מצלמה"`) **(proposed)**. Choosing a file uploads it at once; while it uploads the field shows its name and `"מעלה…"` **(proposed)**. It keeps `IpsFileUpload`'s mechanics as they are (the same hidden file input, camera dialog and upload hook), because the upload is sensitive across iOS and Android in the organization's environment.
-  - **Desktop:** a hint `"בחר קובץ ולחץ 'שמור קבצים' כדי לצרף אותו"` **(proposed)** and `IpsFileUpload`.
+  - **Desktop:** a hint `"יש לבחור קובץ וללחוץ על ״שמור קבצים״ כדי לצרף אותו"` (decided 2026-10-21: impersonal, with Hebrew quotation marks) and `IpsFileUpload`, laid out at the usage (decided 2026-10-21): `"או"` between the drop text and the drop zone's buttons; each pair of buttons equal in width (by the longer one); the pair under the drop zone aligned to the end (left), like every action pair in a form, with `"נקה הכל"` (secondary) on the right and `"שמור קבצים"` (primary) on the left – in the DOM order too, so also for the keyboard; and the buttons at weight 400, like every other button. The emoji, the drop text and the error message are the control's own and stay.
 
   After the upload the file is registered in the service (to get its `approvedFileId`), and the field shows a file row (icon, name, X `"הסרת הקובץ"`) instead of `IpsFileUpload`. Saving waits while a file uploads. Upload or registration failure: `"העלאת הקובץ נכשלה. ניתן לנסות שוב"` (decided 2026-10-21).
 
@@ -339,23 +339,30 @@ Decided for desktop phase 2 (2026-10-19). On desktop the history and form screen
    - The section title (16px, regular) at the start of its row, and at the end of the same row the primary create button (text + plus icon, the regular button size). It takes the place of the mobile StickyActionBar (§3.26).
    - Below them, in one row: the search field, always visible and taking the remaining width (clear button `"ניקוי חיפוש"`), and the sort select.
    - Below that row, the results count (§3.23 row 3), in a row of its own – at the drawer's width there is no room for it next to the search (decided 2026-10-21).
-   - The sort select's closed value is only a sort icon and `"מיון"`, like the mobile sort button. At the drawer's width there is no room for "מיין לפי: …" next to the search (decided 2026-10-19). Its list has one row per field + direction (§3.25), and its accessible name includes the current row: `"מיון: {row}"` **(proposed)**.
+   - The sort select's closed value is only a sort icon and `"מיון"`, like the mobile sort button. At the drawer's width there is no room for "מיון לפי …" next to the search (decided 2026-10-19). Its list has one row per field + direction (§3.25), and its accessible name includes the current row: `"מיון לפי {row}"` (decided 2026-10-21, like the trainees list's closed sort value; it was `"מיון: {row}"`).
    - Both are disabled until the records have loaded.
-3. **Cards:** ExpandableRecordCard (§3.22) on the drawer's white surface. Each card, and each skeleton card, gets a 1px `divider` frame on its wrapper. The cards render incrementally inside the drawer's scroll area.
+   - No line under the toolbar (design.md › the lines rule). The section title is `h4`, under the trainee (`h2`) and the action (`h3`).
+3. **Cards:** ExpandableRecordCard (§3.22) on the drawer's white surface. Each card, and each skeleton card, gets a 1px `divider` frame on its wrapper; a card's frame turns `border-strong` on hover, like the trainee cards and the action rows (decided 2026-10-21), and a skeleton's does not. The cards render incrementally inside the drawer's scroll area, which shows the app's focus ring when it has keyboard focus.
 4. **States:** as on mobile. Before the permissions load: skeleton cards. Without permission: the blocked message ([02 §7](02_child_actions.md)). The top row is available in every state.
 
 **Form.**
 
 - **Presentation:** a layer over the history inside the drawer, below the trainee header – the desktop counterpart of the mobile form sheet. It enters and leaves like a drawer screen, and the history moves with it (§2.4). The history stays mounted and inert under it, so its search, sort, open card and scroll position are kept.
 - **Layer layout:**
-  - At the top: a back arrow `"חזרה ללא שמירה"` **(proposed)** at the start, and the form title next to it (create / edit, as in each form spec; 18px, weight 500). An arrow and not an X: the drawer's X is the only X, and every inner screen goes back with an arrow (decided 2026-10-19).
-  - The blocks scroll in the middle.
-  - At the bottom, a fixed footer: `"ביטול"` on the right and `"שמירה"` on the left, two equal columns in the regular button size.
+  - At the top: a back arrow `"חזרה ללא שמירה"` **(proposed)** at the start, and the form title next to it (create / edit, as in each form spec; 18px, weight 500, `h3`). An arrow and not an X: the drawer's X is the only X, and every inner screen goes back with an arrow (decided 2026-10-19). No line under this row (decided 2026-10-21; with the trainee header's line it framed a single row with two lines).
+  - The blocks scroll in the middle. Their titles are `h4` (and the field-group titles `h5`), under the form title – the same look as on mobile.
+  - At the bottom, a fixed footer with a line above it: `"ביטול"` on the right and `"שמירה"` on the left, two equal columns in the regular button size.
   - The general save error is shown above the buttons.
 - **Focus:** moves into the layer when it opens. The back arrow and `"ביטול"` go back to the history without confirmation ([OQ-16](../pending-decisions.md#oq-16)), and focus returns to the button that opened the form as soon as the layer starts to leave.
 - **Controls:** the desktop controls of the library (MUI): dates (`IpsDatePicker` in Hebrew, `DD/MM/YY`, empty sections shown as `--`), times (`IpsTimePicker`, 24h, clear button), selects, text fields, text area and radio groups. Labels are above the fields.
   - The grid is the mobile one: dates, times and the duration take half a row; reason, details, approver, file, and phone with its button take a full row. There are no desktop-only widths (decided 2026-10-19).
   - A date or time that is only partly typed counts as empty, so validation reports it.
+  - Decided 2026-10-21:
+    - **Details** (the text area): its text starts at the same inner padding as the other fields (the theme's field padding is not added to the text area's own), and it is a fixed 3 rows tall – longer text scrolls inside it.
+    - **An empty select** shows its text in gray – `"בחירת סיבה"`, and in the devices field `"כל המכשירים"` / `"לא הוגדרו"` – as on mobile (§3.11), so it does not read as a chosen value. The filters' `"הכל"` keeps the value color.
+    - **The phone row:** `"הוספה"` / `"חיפוש"` take the field's height (on desktop the field is 39px and a regular button 44px). Mobile is unchanged.
+    - **Required fields** are announced as required (`aria-required`); a select's error or load-failure text is linked to it, so it is read with the field.
+    - **The date and time pickers** use MUI's Hebrew texts (`heIL`), so their buttons and calendar are read in Hebrew.
 - **After save:**
   - The layer closes.
   - The history refreshes silently (no skeleton, decided 2026-10-20), then shows the saved record open and focused (§4.1).

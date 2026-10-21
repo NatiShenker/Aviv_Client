@@ -3,8 +3,9 @@ export const HISTORY_TEXTS = {
   toolbar: {
     clearSearch: "ניקוי חיפוש",
     sort: "מיון",
-    // דסקטופ: בורר המיון מציג רק "מיון", ולכן השם הנגיש כולל את המיון הנוכחי. מוצע - ממתין לאישור (pending-decisions)
-    sortWithCurrent: (currentSortLabel: string) => `מיון: ${currentSortLabel}`,
+    // דסקטופ: בורר המיון מציג רק "מיון", ולכן השם הנגיש כולל את המיון הנוכחי - "מיון לפי תאריך התחלה: מהחדש לישן",
+    // כמו הערך הסגור של המיון ברשימת החניכים (הוחלט 2026-10-21)
+    sortWithCurrent: (currentSortLabel: string) => `מיון לפי ${currentSortLabel}`,
   },
   // תגיות הסטטוס בקבצי הטקסטים של כל פעולה, כי הן במין של הרשומה ("הסתיימה" / "הסתיים")
   card: {

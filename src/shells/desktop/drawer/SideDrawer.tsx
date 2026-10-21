@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { IpsDrawer, type IpsDrawerCloseReason, type IpsDrawerRenderContext } from "ui-library";
-import { isTextEntryElement } from "@/utils/dom";
+import { isTextEntryElement, prefersReducedMotion } from "@/utils/dom";
+
+const NO_TRANSITION_MS = 0;
 
 // רוחב קבוע: מרווח לכרטיסים ולטופס, ושורת טקסט עדיין בטווח הקריא (design.md › Side drawer, הוחלט 2026-10-19)
 const SIDE_DRAWER_WIDTH_PX = 560;
@@ -44,6 +46,8 @@ export default function SideDrawer({ open, onRequestClose, onExited, renderHeade
       size={SIDE_DRAWER_WIDTH_PX}
       renderHeader={renderHeader}
       sx={CONTENT_AREA_SX}
+      // בהעדפת "הפחתת תנועה" המגירה נפתחת ונסגרת בלי החלקה, כמו המסכים שבתוכה (ספק 00 §2.4)
+      transitionDuration={prefersReducedMotion() ? NO_TRANSITION_MS : undefined}
       SlideProps={{ onExited }}
     >
       {children}

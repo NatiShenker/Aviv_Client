@@ -23,8 +23,8 @@ Excellent UX across all platforms is a primary goal. When building screens, you 
   - A small library button (an X in a chip, a small text button) keeps its look and grows only its touch area: `EXPANDED_TOUCH_TARGET_SX` (`shared/components/touchTarget.ts`) – a transparent `::after` layer, so the layout does not move.
   - Surfaces the app builds itself (a card, a row) show keyboard focus with `FOCUS_RING_CLASS` (`shared/components/focusRing.ts`, `focus-visible` only – never on touch), in both layouts. On mobile a row or card that navigates darkens slightly while pressed (`active:` / `group-active:`); a card or accordion that opens in place needs no pressed state – it responds at once.
 - **Contrast:** small secondary text must pass WCAG AA (4.5:1). The provisional `text-muted` token is `#667085` for that reason (the sketch shade was 3.1:1).
-- **Toasts:** at the bottom, near where the user tapped (like a snackbar). On mobile they sit above the bottom action bar (`STICKY_ACTION_BAR_HEIGHT_PX` + a gap, through `IpsToastProvider bottomOffset`), not over it (`LayoutToastProvider` in `App.tsx`).
-- **Trainee identity:** where the trainee is the subject (the card, the actions screen header) the name comes first and the personal number in a gray line under it; where the trainee is context (the history and form headers) it is one gray line, `"{name} | {code}"`.
+- **Toasts:** at the bottom, near where the user tapped (like a snackbar). On mobile they sit above the bottom action bar (`STICKY_ACTION_BAR_HEIGHT_PX` + a gap, through `IpsToastProvider bottomOffset`), not over it; on desktop at the bottom left, next to the trainee drawer where the user saves (decided 2026-10-21) (`LayoutToastProvider` in `App.tsx`). The close button is named `"סגירה"` (`closeButtonLabel`).
+- **Trainee identity:** where the trainee is the subject (the card, the actions screen header, the desktop drawer header) the name comes first and the personal number in a gray line under it; where the trainee is context (the history and form headers) it is one gray line, `"{name} | {code}"`.
 - **Width:** every mobile screen must fit 320px width without horizontal scroll.
 - **Filters:** filters with many or dynamic options use a select (multi-select where relevant), not chips.
 - **Wording** (decided 2026-10-21, in the copy review after the mobile UI/UX phase):
@@ -74,9 +74,12 @@ Decided for desktop phase 1 (the trainees list) and phase 2 (the trainee drawer)
 - **Page:** `DesktopPage` fills the viewport. The header rows and panels stay in place, and **only the list area scrolls**.
 - **Panels:** white panels (`rounded-card bg-paper`) on the page background, with no border. A card inside a panel is on a white surface, so it gets the 1px `divider` border – on its wrapper, so the card component stays the same as on mobile.
 - **Labels:** above the fields, with `FieldLabelText` linked to the control (`labelId`), not MUI's floating label. This holds in the drawer forms too. Exception: a toolbar row has no labels above its controls, so the row keeps one height (the search has a placeholder; the sort shows its meaning in its value).
-- **Context selector** (e.g. the institute in the title row, the action in the drawer): text and chevron with no border, in the main text color – the same look as on mobile (`CONTEXT_SELECT_SX`, applied at the usage).
+- **Context selector** (e.g. the institute in the title row, the action in the drawer): text and chevron with no border **and no background**, the text starting at the content line (no inner indent, so a plain title and the selector line up), in the main text color – the same look as on mobile; a focus ring for the keyboard, since there is no field border to show focus; an empty one shows its placeholder in gray (`CONTEXT_SELECT_SX` / `EMPTY_CONTEXT_SELECT_SX`, applied at the usage; decided 2026-10-21).
+- **Page title:** 20/500 – one step above the mobile list title (18), with the selector next to it at 18 (16 on mobile), so the two keep the mobile relation (decided 2026-10-21; it was 24, the only 24 in the app).
 - **Sizes:** spacing stays compact (`p-4`, `gap-4`), so the list keeps as much height as possible.
-- **Clickable surfaces:** a whole card that opens something (e.g. the trainee card) is a transparent button over the card. The card itself does not change. On hover the frame turns `border-strong`; an active card has a `primary` frame. Raw buttons need `cursor-pointer` – Tailwind's preflight resets the cursor of buttons, and no global CSS rule is added for it (see Run modes).
+- **Clickable surfaces:** a whole card that opens something (e.g. the trainee card) is a transparent button over the card. The card itself does not change. On hover the frame turns `border-strong` – on every card or row that opens something: trainee cards, action rows, history cards (decided 2026-10-21); an active card has a `primary` frame plus a 1px `primary` ring. Raw buttons need `cursor-pointer` – Tailwind's preflight resets the cursor of buttons, and no global CSS rule is added for it (see Run modes).
+- **Lines** (decided 2026-10-21): a line only where the drawer's fixed frame meets a screen – under the trainee header, and above a form's footer. Rows inside a screen (the top row, a toolbar, the form's title row) and the trainees list toolbar have no line under them; the spacing separates them.
+- **Empty selects:** the placeholder (`"בחירת סיבה"`, `"כל המכשירים"`) is gray, as on mobile; the filters' `"הכל"` is a value and keeps the value color.
 
 ### Side drawer (phase 2)
 
@@ -88,15 +91,18 @@ Decided for desktop phase 1 (the trainees list) and phase 2 (the trainee drawer)
   - **Scrollbar gutter:** a classic scrollbar (Windows) takes its width only from the area that scrolls, so the controls above a list came out wider than the cards. Every row in the drawer reserves the same gutter (`scrollbar-gutter: stable`, the `scrollbar-gutter-stable` utility), so the header, the toolbar, the cards, the form fields and the footer all end on the same line. With overlay scrollbars (macOS) the gutter is 0.
   - The drawer has a fixed header. Each screen decides what scrolls: a top row and a toolbar stay in place, and only the list or the form body scrolls. A form's footer is fixed at the bottom of the drawer.
 - **Text hierarchy** (decided 2026-10-19; before it the trainee, the action and the section title were all 18px bold):
-  - Level 1, the trainee (the drawer's header): 20px, weight 500, with a 60px photo and the status badge below the name.
+  - Level 1, the trainee (the drawer's header): 20px, weight 500, with a 60px photo and the personal number below the name (14, `text-secondary`); no status badge (decided 2026-10-21).
   - Level 2, the screen (the action selector, the form title): 18px, weight 500.
   - Level 3, sections ("היסטוריית…", "פעולות", "מידע נוסף", the form blocks): 16px, regular, with no exceptions.
+  - The heading elements follow the same levels for screen readers: the trainee `h2`, the screen `h3`, the sections `h3`–`h4` (`SectionHeadingLevelProvider` sets the level by frame; on mobile the default stays `h2`). The look comes from the classes, not the level.
 - **Navigation inside the drawer:** the drawer's X is its only X and closes the whole drawer. Every inner screen (a history, a form) goes back with a back arrow at the start of its top row. The top row holds navigation only; a screen's primary action sits at the end of its section title row (e.g. the create button of a history).
 - **Motion:** screens slide inside the drawer, the outgoing one too ([00 §2.4](specs/00_foundations.md), [02 §8.5](specs/02_child_actions.md)).
 - **Forms:**
   - The same two-column grid as on mobile: short fields (dates, times, duration) take half a row; the others take a full row.
   - There are no desktop-only field widths (decided 2026-10-19: fields of varying widths read as disorder, and a full-width short field does not fit either).
 - **Buttons:** the library's regular size on desktop; `size="large"` (48px, touch) is for mobile only.
-- **Button pairs:** the secondary action is at the start (right) and the primary at the end (left), in every pair: the form footer ("ביטול" | "שמירה") and confirmations ("המשך עריכה" | "יציאה ללא שמירה"). In a confirmation of a destructive action:
+- **Button pairs:** the secondary action is at the start (right) and the primary at the end (left), in every pair: the form footer ("ביטול" | "שמירה"), confirmations ("המשך עריכה" | "יציאה ללא שמירה") and the file upload's actions ("נקה הכל" | "שמור קבצים"). In a confirmation of a destructive action:
   - the least destructive button gets the initial focus (WAI-ARIA APG);
   - the destructive one is contained in the error color.
+- **Confirmation dialog** (decided 2026-10-21, at the usage): the pair aligned to the end (left), the dialog convention; 24px from the edges, like the text; both buttons the same height (an outlined button is taller than a contained one by its border, so the row stretches them); the title 18, like the sheet titles.
+- **Reduced motion:** with "reduce motion" the drawer and the dialog open and close without a transition, like the screens inside the drawer.

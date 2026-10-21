@@ -1,9 +1,12 @@
 import { useEffect, useId, useRef, type MutableRefObject, type ReactNode } from "react";
 import { IpsIconButton } from "ui-library";
 import AppIcon from "@/shared/components/AppIcon";
+import { SectionHeadingLevelProvider } from "@/shared/components/SectionHeading";
 import { useIsFormLayerLeaving } from "./drawerFormLeaving";
 import { DRAWER_FORM_TEXTS } from "./drawerFormTexts";
 import { DRAWER_ROW_GUTTER_CLASS, DRAWER_SCROLL_AREA_CLASS } from "./drawerSpacing";
+
+const FORM_SECTION_HEADING_LEVEL = 4;
 
 interface DrawerFormLayerProps {
   title: string;
@@ -48,19 +51,24 @@ export default function DrawerFormLayer({ title, onClose, footer, children }: Dr
       tabIndex={-1}
       className="flex min-h-0 flex-1 flex-col outline-none"
     >
-      <div className={`flex shrink-0 items-center gap-2 border-b border-divider py-3 ${DRAWER_ROW_GUTTER_CLASS}`}>
+      {/* בלי קו מתחת לשורה: קו רק מתחת לכותרת המגירה ומעל הפוטר (design.md › Side drawer) */}
+      <div className={`flex shrink-0 items-center gap-2 py-3 ${DRAWER_ROW_GUTTER_CLASS}`}>
         <IpsIconButton
           edge="start"
           icon={<AppIcon name="back" />}
           aria-label={DRAWER_FORM_TEXTS.backWithoutSaving}
+          tooltip={DRAWER_FORM_TEXTS.backWithoutSaving}
           onClick={onClose}
         />
-        <h3 id={titleId} className="min-w-0 truncate text-lg font-medium text-text-primary">
+        <h3 id={titleId} title={title} className="min-w-0 truncate text-lg font-medium text-text-primary">
           {title}
         </h3>
       </div>
 
-      <div className={`min-h-0 flex-1 ${DRAWER_SCROLL_AREA_CLASS}`}>{children}</div>
+      {/* הבלוקים של הטופס מתחת לכותרת הטופס (h3), שמתחת לשם החניך (h2) */}
+      <div className={`min-h-0 flex-1 ${DRAWER_SCROLL_AREA_CLASS}`}>
+        <SectionHeadingLevelProvider level={FORM_SECTION_HEADING_LEVEL}>{children}</SectionHeadingLevelProvider>
+      </div>
 
       <div className={`shrink-0 border-t border-divider py-3 ${DRAWER_ROW_GUTTER_CLASS}`}>{footer}</div>
     </section>

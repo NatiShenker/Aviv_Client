@@ -6,7 +6,12 @@ import { prefersReducedMotion } from "@/utils/dom";
 import { TRAINEE_ACTIONS_TEXTS } from "../traineeActionsTexts";
 import DrawerActionHistoryScreen from "./DrawerActionHistoryScreen";
 import DrawerActionsScreen from "./DrawerActionsScreen";
-import { ACTIONS_SCREEN, drawerScreenKeyOf, type TraineeDrawerScreen } from "./traineeDrawerScreens";
+import {
+  ACTIONS_SCREEN,
+  drawerScreenKeyOf,
+  type DrawerActionKey,
+  type TraineeDrawerScreen,
+} from "./traineeDrawerScreens";
 
 const TEXTS = TRAINEE_ACTIONS_TEXTS;
 
@@ -32,6 +37,8 @@ export default function DrawerScreens({ trainee, initialScreen, onRecordSaved }:
   });
   // בפתיחה הפוקוס בכותרת המגירה; רק מעבר מסך מעביר אותו למסך החדש
   const [hasNavigated, setHasNavigated] = useState(false);
+  // הפעולה שממנה חזרו למסך הפעולות - השורה שלה מקבלת את הפוקוס, ולא המסך כולו
+  const [returnedFromActionKey, setReturnedFromActionKey] = useState<DrawerActionKey | null>(null);
 
   const navigate = (nextScreen: TraineeDrawerScreen, direction: DrawerSlideDirection) => {
     // בלי החלקה, או בהעדפת "הפחתת תנועה" - המסך הקודם יורד מיד
@@ -44,6 +51,11 @@ export default function DrawerScreens({ trainee, initialScreen, onRecordSaved }:
     setHasNavigated(true);
   };
 
+  const goBackToActions = (fromActionKey: DrawerActionKey) => {
+    setReturnedFromActionKey(fromActionKey);
+    navigate(ACTIONS_SCREEN, "back");
+  };
+
   const finishLeaving = () => {
     setTransition((current) => ({ ...current, leavingScreen: null }));
   };
@@ -51,8 +63,14 @@ export default function DrawerScreens({ trainee, initialScreen, onRecordSaved }:
   const renderScreen = (screen: TraineeDrawerScreen): ReactNode => {
     if (screen.name === "actions") {
       return (
-        <DrawerScreenRegion label={TEXTS.sections.actions} takesFocusOnMount={hasNavigated}>
-          <DrawerActionsScreen onSelectAction={(actionKey) => navigate({ name: "history", actionKey }, "forward")} />
+        <DrawerScreenRegion
+          label={TEXTS.sections.actions}
+          takesFocusOnMount={hasNavigated && returnedFromActionKey === null}
+        >
+          <DrawerActionsScreen
+            onSelectAction={(actionKey) => navigate({ name: "history", actionKey }, "forward")}
+            focusActionKeyOnMount={returnedFromActionKey}
+          />
         </DrawerScreenRegion>
       );
     }
@@ -62,7 +80,7 @@ export default function DrawerScreens({ trainee, initialScreen, onRecordSaved }:
         <DrawerActionHistoryScreen
           actionKey={screen.actionKey}
           trainee={trainee}
-          onBack={() => navigate(ACTIONS_SCREEN, "back")}
+          onBack={() => goBackToActions(screen.actionKey)}
           // החלפת פעולה מחליפה את המסך במקומו, כמו replace במובייל - בלי החלקה
           onSwitchAction={(actionKey) => navigate({ name: "history", actionKey }, "none")}
           onRecordSaved={onRecordSaved}

@@ -79,12 +79,12 @@ Desktop phase 2 (decided 2026-10-19). On desktop the trainee's screens – this 
 
 ### 8.1 Entry from the list
 
-- The whole trainee card opens the drawer on the actions screen. It is a transparent button over the card, named `"פתיחת הפעולות של {name | code}"` **(proposed)**, so the card itself stays as on mobile.
+- The whole trainee card opens the drawer on the actions screen. It is a transparent button over the card, named `"פתיחת הפעולות של {name}, {code}"` **(proposed)**, so the card itself stays as on mobile. The accessible names use a comma, not `"|"`, which a screen reader reads as "vertical bar" (decided 2026-10-21).
 - Card states:
   - hover: `border-strong` frame and a pointer cursor;
   - keyboard focus: a ring;
-  - the trainee whose drawer is open: `primary` frame.
-- **⋮ menu** (built 2026-10-19, as in the sketch): a ⋮ button next to the card's status badge, named `"פעולות עבור {name | code}"` **(proposed)**. It sits above the card's transparent button, which comes first in the tab order.
+  - the trainee whose drawer is open: `primary` frame and a 1px `primary` ring (decided 2026-10-21).
+- **⋮ menu** (built 2026-10-19, as in the sketch): a ⋮ button at the card's top end (after the status badge, when there is one), named `"פעולות עבור {name}, {code}"` **(proposed)**. It sits above the card's transparent button, which comes first in the tab order.
   - The menu lists the permitted actions that have a drawer screen; each one opens the drawer straight on its history. Then a divider and `"כל הפעולות"` **(proposed)**, which opens the drawer on the actions screen.
   - While the permissions load, after a load error, or with no permitted action, the menu has only `"כל הפעולות"`; the actions screen shows the matching state (§7).
   - Arrow keys move between the items; Escape closes the menu and returns focus to ⋮. The drawer opens after the menu has closed, so closing the drawer returns focus to ⋮.
@@ -101,15 +101,17 @@ Desktop phase 2 (decided 2026-10-19). On desktop the trainee's screens – this 
 The top level of the drawer's text hierarchy ([design.md](../design.md) › Side drawer); enlarged on 2026-10-19:
 
 - The trainee photo (60px, as on the card).
-- Next to it, `"{name} | {code}"` as the drawer's title (20px, weight 500; it also names the drawer), and below it the card's status badge (`"פעיל"` / `"מוגבל עד DD/MM"`, [01](01_children_list.md)).
-- At the end, aligned to the top, an X `"סגירה"` **(proposed)** – the drawer's only X.
-- The trainee comes from the trainees list that is already loaded. A trainee who is no longer in the list shows `"החניך לא נמצא"` under the header.
+- Next to it, the trainee's name as the drawer's title (20px, weight 500, truncated with the full name in a tooltip; it also names the drawer), and the personal number under it (14px, `text-secondary`) – the same order as the card. No status badge (decided 2026-10-21; before it the title was `"{name} | {code}"` with the badge below).
+- At the end, aligned to the top, an X `"סגירה"` **(proposed)** with a tooltip – the drawer's only X.
+- The trainee comes from the trainees list that is already loaded. A trainee who is no longer in the list shows `"החניך לא נמצא"` under the header; the same text names the drawer (a hidden title).
 
 ### 8.4 Actions screen
 
 The sections of §3.2–§3.3: `"פעולות"` with the permitted actions, and `"מידע נוסף"` with `"היסטוריית דקות"` disabled ([OQ-08](../pending-decisions.md#oq-08)). The sketch's tabs are not used.
 
 - The rows sit on the drawer's white surface, so they get a 1px `divider` frame (`border-strong` on hover). They show the same description lines as on mobile; the card's ⋮ menu (§8.1) shows the labels only.
+- The sections have **no inset** on desktop (decided 2026-10-21): the mobile 4px inset aligns the rows to the back arrow of the page header, and the drawer's actions screen has no back arrow – its photo sits on the content line. The section titles are `h3`, under the trainee's name (`h2`).
+- The rows keep the 12px padding of mobile (decided 2026-10-21): relative to their denser text (label 16, description 12) it is the same proportion as the history cards' 16.
 - An action opens its history screen in the drawer ([00 §4.4](00_foundations.md)).
 - The permission states are those of §7.
 
@@ -117,7 +119,7 @@ The sections of §3.2–§3.3: `"פעולות"` with the permitted actions, and 
 
 - The screens change inside the drawer, and each new screen starts at its top.
 - **Motion** (decided 2026-10-19, [00 §2.4](00_foundations.md)): both screens move. Forward (an action, or opening a form), the new screen slides in from the left while the old one is pushed out to the right; back (the back arrow, or closing a form), the reverse. Switching the action in the selector replaces the screen without a slide. With "reduce motion" there is no animation.
-- After a screen change, focus moves to the new screen, so a screen reader announces it.
+- After a screen change, focus moves to the new screen, so a screen reader announces it. Going back to the actions screen moves focus to the row of the action the user came from (decided 2026-10-21), so the keyboard continues from there.
 - Focus stays inside the drawer.
 - **Escape** closes the drawer, except:
   - inside a text field, where it belongs to the field (e.g. to clear the search);
@@ -138,4 +140,4 @@ The sections of §3.2–§3.3: `"פעולות"` with the permitted actions, and 
 
 ### 8.7 After a save
 
-The trainees list behind the drawer refreshes silently ([01 §8.2](01_children_list.md)), so the header's status badge is up to date too.
+The trainees list behind the drawer refreshes silently ([01 §8.2](01_children_list.md)), so its cards' status badges are up to date too. The save toast appears at the bottom left, next to the drawer; the drawer is modal and hides the toast from screen readers, so the same message is also announced inside the drawer (decided 2026-10-21).

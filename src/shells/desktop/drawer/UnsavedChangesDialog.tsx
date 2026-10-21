@@ -1,7 +1,21 @@
 import { IpsButton, IpsDialog } from "ui-library";
+import { prefersReducedMotion } from "@/utils/dom";
 import { DRAWER_FORM_TEXTS } from "./drawerFormTexts";
 
 const TEXTS = DRAWER_FORM_TEXTS.unsavedChanges;
+
+const NO_TRANSITION_MS = 0;
+
+/*
+ * התאמות במקום השימוש - IpsDialog קיים בספרייה לפני אביב, ולכן הוא לא משתנה (design.md › Button pairs):
+ * - הכפתורים באותו ריווח מהשוליים כמו הטקסט (24), ולא 8;
+ * - שני הכפתורים באותו גובה: כפתור מתאר גבוה מכפתור מלא בעובי המסגרת שלו, ולכן הם נמתחים לגובה השורה;
+ * - הכותרת 18, כמו כותרות הגיליונות - לא 20, הגודל של שם החניך בכותרת המגירה
+ */
+const DIALOG_SX = {
+  "& .ips-dialog-title": { fontSize: "18px" },
+  "& .ips-dialog-actions": { px: 3, pb: 3, alignItems: "stretch" },
+} as const;
 
 interface UnsavedChangesDialogProps {
   open: boolean;
@@ -24,6 +38,9 @@ export default function UnsavedChangesDialog({ open, onKeepEditing, onLeaveWitho
       showCloseButton={false}
       maxWidth="xs"
       fullWidth
+      sx={DIALOG_SX}
+      // בהעדפת "הפחתת תנועה" - בלי אנימציית פתיחה וסגירה
+      transitionDuration={prefersReducedMotion() ? NO_TRANSITION_MS : undefined}
       actions={
         <>
           <IpsButton variant="outlined" autoFocus onClick={onKeepEditing}>

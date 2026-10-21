@@ -31,7 +31,7 @@ export interface RecordHistoryState<TRecord, TRecordKey> {
 
 /**
  * המצב של מסך היסטוריה, בלי תצוגה ובלי ניווט: חיפוש, מיון, מגירת המיון,
- * הכרטיס הפתוח והרשומה שנשמרה
+ * הכרטיסים הפתוחים והרשומה שנשמרה
  */
 export function useRecordHistoryState<TRecord, TRecordKey extends string | number>({
   records,
@@ -41,8 +41,9 @@ export function useRecordHistoryState<TRecord, TRecordKey extends string | numbe
   const [searchQuery, setSearchQuery] = useState("");
   const [sort, setSort] = useState(DEFAULT_HISTORY_SORT_OPTION);
   const [isSortOpen, setIsSortOpen] = useState(false);
-  // רק כרטיס אחד פתוח בכל רגע
-  const [openRecordKey, setOpenRecordKey] = useState<TRecordKey | null>(null);
+  // כל כרטיס נפתח ונסגר בעצמו, וכמה יכולים להיות פתוחים יחד: פתיחת כרטיס לא סוגרת אחר, כדי שהכרטיס שנלחץ
+  // לא יקפוץ למעלה כשכרטיס פתוח מעליו נסגר, ושאפשר יהיה להשוות בין רשומות (ספק 00 §3.22, הוחלט 2026-10-21)
+  const [openRecordKeys, setOpenRecordKeys] = useState<ReadonlySet<TRecordKey>>(() => new Set());
   const revealSavedRecord = useRevealSavedRecord(records.data);
 
   const recordList = records.data ?? NO_RECORDS;
@@ -52,13 +53,22 @@ export function useRecordHistoryState<TRecord, TRecordKey extends string | numbe
   );
 
   const toggleRecord = (recordKey: TRecordKey) => {
-    setOpenRecordKey((currentKey) => (currentKey === recordKey ? null : recordKey));
+    setOpenRecordKeys((currentKeys) => {
+      const nextKeys = new Set(currentKeys);
+      if (nextKeys.has(recordKey)) {
+        nextKeys.delete(recordKey);
+      } else {
+        nextKeys.add(recordKey);
+      }
+      return nextKeys;
+    });
   };
 
   // אחרי שמירה: ההיסטוריה מתרעננת ברקע, והרשומה שנשמרה נפתחת וגלויה כשהנתונים החדשים מגיעים (ספק 00 §4.1).
+  // הכרטיסים שכבר היו פתוחים נשארים פתוחים.
   // בלי שלד: הכרטיסים הקיימים נשארים עד אז, וכשל ברענון משאיר אותם - בלי הודעת שגיאה מיד אחרי שמירה שהצליחה
   const showSavedRecord = (savedRecordKey: TRecordKey) => {
-    setOpenRecordKey(savedRecordKey);
+    setOpenRecordKeys((currentKeys) => new Set(currentKeys).add(savedRecordKey));
     revealSavedRecord(cardDomIdOf(savedRecordKey));
     records.refreshInBackground();
   };
@@ -72,7 +82,7 @@ export function useRecordHistoryState<TRecord, TRecordKey extends string | numbe
     openSort: () => setIsSortOpen(true),
     closeSort: () => setIsSortOpen(false),
     visibleRecords,
-    isRecordOpen: (recordKey) => openRecordKey === recordKey,
+    isRecordOpen: (recordKey) => openRecordKeys.has(recordKey),
     toggleRecord,
     showSavedRecord,
   };

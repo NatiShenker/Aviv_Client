@@ -4,30 +4,22 @@ import { TRAINEE_TEXTS } from "./traineeTexts";
 
 const TEXTS = TRAINEE_TEXTS.statusBadge;
 
-const BADGE_STYLES = {
-  active: { container: "bg-success-soft text-success", dot: "bg-success" },
-  restricted: { container: "bg-error-soft text-error", dot: "bg-error" },
-} as const;
-
 interface TraineeStatusBadgeProps {
-  /** תאריך הסיום של ההגבלה הפעילה, או null כשאין הגבלה */
-  restrictedUntilDate: ISODateString | null;
+  /** תאריך הסיום של ההגבלה הפעילה */
+  restrictedUntilDate: ISODateString;
 }
 
-/** תגית "פעיל", או "מוגבל עד DD/MM" כשיש הגבלה פעילה - בכרטיס החניך ובכותרת המגירה */
+/**
+ * תגית "מוגבל עד DD/MM" בכרטיס החניך. מוצגת רק כשיש הגבלה פעילה: חניך בלי הגבלה הוא המצב הרגיל,
+ * ולכן אין לו תגית - כך החניכים המוגבלים בולטים ברשימה (הוחלט 2026-10-21)
+ */
 export default function TraineeStatusBadge({ restrictedUntilDate }: TraineeStatusBadgeProps) {
-  const styles = restrictedUntilDate ? BADGE_STYLES.restricted : BADGE_STYLES.active;
-
   return (
-    <span className={`flex h-6 shrink-0 items-center gap-1.5 rounded-full px-2 text-xs ${styles.container}`}>
-      <span aria-hidden="true" className={`size-1.5 rounded-full ${styles.dot}`} />
-      {restrictedUntilDate ? (
-        <span>
-          {TEXTS.restrictedUntil} <span dir="ltr">{formatDayMonth(restrictedUntilDate)}</span>
-        </span>
-      ) : (
-        <span>{TEXTS.active}</span>
-      )}
+    <span className="flex h-6 shrink-0 items-center gap-1.5 rounded-full bg-error-soft px-2 text-xs text-error">
+      <span aria-hidden="true" className="size-1.5 rounded-full bg-error" />
+      <span>
+        {TEXTS.restrictedUntil} <span dir="ltr">{formatDayMonth(restrictedUntilDate)}</span>
+      </span>
     </span>
   );
 }
