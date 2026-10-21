@@ -11,7 +11,7 @@ function selectedLabelsOf(options: FieldOption[], selectedValues: FieldOptionVal
 
 /**
  * בחירה מרובה בדסקטופ: IpsSelect multiple (רשימה עם תיבות סימון, וכותרות קבוצה), עם התווית מעל השדה.
- * הערך הסגור לפי formatSelection של הטופס - למשל שם מכשיר אחד, או "{n} מכשירים"
+ * הערך הסגור לפי formatSelection של הטופס - למשל שם מכשיר אחד, או "{n} מכשירים" - ובלי בחירה ה-placeholder
  */
 export default function DesktopMultiSelectField({
   id,
@@ -24,12 +24,14 @@ export default function DesktopMultiSelectField({
   value,
   onChange,
   formatSelection,
+  placeholder,
 }: MultiSelectFieldProps) {
   const labelId = useId();
 
+  // renderValue שלנו מחליף את זה של IpsSelect, ולכן גם ה-placeholder מוצג כאן
   const renderSelection = () => {
     const selectedLabels = selectedLabelsOf(options, value);
-    if (selectedLabels.length === 0) return "";
+    if (selectedLabels.length === 0) return placeholder ?? "";
     return formatSelection ? formatSelection(selectedLabels) : selectedLabels.join(DEFAULT_SELECTION_SEPARATOR);
   };
 
@@ -44,6 +46,8 @@ export default function DesktopMultiSelectField({
         options={options}
         // IpsSelect מקבל מערך מסוג אחד; הערכים בטופס מסוג אחד (למשל מזהי מכשירים)
         value={value as number[]}
+        // עם placeholder הפקד קורא ל-renderValue גם כשלא נבחר כלום (displayEmpty)
+        placeholder={placeholder}
         renderValue={renderSelection}
         error={error}
         helperText={helperText}

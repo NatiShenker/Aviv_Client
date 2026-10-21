@@ -32,7 +32,9 @@ export default function VoiceMessageCard({ record, isOpen, onToggle, onEdit, onC
       icon="voiceMessage"
       iconTone="info"
       summaryTitle={title}
-      summaryMeta={<RecordPeriodSummary record={record} activeLabel={CARD_TEXTS.activeBadge} />}
+      summaryMeta={
+        <RecordPeriodSummary record={record} activeLabel={CARD_TEXTS.activeBadge} endedLabel={CARD_TEXTS.endedBadge} />
+      }
       details={buildVoiceMessageDetails(record)}
       isOpen={isOpen}
       onToggle={onToggle}

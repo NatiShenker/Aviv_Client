@@ -1,5 +1,6 @@
 import { IpsButton } from "ui-library";
 import AppIcon from "@/shared/components/AppIcon";
+import { EXPANDED_TOUCH_TARGET_SX } from "@/shared/components/touchTarget";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../../numberRestrictionsTexts";
 import type { NumberRecordFormController } from "../useNumberRecordForm";
 import SourceRestrictionPicker, { type SourceRestrictionOptionsListComponent } from "./SourceRestrictionPicker";
@@ -42,7 +43,13 @@ function NoRestrictionsCard({ onRestrictNumber }: NoRestrictionsCardProps) {
     <div className="mt-4 rounded-card border border-divider bg-paper p-4 motion-safe:animate-fade-in">
       <p className="text-sm text-text-primary">{TEXTS.text}</p>
       <div className="mt-2">
-        <IpsButton variant="text" size="small" endIcon={<AppIcon name="chevronLeft" />} onClick={onRestrictNumber}>
+        <IpsButton
+          variant="text"
+          size="small"
+          endIcon={<AppIcon name="chevronLeft" />}
+          sx={EXPANDED_TOUCH_TARGET_SX}
+          onClick={onRestrictNumber}
+        >
           {TEXTS.restrictNumber}
         </IpsButton>
       </div>

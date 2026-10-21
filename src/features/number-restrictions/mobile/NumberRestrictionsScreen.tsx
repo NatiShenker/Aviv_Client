@@ -3,7 +3,7 @@ import RecordHistoryPage from "@/features/records/mobile/RecordHistoryPage";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import NumberRestrictionsHistory from "./NumberRestrictionsHistory";
 
-/** היסטוריית "הגבלה/היתר למספר" של חניך אחד, וטופס ההגבלה / ההיתר במסך מלא מעליה (ספק 04) */
+/** היסטוריית "הגבלות והיתרים למספר" של חניך אחד, וטופס ההגבלה / ההיתר במסך מלא מעליה (ספק 04) */
 export default function NumberRestrictionsScreen() {
   return (
     <RecordHistoryPage

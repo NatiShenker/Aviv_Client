@@ -8,11 +8,11 @@ import type {
 import { FORM_TEXTS } from "../formTexts";
 
 /*
- * "סיבות והחלטה" (ספק 00 §4.3): זהה בכל הטפסים, חוץ מרשימת הסיבות.
+ * "סיבות ואישורים" (ספק 00 §4.3): זהה בכל הטפסים, חוץ מרשימת הסיבות.
  * כל ארבעת השדות חובה בכל הטפסים - סיבה, פירוט, גורם מאשר וקובץ (הוחלט 2026-10-19).
  */
 
-/** ערכי בלוק "סיבות והחלטה" - זהים בכל הטפסים, חוץ מרשימת הסיבות */
+/** ערכי בלוק "סיבות ואישורים" - זהים בכל הטפסים, חוץ מרשימת הסיבות */
 export interface DecisionValues {
   reasonId: number | null;
   details: string;
@@ -87,7 +87,7 @@ export function decisionErrorSlotsFor(update: Partial<DecisionValues>): Decision
   return (Object.keys(update) as (keyof DecisionValues)[]).map((fieldName) => DECISION_FIELD_ERROR_SLOT[fieldName]);
 }
 
-/** "סיבות והחלטה" אחרי ולידציה: השדות החובה מלאים */
+/** "סיבות ואישורים" אחרי ולידציה: השדות החובה מלאים */
 export interface ValidatedDecision {
   reasonId: number;
   reasonName: string;
@@ -95,7 +95,7 @@ export interface ValidatedDecision {
   approvedFileId: number;
 }
 
-/** השדות של "סיבות והחלטה" לשליחה, או null אם שדה חובה עדיין ריק */
+/** השדות של "סיבות ואישורים" לשליחה, או null אם שדה חובה עדיין ריק */
 export function toValidatedDecision(values: DecisionValues, reasons: LookupItem<number>[]): ValidatedDecision | null {
   if (values.reasonId === null || values.approver === null || values.approvedFile === null) return null;
 

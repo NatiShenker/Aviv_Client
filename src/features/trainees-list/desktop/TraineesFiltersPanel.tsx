@@ -65,7 +65,7 @@ export default function TraineesFiltersPanel({
           disabled={isDisabled || activeFilterCount === 0}
           onClick={onClearFilters}
         >
-          {PANEL_TEXTS.clearFilters(activeFilterCount)}
+          {PANEL_TEXTS.clearFilters}
         </IpsButton>
       </div>
 

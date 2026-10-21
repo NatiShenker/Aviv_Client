@@ -7,7 +7,8 @@ import LimitTypeSelector from "./LimitTypeSelector";
 
 interface CallDetailsBlockProps {
   title: string;
-  dateRangeDescription: string;
+  /** שורת ההסבר של טווח התאריכים. בלעדיה - רק הכותרת */
+  dateRangeDescription?: string;
   ruleKind: CallRuleKind;
   values: CallConditionsValues;
   touchedDates: TouchedDates;

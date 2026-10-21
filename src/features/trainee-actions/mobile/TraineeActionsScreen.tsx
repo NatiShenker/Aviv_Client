@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useRouteTrainee } from "@/features/trainee/mobile/useRouteTrainee";
-import { buildTraineeDisplayName } from "@/features/trainee/traineeDisplay";
 import { TRAINEE_TEXTS } from "@/features/trainee/traineeTexts";
+import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
 import AppPage from "@/shells/mobile/AppPage";
 import { useScrollToTopOnOpen } from "@/shells/mobile/navigation/useScrollToTopOnOpen";
@@ -28,10 +28,11 @@ export default function TraineeActionsScreen() {
   );
 }
 
-// השם והמספר מגיעים מרשימת החניכים. עד שהם מגיעים (או אם הטעינה נכשלה) הכותרת ריקה והתפריט עובד (ספק 02 §7)
+// השם והמספר מגיעים מרשימת החניכים. עד שהם מגיעים (או אם הטעינה נכשלה) הכותרת ריקה והתפריט עובד (ספק 02 §7).
+// כמו בכרטיס: השם ככותרת והמספר בשורה מתחתיו - אותו מבנה כותרת כמו בהיסטוריה ובטופס
 function TraineeActionsContent() {
   const { traineeId, trainee } = useRouteTrainee();
-  const header = <PageHeader title={trainee.data ? buildTraineeDisplayName(trainee.data) : ""} />;
+  const header = <PageHeader title={trainee.data?.fullName ?? ""} subtitle={trainee.data?.traineeCode} />;
 
   // חניך שכבר לא ברשימת הפנימייה (הרשימה נטענת מחדש אחרי שינוי נתונים)
   if (traineeId === null || trainee.status === "empty") {
@@ -64,18 +65,18 @@ function MobileActionRow({ item, traineeId }: MobileActionRowProps) {
   if (path === null) {
     return <DisabledActionRow label={item.label} icon={item.icon} />;
   }
-  return <ActionLinkRow label={item.label} icon={item.icon} to={path} />;
+  return <ActionLinkRow label={item.label} description={item.description} icon={item.icon} to={path} />;
 }
 
 interface ActionLinkRowProps extends ActionRowContentProps {
   to: string;
 }
 
-/** שורה שמובילה לעמוד של הפעולה */
-function ActionLinkRow({ label, icon, to }: ActionLinkRowProps) {
+/** שורה שמובילה לעמוד של הפעולה. מוכהית ברגע הנגיעה, עד שהמסך הבא נכנס */
+function ActionLinkRow({ label, description, icon, to }: ActionLinkRowProps) {
   return (
-    <Link to={to} className={`${ACTION_ROW_CLASS} text-text-primary`}>
-      <ActionRowContent label={label} icon={icon} />
+    <Link to={to} className={`${ACTION_ROW_CLASS} text-text-primary active:bg-grey-50 ${FOCUS_RING_CLASS}`}>
+      <ActionRowContent label={label} description={description} icon={icon} />
     </Link>
   );
 }

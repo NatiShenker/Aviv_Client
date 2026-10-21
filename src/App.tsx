@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { IpsThemeProvider, IpsToastProvider, TOAST_TYPES, useToast } from "ui-library";
 import DesktopRoutes from "./DesktopRoutes";
 import { INSTITUTES_TEXTS } from "./features/institutes/institutesTexts";
 import AppErrorBoundary from "./infrastructure/errors/AppErrorBoundary";
 import MobileRoutes from "./MobileRoutes";
+import { STICKY_ACTION_BAR_HEIGHT_PX } from "./shells/mobile/screenSpacing";
 import { InstitutesProvider, useInstitutes } from "./store/institutesContext";
 import { PlatformProvider, usePlatform } from "./store/platformContext";
 
@@ -11,14 +12,14 @@ export default function App() {
   return (
     <IpsThemeProvider>
       <PlatformProvider>
-        <IpsToastProvider>
+        <LayoutToastProvider>
           <AppErrorBoundary>
             <InstitutesProvider>
               <PermissionsFailureWarning />
               <LayoutRoutes />
             </InstitutesProvider>
           </AppErrorBoundary>
-        </IpsToastProvider>
+        </LayoutToastProvider>
       </PlatformProvider>
     </IpsThemeProvider>
   );
@@ -31,6 +32,24 @@ export default function App() {
 function LayoutRoutes() {
   const { layout } = usePlatform();
   return layout === "desktop" ? <DesktopRoutes /> : <MobileRoutes />;
+}
+
+// ההודעות למטה, ליד המקום שבו המשתמש לחץ (כמו snackbar). במובייל - מעל פס הפעולה שבתחתית המסך,
+// ולא עליו (למשל "הוספת הגבלה" מיד אחרי שמירה); בדסקטופ - במרחק ברירת המחדל של הספרייה
+const TOAST_GAP_ABOVE_ACTION_BAR_PX = 8;
+const TOAST_PLACEMENT_BY_LAYOUT = {
+  mobile: { position: "bottom-right", bottomOffset: STICKY_ACTION_BAR_HEIGHT_PX + TOAST_GAP_ABOVE_ACTION_BAR_PX },
+  desktop: { position: "bottom-right", bottomOffset: undefined },
+} as const;
+
+function LayoutToastProvider({ children }: { children: ReactNode }) {
+  const { layout } = usePlatform();
+  const { position, bottomOffset } = TOAST_PLACEMENT_BY_LAYOUT[layout];
+  return (
+    <IpsToastProvider position={position} bottomOffset={bottomOffset}>
+      {children}
+    </IpsToastProvider>
+  );
 }
 
 /**

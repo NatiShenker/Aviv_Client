@@ -1,7 +1,8 @@
-// רווח קשיח, כדי ש"עד X דק'" לא יישבר בין שורות (ספק 00 §5)
+// רווח קשיח, כדי ש"עד X דק׳" לא יישבר בין שורות (ספק 00 §5)
 const NO_BREAK_SPACE = " ";
 
-const durationUpTo = (minutes: number) => `עד${NO_BREAK_SPACE}${minutes}${NO_BREAK_SPACE}דק'`;
+// גרש עברי (׳), כמו ביחידה שבשדה המשך
+const durationUpTo = (minutes: number) => `עד${NO_BREAK_SPACE}${minutes}${NO_BREAK_SPACE}דק׳`;
 
 /** טקסטים משותפים לתנאי השיחה בהגבלות ובהיתרים: ערכי תצוגה והודעות ולידציה (ספק 00 §5, ספק 03-04 §5) */
 export const CALL_CONDITIONS_TEXTS = {
@@ -17,11 +18,11 @@ export const CALL_CONDITIONS_TEXTS = {
   typeLabels: {
     restriction: {
       full: "הגבלה מלאה",
-      limited: (minutes: number) => `הגבלת משך שיחה – ${durationUpTo(minutes)}`,
+      limited: (minutes: number) => `הגבלת משך שיחה - ${durationUpTo(minutes)}`,
     },
     permit: {
       full: "היתר מלא",
-      limited: (minutes: number) => `היתר עם הגבלת משך – ${durationUpTo(minutes)}`,
+      limited: (minutes: number) => `היתר עם הגבלת משך - ${durationUpTo(minutes)}`,
     },
   },
 

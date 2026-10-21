@@ -78,7 +78,7 @@ export const APP_ICONS: Record<AppIconName, AppIconSource> = {
   clock: AccessTimeIcon,
   add: AddIcon,
   edit: EditOutlinedIcon,
-  // "צור … חדשה על בסיס זו" ברשומה שהסתיימה
+  // "יצירת … דומה" ברשומה שהסתיימה
   copy: ContentCopyOutlinedIcon,
   file: InsertDriveFileOutlinedIcon,
   phone: PhoneOutlinedIcon,

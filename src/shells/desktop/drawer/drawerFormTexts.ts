@@ -4,9 +4,9 @@ export const DRAWER_FORM_TEXTS = {
 
   // יציאה מהמגירה כשבטופס יש שינויים. מוצעים - ממתינים לאישור (pending-decisions)
   unsavedChanges: {
-    title: "לצאת בלי לשמור?",
+    title: "לצאת ללא שמירה?",
     message: "השינויים בטופס לא יישמרו.",
     keepEditing: "המשך עריכה",
-    leaveWithoutSaving: "יציאה בלי שמירה",
+    leaveWithoutSaving: "יציאה ללא שמירה",
   },
 } as const;

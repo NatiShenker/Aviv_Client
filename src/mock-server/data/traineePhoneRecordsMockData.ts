@@ -19,7 +19,7 @@ import {
 } from "./traineesMockData";
 
 /*
- * רשומות "הגבלה/היתר למספר" של החניכים (ספק 04).
+ * רשומות "הגבלות והיתרים למספר" של החניכים (ספק 04).
  * להגבלות ולהיתרים יש טבלאות נפרדות, ולכן גם רצפי מזהים נפרדים - אותו מזהה יכול להופיע בשניהם.
  *
  * חניך ההדגמה (הראשון בפנימיית הדר) מקבל את התרחישים של ספק 04 overview §8, ועוד רשומות
@@ -103,7 +103,7 @@ const DEMO_RESTRICTION_SEEDS: RestrictionSeed[] = [
 
 /** היתרים של חניך ההדגמה על הגבלות ארציות, לפי מזהה ההגבלה */
 const DEMO_GLOBAL_PERMIT_SEEDS: (PermitSeed & { restrictionId: number })[] = [
-  // ספק 04 overview §8: "16:00-19:00 · עד 15 דק'"
+  // ספק 04 overview §8: "16:00-19:00 · עד 15 דק׳"
   {
     trainee: DEMO_TRAINEE,
     restrictionId: GLOBAL_RESTRICTION_IDS.demoNational,
@@ -275,7 +275,7 @@ function showcasePermitSeeds(trainee: TraineeMockRecord, rank: number): (PermitS
     terms: showcaseTerms(1),
     reason: reasonFor(rank),
   };
-  // היתר שהסתיים על הגבלה שגם היא הסתיימה - "על בסיס זה" לא ימצא הגבלה פעילה למספר
+  // היתר שהסתיים על הגבלה שגם היא הסתיימה - "יצירת היתר דומה" לא ימצא הגבלה פעילה למספר
   const endedOnEndedRestrictionSeed = {
     trainee,
     restrictionId: GLOBAL_RESTRICTION_IDS.demoEndedNational,

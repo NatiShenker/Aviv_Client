@@ -107,6 +107,12 @@ module.exports = ({ sviva, mode }) => {
 					}
 				},
 				{
+					// קובץ תמונה שמיובא בקוד (כרגע תמונת החניך של המוק, ב-src/assets) נכתב לתיקיית הבנייה, והייבוא מחזיר את הכתובת שלו.
+					// יכולת מובנית של webpack 5, בלי loader נוסף
+					test: /\.png$/i,
+					type: "asset/resource"
+				},
+				{
 					test: /\.css$/,
 					use: [
 						{ loader: "style-loader", options: { insert: 'head' } },

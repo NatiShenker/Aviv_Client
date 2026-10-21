@@ -41,6 +41,7 @@ import {
   handleGetTraineeRestrictions,
   handleUpdateTraineeRestriction,
 } from "./handlers/traineeRestrictionsHandlers";
+import { MISSING_PHOTO_URL } from "./data/traineePhotosMockData";
 import { handleGetTrainees, resolveTraineePhotoUri } from "./handlers/traineesHandlers";
 import {
   handleCreateTraineeVoiceMessage,
@@ -216,7 +217,9 @@ function createEmptyMutationResult(): MutationResultDto {
 const MOCK_RESOURCE_ROUTES: MockResourceRoute[] = [
   {
     url: SERVICE_ENDPOINTS.trainees.getTraineePhoto,
+    scenarioKey: "traineePhotos",
     resolveUri: resolveTraineePhotoUri,
+    unavailableUri: MISSING_PHOTO_URL,
   },
 ];
 

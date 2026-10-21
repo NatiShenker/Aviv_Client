@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
+import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
 import LoadMoreSentinel from "@/shared/components/LoadMoreSentinel";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useIncrementalList } from "@/shared/hooks/useIncrementalList";
@@ -73,7 +74,8 @@ function TraineeCards({ trainees, restoredVisibleCount, onVisibleCountChange }: 
       <ul className="flex flex-col gap-3 px-5">
         {visibleItems.map((trainee) => (
           <li key={trainee.id}>
-            <Link to={ROUTES.traineeActions(trainee.id)} className="block">
+            {/* group: הכרטיס מוכהה ברגע הנגיעה, כדי שירגישו שהמערכת קלטה עד שהמסך הבא נכנס */}
+            <Link to={ROUTES.traineeActions(trainee.id)} className={`group block rounded-card ${FOCUS_RING_CLASS}`}>
               <TraineeCard trainee={trainee} />
             </Link>
           </li>

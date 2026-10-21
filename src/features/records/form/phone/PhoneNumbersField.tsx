@@ -2,6 +2,7 @@ import { useId } from "react";
 import { IpsIconButton } from "ui-library";
 import AppIcon from "@/shared/components/AppIcon";
 import ErrorText from "@/shared/components/form/ErrorText";
+import { EXPANDED_TOUCH_TARGET_SX } from "@/shared/components/touchTarget";
 import type { PhoneString } from "@/types/common.schema";
 import { FORM_TEXTS } from "../formTexts";
 import PhoneInputRow from "./PhoneInputRow";
@@ -20,7 +21,7 @@ interface PhoneNumbersFieldProps {
   onRemove: (phone: PhoneString) => void;
 }
 
-/** כמה מספרים: שדה עם "הוסף", ומתחתיו המספרים שנוספו כצ'יפים עם X להסרה (ספק 00 §3.15) */
+/** כמה מספרים: שדה עם "הוספה", ומתחתיו המספרים שנוספו כצ'יפים עם X להסרה (ספק 00 §3.15) */
 export default function PhoneNumbersField({
   id,
   hint,
@@ -62,6 +63,7 @@ export default function PhoneNumbersField({
               <span dir="ltr">{phone}</span>
               <IpsIconButton
                 size="small"
+                sx={EXPANDED_TOUCH_TARGET_SX}
                 icon={<AppIcon name="close" size="small" />}
                 aria-label={TEXTS.removeNumber(phone)}
                 onClick={() => onRemove(phone)}

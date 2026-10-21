@@ -33,7 +33,13 @@ export default function NumberRecordCard({ record, isOpen, onToggle, onEdit, onC
           <RecordTypeTag type={record.type} />
         </>
       }
-      summaryMeta={<RecordPeriodSummary record={record} activeLabel={CARD_TEXTS.activeBadge[record.type]} />}
+      summaryMeta={
+        <RecordPeriodSummary
+          record={record}
+          activeLabel={CARD_TEXTS.activeBadge[record.type]}
+          endedLabel={CARD_TEXTS.endedBadge[record.type]}
+        />
+      }
       details={buildNumberRecordDetails(record)}
       isOpen={isOpen}
       onToggle={onToggle}

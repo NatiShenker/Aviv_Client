@@ -1,6 +1,7 @@
 import { useId, useMemo, type ComponentType } from "react";
 import { IpsButton } from "ui-library";
 import ErrorText from "@/shared/components/form/ErrorText";
+import { EXPANDED_TOUCH_TARGET_SX } from "@/shared/components/touchTarget";
 import type { SourceRestrictionSummaryDto } from "@/types/phone-exceptions.schema";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../../numberRestrictionsTexts";
 import { NUMBER_RECORD_FIELD_IDS, RESTRICTION_PICKER_HEADING_ID } from "../numberRecordFormLogic";
@@ -53,12 +54,12 @@ export default function SourceRestrictionPicker({ form, SourceRestrictionOptions
           {view.title}
         </h3>
         {view.headerAction === "change" && (
-          <IpsButton variant="text" size="small" onClick={form.openPicker}>
+          <IpsButton variant="text" size="small" sx={EXPANDED_TOUCH_TARGET_SX} onClick={form.openPicker}>
             {TEXTS.change}
           </IpsButton>
         )}
         {view.headerAction === "cancelChange" && (
-          <IpsButton variant="text" size="small" onClick={form.closePicker}>
+          <IpsButton variant="text" size="small" sx={EXPANDED_TOUCH_TARGET_SX} onClick={form.closePicker}>
             {TEXTS.cancelChange}
           </IpsButton>
         )}

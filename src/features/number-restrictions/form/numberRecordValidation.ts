@@ -25,7 +25,7 @@ interface SubmissionCheck {
 }
 
 /**
- * "שמור": רשימה שנפתחה מחדש אחרי בחירה נסגרת, כדי שכל הבלוקים יוצגו ויבדקו.
+ * "שמירה": רשימה שנפתחה מחדש אחרי בחירה נסגרת, כדי שכל הבלוקים יוצגו ויבדקו.
  * בהגבלה חדשה, מספר שנשאר בשדה נוסף. אחר כך כל הכללים רצים יחד.
  */
 export function checkNumberRecordSubmission(state: NumberRecordFormState): SubmissionCheck {
@@ -56,7 +56,7 @@ function validatePermitLookup(state: NumberRecordFormState): NumberRecordFormErr
   return null;
 }
 
-/** הכללים של §5 שחלים על כל רשומה: תאריכים, משך, שעות, ו"סיבות והחלטה" */
+/** הכללים של §5 שחלים על כל רשומה: תאריכים, משך, שעות, ו"סיבות ואישורים" */
 function validateRecordRules(state: NumberRecordFormState): NumberRecordFormErrors {
   const { values } = state;
   return removeEmptyErrors<NumberRecordErrorSlot>({

@@ -25,7 +25,7 @@ interface PhoneInputRowProps {
   onAction: () => void;
 }
 
-/** שדה טלפון וכפתור פעולה לצידו - "הוסף" או "חיפוש" (ספק 00 §3.15) */
+/** שדה טלפון וכפתור פעולה לצידו - "הוספה" או "חיפוש" (ספק 00 §3.15) */
 export default function PhoneInputRow({
   id,
   hintId,

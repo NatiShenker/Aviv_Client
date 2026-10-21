@@ -5,14 +5,23 @@ export const VOICE_MESSAGES_TEXTS = {
   toolbar: {
     sectionTitle: "היסטוריית הודעות לנמען",
     searchLabel: "חיפוש הודעות לנמען",
-    searchPlaceholder: "חיפוש לפי מספר, סיבה או תאריך",
+    searchPlaceholder: "חיפוש חופשי",
+    // מתחת לחיפוש, במין של הרשומה (הוחלט 2026-10-21)
+    resultsCount: (count: number) => (count === 1 ? "מוצגת הודעה אחת" : `מוצגות ${count} הודעות`),
+  },
+
+  // מיון הסטטוס בהיסטוריה, במין של הרשומה (הוחלט 2026-10-21)
+  statusSort: {
+    activeFirst: "סטטוס: פעילות תחילה",
+    endedFirst: "סטטוס: שהסתיימו תחילה",
   },
 
   card: {
     activeBadge: "פעילה",
+    endedBadge: "הסתיימה",
     allCalls: "כל השיחות",
-    // מוצע - ממתין לאישור (pending-decisions)
-    createBasedOn: "צור הודעה חדשה על בסיס זו",
+    // הוחלט 2026-10-21
+    createBasedOn: "יצירת הודעה דומה",
   },
 
   details: {
@@ -31,9 +40,12 @@ export const VOICE_MESSAGES_TEXTS = {
   newRecord: "הוספת הודעה לנמען",
 
   form: {
+    // שאלה פתוחה (pending-decisions): אפשר לקרוא את הכותרת כ"נמען חדש"
     createTitle: "הודעה לנמען חדשה",
     editTitle: "עריכת הודעה לנמען",
-    save: "שמור",
+    save: "שמירה",
+    // מוצע - ממתין לאישור (pending-decisions). כל מספר נשמר כהודעה נפרדת
+    savedToast: (savedCount: number) => (savedCount > 1 ? "ההודעות נשמרו" : "ההודעה נשמרה"),
 
     messageBlock: {
       title: "ההודעה",
@@ -42,9 +54,9 @@ export const VOICE_MESSAGES_TEXTS = {
       scopeTitle: "היקף ההפעלה",
       scopes: {
         all: { label: "בכל השיחות", description: "לפני כל שיחה שהחניך מבצע" },
-        selected: { label: "רק במספרים נבחרים", description: "הגדר את המספרים שבהם תופעל ההודעה" },
+        selected: { label: "רק במספרים נבחרים", description: "רק בשיחות למספרים שיוגדרו" },
       },
-      phoneHint: "הזן מספר אחד או יותר. כל מספר יישמר כהודעה נפרדת",
+      phoneHint: "ניתן להזין מספר אחד או יותר. כל מספר יישמר כהודעה נפרדת",
     },
 
     // מוצע - ממתין לאישור (pending-decisions)
@@ -57,7 +69,6 @@ export const VOICE_MESSAGES_TEXTS = {
       repeatLabel: "הודעה חוזרת",
       // המרווח קבוע ולא ניתן לשינוי
       repeatHint: "ההודעה תושמע שוב כל 5 דקות, כל עוד השיחה פעילה",
-      dateRangeDescription: "ההודעה תופעל בתאריכים אלו בלבד",
     },
   },
 } as const;

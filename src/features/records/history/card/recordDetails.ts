@@ -28,7 +28,7 @@ export function buildDecisionDetailItems(record: DecisionDisplayFields): DetailI
   return items;
 }
 
-/** הערכים של "סיבות והחלטה" שהחיפוש בהיסטוריה בודק */
+/** הערכים של "סיבות ואישורים" שהחיפוש בהיסטוריה בודק */
 export function decisionSearchParts(record: DecisionDisplayFields): string[] {
   return [record.reason, record.details, record.approver.fullName];
 }

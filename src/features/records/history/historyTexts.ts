@@ -6,9 +6,9 @@ export const HISTORY_TEXTS = {
     // דסקטופ: בורר המיון מציג רק "מיון", ולכן השם הנגיש כולל את המיון הנוכחי. מוצע - ממתין לאישור (pending-decisions)
     sortWithCurrent: (currentSortLabel: string) => `מיון: ${currentSortLabel}`,
   },
+  // תגיות הסטטוס בקבצי הטקסטים של כל פעולה, כי הן במין של הרשומה ("הסתיימה" / "הסתיים")
   card: {
     edit: "עריכה",
-    endedBadge: "הסתיים",
   },
   // "למה ומי" בכרטיס פתוח, זהים בכל ההיסטוריות (ספק 00 §3.22)
   details: {
@@ -17,16 +17,15 @@ export const HISTORY_TEXTS = {
     details: "פירוט",
     notSpecified: "לא צוין",
   },
-  // תוויות המיון מוצעות - ממתינות לאישור (pending-decisions)
+  // תוויות מיון התאריכים מוצעות - ממתינות לאישור (pending-decisions).
+  // תוויות מיון הסטטוס בקבצי הטקסטים של כל פעולה (statusSort), כי הן במין של הרשומה ("פעילות" / "פעילים")
   sort: {
-    startDateDescending: "תאריך התחלה – מהחדש לישן",
-    startDateAscending: "תאריך התחלה – מהישן לחדש",
-    endDateDescending: "תאריך סיום – מהחדש לישן",
-    endDateAscending: "תאריך סיום – מהישן לחדש",
-    statusActiveFirst: "סטטוס – פעילות קודם",
-    statusEndedFirst: "סטטוס – שהסתיימו קודם",
+    startDateDescending: "תאריך התחלה: מהחדש לישן",
+    startDateAscending: "תאריך התחלה: מהישן לחדש",
+    endDateDescending: "תאריך סיום: מהחדש לישן",
+    endDateAscending: "תאריך סיום: מהישן לחדש",
   },
   states: {
-    retry: "נסה שוב",
+    retry: "טעינה מחדש",
   },
 } as const;

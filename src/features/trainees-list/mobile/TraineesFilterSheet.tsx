@@ -1,11 +1,9 @@
-import {
-  IpsButton,
-  IpsDrawer,
-  IpsMultiSelectMobile,
-  IpsPillSelect,
-  type IpsSelectOption,
-} from "ui-library";
+import { useId } from "react";
+import { IpsButton, IpsMultiSelectMobile, IpsPillSelect, type IpsSelectOption } from "ui-library";
+import FieldLabelText from "@/shared/components/form/FieldLabelText";
+import { EXPANDED_TOUCH_TARGET_SX } from "@/shared/components/touchTarget";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import BottomSheet from "@/shells/mobile/BottomSheet";
 import type { WingDto, WingLocationDto } from "@/types/organization.schema";
 import type { TraineeListFiltersState } from "@/types/trainees.schema";
 import { formatMultiSelection, resolveLocationsFieldState, toFilterIds } from "../traineesFilterFieldsLogic";
@@ -22,8 +20,31 @@ import { useTraineeFilterOptions } from "../useTraineeFilterOptions";
 import type { TraineeFilterGroupsUpdate } from "../useTraineesListFilters";
 
 const TEXTS = TRAINEES_LIST_TEXTS.filters;
-// גובה לפי התוכן; הגיליון מגביל את עצמו ל-90% מהמסך ומוסיף גלילה כשצריך
-const SHEET_HEIGHT = "auto";
+
+// "ניקוי מסננים" היא פעולה משנית: 14/500, קטנה מכותרת המגירה (18) ובגודל כפתורי הבחירה (14).
+// כפתורי הטקסט של הספרייה הם 16, ולכן הגודל מותאם כאן, במקום השימוש
+const CLEAR_FILTERS_BUTTON_SX = {
+  fontSize: "14px",
+  fontWeight: 500,
+  ...EXPANDED_TOUCH_TARGET_SX,
+} as const;
+
+// בחירה פעילה ברשימת החניכים בנייבי, כמו בסקיצה (ספק 00 §2.1), כך ש"הצגת התוצאות" נשאר הכחול היחיד במגירה.
+// IpsPillSelect צובע לפי ה-primary; ההתאמה כאן, במקום השימוש, והפקד בספרייה לא משתנה
+const NAVY_PILLS_SX = {
+  '& .ips-pill[aria-pressed="true"]': {
+    bgcolor: "text.primary",
+    borderColor: "text.primary",
+    color: "common.white",
+    "&:hover": { bgcolor: "text.primary", borderColor: "text.primary" },
+  },
+  '& .ips-pill[aria-pressed="false"]': {
+    bgcolor: "background.paper",
+    borderColor: "grey.300",
+    color: "text.primary",
+    "&:hover": { bgcolor: "grey.50" },
+  },
+} as const;
 
 interface TraineesFilterSheetProps {
   open: boolean;
@@ -31,9 +52,12 @@ interface TraineesFilterSheetProps {
   filters: TraineeListFiltersState;
   wings: WingDto[];
   locations: AsyncResource<WingLocationDto[]>;
-  resultCount: number;
+  /** כמה מקבוצות הסינון פעילות. בלי סינון פעיל "ניקוי מסננים" מושבת */
+  activeFilterCount: number;
   onWingIdsChange: (wingIds: number[]) => void;
   onFiltersChange: (update: TraineeFilterGroupsUpdate) => void;
+  /** מאפס את שש הקבוצות, כולל האגף השמור; לא את החיפוש והמיון (כמו בדסקטופ, ספק 01 §8.2) */
+  onClearFilters: () => void;
 }
 
 /** גיליון הסינון. כל בחירה מוחלת מיד על הרשימה שמאחוריו (ספק 01 §3.4, §4.3) */
@@ -43,28 +67,38 @@ export default function TraineesFilterSheet({
   filters,
   wings,
   locations,
-  resultCount,
+  activeFilterCount,
   onWingIdsChange,
   onFiltersChange,
+  onClearFilters,
 }: TraineesFilterSheetProps) {
   const { wingOptions, locationOptions } = useTraineeFilterOptions(wings, locations.data, filters.wingIds);
 
   return (
-    <IpsDrawer
+    <BottomSheet
       open={open}
-      anchor="bottom"
-      size={SHEET_HEIGHT}
       title={TEXTS.title}
-      closeButtonLabel={TRAINEES_LIST_TEXTS.sheets.close}
       onClose={onClose}
-      rtl
       actions={
         <IpsButton variant="contained" size="large" fullWidth onClick={onClose}>
-          {TEXTS.showResults(resultCount)}
+          {TEXTS.showResults}
         </IpsButton>
       }
     >
-      <div className="flex flex-col gap-6">
+      {/* מושבת ולא מוסתר כשאין סינון, כדי שהתוכן לא יקפוץ ברגע שבוחרים את הסינון הראשון */}
+      <div className="flex justify-end">
+        <IpsButton
+          variant="text"
+          size="small"
+          disabled={activeFilterCount === 0}
+          onClick={onClearFilters}
+          sx={CLEAR_FILTERS_BUTTON_SX}
+        >
+          {TRAINEES_LIST_TEXTS.filterPanel.clearFilters}
+        </IpsButton>
+      </div>
+
+      <div className="mt-2 flex flex-col gap-6">
         <IpsMultiSelectMobile
           label={TEXTS.groups.wing}
           allOptionLabel={TEXTS.all}
@@ -104,7 +138,7 @@ export default function TraineesFilterSheet({
           onChange={(balance) => onFiltersChange({ balance })}
         />
       </div>
-    </IpsDrawer>
+    </BottomSheet>
   );
 }
 
@@ -115,8 +149,13 @@ interface PillFilterProps<TValue extends string> {
   onChange: (value: TValue) => void;
 }
 
-// בחירה יחידה מתוך אפשרויות קבועות, ו"הכל" היא אחת מהן - ולכן תמיד נשארת בחירה (כמו FilterSelect בדסקטופ)
+/**
+ * בחירה יחידה מתוך אפשרויות קבועות, ו"הכל" היא אחת מהן - ולכן תמיד נשארת בחירה (כמו FilterSelect בדסקטופ).
+ * התווית נבנית כאן ולא ב-label של IpsPillSelect, כדי שתהיה כמו התוויות של שאר השדות במגירה (12)
+ */
 function PillFilter<TValue extends string>({ label, options, value, onChange }: PillFilterProps<TValue>) {
+  const labelId = useId();
+
   const handleChange = (selectedValue: unknown) => {
     const optionValue = findOptionValue(options, selectedValue);
     if (optionValue) {
@@ -125,14 +164,17 @@ function PillFilter<TValue extends string>({ label, options, value, onChange }: 
   };
 
   return (
-    <IpsPillSelect
-      label={label}
-      options={options}
-      value={value}
-      allowDeselect={false}
-      size="large"
-      onChange={handleChange}
-    />
+    <div role="group" aria-labelledby={labelId}>
+      <FieldLabelText id={labelId} text={label} />
+      <IpsPillSelect
+        options={options}
+        value={value}
+        allowDeselect={false}
+        size="large"
+        onChange={handleChange}
+        sx={NAVY_PILLS_SX}
+      />
+    </div>
   );
 }
 
@@ -161,7 +203,13 @@ function LocationFilter({ locations, options, selectedLocationIds, onChange }: L
         helperText={fieldState.statusText}
       />
       {fieldState.hasFailed && (
-        <IpsButton variant="text" size="small" className="self-start" onClick={locations.reload}>
+        <IpsButton
+          variant="text"
+          size="small"
+          className="self-start"
+          onClick={locations.reload}
+          sx={EXPANDED_TOUCH_TARGET_SX}
+        >
           {TEXTS.retry}
         </IpsButton>
       )}

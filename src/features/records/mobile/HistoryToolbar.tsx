@@ -1,5 +1,6 @@
 import { IpsIconButton, IpsSearchFieldMobile } from "ui-library";
 import AppIcon from "@/shared/components/AppIcon";
+import ResultsCountLine from "@/shared/components/ResultsCountLine";
 import { HISTORY_TEXTS } from "../history/historyTexts";
 
 const TEXTS = HISTORY_TEXTS.toolbar;
@@ -12,13 +13,18 @@ interface HistoryToolbarProps {
   searchLabel: string;
   searchPlaceholder: string;
   onSortClick: () => void;
+  /** "מוצגות X הגבלות" וכדומה. null - אין מה להציג (שגיאה, אין רשומות) */
+  resultsCountText: string | null;
+  /** בזמן טעינת הרשומות שורת המספר מציגה שלד */
+  isResultsCountLoading: boolean;
   /** כל עוד אין רשימה מוכנה, החיפוש והמיון מושבתים */
   isDisabled: boolean;
 }
 
 /**
  * מעל רשימת ההיסטוריה, באותו מבנה כמו ברשימת החניכים (ספק 00 §3.23):
- * שורה 1 - כותרת המקטע; שורה 2 - שדה חיפוש וכפתור מיון, שניהם בגובה 44, לבנים ועם מסגרת כמו שדות הטופס.
+ * שורה 1 - כותרת המקטע; שורה 2 - שדה חיפוש וכפתור מיון, שניהם בגובה 44, לבנים ועם מסגרת כמו שדות הטופס;
+ * שורה 3 - מספר התוצאות.
  */
 export default function HistoryToolbar({
   title,
@@ -27,11 +33,14 @@ export default function HistoryToolbar({
   searchLabel,
   searchPlaceholder,
   onSortClick,
+  resultsCountText,
+  isResultsCountLoading,
   isDisabled,
 }: HistoryToolbarProps) {
   return (
     <div className="mt-4 flex flex-col gap-3">
-      <h2 className="truncate text-lg font-medium">{title}</h2>
+      {/* כותרת מקטע: 16 רגיל, קטנה מכותרת המסך - כמו המקטעים בטופס ורמה 3 בדסקטופ (ספק 00 §3.23) */}
+      <h2 className="truncate text-base">{title}</h2>
 
       <div className="flex items-center gap-2">
         <div className="min-w-0 flex-1">
@@ -52,6 +61,9 @@ export default function HistoryToolbar({
           onClick={onSortClick}
         />
       </div>
+
+      {/* ננעץ עם הכלים, כדי שהמספר יתעדכן לנגד העיניים בזמן החיפוש - כמו ברשימת החניכים */}
+      <ResultsCountLine className="-mt-1" isLoading={isResultsCountLoading} text={resultsCountText} />
     </div>
   );
 }

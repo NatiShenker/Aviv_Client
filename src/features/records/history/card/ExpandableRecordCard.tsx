@@ -1,8 +1,9 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { IpsButton } from "ui-library";
 import AppIcon from "@/shared/components/AppIcon";
-import type { AppIconName } from "@/shared/components/appIcons";
 import Collapsible, { COLLAPSIBLE_MOTION_CLASS } from "@/shared/components/Collapsible";
+import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
+import type { AppIconName } from "@/shared/components/appIcons";
 import { HISTORY_TEXTS } from "../historyTexts";
 import DetailGrid from "./DetailGrid";
 import type { DetailItem } from "./recordDetails";
@@ -24,13 +25,13 @@ interface ExpandableRecordCardProps {
   /** רשומה שהסתיימה לא נערכת; במקום "עריכה" אפשר ליצור רשומה חדשה על בסיסה */
   isEnded: boolean;
   onEdit: () => void;
-  /** למשל "צור הגבלה חדשה על בסיס זו" */
+  /** למשל "יצירת הגבלה דומה" */
   createBasedOnLabel: string;
   onCreateBasedOn: () => void;
 }
 
 /**
- * כרטיס רשומה בהיסטוריה: סגור - מה ומתי; פתוח - שאר הפרטים, וכפתור "עריכה" או "צור … על בסיס זו" (ספק 00 §3.22).
+ * כרטיס רשומה בהיסטוריה: סגור - מה ומתי; פתוח - שאר הפרטים, וכפתור "עריכה" או "יצירת … דומה" (ספק 00 §3.22).
  * שתי שורות התקציר נשארות גלויות גם כשהכרטיס פתוח, ולכן הפרטים לא חוזרים עליהן.
  */
 export default function ExpandableRecordCard({
@@ -47,9 +48,17 @@ export default function ExpandableRecordCard({
   createBasedOnLabel,
   onCreateBasedOn,
 }: ExpandableRecordCardProps) {
+  const contentId = useId();
+
   return (
     <article id={id} className="rounded-card bg-paper p-4">
-      <button type="button" aria-expanded={isOpen} onClick={onToggle} className="flex w-full cursor-pointer items-center gap-3 text-start">
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls={contentId}
+        onClick={onToggle}
+        className={`flex w-full cursor-pointer items-center gap-3 rounded-input text-start ${FOCUS_RING_CLASS}`}
+      >
         <RecordIconCircle icon={icon} tone={iconTone} />
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="flex min-w-0 items-center gap-2 text-base text-text-primary">{summaryTitle}</span>
@@ -62,16 +71,17 @@ export default function ExpandableRecordCard({
         />
       </button>
 
-      <Collapsible isOpen={isOpen}>
+      <Collapsible id={contentId} isOpen={isOpen}>
         <div className="pt-4">
           <DetailGrid items={details} />
-          <div className="mt-4">
+          {/* פעולה משנית בכרטיס: כפתור טקסט בקצה, אחרי קו, ולא כפתור מתאר ברוחב מלא שחוזר בכל כרטיס */}
+          <div className="mt-4 flex justify-end border-t border-divider pt-1">
             {isEnded ? (
-              <IpsButton variant="outlined" size="large" fullWidth endIcon={<AppIcon name="copy" />} onClick={onCreateBasedOn}>
+              <IpsButton variant="text" endIcon={<AppIcon name="copy" />} onClick={onCreateBasedOn}>
                 {createBasedOnLabel}
               </IpsButton>
             ) : (
-              <IpsButton variant="outlined" size="large" fullWidth endIcon={<AppIcon name="edit" />} onClick={onEdit}>
+              <IpsButton variant="text" endIcon={<AppIcon name="edit" />} onClick={onEdit}>
                 {HISTORY_TEXTS.card.edit}
               </IpsButton>
             )}

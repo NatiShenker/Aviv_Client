@@ -39,7 +39,7 @@ export interface TraineeActiveStatusFlagsDto {
   /** האם קיימת היום הודעה אינטראקטיבית פעילה לנמען ("הודעה חוזרת" - repeatDuringCall ב-voice-messages.schema) */
   hasActiveInteractiveMessage: boolean;
 
-  // e. הגבלה/היתר למספר (AVIV_TRAINEE_RESTRICTION_NUMBER / PERMITS)
+  // e. הגבלות והיתרים למספר (AVIV_TRAINEE_RESTRICTION_NUMBER / PERMITS)
   /** האם קיימת היום הגבלה פעילה למספר טלפון עבור החניך */
   hasActivePhoneRestriction: boolean;
   /** האם קיים היום היתר פעיל למספר טלפון עבור החניך */
@@ -106,7 +106,7 @@ export type TraineeRestrictionFilter = "all" | "full" | "minutes" | "none";
 /** אפשרויות סינון עבור d. הודעה לנמען */
 export type RecipientMessageFilter = "all" | "regular" | "interactive" | "none";
 
-/** אפשרויות סינון עבור e. הגבלה/היתר למספר */
+/** אפשרויות סינון עבור e. הגבלות והיתרים למספר */
 export type PhoneExceptionFilter = "all" | "restriction" | "permit" | "none";
 
 /** אפשרויות סינון עבור f. יתרה */

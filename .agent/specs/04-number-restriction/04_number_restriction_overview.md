@@ -1,4 +1,4 @@
-# 04 – Number restriction / permit ("הגבלה/היתר למספר") – Overview
+# 04 – Number restriction / permit ("הגבלות והיתרים למספר") – Overview
 
 Prototype sources: `client/pages/ExceptionList.tsx`, `client/pages/ExceptionForm.tsx`, `client/lib/restrictions.ts`.
 
@@ -10,8 +10,8 @@ Screens: [history.md](04_number_restriction_history.md) · [form.md](04_number_r
 
 Manage calls between one trainee and **specific phone numbers**:
 
-- **Restrict** numbers for this trainee (`"הגבלת מספר"`), or
-- **Permit** a number that is already restricted (`"היתר למספר מוגבל"`) – by a national or institute restriction from "חוסאם", or by a restriction created here for this trainee.
+- **Restrict** numbers for this trainee (`"הגבלה למספר"`), or
+- **Permit** a number that is already restricted (`"היתר למספר"`) – by a national or institute restriction from "חוסאם", or by a restriction created here for this trainee.
 
 ---
 
@@ -19,10 +19,10 @@ Manage calls between one trainee and **specific phone numbers**:
 
 ### 2.1 Two record types
 
-| Type | Label (full) | Tag in list | What it does |
+| Type | Label (full; decided 2026-10-21) | Tag in list | What it does |
 |---|---|---|---|
-| `restriction` | `"הגבלת מספר"` (Number restriction) | `"הגבלה"` | Restricts calls to one number for this trainee |
-| `permit` | `"היתר למספר מוגבל"` (Permit for a restricted number) | `"היתר"` | Opens calls to a restricted number for this trainee, within one restriction |
+| `restriction` | `"הגבלה למספר"` (Number restriction) | `"הגבלה"` | Restricts calls to one number for this trainee |
+| `permit` | `"היתר למספר"` (Number permit) | `"היתר"` | Opens calls to a restricted number for this trainee, within one restriction |
 
 Every permit and every restriction is a **separate record** in the history list.
 
@@ -77,7 +77,7 @@ Each result also carries **this trainee's existing permits** on it that have not
 
 ### 2.8 Status
 
-Active while `endDate >= today`, else ended ([OQ-01](../../pending-decisions.md#oq-01)). Label: `"פעיל"` for permits, `"פעילה"` for restrictions, `"הסתיים"` for both.
+Active while `endDate >= today`, else ended ([OQ-01](../../pending-decisions.md#oq-01)). Label: `"פעיל"` / `"הסתיים"` for permits, `"פעילה"` / `"הסתיימה"` for restrictions.
 
 ---
 
@@ -85,13 +85,13 @@ Active while `endDate >= today`, else ended ([OQ-01](../../pending-decisions.md#
 
 | Value | Rule |
 |---|---|
-| Type label – restriction | `"הגבלה מלאה"` or `"הגבלת משך שיחה – עד X דק'"` |
-| Type label – permit | `"היתר מלא"` or `"היתר עם הגבלת משך – עד X דק'"` |
+| Type label – restriction | `"הגבלה מלאה"` or `"הגבלת משך שיחה - עד X דק׳"` |
+| Type label – permit | `"היתר מלא"` or `"היתר עם הגבלת משך - עד X דק׳"` |
 | Hours / devices – restriction | Same "open by default" rule as [03 overview §3.2](../03-trainee-restriction/03_trainee_restriction_overview.md#32-open-by-default-rule) |
 | Hours / devices – permit | Always open by default: unset hours → `"כל היום"`, unset devices → `"כל המכשירים"` |
 | Scope label | §2.2 |
 | "On restriction" | `"{scope label} · {DD/MM/YY-DD/MM/YY}"` |
-| Existing-permit summary | Parts joined with `" · "`: hours `"HH:mm-HH:mm"` or `"כל היום"`; then devices (1 → label, more → `"{n} מכשירים"`) if any; then `"עד X דק'"` if any. Several permits joined with `"; "` |
+| Existing-permit summary | Parts joined with `" · "`: hours `"HH:mm-HH:mm"` or `"כל היום"`; then devices (1 → label, more → `"{n} מכשירים"`) if any; then `"עד X דק׳"` if any. Several permits joined with `"; "` |
 
 ---
 
@@ -112,7 +112,7 @@ Active while `endDate >= today`, else ended ([OQ-01](../../pending-decisions.md#
 
 | Number | Lookup result for the demo trainee (institute "הדר") |
 |---|---|
-| `0508881122` | 2 results: `"הגבלה ארצית"` and `"הגבלת פנימייה – הדר"` (an "אורות" restriction exists but is excluded). The national one has an existing permit: `"16:00-19:00 · עד 15 דק'"` |
+| `0508881122` | 2 results: `"הגבלה ארצית"` and `"הגבלת פנימייה – הדר"` (an "אורות" restriction exists but is excluded). The national one has an existing permit: `"16:00-19:00 · עד 15 דק׳"` |
 | `0524443322` | 1 result: `"הגבלת פנימייה – הדר"` – auto-selected |
 | `039998877` | 1 result: `"הגבלה ארצית"` – auto-selected, with an existing permit: `"כל היום · טלפון משרד הפנימייה"` |
 | `0526667788` | 1 result: `"הגבלה לחניך"` (from a restriction record of this trainee) – auto-selected |

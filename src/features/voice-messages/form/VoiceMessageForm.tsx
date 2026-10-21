@@ -25,7 +25,7 @@ export interface VoiceMessageFormProps {
   reasons: AsyncResource<LookupItem<number>[]>;
 }
 
-/** שלושת הבלוקים של טופס ההודעה, מופרדים בקו: ההודעה, פרטי ההודעה, סיבות והחלטה (ספק 05 form §3) */
+/** שלושת הבלוקים של טופס ההודעה, מופרדים בקו: ההודעה, פרטי ההודעה, סיבות ואישורים (ספק 05 form §3) */
 export default function VoiceMessageForm({ form, editRecord, traineeFullName, reasons }: VoiceMessageFormProps) {
   const { values, errors } = form;
 

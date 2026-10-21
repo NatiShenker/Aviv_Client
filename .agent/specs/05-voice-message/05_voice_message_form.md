@@ -8,7 +8,7 @@ Prototype source: `client/pages/VoiceMessageForm.tsx` (superseded where this spe
 
 - Create a voice message (for all calls, or one per selected number), or edit an existing one.
 - **Create:** `"הוספת הודעה לנמען"` on the history screen. **Edit:** `"עריכה"` in an open history card (active or future records only).
-- **Create based on an ended record:** `"צור הודעה חדשה על בסיס זו"` in an open card of an ended record (§4.6).
+- **Create based on an ended record:** `"יצירת הודעה דומה"` in an open card of an ended record (§4.6).
 
 ---
 
@@ -30,7 +30,7 @@ Information order, as in every action form: **what → when → why and who** (d
 
 ### 3.1 Header
 
-FormHeader – `"הודעה לנמען חדשה"` (New message) or `"עריכת הודעה לנמען"` (Edit message); close X (aria-label `"סגירה ללא שמירה"`).
+FormHeader – `"הודעה לנמען חדשה"` (New message; its wording is an open question, see [pending-decisions](../../pending-decisions.md)) or `"עריכת הודעה לנמען"` (Edit message); close X (aria-label `"סגירה ללא שמירה"`).
 
 ### 3.2 Block 1 – `"ההודעה"` (The message)
 
@@ -42,17 +42,17 @@ FormHeader – `"הודעה לנמען חדשה"` (New message) or `"עריכת 
 | Order | Title | Description |
 |---|---|---|
 | 1 | `"בכל השיחות"` (On all calls) – **default** | `"לפני כל שיחה שהחניך מבצע"` (Before every call the trainee makes) |
-| 2 | `"רק במספרים נבחרים"` (Only on selected numbers) | `"הגדר את המספרים שבהם תופעל ההודעה"` (Set the numbers the message will play on) |
+| 2 | `"רק במספרים נבחרים"` (Only on selected numbers) | `"רק בשיחות למספרים שיוגדרו"` (Only in calls to the numbers that will be set; decided 2026-10-21) |
 
-3. **Numbers** (only with `"רק במספרים נבחרים"`, 12px below the group, fade-in): PhoneNumbersField, hint `"הזן מספר אחד או יותר. כל מספר יישמר כהודעה נפרדת"` (Enter one or more numbers. Each number is saved as a separate message).
+3. **Numbers** (only with `"רק במספרים נבחרים"`, 12px below the group, fade-in): PhoneNumbersField, hint `"ניתן להזין מספר אחד או יותר. כל מספר יישמר כהודעה נפרדת"` (One or more numbers can be entered. Each number is saved as a separate message; decided 2026-10-21).
 4. **Edit – locked scope card** (instead of 2–3): white card, card radius, thin outline – microphone RecordIcon; next to it the number (LTR) or `"בכל השיחות"`, and below it (14/18 gray) `"רק במספר נבחר"` **(proposed)** or `"לפני כל שיחה שהחניך מבצע"`.
 
 ### 3.3 Block 2 – `"פרטי ההודעה"` (Message details)
 
 1. **Switch row** ([00 §3.17](../00_foundations.md)): full width – on the right the label `"הודעה חוזרת"` (Repeating message) with the line `"ההודעה תושמע שוב כל 5 דקות, כל עוד השיחה פעילה"` (The message plays again every 5 minutes while the call is active) under it; the 48×24 switch at the far left. Default off. A switch, not a radio: the choice usually stays off and needs no conscious decision.
-2. **Date range** (16px below): FieldIntro `"טווח תאריכים"` / `"ההודעה תופעל בתאריכים אלו בלבד"` (The message plays on these dates only); date pair – start (`"תאריך התחלה"`), end (`"תאריך סיום"`, `min` = start); ErrorText – dates.
+2. **Date range** (16px below): FieldIntro `"טווח תאריכים"`, with no description line (removed 2026-10-21); date pair – start (`"תאריך התחלה"`), end (`"תאריך סיום"`, `min` = start); ErrorText – dates.
 
-### 3.4 Block 3 – `"סיבות והחלטה"`
+### 3.4 Block 3 – `"סיבות ואישורים"`
 
 As in [00 §4.3](../00_foundations.md), with the voice message reasons list ([00 §6](../00_foundations.md)). All four fields are required, the reason too (decided 2026-10-19).
 
@@ -60,7 +60,7 @@ As in [00 §4.3](../00_foundations.md), with the voice message reasons list ([00
 
 ### 3.5 Footer
 
-StickyActionBar, two columns: outline `"ביטול"` and primary submit `"שמור"` – the same in every form ([OQ-17](../../pending-decisions.md#oq-17), closed).
+StickyActionBar, two columns: outline `"ביטול"` and primary submit `"שמירה"` – the same in every form ([OQ-17](../../pending-decisions.md#oq-17), closed).
 
 ---
 
@@ -84,9 +84,9 @@ StickyActionBar, two columns: outline `"ביטול"` and primary submit `"שמו
 
 ### 4.3 Numbers
 
-- Same behavior as the number restriction form ([04 form §4.7](../04-number-restriction/04_number_restriction_form.md)): add with `"הוסף"` or Enter; invalid → `"מספר טלפון לא תקין"`; duplicate → `"המספר כבר נוסף"`; typing clears the error; X on a chip removes it; a valid number left in the input is added on submit (skipped silently if it is already a chip).
+- Same behavior as the number restriction form ([04 form §4.7](../04-number-restriction/04_number_restriction_form.md)): add with `"הוספה"` or Enter; invalid → `"מספר טלפון לא תקין"`; duplicate → `"המספר כבר נוסף"`; typing clears the error; X on a chip removes it; a valid number left in the input is added on submit (skipped silently if it is already a chip).
 
-### 4.5 Submit (`"שמור"`)
+### 4.5 Submit (`"שמירה"`)
 
 1. Run all rules in §5; on create with `"רק במספרים נבחרים"` also handle the pending input and require at least one number.
 2. Show every error at once, then scroll to and focus the first field with an error.
@@ -140,13 +140,13 @@ Only one message per slot (first failing rule, in table order).
 | `details` | Details |
 | `approverId` | Approver |
 | `approvedFileId` | File |
-| A key whose slot is not shown (the locked number in edit; the numbers with `"בכל השיחות"`) | The general save error `"השמירה נכשלה. נסה שוב"`, together with the errors of the shown slots |
+| A key whose slot is not shown (the locked number in edit; the numbers with `"בכל השיחות"`) | The general save error `"השמירה נכשלה. ניתן לנסות שוב"`, together with the errors of the shown slots |
 
 ---
 
 ## 7. Loading & errors
 
-As in the trainee form ([03 form §7](../03-trainee-restriction/03_trainee_restriction_form.md)): reasons list failure, file uploading / upload failure, saving (submit disabled), 400 → slots (§6.3), other failure → `"השמירה נכשלה. נסה שוב"` **(proposed)** above the footer buttons.
+As in the trainee form ([03 form §7](../03-trainee-restriction/03_trainee_restriction_form.md)): reasons list failure, file uploading / upload failure, saving (submit disabled), 400 → slots (§6.3), other failure → `"השמירה נכשלה. ניתן לנסות שוב"` (decided 2026-10-21) above the footer buttons.
 
 ---
 

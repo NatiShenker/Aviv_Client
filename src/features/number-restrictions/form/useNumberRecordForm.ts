@@ -9,6 +9,7 @@ import {
 import { findFirstErrorSlot, hasErrors, splitByHiddenSlots } from "@/features/records/form/formErrors";
 import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
+import { useSaveSuccessToast } from "@/features/records/form/useSaveSuccessToast";
 import { toAppError } from "@/infrastructure/errors/appError";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useFocusAfterRender } from "@/shared/hooks/useFocusAfterRender";
@@ -21,6 +22,7 @@ import type {
 import { todayIsoDate } from "@/utils/dates";
 import { isValidPhone, normalizePhone } from "@/utils/phone";
 import { buildNumberRecordKey } from "../numberRestrictionsLogic";
+import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import {
   NUMBER_RECORD_ERROR_SLOTS,
   NUMBER_RECORD_FIELD_IDS,
@@ -94,6 +96,7 @@ export function useNumberRecordForm({
   const [isFileUploading, setIsFileUploading] = useState(false);
   const [hasUserChanges, setHasUserChanges] = useState(false);
   const focusAfterRender = useFocusAfterRender();
+  const showSavedToast = useSaveSuccessToast();
 
   const update = (transition: StateTransition) => setState(transition);
 
@@ -222,6 +225,7 @@ export function useNumberRecordForm({
       const savedRecord = await saveRecord(submittedState);
       if (savedRecord) {
         onSaved(buildNumberRecordKey(savedRecord));
+        showSavedToast(buildSavedToast(submittedState, editedRecord !== null));
       }
     } catch (error) {
       handleSaveError(error, submittedState);
@@ -266,3 +270,13 @@ export function useNumberRecordForm({
 }
 
 export type NumberRecordFormController = ReturnType<typeof useNumberRecordForm>;
+
+/** הודעת השמירה: היתר, או הגבלה - וברבים כשהגבלה חדשה נשמרה לכמה מספרים (כל מספר כרשומה נפרדת) */
+function buildSavedToast(submittedState: NumberRecordFormState, isEditMode: boolean): string {
+  const toastTexts = NUMBER_RESTRICTIONS_TEXTS.form.savedToast;
+  if (submittedState.recordType === "permit") {
+    return toastTexts.permit;
+  }
+  const savedCount = isEditMode ? 1 : submittedState.addedPhones.length;
+  return toastTexts.restriction(savedCount);
+}

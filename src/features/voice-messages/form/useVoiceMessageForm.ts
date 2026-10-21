@@ -9,6 +9,7 @@ import {
 import { findFirstErrorSlot, hasErrors, splitByHiddenSlots, withoutErrors } from "@/features/records/form/formErrors";
 import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
+import { useSaveSuccessToast } from "@/features/records/form/useSaveSuccessToast";
 import { toAppError } from "@/infrastructure/errors/appError";
 import { createTraineeVoiceMessage, updateTraineeVoiceMessage } from "@/services/voiceMessagesService";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
@@ -16,6 +17,7 @@ import { useFocusAfterRender } from "@/shared/hooks/useFocusAfterRender";
 import type { LookupItem, PhoneString } from "@/types/common.schema";
 import type { TraineeVoiceMessageRecordDto, VoiceMessageScope } from "@/types/voice-messages.schema";
 import { todayIsoDate } from "@/utils/dates";
+import { VOICE_MESSAGES_TEXTS } from "../voiceMessagesTexts";
 import {
   VOICE_MESSAGE_ERROR_SLOTS,
   VOICE_MESSAGE_FIELD_IDS,
@@ -53,6 +55,7 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
   const [isFileUploading, setIsFileUploading] = useState(false);
   const [hasUserChanges, setHasUserChanges] = useState(false);
   const focusAfterRender = useFocusAfterRender();
+  const showSavedToast = useSaveSuccessToast();
 
   // הרשומה שמורה עם שם הסיבה: כשרשימת הסיבות מגיעה, הסיבה נבחרת בה לפי השם
   useEffect(() => {
@@ -65,7 +68,7 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
     );
   }, [sourceRecord, reasons.data]);
 
-  // שינויים של המשתמש עוברים כאן (או ב"הוסף" מספר). בחירת הסיבה לפי השם, כשהרשימה מגיעה, לא נחשבת שינוי
+  // שינויים של המשתמש עוברים כאן (או ב"הוספה" מספר). בחירת הסיבה לפי השם, כשהרשימה מגיעה, לא נחשבת שינוי
   const changeValues = (update: Partial<VoiceMessageFormValues>, clearedSlots: VoiceMessageErrorSlot[] = []) => {
     setValues((current) => ({ ...current, ...update }));
     setErrors((current) => withoutErrors(current, clearedSlots));
@@ -150,6 +153,9 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
       const savedRecordId = await saveVoiceMessage(submittedValues);
       if (savedRecordId !== null) {
         onSaved(savedRecordId);
+        // הודעה חדשה במספרים נבחרים נשמרת כהודעה נפרדת לכל מספר
+        const savedCount = !isEditMode && submittedValues.scope === "selected" ? submittedValues.phones.length : 1;
+        showSavedToast(VOICE_MESSAGES_TEXTS.form.savedToast(savedCount));
       }
     } catch (error) {
       handleSaveError(error, submittedValues);

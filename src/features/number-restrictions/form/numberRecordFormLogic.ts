@@ -40,7 +40,7 @@ import { normalizePhone } from "@/utils/phone";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 
 /*
- * המצב והכללים של טופס "הגבלה/היתר למספר" (ספק 04 form §4-§6), בפונקציות טהורות:
+ * המצב והכללים של טופס "הגבלות והיתרים למספר" (ספק 04 form §4-§6), בפונקציות טהורות:
  * כל פעולה של המשתמש היא מעבר ממצב למצב, וכך האיפוסים שמשפיעים על כמה שדות יחד קורים במקום אחד.
  */
 
@@ -222,7 +222,7 @@ function pickDecisionValues({ reasonId, details, approver, approvedFile }: Decis
 
 // ── סוג הפעולה (ספק 04 form §4.2, §4.6) ──
 
-/** הסוג האחר מתחיל מברירות המחדל שלו; נשמרים רק "סיבות והחלטה". כל השגיאות נמחקות */
+/** הסוג האחר מתחיל מברירות המחדל שלו; נשמרים רק "סיבות ואישורים". כל השגיאות נמחקות */
 export function changeRecordType(
   state: NumberRecordFormState,
   recordType: TraineePhoneRecordType,
@@ -233,7 +233,7 @@ export function changeRecordType(
   return { ...freshState, recordType, values: { ...freshState.values, ...pickDecisionValues(state.values) } };
 }
 
-/** "להגבלת המספר": מעבר להגבלה, והמספר שחיפשו הוא המספר הראשון שנוסף */
+/** "הגבלת המספר": מעבר להגבלה, והמספר שחיפשו הוא המספר הראשון שנוסף */
 export function restrictSearchedNumber(state: NumberRecordFormState, today: ISODateString): NumberRecordFormState {
   const { searchedPhone } = state.lookup;
   const restrictionState = changeRecordType(state, "restriction", today);
@@ -244,7 +244,7 @@ export function restrictSearchedNumber(state: NumberRecordFormState, today: ISOD
 
 /**
  * הקלדה מוחקת את שגיאת הטלפון. בהיתר, הקלדה אחרי חיפוש גם מבטלת את התוצאות, את ההגבלה הנבחרת
- * ואת המספר שנזכר, ובלוקים 1–3 מוסתרים. "סיבות והחלטה" נשמרים, ופרטי ההיתר יאותחלו בבחירה הבאה.
+ * ואת המספר שנזכר, ובלוקים 1–3 מוסתרים. "סיבות ואישורים" נשמרים, ופרטי ההיתר יאותחלו בבחירה הבאה.
  */
 export function changePhoneDraft(state: NumberRecordFormState, phoneDraft: string): NumberRecordFormState {
   const errors = withoutErrors(state.errors, ["phone", "restriction"]);
@@ -339,7 +339,7 @@ export function removeAddedPhone(state: NumberRecordFormState, phone: PhoneStrin
 /**
  * בחירה באותה הגבלה רק סוגרת את הרשימה. בחירה ראשונה או בהגבלה אחרת: התאריכים מתחילת ההגבלה
  * (או מהיום, המאוחר מביניהם) ועד סופה, והתנאים מתאפסים - או, בהיתר על בסיס היתר שהסתיים,
- * מקבלים את התנאים שהועתקו. "סיבות והחלטה" לא משתנים.
+ * מקבלים את התנאים שהועתקו. "סיבות ואישורים" לא משתנים.
  */
 export function chooseRestriction(
   state: NumberRecordFormState,

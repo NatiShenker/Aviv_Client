@@ -37,7 +37,14 @@ export function getActiveMockScenarios(): MockScenarios {
 /** המקבילה של getUri: כתובת שהדפדפן טוען ישירות (למשל תמונה). כתובת בלי נתיב מוק מוחזרת כמו שהיא */
 export function resolveMockResourceUri(url: string, params: unknown): string {
   const resourceRoute = findMockResourceRoute(url);
-  return resourceRoute ? resourceRoute.resolveUri(params) : url;
+  if (!resourceRoute) {
+    return url;
+  }
+  // למשאב שהדפדפן טוען בעצמו אין תשובת שגיאה: שגיאה או כשל רשת מדומים ככתובת שלא נטענת
+  const { errorKeys, networkErrorKeys } = activeScenarios;
+  const isUnavailable =
+    errorKeys.includes(resourceRoute.scenarioKey) || networkErrorKeys.includes(resourceRoute.scenarioKey);
+  return isUnavailable ? resourceRoute.unavailableUri : resourceRoute.resolveUri(params);
 }
 
 export async function handleMockRequest<TResponse>(

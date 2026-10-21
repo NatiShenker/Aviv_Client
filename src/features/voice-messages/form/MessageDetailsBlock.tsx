@@ -73,7 +73,6 @@ export default function MessageDetailsBlock({ form }: MessageDetailsBlockProps) 
 
       <div className="mt-4">
         <DateRangeField
-          description={TEXTS.dateRangeDescription}
           values={values}
           touchedDates={form.touchedDates}
           error={errors.dates}

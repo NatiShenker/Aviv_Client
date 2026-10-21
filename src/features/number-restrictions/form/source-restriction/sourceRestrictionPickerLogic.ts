@@ -78,7 +78,7 @@ export function buildChooseSourceRestrictionLabel(restriction: SourceRestriction
 
 /**
  * לכל היתר: שעות או "כל היום"; אחר כך מכשירים (אחד - השם, כמה - "{n} מכשירים") אם יש;
- * אחר כך "עד X דק'" אם יש. כמה היתרים מופרדים ב-"; ".
+ * אחר כך "עד X דק׳" אם יש. כמה היתרים מופרדים ב-"; ".
  */
 export function formatExistingPermitsSummary(permits: ExistingPermitBriefDto[]): string {
   return permits.map(formatExistingPermit).join(TEXTS.existingPermitsSeparator);

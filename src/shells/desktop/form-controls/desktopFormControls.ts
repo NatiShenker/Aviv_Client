@@ -1,5 +1,6 @@
 import type { FormControls } from "@/shared/components/form/formControls";
 import DesktopDateField from "./DesktopDateField";
+import DesktopFileUploadField from "./DesktopFileUploadField";
 import DesktopMultiSelectField from "./DesktopMultiSelectField";
 import DesktopRadioGroupField from "./DesktopRadioGroupField";
 import DesktopSelectField from "./DesktopSelectField";
@@ -16,4 +17,5 @@ export const DESKTOP_FORM_CONTROLS: FormControls = {
   TextField: DesktopTextField,
   TextAreaField: DesktopTextAreaField,
   RadioGroupField: DesktopRadioGroupField,
+  FileUploadField: DesktopFileUploadField,
 };

@@ -1,23 +1,35 @@
 export const NUMBER_RESTRICTIONS_TEXTS = {
-  title: "הגבלה/היתר למספר",
+  title: "הגבלות והיתרים למספר",
 
   toolbar: {
     sectionTitle: "היסטוריית הגבלות והיתרים",
     searchLabel: "חיפוש הגבלות והיתרים",
-    searchPlaceholder: "חיפוש לפי מספר, סיבה או תאריך",
+    searchPlaceholder: "חיפוש חופשי",
+    // מתחת לחיפוש. ברבים בזכר, כי ברשימה יש הגבלות והיתרים יחד; רשומה אחת - לפי הסוג שלה (הוחלט 2026-10-21)
+    resultsCount: {
+      single: { permit: "מוצג היתר אחד", restriction: "מוצגת הגבלה אחת" },
+      several: (count: number) => `מוצגים ${count} הגבלות והיתרים`,
+    },
   },
 
-  /** סוג הרשומה המלא (ספק 04 overview §2.1) */
+  // מיון הסטטוס בהיסטוריה. ברשימה יש הגבלות והיתרים יחד, ולכן בזכר (הוחלט 2026-10-21)
+  statusSort: {
+    activeFirst: "סטטוס: פעילים תחילה",
+    endedFirst: "סטטוס: שהסתיימו תחילה",
+  },
+
+  /** סוג הרשומה המלא (ספק 04 overview §2.1): בבורר "הגבלה או היתר", בכרטיס הנעול ובחיפוש בהיסטוריה */
   recordTypes: {
-    permit: "היתר למספר מוגבל",
-    restriction: "הגבלת מספר",
+    permit: "היתר למספר",
+    restriction: "הגבלה למספר",
   },
 
   card: {
     typeTag: { permit: "היתר", restriction: "הגבלה" },
     activeBadge: { permit: "פעיל", restriction: "פעילה" },
-    // מוצעים - ממתינים לאישור (pending-decisions)
-    createBasedOn: { permit: "צור היתר חדש על בסיס זה", restriction: "צור הגבלה חדשה על בסיס זו" },
+    endedBadge: { permit: "הסתיים", restriction: "הסתיימה" },
+    // הוחלט 2026-10-21
+    createBasedOn: { permit: "יצירת היתר דומה", restriction: "יצירת הגבלה דומה" },
     /** בשורות ההגבלה שעליה יושב היתר (בבוחר ובכרטיס הנעול) */
     noReason: "ללא סיבה",
   },
@@ -25,7 +37,7 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
   // היקף ההגבלה (ספק 04 overview §2.2)
   scopes: {
     national: "הגבלה ארצית",
-    institute: (instituteNames: string) => `הגבלת פנימייה – ${instituteNames}`,
+    institute: (instituteNames: string) => `הגבלת פנימייה - ${instituteNames}`,
     trainee: "הגבלה לחניך",
     institutesSeparator: ", ",
   },
@@ -37,7 +49,7 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
 
   details: {
     type: "סוג",
-    onRestriction: "על הגבלה",
+    onRestriction: "חל על הגבלה",
     hours: "שעות מותרות",
     devices: "מכשירים מותרים",
   },
@@ -49,14 +61,19 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
     noResults: "לא נמצאו הגבלות או היתרים",
   },
 
-  newRecord: "הוספת הגבלה/היתר",
+  newRecord: "הוספת הגבלה או היתר",
 
   form: {
     titles: {
       create: { permit: "היתר חדש", restriction: "הגבלה חדשה" },
       edit: { permit: "עריכת היתר", restriction: "עריכת הגבלה" },
     },
-    save: "שמור",
+    save: "שמירה",
+    // מוצע - ממתין לאישור (pending-decisions). בהגבלה כל מספר נשמר כהגבלה נפרדת
+    savedToast: {
+      permit: "ההיתר נשמר",
+      restriction: (savedCount: number) => (savedCount > 1 ? "ההגבלות נשמרו" : "ההגבלה נשמרה"),
+    },
 
     actionType: {
       title: "הגבלה או היתר",
@@ -66,21 +83,21 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
         restriction: "חסימת מספר אחד או יותר לחניך",
       },
       phoneHints: {
-        permit: "הזן את המספר המלא כדי לאתר את ההגבלות החלות עליו עבור החניך",
-        restriction: "הזן מספר אחד או יותר. כל מספר יישמר כהגבלה נפרדת",
+        permit: "הזן את המספר המלא, כדי לאתר את ההגבלות החלות עליו עבור החניך",
+        restriction: "ניתן להזין מספר אחד או יותר. כל מספר יישמר כהגבלה נפרדת",
       },
     },
 
     noRestrictions: {
-      text: "לא נמצאו הגבלות פעילות על המספר עבור החניך – המספר פתוח ואין צורך בהיתר",
-      restrictNumber: "להגבלת המספר",
+      text: "אין הגבלה פעילה על המספר, ולכן אין צורך בהיתר",
+      restrictNumber: "הגבלת המספר",
     },
 
     picker: {
-      chooseTitle: "בחר את ההגבלה שעליה יחול ההיתר",
+      chooseTitle: "בחירת ההגבלה שעליה יחול ההיתר",
       selectedTitle: "ההגבלה שעליה יחול ההיתר",
-      singleResultHint: "זו ההגבלה היחידה החלה על המספר עבור החניך, ולכן נבחרה",
-      resultsCountHint: (count: number) => `נמצאו ${count} הגבלות החלות על המספר עבור החניך`,
+      singleResultHint: "זו ההגבלה היחידה על המספר, ולכן נבחרה",
+      resultsCountHint: (count: number) => `נמצאו ${count} הגבלות על המספר`,
       change: "החלפה",
       // מוצעים - ממתינים לאישור (pending-decisions)
       cancelChange: "ביטול",
@@ -92,33 +109,26 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
     },
 
     lockedCard: {
-      onRestriction: "על הגבלה",
+      onRestriction: "חל על הגבלה",
     },
 
     detailsBlock: {
       title: { permit: "פרטי ההיתר", restriction: "פרטי ההגבלה" },
-      dateRangeDescription: {
-        permit: "ההיתר יחול בתאריכים אלו, בתוך תקופת ההגבלה",
-        restriction: "ההגבלה תחול בתאריכים אלו בלבד",
-      },
+      // רק בהיתר: התאריכים שלו מוגבלים לתקופת ההגבלה. בהגבלה אין הסבר
+      permitDateRangeDescription: "בתוך תקופת ההגבלה",
     },
 
     conditionsBlock: {
-      title: { permit: "הגבלה להיתר", restriction: "היתרים להגבלה" },
-      permitHint: "ברירת מחדל – פתוח כל היום ובכל המכשירים",
-      restrictionHint: {
-        full: "ללא היתרים – חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח",
-        limited: "ללא הגדרה – מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה",
-      },
+      title: "שעות ומכשירים",
     },
 
     validation: {
       searchRequired: "יש להזין מספר ולחפש",
       restrictedSearchRequired: "יש להזין מספר מוגבל ולחפש",
       restrictionRequired: "יש לבחור הגבלה",
-      permitOutsideRestriction: (range: string) => `תאריכי ההיתר חייבים להיות בתוך תקופת ההגבלה (${range})`,
+      permitOutsideRestriction: (range: string) => `תאריכי ההיתר צריכים להיות בתוך תקופת ההגבלה: ${range}`,
       // מוצעים (ספק 04 form §6.3, §7) - ממתינים לאישור (pending-decisions)
-      searchFailed: "החיפוש נכשל, נסה שוב",
+      searchFailed: "החיפוש נכשל. ניתן לנסות שוב",
       restrictionNoLongerActive: "ההגבלה שנבחרה אינה פעילה עוד. יש לחפש שוב",
     },
   },

@@ -7,6 +7,6 @@ export const APPROVER_STAND_IN_TEXTS = {
   searching: "מחפש…",
   noResults: "לא נמצאו גורמים מאשרים",
   searchFailed: "החיפוש נכשל",
-  retry: "נסה שוב",
-  roleSeparator: " – ",
+  retry: "טעינה מחדש",
+  roleSeparator: " - ",
 } as const;

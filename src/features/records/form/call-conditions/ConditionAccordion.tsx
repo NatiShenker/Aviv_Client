@@ -1,6 +1,7 @@
 import { useId, type ReactNode } from "react";
 import AppIcon from "@/shared/components/AppIcon";
 import Collapsible, { COLLAPSIBLE_MOTION_CLASS } from "@/shared/components/Collapsible";
+import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
 import ErrorText from "@/shared/components/form/ErrorText";
 
 interface ConditionAccordionProps {
@@ -25,7 +26,7 @@ export default function ConditionAccordion({ title, summary, isOpen, onToggle, e
         aria-expanded={isOpen}
         aria-controls={contentId}
         onClick={onToggle}
-        className="flex h-11 w-full cursor-pointer items-center gap-2 text-start text-sm text-text-primary"
+        className={`flex h-11 w-full cursor-pointer items-center gap-2 rounded-input text-start text-sm text-text-primary ${FOCUS_RING_CLASS}`}
       >
         <span className="shrink-0">{title}</span>
         <span className="min-w-0 flex-1 truncate text-text-muted">{summary}</span>

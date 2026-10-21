@@ -19,7 +19,7 @@ interface TraineeRestrictionsDrawerHistoryProps {
 
 /** היסטוריית ההגבלות של החניך במגירה, וטופס ההגבלה מעליה (ספק 03, פריסת דסקטופ) */
 export default function TraineeRestrictionsDrawerHistory({ traineeId, navigation, onRecordSaved }: TraineeRestrictionsDrawerHistoryProps) {
-  const { restrictions, history } = useTraineeRestrictionsHistory(traineeId);
+  const { restrictions, history, resultsCountText } = useTraineeRestrictionsHistory(traineeId);
   // הטופס שנפתח מעל ההיסטוריה. בזכרון בלבד, כמו כל המגירה
   const [formTarget, setFormTarget] = useState<TraineeRestrictionFormTarget | null>(null);
 
@@ -57,6 +57,7 @@ export default function TraineeRestrictionsDrawerHistory({ traineeId, navigation
         texts={TRAINEE_RESTRICTIONS_TEXTS}
         records={restrictions}
         history={history}
+        resultsCountText={resultsCountText}
         getRecordKey={traineeRestrictionRecordKey}
         renderCard={renderCard}
         onCreate={() => setFormTarget({ mode: "create", basedOnRef: null })}

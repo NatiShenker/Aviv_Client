@@ -54,9 +54,6 @@ export default function NumberRecordForm({
   const { state } = form;
   const { values, errors, recordType } = state;
   const isPermit = recordType === "permit";
-  const conditionsHint = isPermit
-    ? TEXTS.conditionsBlock.permitHint
-    : TEXTS.conditionsBlock.restrictionHint[values.limitKind];
 
   return (
     <form id={NUMBER_RECORD_FORM_ID} noValidate onSubmit={form.submit}>
@@ -72,7 +69,7 @@ export default function NumberRecordForm({
       >
         <CallDetailsBlock
           title={TEXTS.detailsBlock.title[recordType]}
-          dateRangeDescription={TEXTS.detailsBlock.dateRangeDescription[recordType]}
+          dateRangeDescription={isPermit ? TEXTS.detailsBlock.permitDateRangeDescription : undefined}
           ruleKind={recordType}
           values={values}
           touchedDates={state.touchedDates}
@@ -85,8 +82,7 @@ export default function NumberRecordForm({
           onDurationTextChange={form.changeDurationText}
         />
         <PermittedConditionsBlock
-          title={TEXTS.conditionsBlock.title[recordType]}
-          hint={conditionsHint}
+          title={TEXTS.conditionsBlock.title}
           ruleKind={recordType}
           values={values}
           errors={{ hours: errors.hours, devices: errors.devices }}

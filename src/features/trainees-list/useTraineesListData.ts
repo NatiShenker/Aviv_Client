@@ -18,7 +18,7 @@ interface TraineesListData {
 
 /**
  * הנתונים של מסך החניכים לפנימייה הנבחרת. החלפת פנימייה טוענת מחדש;
- * חזרה למסך מציגה מיד את מה שכבר נטען (עד רענון הדף), ו"נסה שוב" טוען תמיד מהשרת.
+ * חזרה למסך מציגה מיד את מה שכבר נטען (עד רענון הדף), ו"טעינה מחדש" טוען תמיד מהשרת.
  */
 export function useTraineesListData(institute: InstituteWithWingsDto | null): TraineesListData {
   const instituteId = institute?.id ?? null;

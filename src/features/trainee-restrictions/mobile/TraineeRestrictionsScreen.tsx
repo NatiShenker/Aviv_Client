@@ -3,7 +3,7 @@ import RecordHistoryPage from "@/features/records/mobile/RecordHistoryPage";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "../traineeRestrictionsTexts";
 import TraineeRestrictionsHistory from "./TraineeRestrictionsHistory";
 
-/** היסטוריית "הגבלה/היתר לחניך" של חניך אחד, וטופס ההגבלה במסך מלא מעליה (ספק 03) */
+/** היסטוריית "הגבלות לחניך" של חניך אחד, וטופס ההגבלה במסך מלא מעליה (ספק 03) */
 export default function TraineeRestrictionsScreen() {
   return (
     <RecordHistoryPage

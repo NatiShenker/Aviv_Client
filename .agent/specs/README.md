@@ -12,10 +12,10 @@ Development specs for the trainee-calls management app (web, mobile and desktop 
 | 00 | [00_foundations.md](00_foundations.md) | Platform, design tokens, shared components, shared patterns, formats, lookup lists, API conventions |
 | 01 | [01_children_list.md](01_children_list.md) | Home screen – list of trainees with search, filter, sort |
 | 02 | [02_child_actions.md](02_child_actions.md) | Trainee actions screen |
-| 03 | [03-trainee-restriction/03_trainee_restriction_overview.md](03-trainee-restriction/03_trainee_restriction_overview.md) | "הגבלה/היתר לחניך" – business logic, data model, API, flow |
+| 03 | [03-trainee-restriction/03_trainee_restriction_overview.md](03-trainee-restriction/03_trainee_restriction_overview.md) | "הגבלות לחניך" – business logic, data model, API, flow |
 | 03 | [03-trainee-restriction/03_trainee_restriction_history.md](03-trainee-restriction/03_trainee_restriction_history.md) | Trainee restriction history (records list) |
 | 03 | [03-trainee-restriction/03_trainee_restriction_form.md](03-trainee-restriction/03_trainee_restriction_form.md) | Trainee restriction form (create / edit) |
-| 04 | [04-number-restriction/04_number_restriction_overview.md](04-number-restriction/04_number_restriction_overview.md) | "הגבלה/היתר למספר" – business logic, data model, API, flow |
+| 04 | [04-number-restriction/04_number_restriction_overview.md](04-number-restriction/04_number_restriction_overview.md) | "הגבלות והיתרים למספר" – business logic, data model, API, flow |
 | 04 | [04-number-restriction/04_number_restriction_history.md](04-number-restriction/04_number_restriction_history.md) | Number restrictions & permits history |
 | 04 | [04-number-restriction/04_number_restriction_form.md](04-number-restriction/04_number_restriction_form.md) | Number restriction / permit form (create / edit) |
 | 05 | [05-voice-message/05_voice_message_overview.md](05-voice-message/05_voice_message_overview.md) | "הודעה קולית לנמען" – purpose, rules, API |
@@ -33,8 +33,8 @@ The same concept has a product name (the UI and the specs), a client name (route
 | Concept | UI name | Spec | Route | Feature folder (`src/features`) | Server and schema names |
 |---|---|---|---|---|---|
 | Trainee ("child" in the sketches) | חניך | 01, 02 | `/trainee/:traineeId` | `trainees-list`, `trainee-actions`, `trainee` | `Trainees/…`, `TraineeListItemDto` |
-| Trainee restriction ("block" in the sketches) | הגבלה/היתר לחניך | 03 | `/trainee/:traineeId/trainee-restriction` | `trainee-restrictions` | `TraineeRestrictions/…`, `TraineeRestrictionRecordDto` |
-| Number restriction or permit ("exception" in the sketches). One record is a "number record": a restriction or a permit | הגבלה/היתר למספר | 04 | `/trainee/:traineeId/number-restriction` | `number-restrictions` | `PhoneExceptions/…`, `TraineePhoneRecordDto`, `phone-exceptions.schema.ts`; trainee flag group `phoneException` |
+| Trainee restriction ("block" in the sketches) | הגבלות לחניך | 03 | `/trainee/:traineeId/trainee-restriction` | `trainee-restrictions` | `TraineeRestrictions/…`, `TraineeRestrictionRecordDto` |
+| Number restriction or permit ("exception" in the sketches). One record is a "number record": a restriction or a permit | הגבלות והיתרים למספר | 04 | `/trainee/:traineeId/number-restriction` | `number-restrictions` | `PhoneExceptions/…`, `TraineePhoneRecordDto`, `phone-exceptions.schema.ts`; trainee flag group `phoneException` |
 | Voice message ("recipient message" in the trainee flags) | הודעה קולית לנמען | 05 | `/trainee/:traineeId/voice-message` | `voice-messages` | `VoiceMessages/…`, `TraineeVoiceMessageRecordDto` |
 | Institute ("institution" on the server) | פנימייה | 01 | – | `institutes` | `Institutions/…`, `organization.schema.ts` |
 | Wing / location in a wing | אגף / מיקום באגף | 01 | – | – | `WingDto`, `WingLocationDto` |

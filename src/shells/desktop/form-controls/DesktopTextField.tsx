@@ -6,7 +6,7 @@ import type { TextFieldProps } from "@/shared/components/form/formControls";
 
 /**
  * שדה טקסט בדסקטופ: IpsTextField, עם התווית מעל השדה (design.md).
- * בקצה השדה: היחידה (למשל "דק'") כשיש ערך, וכפתור ניקוי במקום האייקון - כמו בשדה של המובייל
+ * בקצה השדה: היחידה (למשל "דק׳") כשיש ערך, וכפתור ניקוי במקום האייקון - כמו בשדה של המובייל
  */
 const DesktopTextField = forwardRef<HTMLInputElement, TextFieldProps>(function DesktopTextField(
   {

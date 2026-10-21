@@ -171,10 +171,18 @@ export function buildHoursSummary(
   return { text, isTimeRange: false };
 }
 
+/**
+ * הטקסט כשאין מכשיר נבחר, גם בתקציר וגם בשדה הבחירה עצמו: לפי "פתוחה כברירת מחדל" - "כל המכשירים",
+ * או "לא הוגדרו" כשהכל חסום. מתעדכן מיד כשמשנים את הסוג או את השעות
+ */
+export function buildUnsetDevicesText(values: CallConditionsValues, ruleKind: CallRuleKind): string {
+  return isOpenByDefault(ruleKind, formPermitsState(values)) ? TEXTS.values.allDevices : TEXTS.values.notSet;
+}
+
 /** מכשיר אחד - השם שלו; כמה - מספר המכשירים; אף אחד - לפי "פתוחה כברירת מחדל" */
 export function buildDevicesSummary(values: CallConditionsValues, devices: DeviceDto[], ruleKind: CallRuleKind): string {
   if (values.deviceIds.length === 0) {
-    return isOpenByDefault(ruleKind, formPermitsState(values)) ? TEXTS.values.allDevices : TEXTS.values.notSet;
+    return buildUnsetDevicesText(values, ruleKind);
   }
   const selectedDeviceNames = devices
     .filter((device) => values.deviceIds.includes(device.id))
@@ -228,7 +236,7 @@ export function buildPermittedDeviceNames(record: PermittedCallConditionsDto): s
   return record.devices.map((device) => device.name);
 }
 
-/** "הגבלה מלאה" / "הגבלת משך שיחה – עד X דק'", ובהיתר "היתר מלא" / "היתר עם הגבלת משך – עד X דק'" */
+/** "הגבלה מלאה" / "הגבלת משך שיחה - עד X דק׳", ובהיתר "היתר מלא" / "היתר עם הגבלת משך - עד X דק׳" */
 export function buildDurationTypeLabel(durationMinutes: number | null, ruleKind: CallRuleKind): string {
   const labels = TEXTS.typeLabels[ruleKind];
   return durationMinutes === null ? labels.full : labels.limited(durationMinutes);

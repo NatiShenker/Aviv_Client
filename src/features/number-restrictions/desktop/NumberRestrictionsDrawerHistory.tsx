@@ -23,7 +23,7 @@ export default function NumberRestrictionsDrawerHistory({
   navigation,
   onRecordSaved,
 }: NumberRestrictionsDrawerHistoryProps) {
-  const { phoneRecords, history } = useNumberRestrictionsHistory(traineeId);
+  const { phoneRecords, history, resultsCountText } = useNumberRestrictionsHistory(traineeId);
   // הטופס שנפתח מעל ההיסטוריה. בזכרון בלבד, כמו כל המגירה
   const [formTarget, setFormTarget] = useState<NumberRecordFormTarget | null>(null);
 
@@ -64,6 +64,7 @@ export default function NumberRestrictionsDrawerHistory({
         texts={NUMBER_RESTRICTIONS_TEXTS}
         records={phoneRecords}
         history={history}
+        resultsCountText={resultsCountText}
         getRecordKey={buildNumberRecordKey}
         renderCard={renderCard}
         onCreate={() => setFormTarget({ mode: "create", basedOnRef: null })}

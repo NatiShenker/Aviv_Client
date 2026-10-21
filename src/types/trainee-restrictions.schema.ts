@@ -1,6 +1,6 @@
 /**
  * @file trainee-restrictions.schema.ts
- * @description סכמות עבור פעולת "הגבלה/היתר לחניך" (חסימה נקודתית ללא מספר טלפון)
+ * @description סכמות עבור פעולת "הגבלות לחניך" (חסימה נקודתית ללא מספר טלפון)
  * מסך: BlockForm.tsx | טבלה ראשית: AVIV_TRAINEE_RESTRICTION
  */
 

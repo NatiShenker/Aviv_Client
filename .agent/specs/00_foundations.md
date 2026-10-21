@@ -25,13 +25,13 @@ Everything shared by all screens. Screen files reference the components and patt
 | `text-primary` | `#00033d` | Main text, icons, titles; filled navy buttons and active chips on the children list |
 | `action` | `#006aff` | Primary buttons, outline buttons, links, radio, switch (on), focus border, selected option check |
 | `bg-app` | `#f6f8fe` | Page background, sticky footer background, search input inside sheets |
-| `text-secondary` | `#8e929f` | Secondary text, field labels, placeholders, input borders, disabled button background |
-| `divider` | `#c5cbdd` | Header bottom line, section dividers, card outline (0.5px), switch (off), "ended" badge text |
+| `text-secondary` | `#8e929f` | Secondary text, field labels, placeholders, input borders, disabled button background. **In code** (decided 2026-10-20): the provisional token `text-muted` is `#667085` – the sketch shade is only 3.1:1 on white, below WCAG AA for small text; `#667085` is 5.0:1 on white and 4.6:1 on the app background |
+| `divider` | `#c5cbdd` | Header bottom line, section dividers, card outline (0.5px), switch (off) |
 | `error` | `#a72223` | Error text, invalid field border, required asterisk |
 | `chip` | `#e0ebff` | Phone chips, type tag, selected multi-select options, action-row icon circle, voice record icon circle |
 | `danger-soft` / `danger-icon` | `#fef2f2` / `#fb444c` | Record icon circle on the trainee and number history lists |
 | `success-soft` / `success` | `#e7ffef` / `#069940` | "Active" badge on history lists |
-| `muted-soft` | `#f6f9fc` | "Ended" badge background |
+| `muted-soft` | `#f6f9fc` | Not used since 2026-10-20: the "ended" badge is `text-secondary` on `grey-100` (with `divider` text it was 1.5:1, nearly invisible) |
 | `warning` | `#bd4d00` | Data-gap warning on the children list |
 | `border-light` | `#ededed` | Sheet row separators, actions-screen dividers |
 | `border-inner` | `#ebebf0` | Divider inside a children card |
@@ -49,7 +49,8 @@ Everything shared by all screens. Screen files reference the components and patt
 | Section title (`h2`), body text, input value, card lines, detail values | 16 / 20 | 400 | `text-primary` |
 | Primary and outline buttons | 16 / 20 | 600 | – |
 | Radio option label | 16 / 24 | 400 | `text-primary` |
-| Field label, FieldIntro, accordion row, toolbar label, detail label | 14 / 18 | 400 | `text-secondary` (labels) / `text-primary` (titles) |
+| Field label (every field, including the labels above the filter groups) | 12 / 12 | 400 | `text-secondary` – the library's mobile field label; `FieldLabelText` matches it (decided 2026-10-20) |
+| FieldIntro, accordion row, toolbar label, detail label | 14 / 18 | 400 | `text-secondary` (labels) / `text-primary` (titles) |
 | Hint text, error text, compact FieldIntro description | 12 / 15 | 400 | `text-secondary` / `error` |
 | Badge, type tag | 10 / 12 | 400 | per badge |
 
@@ -63,7 +64,7 @@ Everything shared by all screens. Screen files reference the components and patt
 | Field | 42px tall, radius from the library field token (6), 1px border, 16px side padding; focus border `action`; invalid border `error`. The search field and toolbar icon buttons are outlined the same way (44px) |
 | Button | 48px tall, radius 8. Primary: `action` background, white text. Outline: white background, 1px `action` border, `action` text |
 | Card | **One rule for every card:** white, radius from the library card token (12), padding 16. On the page background (history cards, children cards, action rows) – **no border**. On a white surface (inside a form sheet) – 1px `divider` border. Rows that stand in a field's place (an attached file, a chosen approver) look like a field (field radius, field border) |
-| Bottom sheet | Top radius 24, side padding 20, bottom padding 32, grab handle 40×4 |
+| Bottom sheet | Top radius 24, side padding 20, bottom padding 32 above the screen's safe area (the iPhone home bar), grab handle 40×4 |
 | Badge / tag | 20px tall, pill, 8px side padding |
 | Sticky footer | Stays at the bottom of the viewport, `bg-app`, 12px top padding, 24px bottom padding. Implemented as `position: sticky` inside the page (not `fixed`), so it moves with the page during the page transition and never hides the last item |
 
@@ -96,6 +97,7 @@ Each entry: **structure**, **states**, **used in**.
 
 - **HistoryHeader** – back arrow (aria-label `"חזרה"`) to the actions screen, then the page title. Used in all history screens.
 - **FormHeader** – page title, and on the opposite side a close X (aria-label `"סגירה ללא שמירה"`, closes without saving) back to the history list. In production it is the header of the full-height form sheet. Used in all forms.
+- **The trainee under the title** (decided 2026-10-20): the history and form headers show the trainee as a line under the title – `"{name} | {code}"`, 14px, `text-secondary` – so a sensitive action always shows whom it is about. The back arrow and the X stay aligned with the title line. On the actions screen the trainee is the subject: its name is the title, and the personal number is the gray line under it ([02 §3.1](02_child_actions.md)) – one header shape on every inner screen. The desktop drawer is unchanged (its trainee header frames every screen).
 - **Back and close navigation:** the back arrow and the form close go **one step back** in the browser history (so the page enters from the "back" side and no duplicate entries pile up). Every inner screen is reached from inside the app (§1, direct entry), so there is always a previous entry.
 
 ### 3.2 Section title and divider
@@ -109,7 +111,7 @@ Each entry: **structure**, **states**, **used in**.
 
 ### 3.4 FieldLabel
 
-- 14/18, `text-secondary`, truncated. Required fields add `"*"` in `error` color right after the text.
+- 12/12, `text-secondary`, truncated – the same as the library's field labels (decided 2026-10-20; it was 14/18). Required fields add `"*"` in `error` color right after the text.
 
 ### 3.5 ErrorText
 
@@ -127,7 +129,7 @@ Each entry: **structure**, **states**, **used in**.
 
 ### 3.7 DurationField
 
-- **Structure:** FieldLabel `"משך מרבי לכל שיחה"` + `"*"` (Max duration per call); text input with numeric keyboard; placeholder `"הזן דקות"` (Enter minutes); the unit `"דק'"` (min) appears right after the digits once there is a value; trailing timer icon, or X (aria-label `"ניקוי משך השיחה"`) when filled.
+- **Structure:** FieldLabel `"משך מרבי לכל שיחה"` + `"*"` (Max duration per call); text input with numeric keyboard; placeholder `"מספר דקות"` (Number of minutes); the unit `"דק׳"` (min, with the Hebrew geresh) appears right after the digits once there is a value; trailing timer icon, or X (aria-label `"ניקוי משך השיחה"`) when filled.
 - **Input rules:** non-digits are stripped as you type; max 3 characters.
 - **Width:** half of the content width (first column of a 2-column grid).
 - **States:** empty, filled, focused, invalid.
@@ -147,7 +149,7 @@ Each entry: **structure**, **states**, **used in**.
 
 | Context | Title | Option 1 (default) | Description 1 | Option 2 | Description 2 |
 |---|---|---|---|---|---|
-| Restriction | `"סוג ההגבלה"` | `"הגבלה מלאה"` | `"השיחות חסומות, למעט ההיתרים שיוגדרו למטה"` | `"הגבלת משך שיחה"` | `"השיחות מותרות, עד משך מרבי לכל שיחה"` |
+| Restriction | `"סוג ההגבלה"` | `"הגבלה מלאה"` | `"השיחות חסומות, למעט השעות והמכשירים שיוגדרו למטה"` (decided 2026-10-21) | `"הגבלת משך שיחה"` | `"השיחות מותרות, עד משך מרבי לכל שיחה"` |
 | Permit | `"סוג ההיתר"` | `"היתר מלא"` | `"השיחות מותרות ללא הגבלת משך"` | `"היתר עם הגבלת משך"` | `"השיחות מותרות, עד משך מרבי לכל שיחה"` |
 
 - **Behavior:**
@@ -175,19 +177,20 @@ Each entry: **structure**, **states**, **used in**.
 ### 3.12 NativeMultiSelect
 
 - A closed field that opens a multi-select picker. The closed value is a summary: one device's name, or `"{n} מכשירים"`.
-- **Mobile:** `IpsMultiSelectMobile` – the native `select multiple` picker on a real iPhone/iPad, `IpsSelect multiple` elsewhere. **Desktop:** `IpsSelect multiple` ([ui_library.md](../ui_library.md)).
-- FieldLabel `"בחר מכשיר"` (Pick a device).
-- **Devices are grouped by wing** (native `optgroup` / menu subheaders), in the institute's wing order, because an institute can have many devices. The group heading is `"אגף {name}"`, or just the name for a virtual wing (e.g. `"מיקומים שונים"`). **No `"הכל"` option** – nothing selected means all devices are allowed.
+- **Nothing selected** (decided 2026-10-21): the field shows the same text as the accordion summary (§3.10), by the "open by default" rule ([03 overview §3.2](03-trainee-restriction/03_trainee_restriction_overview.md)) – `"כל המכשירים"` (All devices) when the restriction is open by default, and always in a permit; `"לא הוגדרו"` (Not set) when everything is blocked. The text changes at once when the type or the hours change. While devices are selected but their list has not loaded (or failed), the field stays empty.
+- **Mobile:** `IpsMultiSelectMobile` – the native `select multiple` picker on a real iPhone/iPad, `IpsSelect multiple` elsewhere. **Desktop:** `IpsSelect multiple` ([ui_library.md](../ui_library.md)). Both get the text above as the field's `placeholder`.
+- FieldLabel `"מכשירים"` (Devices, decided 2026-10-21).
+- **Devices are grouped by wing** (native `optgroup` / menu subheaders), in the institute's wing order, because an institute can have many devices. The group heading is `"אגף {name}"`, or just the name for a virtual wing (e.g. `"מיקומים שונים"`). **No `"הכל"` option** – with nothing selected the rule above applies.
 - **Used in:** permitted devices.
 
 ### 3.14 DetailsTextArea
 
-- FieldLabel `"פירוט"`, textarea 96px tall (3 rows), placeholder `"הוסף פירוט"` (Add details), not resizable. Implemented by `IpsTextAreaMobile`.
+- FieldLabel `"פירוט"`, textarea 96px tall (3 rows), placeholder `"הוספת פירוט"` (Add details), not resizable. Implemented by `IpsTextAreaMobile`.
 
 ### 3.15 PhoneInputRow, PhoneNumbersField, PhoneSearchField
 
-- **PhoneInputRow:** a field (phone keyboard, placeholder `"הקלד"` (Type), phone icon, aria-label `"מספר טלפון"`, described by the hint above it) + an 88px action button next to it. The button is blue when enabled and gray (`text-secondary`) when disabled. Enter triggers the action when it is enabled.
-- **PhoneNumbersField (multiple numbers):** hint line → PhoneInputRow with `"הוסף"` (Add) + plus icon (enabled when the input is not blank) → ErrorText → list of chips (aria-label `"מספרים שנוספו"`). Each chip: 32px pill, `chip` background, LTR number, X button (aria-label `"הסרת המספר {phone}"`).
+- **PhoneInputRow:** a field (phone keyboard, placeholder `"מספר טלפון"` (Phone number), phone icon, aria-label `"מספר טלפון"`, described by the hint above it) + an 88px action button next to it. The button is blue when enabled and gray (`text-secondary`) when disabled. Enter triggers the action when it is enabled.
+- **PhoneNumbersField (multiple numbers):** hint line → PhoneInputRow with `"הוספה"` (Add) + plus icon (enabled when the input is not blank) → ErrorText → list of chips (aria-label `"מספרים שנוספו"`). Each chip: 32px pill, `chip` background, LTR number, X button (aria-label `"הסרת המספר {phone}"`).
 - **PhoneSearchField (one number):** hint line → PhoneInputRow with `"חיפוש"` (Search) + search icon → ErrorText. No chips.
 - **Used in:** number form (both), voice form (PhoneNumbersField).
 
@@ -195,7 +198,7 @@ Each entry: **structure**, **states**, **used in**.
 
 - FieldLabel `"צירוף קובץ"` + `"*"`. A 42px box that opens the file picker when tapped (aria-label `"צירוף קובץ (חובה)"`). Shows `"העלאת קובץ"` (Upload file) in gray, or the file name in `text-primary`. Trailing upload icon, or X (aria-label `"הסרת הקובץ"`) once a file is chosen.
 - **One file only.** Picking again replaces the file.
-- **Production:** replaced by `IpsFileUpload` with an attached-file row (§4.3) – the user chose the existing library component.
+- **Production:** replaced by the library's upload controls with an attached-file row (§4.3). Mobile (decided 2026-10-20): `IpsFileUploadMobile` – this very field (42px, `"בחירת קובץ"` **(proposed)**, a paperclip icon) plus a camera button, and the upload starts as soon as a file is chosen. Desktop: `IpsFileUpload`, the existing library component the user chose. Both use the same upload mechanism of the library.
 - **Used in:** all forms.
 
 ### 3.17 Switch
@@ -206,7 +209,7 @@ Each entry: **structure**, **states**, **used in**.
 
 ### 3.18 StatusBadge
 
-- History lists: `"פעילה"` (restriction, message) or `"פעיל"` (permit) on `success-soft` / `success`; `"הסתיים"` (ended) on `muted-soft` / `divider`. Shown next to the date range in the card's meta line (§3.22).
+- History lists: `"פעילה"` (restriction, message) or `"פעיל"` (permit) on `success-soft` / `success`; ended – `"הסתיימה"` (restriction, message) or `"הסתיים"` (permit), in the record's gender like the active badge, `text-secondary` on `grey-100` (decided 2026-10-20). Shown next to the date range in the card's meta line (§3.22).
 - The children list has its own badge, see [01](01_children_list.md).
 
 ### 3.19 TypeTag
@@ -226,18 +229,19 @@ Each entry: **structure**, **states**, **used in**.
 
 - **Information order, every action** (decided 2026-10-18): **what → when → conditions → why and who** – the same order as the form.
 - **Closed:** a button (`aria-expanded`) with RecordIcon, a **title line** (16/20, `text-primary`, truncated) with what the record does – trainee restriction: its type label; number record: the number + TypeTag; message: the number or `"כל השיחות"` – a **meta line** (16/20 gray) with when – the date range (LTR) + StatusBadge – and a chevron (`chevron` color) that rotates when open. The reason is not in the closed card.
-- **Open:** DetailGrid with only what the two summary lines do not already show (they stay visible above it), in the form's order; then a full-width outline button:
+- **Open:** DetailGrid with only what the two summary lines do not already show (they stay visible above it), in the form's order; then a divider and a text button with an icon at the end of the card (left), with a 44px touch target – a secondary action, not a full-width outline button repeated in every card (decided 2026-10-20, both layouts):
   - **Active or future record:** `"עריכה"` (Edit) with an edit icon.
-  - **Ended record** (decided 2026-10-19, closing the edit part of [OQ-14](../pending-decisions.md#oq-14)): an ended record **cannot be edited**. The button is `"צור … חדשה על בסיס זו"` (Create a new … based on this, worded per record type – **proposed**) with a copy icon, and opens the create form prefilled from the record (§4.2).
+  - **Ended record** (decided 2026-10-19, closing the edit part of [OQ-14](../pending-decisions.md#oq-14)): an ended record **cannot be edited**. The button is `"יצירת … דומה"` (Create a similar …, worded per record type – decided 2026-10-21: `"יצירת הגבלה דומה"`, `"יצירת היתר דומה"`, `"יצירת הודעה דומה"`) with a copy icon, and opens the create form prefilled from the record (§4.2).
 - **Motion:** opening and closing animate smoothly ("Card expand", §2.4). While closed, the content is hidden from screen readers and the keyboard.
 - **Only one card is open at a time**; tapping an open card closes it.
 
 ### 3.23 HistoryToolbar
 
-Same structure and look as the children list header row 2 ([01 §3.1](01_children_list.md)), for uniformity across screens:
+Same structure and look as the children list header rows 2 and 3 ([01 §3.1](01_children_list.md)), for uniformity across screens:
 
-- **Row 1:** the section title (`h2`, 18px, weight 500), e.g. `"היסטוריית הגבלות"`.
+- **Row 1:** the section title (`h2`, 16px, regular), e.g. `"היסטוריית הגבלות"` – smaller than the page title above it, like the form sections and level 3 in the desktop drawer (decided 2026-10-20; it was 18px, weight 500, almost the page title's size).
 - **Row 2:** an always-visible search field (`IpsSearchFieldMobile`, takes the remaining width, clear button `"ניקוי חיפוש"` clears the text) + a square sort button (`IpsIconButton variant="surface"`, sort icon only, aria-label `"מיון"`). Both 44px, white, and outlined like the form fields (the field radius for the search field, the button radius for the sort button), so they read as controls and match the cards below them.
+- **Row 3** (decided 2026-10-21): the results count, like the children list row 3 – 14px, `text-muted`, at the start, pinned with the toolbar, so it updates in view while searching. Its text is per action, in the record's gender (§3 of each history spec). The row always keeps its height: while the records load it shows a skeleton bar, and on an error or with no records at all it stays empty – so the cards below never move. With a search that finds nothing it reads 0, above the EmptyState, as in the children list.
 - The search field and the sort button are disabled until the records have loaded.
 - Results filter live as you type (trimmed substring match).
 
@@ -246,17 +250,17 @@ Same structure and look as the children list header row 2 ([01 §3.1](01_childre
 - Backdrop (`overlay`, a button with aria-label `"סגירה"`), and a dialog anchored to the bottom (`role="dialog"`, `aria-modal="true"`, aria-label = title): grab handle, title (18/23, 500), X button on the left (aria-label `"סגירה"`), content. Escape closes. Animations `fadeIn` + `sheetUp`.
 - **Height:** follows the content, up to 90% of the screen; longer content scrolls inside the sheet.
 - **Drag to close:** dragging the sheet down closes it, which is what the grab handle signals.
-- Implemented by `IpsDrawer anchor="bottom"`.
+- Implemented by the app's `BottomSheet` (`shells/mobile/BottomSheet.tsx`): `IpsDrawer anchor="bottom"` with a header built by the app (`renderHeader`) – the title (18/500) at the start and a touch-sized X at the end (left), like the form sheet. The drawer's own composed header puts the X on the right in RTL (a double flip in the library, see pending-decisions) and is smaller than a touch target. The paddings above (20 / 32 + safe area) are set there too; the backdrop is the library's.
 
 ### 3.25 SortSheet
 
-- BottomSheet titled `"מיון"` (Sort). One 56px row per sort option, where every option is a field **and** a direction (e.g. `"שם – א׳ עד ת׳"`). There is no separate direction row.
+- BottomSheet titled `"מיון"` (Sort). One 56px row per sort option, where every option is a field **and** a direction, written `"{field}: {direction}"` (e.g. `"שם: א׳ עד ת׳"`, decided 2026-10-20). There is no separate direction row.
 - Rows are separated by a line. The selected row is bold, in the primary color, with a check icon. Implemented by `IpsRadioListMobile` (native radios).
 - Choosing a row applies the sort and closes the sheet (decided 2026-10-19). Tapping the row that is already selected changes nothing, so the sheet stays open; the X, the backdrop and dragging down close it.
 
 ### 3.26 StickyActionBar
 
-- Sticky bottom bar (§2.3). On a history screen: one full-width primary "create" button. In every form: two equal columns, outline `"ביטול"` (Cancel, closes without saving) + primary `"שמור"` (Save, submit) ([OQ-17](../pending-decisions.md#oq-17), closed 2026-10-18).
+- Sticky bottom bar (§2.3). On a history screen: one full-width primary "create" button. In every form: two equal columns, outline `"ביטול"` (Cancel, closes without saving) + primary `"שמירה"` (Save, submit; decided 2026-10-21) ([OQ-17](../pending-decisions.md#oq-17), closed 2026-10-18).
 
 ### 3.27 EmptyState
 
@@ -269,7 +273,7 @@ Same structure and look as the children list header row 2 ([01 §3.1](01_childre
 ### 4.1 History screen
 
 1. **HistoryHeader** with the feature title.
-2. **HistoryToolbar** (§3.23): section title row, then the search field and sort button row. The header and the toolbar stay in place; only the cards scroll under them.
+2. **HistoryToolbar** (§3.23): section title row, then the search field and sort button row, then the results count. The header and the toolbar stay in place; only the cards scroll under them.
 3. **Cards** (12px below the toolbar, 8px apart): ExpandableRecordCard per record, rendered incrementally (30 at a time, the next 30 near the end of the list).
 4. **EmptyState** when no record matches (or there are none).
 5. **StickyActionBar** with one primary "create" button (text + plus icon).
@@ -277,8 +281,9 @@ Same structure and look as the children list header row 2 ([01 §3.1](01_childre
 Rules shared by all history screens:
 
 - **Default sort:** start date, descending. Options: `"תאריך התחלה"` (start date), `"תאריך סיום"` (end date), `"סטטוס"` (status: active vs ended, ties broken by start date).
+- **Status rows in the record's gender** (decided 2026-10-21): `"סטטוס: פעילות תחילה"` / `"סטטוס: שהסתיימו תחילה"` in the trainee restrictions and the voice messages; `"סטטוס: פעילים תחילה"` / `"סטטוס: שהסתיימו תחילה"` in the number records (restrictions and permits together). The sort keys and logic are shared; each action's texts file holds its two status labels (`statusSort`).
 - **Search** matches a text built from the record's visible values (listed per screen). Case-sensitive substring; non-breaking spaces count as spaces.
-- **After save:** the list shows the saved record **open**. If several were saved at once, the first one is open.
+- **After save:** the list refreshes **silently** – the current cards stay until the new data arrives, with no skeleton, and a failed refresh keeps them with no error message (decided 2026-10-20, both layouts) – and then shows the saved record **open**. If several were saved at once, the first one is open.
 - **Edit:** the "עריכה" button opens the form in edit mode for that record – only an active or future record. An edit URL of an ended record goes back to the history list (replace), like an unknown record.
 - **Create based on:** on an ended record, the button opens the create form based on it (§4.2).
 - The screen scrolls to the top when it opens.
@@ -286,7 +291,7 @@ Rules shared by all history screens:
 ### 4.2 Form screen
 
 1. **FormHeader** – title depends on create / edit (and on the record type in the number form).
-2. **Blocks** separated by section dividers. The last block is always **"סיבות והחלטה"** (§4.3).
+2. **Blocks** separated by section dividers. The last block is always **"סיבות ואישורים"** (§4.3).
 3. **StickyActionBar** with the submit button.
 
 Rules shared by all forms:
@@ -295,6 +300,7 @@ Rules shared by all forms:
 - **Validation runs on submit** and shows all errors at once. Exception: the phone "add" and "search" actions check the number immediately.
 - **Each error disappears** as soon as the user changes a field it relates to (listed per form).
 - **On success:** save, then go one step back to the history list (like closing, §3.1), with the saved record open. The form URL stays as a "forward" entry: going forward opens an empty create form, or redirects an edit URL of the replaced record to the list.
+- **Save confirmation** (decided 2026-10-20): a short success toast – `"ההגבלה נשמרה"` / `"ההגבלות נשמרו"` / `"ההיתר נשמר"` / `"ההודעה נשמרה"` / `"ההודעות נשמרו"` **(proposed)** (plural when one save created a record per number). It also confirms a save whose card an active search hides. The toasts are at the bottom, near where the user tapped (like a snackbar); on mobile they sit above the bottom action bar (§3.26), not over it.
 - **Close / cancel** goes back to the list without saving and without confirmation ([OQ-16](../pending-decisions.md#oq-16)).
 - **New record defaults:** start date = today, end date = tomorrow, both shown **muted** until changed. They are real values and are saved as is.
 - **Edit:** all fields load from the record; dates are not muted; accordions that contain values start open.
@@ -302,19 +308,23 @@ Rules shared by all forms:
 
 ### 4.3 Reasons & decision block
 
-Block title `"סיבות והחלטה"`. Identical in every form, except for the reason list:
+Block title `"סיבות ואישורים"` (Reasons and approvals, decided 2026-10-21). Identical in every form, except for the reason list:
 
 | Order | Field | Component (`ui-library` / External) | Placeholder | Required |
 |---|---|---|---|---|
-| 1 | `"סיבה"` (Reason) | `IpsSelectMobile` (NativeSelect behavior) | `"בחר סיבה"` (prototype: `"הכל"`) | **Yes** in every form (decided 2026-10-19) – error `"יש לבחור סיבה"` **(proposed)** |
-| 2 | `"פירוט"` (Details) | `IpsTextAreaMobile` (DetailsTextArea behavior) | `"הוסף פירוט"` | **Yes** in every form (decided 2026-10-18) – error `"יש להזין פירוט"` **(proposed)**. Only spaces count as empty |
+| 1 | `"סיבה"` (Reason) | `IpsSelectMobile` (NativeSelect behavior) | `"בחירת סיבה"` (prototype: `"הכל"`) | **Yes** in every form (decided 2026-10-19) – error `"יש לבחור סיבה"` **(proposed)** |
+| 2 | `"פירוט"` (Details) | `IpsTextAreaMobile` (DetailsTextArea behavior) | `"הוספת פירוט"` | **Yes** in every form (decided 2026-10-18) – error `"יש להזין פירוט"` **(proposed)**. Only spaces count as empty |
 | 3 | `"גורם מאשר"` (Approver) | **External 3rd-party Approver MFE** – see below | – | **Yes** – error `"יש לבחור גורם מאשר"` **(proposed)** |
 | 4 | `"צירוף קובץ"` (File) | `IpsFileUpload` → **Direct upload to SharePoint** – see below | – | **Yes** – error `"יש לצרף קובץ"` (A file must be attached) |
 
 Fields 1–3 are stacked 8px apart; the file field is 16px below them. See [OQ-15](../pending-decisions.md#oq-15).
 
 - **Approver (ApproverField):** the MFE is a full-width search box with its own open results list, and reports the chosen approver through `onSelect`. Once chosen, the field shows the approver's name and role with a `"החלפה"` (Change) button, which shows the MFE again; `"ביטול"` (Cancel) returns to the chosen approver. Until the MFE is integrated, a stand-in with the same contract is used (`src/integrations/approver-mfe`).
-- **File (ApprovalFileField):** without a file, a hint `"בחר קובץ ולחץ 'שמור קבצים' כדי לצרף אותו"` **(proposed)** and `IpsFileUpload` (one file, camera allowed). After the upload the file is registered in the service (to get its `approvedFileId`), and the field shows a file row (icon, name, X `"הסרת הקובץ"`) instead of `IpsFileUpload`. Saving waits while a file uploads. Upload or registration failure: `"העלאת הקובץ נכשלה, נסה שוב"` **(proposed)**.
+- **File (ApprovalFileField):** without a file, the layout's upload control (from `useFormControls()`), one file, camera allowed:
+  - **Mobile** (decided 2026-10-20): `IpsFileUploadMobile` – a field (`"בחירת קובץ"`) and a camera button (`"מצלמה"`) **(proposed)**. Choosing a file uploads it at once; while it uploads the field shows its name and `"מעלה…"` **(proposed)**. It keeps `IpsFileUpload`'s mechanics as they are (the same hidden file input, camera dialog and upload hook), because the upload is sensitive across iOS and Android in the organization's environment.
+  - **Desktop:** a hint `"בחר קובץ ולחץ 'שמור קבצים' כדי לצרף אותו"` **(proposed)** and `IpsFileUpload`.
+
+  After the upload the file is registered in the service (to get its `approvedFileId`), and the field shows a file row (icon, name, X `"הסרת הקובץ"`) instead of `IpsFileUpload`. Saving waits while a file uploads. Upload or registration failure: `"העלאת הקובץ נכשלה. ניתן לנסות שוב"` (decided 2026-10-21).
 
 ### 4.4 Desktop: history and form in the trainee drawer
 
@@ -328,6 +338,7 @@ Decided for desktop phase 2 (2026-10-19). On desktop the history and form screen
 2. **Toolbar:**
    - The section title (16px, regular) at the start of its row, and at the end of the same row the primary create button (text + plus icon, the regular button size). It takes the place of the mobile StickyActionBar (§3.26).
    - Below them, in one row: the search field, always visible and taking the remaining width (clear button `"ניקוי חיפוש"`), and the sort select.
+   - Below that row, the results count (§3.23 row 3), in a row of its own – at the drawer's width there is no room for it next to the search (decided 2026-10-21).
    - The sort select's closed value is only a sort icon and `"מיון"`, like the mobile sort button. At the drawer's width there is no room for "מיין לפי: …" next to the search (decided 2026-10-19). Its list has one row per field + direction (§3.25), and its accessible name includes the current row: `"מיון: {row}"` **(proposed)**.
    - Both are disabled until the records have loaded.
 3. **Cards:** ExpandableRecordCard (§3.22) on the drawer's white surface. Each card, and each skeleton card, gets a 1px `divider` frame on its wrapper. The cards render incrementally inside the drawer's scroll area.
@@ -339,7 +350,7 @@ Decided for desktop phase 2 (2026-10-19). On desktop the history and form screen
 - **Layer layout:**
   - At the top: a back arrow `"חזרה ללא שמירה"` **(proposed)** at the start, and the form title next to it (create / edit, as in each form spec; 18px, weight 500). An arrow and not an X: the drawer's X is the only X, and every inner screen goes back with an arrow (decided 2026-10-19).
   - The blocks scroll in the middle.
-  - At the bottom, a fixed footer: `"ביטול"` on the right and `"שמור"` on the left, two equal columns in the regular button size.
+  - At the bottom, a fixed footer: `"ביטול"` on the right and `"שמירה"` on the left, two equal columns in the regular button size.
   - The general save error is shown above the buttons.
 - **Focus:** moves into the layer when it opens. The back arrow and `"ביטול"` go back to the history without confirmation ([OQ-16](../pending-decisions.md#oq-16)), and focus returns to the button that opened the form as soon as the layer starts to leave.
 - **Controls:** the desktop controls of the library (MUI): dates (`IpsDatePicker` in Hebrew, `DD/MM/YY`, empty sections shown as `--`), times (`IpsTimePicker`, 24h, clear button), selects, text fields, text area and radio groups. Labels are above the fields.
@@ -347,7 +358,7 @@ Decided for desktop phase 2 (2026-10-19). On desktop the history and form screen
   - A date or time that is only partly typed counts as empty, so validation reports it.
 - **After save:**
   - The layer closes.
-  - The history reloads (skeleton), then shows the saved record open and focused (§4.1).
+  - The history refreshes silently (no skeleton, decided 2026-10-20), then shows the saved record open and focused (§4.1).
   - The trainees list behind the drawer refreshes silently ([01 §8.2](01_children_list.md)).
 - **Unavailable record:** an edit of a record that is no longer available (replaced or ended) closes the layer. This replaces the mobile redirect to the history URL.
 - **Closing the whole drawer** while a form has changes asks first ([02 §8.6](02_child_actions.md)).
@@ -360,7 +371,7 @@ Decided for desktop phase 2 (2026-10-19). On desktop the history and form screen
 | Date range | `DD/MM/YY-DD/MM/YY` | Rendered LTR, so the start date is on the left |
 | Time | `HH:mm` (24h) | |
 | Time range | `HH:mm-HH:mm` | LTR |
-| Duration | `"עד X דק'"` (up to X min) | Inside type labels the spaces are non-breaking so the value never wraps |
+| Duration | `"עד X דק׳"` (up to X min, with the Hebrew geresh) | Inside type labels the spaces are non-breaking so the value never wraps |
 | Devices summary | 1 device → its name; more → `"{n} מכשירים"` | Used in accordion summaries and permit summaries |
 | Phone | As entered, after normalization | Normalization: remove spaces, parentheses and hyphens. Valid: `^0\d{8,9}$` (landline 9 digits, mobile 10). See [OQ-20](../pending-decisions.md#oq-20) |
 

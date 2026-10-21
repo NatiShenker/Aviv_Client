@@ -1,16 +1,25 @@
 export const TRAINEE_RESTRICTIONS_TEXTS = {
-  title: "הגבלה/היתר לחניך",
+  title: "הגבלות לחניך",
 
   toolbar: {
     sectionTitle: "היסטוריית הגבלות",
     searchLabel: "חיפוש הגבלות",
-    searchPlaceholder: "חיפוש לפי סיבה, גורם או תאריך",
+    searchPlaceholder: "חיפוש חופשי",
+    // מתחת לחיפוש, במין של הרשומה (הוחלט 2026-10-21)
+    resultsCount: (count: number) => (count === 1 ? "מוצגת הגבלה אחת" : `מוצגות ${count} הגבלות`),
+  },
+
+  // מיון הסטטוס בהיסטוריה, במין של הרשומה (הוחלט 2026-10-21)
+  statusSort: {
+    activeFirst: "סטטוס: פעילות תחילה",
+    endedFirst: "סטטוס: שהסתיימו תחילה",
   },
 
   card: {
     activeBadge: "פעילה",
-    // מוצע - ממתין לאישור (pending-decisions)
-    createBasedOn: "צור הגבלה חדשה על בסיס זו",
+    endedBadge: "הסתיימה",
+    // הוחלט 2026-10-21
+    createBasedOn: "יצירת הגבלה דומה",
   },
 
   details: {
@@ -30,19 +39,16 @@ export const TRAINEE_RESTRICTIONS_TEXTS = {
   form: {
     createTitle: "הגבלה חדשה",
     editTitle: "עריכת הגבלה",
-    save: "שמור",
+    save: "שמירה",
+    // מוצע - ממתין לאישור (pending-decisions)
+    savedToast: "ההגבלה נשמרה",
 
     detailsBlock: {
       title: "פרטי ההגבלה",
-      dateRangeDescription: "ההגבלה תחול בתאריכים אלו בלבד",
     },
 
-    permitsBlock: {
-      title: "היתרים להגבלה",
-      hint: {
-        full: "ללא היתרים – חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח",
-        limited: "ללא הגדרה – מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה",
-      },
+    conditionsBlock: {
+      title: "שעות ומכשירים",
     },
   },
 } as const;

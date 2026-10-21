@@ -11,7 +11,7 @@ import {
 } from "./traineesListOptions";
 import { readStoredWingIds, storeWingIds } from "./wingFilterSelection";
 
-/** קבוצות הסינון שמתעדכנות ישירות (בלי שמירה ובלי תלות באחרות) */
+/** קבוצות הסינון שמתעדכנות ישירות (ללא שמירה וללא תלות באחרות) */
 export type TraineeFilterGroupsUpdate = Partial<
   Pick<TraineeListFiltersState, "locationIds" | "traineeRestriction" | "recipientMessage" | "phoneException" | "balance">
 >;
@@ -21,7 +21,7 @@ export interface TraineesListFilters {
   sort: TraineeSortOption;
   visibleTrainees: TraineeListItemDto[];
   isFilterActive: boolean;
-  /** כמה מקבוצות הסינון פעילות (לכפתור "נקה מסננים (n)") */
+  /** כמה מקבוצות הסינון פעילות (בלי סינון פעיל "ניקוי מסננים" מושבת) */
   activeFilterCount: number;
   setSearchQuery: (searchQuery: string) => void;
   setWingIds: (wingIds: number[]) => void;

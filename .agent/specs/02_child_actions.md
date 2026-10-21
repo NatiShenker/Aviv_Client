@@ -25,19 +25,19 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 ### 3.1 Header (side padding 16px)
 
 - **Right:** back arrow, one step back to the children list (aria-label `"חזרה"`, [00 §3.1](00_foundations.md)).
-- **Next to it (16px gap):** the trainee's full name and personal number as `h1`, 20/24, weight 500, in the same format as the children card: `"יוסי כהן | 012453"` (decided 2026-10-18).
+- **Next to it (16px gap):** the trainee's full name as `h1`, 20/24, weight 500, and the personal number in a line under it (14px, `text-secondary`) – the same order as the children card, and the same header shape as the history and form screens (a title and a gray line under it). Decided 2026-10-20; before it the `h1` was `"{name} | {code}"` (decided 2026-10-18), which was cut on narrow screens.
 - **Divider:** 17px below, 1px `#ededed`, 16px side margins.
 
 ### 3.2 Actions section (side padding 19px)
 
 - **Title** `"פעולות"` (Actions), 16/20, 31px below the divider.
-- **Rows** 15px below the title, 4px apart. Each row: 60px, a card on the page background – white, card radius, no border ([00 §2.3](00_foundations.md)) – 12px side padding; a 36px `#e0ebff` circle with a navy icon; the label (16/20); a chevron pointing left at the far side.
+- **Rows** 15px below the title, 4px apart. Each row: at least 60px tall, with 12px vertical padding, so a row with a description grows; a card on the page background – white, card radius, no border ([00 §2.3](00_foundations.md)) – 12px side padding; a 36px `#e0ebff` circle with a navy icon; the label (16/20) and, under it, a description line (12px, `text-secondary`, like the personal number under the name on the children card; decided 2026-10-21); a chevron pointing left at the far side.
 
-| Order | Label | Icon | Opens |
-|---|---|---|---|
-| 1 | `"הגבלה/היתר לחניך"` (Trainee restriction/permit) | Circle with a slash | `/trainee/{id}/trainee-restriction` – [03 history](03-trainee-restriction/03_trainee_restriction_history.md) |
-| 2 | `"הגבלה/היתר למספר"` (Number restriction/permit) | Open lock | `/trainee/{id}/number-restriction` – [04 history](04-number-restriction/04_number_restriction_history.md) |
-| 3 | `"הודעה קולית לנמען"` (Voice message to the recipient – decided 2026-10-18) | Microphone with plus | `/trainee/{id}/voice-message` – [05 history](05-voice-message/05_voice_message_history.md) |
+| Order | Label | Description (decided 2026-10-21) | Icon | Opens |
+|---|---|---|---|---|
+| 1 | `"הגבלות לחניך"` (Trainee restrictions; decided 2026-10-21) | `"חסימת השיחות של החניך, מלאה או לפי משך שיחה"` (Blocking the trainee's calls, fully or by call duration) | Circle with a slash | `/trainee/{id}/trainee-restriction` – [03 history](03-trainee-restriction/03_trainee_restriction_history.md) |
+| 2 | `"הגבלות והיתרים למספר"` (Number restrictions and permits; decided 2026-10-21) | `"חסימה או פתיחה של מספרי טלפון מסוימים"` (Blocking or opening specific phone numbers) | Open lock | `/trainee/{id}/number-restriction` – [04 history](04-number-restriction/04_number_restriction_history.md) |
+| 3 | `"הודעה קולית לנמען"` (Voice message to the recipient – decided 2026-10-18) | `"הודעה שמושמעת לנמען בשיחות של החניך"` (A message played to the recipient in the trainee's calls) | Microphone with plus | `/trainee/{id}/voice-message` – [05 history](05-voice-message/05_voice_message_history.md) |
 
 - **Permissions:** the menu is built from the permission IDs returned by `GetPermissionsForInstitution` for the selected institute, and is the same for every trainee. Each action has its own permission ID; a row is shown only when the user has it. The section (title included) is hidden when no action is permitted.
 - **Rows without a screen** are shown disabled.
@@ -46,7 +46,7 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 
 - **Divider** 24px below the actions (same style as §3.1).
 - **Title** `"מידע נוסף"` (Additional information), 16/20, 23px below the divider. Regular weight, like `"פעולות"` – every section title has the same weight, on both layouts (decided 2026-10-19; the sketch had it bold).
-- **One row**, 15px below: `"היסטוריית דקות"` (Minutes history; the spelling "היסטוריית" is used on every screen – decided 2026-10-18), clock icon, same row style. It has no destination ([OQ-08](../pending-decisions.md#oq-08)), so it is shown disabled.
+- **One row**, 15px below: `"היסטוריית דקות"` (Minutes history; the spelling "היסטוריית" is used on every screen – decided 2026-10-18), clock icon, same row style, with no description line (decided 2026-10-21). It has no destination ([OQ-08](../pending-decisions.md#oq-08)), so it is shown disabled.
 - **Permission:** the whole section (divider, title and rows) requires one general permission ID.
 
 ---
@@ -65,8 +65,8 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 | Trainee loading | Back arrow and the menu are shown; the title is empty until the name arrives |
 | Trainee not found (or invalid ID) | Under the header: `"החניך לא נמצא"` **(proposed)** – until the not-found screen is designed ([OQ-21](../pending-decisions.md#oq-21)) |
 | Trainee failed | The title stays empty; the menu still works. A retry is not needed on this screen |
-| Permissions loading | Skeleton of three rows |
-| Permissions failed | `"לא ניתן לטעון את ההרשאות לפנימייה"` + `"נסה שוב"` (reloads the permissions) |
+| Permissions loading | A skeleton of the actions section: a title bar and three rows shaped like the real ones – icon circle, label and description – at their height, so nothing moves when the menu arrives (decided 2026-10-21). On desktop each skeleton row has the drawer's row frame |
+| Permissions failed | `"לא ניתן לטעון את ההרשאות לפנימייה"` + `"טעינה מחדש"` (reloads the permissions; decided 2026-10-21) |
 | No permitted item | `"אין לך הרשאה לפעולות על חניכים בפנימייה זו"` **(proposed)** |
 
 - **Direct link to an action screen without its permission:** the screen shows `"אין לך הרשאה לפעולה זו"` **(proposed)** under its header.
@@ -109,7 +109,7 @@ The top level of the drawer's text hierarchy ([design.md](../design.md) › Side
 
 The sections of §3.2–§3.3: `"פעולות"` with the permitted actions, and `"מידע נוסף"` with `"היסטוריית דקות"` disabled ([OQ-08](../pending-decisions.md#oq-08)). The sketch's tabs are not used.
 
-- The rows sit on the drawer's white surface, so they get a 1px `divider` frame (`border-strong` on hover).
+- The rows sit on the drawer's white surface, so they get a 1px `divider` frame (`border-strong` on hover). They show the same description lines as on mobile; the card's ⋮ menu (§8.1) shows the labels only.
 - An action opens its history screen in the drawer ([00 §4.4](00_foundations.md)).
 - The permission states are those of §7.
 
@@ -127,14 +127,14 @@ The sections of §3.2–§3.3: `"פעולות"` with the permitted actions, and 
 ### 8.6 Closing with unsaved changes
 
 - Clicking the overlay, pressing Escape or the drawer's X while the open form has a changed field opens a dialog first:
-  - title `"לצאת בלי לשמור?"`, text `"השינויים בטופס לא יישמרו."`;
+  - title `"לצאת ללא שמירה?"`, text `"השינויים בטופס לא יישמרו."`;
   - on the right, `"המשך עריכה"`: outlined, and it gets the initial focus, as the least destructive action;
-  - on the left, `"יציאה בלי שמירה"`: contained, in the error color;
-  - all texts **(proposed)**.
+  - on the left, `"יציאה ללא שמירה"`: contained, in the error color;
+  - all texts **(proposed)**; "ללא" rather than "בלי" decided 2026-10-21.
 - Escape or the overlay in the dialog keeps editing.
 - A form that was opened but not changed closes without asking.
 - The form's own close (the X on mobile, the back arrow on desktop) and `"ביטול"` go back to the history without asking ([OQ-16](../pending-decisions.md#oq-16)).
-- A form that was closed and is still sliding out no longer counts: the overlay or Escape right after `"שמור"` / `"ביטול"` closes the drawer without asking.
+- A form that was closed and is still sliding out no longer counts: the overlay or Escape right after `"שמירה"` / `"ביטול"` closes the drawer without asking.
 
 ### 8.7 After a save
 

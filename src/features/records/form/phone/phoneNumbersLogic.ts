@@ -4,11 +4,11 @@ import { FORM_TEXTS } from "../formTexts";
 
 const TEXTS = FORM_TEXTS.phone;
 
-/** תוצאת "הוסף": הרשימה החדשה, או שגיאה לשדה */
+/** תוצאת "הוספה": הרשימה החדשה, או שגיאה לשדה */
 export type AddPhoneResult = { phones: PhoneString[] } | { error: string };
 
 /**
- * "הוסף" בשדה של כמה מספרים (ספק 04 form §4.7): מנרמלים; לא תקין - שגיאה; כבר ברשימה - שגיאה.
+ * "הוספה" בשדה של כמה מספרים (ספק 04 form §4.7): מנרמלים; לא תקין - שגיאה; כבר ברשימה - שגיאה.
  * שדה ריק - אין שינוי.
  */
 export function tryAddPhone(draft: string, phones: PhoneString[]): AddPhoneResult {
