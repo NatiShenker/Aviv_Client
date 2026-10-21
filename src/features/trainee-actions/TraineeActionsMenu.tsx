@@ -1,6 +1,7 @@
 import { Fragment, type ReactNode } from "react";
 import { INSTITUTES_TEXTS } from "@/features/institutes/institutesTexts";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
+import SectionHeading, { useSectionHeadingLevel } from "@/shared/components/SectionHeading";
 import { useInstitutes } from "@/store/institutesContext";
 import { ACTION_ROW_CLASS } from "./ActionRow";
 import { buildPermittedTraineeMenu, isTraineeMenuEmpty } from "./traineeActionsLogic";
@@ -16,11 +17,20 @@ type RenderRowFrame = (row: ReactNode) => ReactNode;
 // בלי עוטף - השורה כמו שהיא (במובייל השורות על רקע העמוד, בלי מסגרת)
 const showRowAsIs: RenderRowFrame = (row) => row;
 
+// במובייל המקטעים מוזחים מעט פנימה ביחס לקו המפריד (ספק 02: קו ב-16px, מקטעים ב-19px) - יישור אופטי מכוון:
+// השורות מתיישרות לקצה הנראה של חץ החזרה שבכותרת העמוד, שהקו שלו כ-4px בתוך הריבוע שלו
+const MOBILE_SECTION_INSET_CLASS = "px-1";
+
 interface TraineeActionsMenuProps {
   /** השורה של כל פריט. כל פריסה קובעת מה השורה עושה (במובייל - קישור לעמוד של הפעולה) */
   renderItemRow: (item: TraineeMenuItem) => ReactNode;
   /** העוטף של כל שורה בשלד - אותה מסגרת כמו של השורות האמיתיות בפריסה */
   renderSkeletonRowFrame?: RenderRowFrame;
+  /**
+   * הזחת המקטעים. ברירת המחדל - של המובייל. במגירה בדסקטופ אין חץ חזרה במסך הפעולות, והתמונה בכותרת
+   * יושבת על קו התוכן, ולכן שם בלי הזחה (הוחלט 2026-10-21)
+   */
+  sectionInsetClass?: string;
 }
 
 /**
@@ -30,13 +40,14 @@ interface TraineeActionsMenuProps {
 export default function TraineeActionsMenu({
   renderItemRow,
   renderSkeletonRowFrame = showRowAsIs,
+  sectionInsetClass = MOBILE_SECTION_INSET_CLASS,
 }: TraineeActionsMenuProps) {
   const { permissions } = useInstitutes();
 
   switch (permissions.status) {
     case "idle":
     case "loading":
-      return <MenuSkeleton renderRowFrame={renderSkeletonRowFrame} />;
+      return <MenuSkeleton renderRowFrame={renderSkeletonRowFrame} insetClass={sectionInsetClass} />;
     case "error":
       return (
         <ScreenStateMessage
@@ -58,7 +69,12 @@ export default function TraineeActionsMenu({
       return (
         <>
           {hasActions && (
-            <MenuSection title={TEXTS.sections.actions} items={menu.actionItems} renderItemRow={renderItemRow} />
+            <MenuSection
+              title={TEXTS.sections.actions}
+              items={menu.actionItems}
+              renderItemRow={renderItemRow}
+              insetClass={sectionInsetClass}
+            />
           )}
           {hasActions && hasAdditionalInfo && <div className="mt-6 border-t border-divider" />}
           {hasAdditionalInfo && (
@@ -66,6 +82,7 @@ export default function TraineeActionsMenu({
               title={TEXTS.sections.additionalInfo}
               items={menu.additionalInfoItems}
               renderItemRow={renderItemRow}
+              insetClass={sectionInsetClass}
             />
           )}
         </>
@@ -74,20 +91,23 @@ export default function TraineeActionsMenu({
   }
 }
 
-// המקטעים מוזחים מעט פנימה ביחס לקו המפריד (ספק 02: קו ב-16px, מקטעים ב-19px)
-const SECTION_INSET_CLASS = "px-1";
-
 interface MenuSectionProps {
   title: string;
   items: TraineeMenuItem[];
   renderItemRow: (item: TraineeMenuItem) => ReactNode;
+  insetClass: string;
 }
 
-// כל כותרות המקטעים באותו משקל - בלי הדגשה של מקטע אחד (ספק 02 §3.3, הוחלט 2026-10-19)
-function MenuSection({ title, items, renderItemRow }: MenuSectionProps) {
+// כל כותרות המקטעים באותו משקל - בלי הדגשה של מקטע אחד (ספק 02 §3.3, הוחלט 2026-10-19).
+// רמת הכותרת לפי המסגרת: במובייל h2 מתחת לכותרת העמוד, במגירה מתחת לשם החניך
+function MenuSection({ title, items, renderItemRow, insetClass }: MenuSectionProps) {
+  const headingLevel = useSectionHeadingLevel();
+
   return (
-    <section className={`mt-7 ${SECTION_INSET_CLASS}`}>
-      <h2 className="text-base">{title}</h2>
+    <section className={`mt-7 ${insetClass}`}>
+      <SectionHeading level={headingLevel} className="text-base">
+        {title}
+      </SectionHeading>
       <ul className="mt-4 flex flex-col gap-1">
         {items.map((item) => (
           <li key={item.key}>{renderItemRow(item)}</li>
@@ -99,15 +119,16 @@ function MenuSection({ title, items, renderItemRow }: MenuSectionProps) {
 
 interface MenuSkeletonProps {
   renderRowFrame: RenderRowFrame;
+  insetClass: string;
 }
 
 /**
  * שלד בצורת מקטע "פעולות", עד שההרשאות מגיעות: אותם גבהים כמו הכותרת והשורות האמיתיות (עם שורת ההסבר),
  * כדי שהמסך לא יקפוץ. ההבהוב פועל רק כשהמשתמש לא ביקש להפחית תנועה
  */
-function MenuSkeleton({ renderRowFrame }: MenuSkeletonProps) {
+function MenuSkeleton({ renderRowFrame, insetClass }: MenuSkeletonProps) {
   return (
-    <div role="status" className={`mt-7 ${SECTION_INSET_CLASS}`}>
+    <div role="status" className={`mt-7 ${insetClass}`}>
       <span className="sr-only">{TEXTS.states.loadingActions}</span>
       <div aria-hidden="true" className="motion-safe:animate-pulse">
         {/* בגובה שורת הכותרת (16/24) */}

@@ -18,10 +18,13 @@ export interface ActionRowContentProps {
 // גובה מינימלי ולא קבוע, כדי ששורה עם הסבר תגדל
 export const ACTION_ROW_CLASS = "flex min-h-15 w-full items-center gap-3 rounded-card bg-paper px-3 py-3";
 
-/** שורה של פעולה שאין לה עדיין יעד (OQ-08) - מוצגת מנוטרלת, בלי שורת הסבר */
+/**
+ * שורה של פעולה שאין לה עדיין יעד (OQ-08) - מוצגת מנוטרלת, בלי שורת הסבר.
+ * role, כדי שקורא מסך יקריא אותה ככפתור שאינו זמין: aria-disabled לבדו לא חל על div בלי תפקיד
+ */
 export function DisabledActionRow({ label, icon }: ActionRowContentProps) {
   return (
-    <div aria-disabled="true" className={`${ACTION_ROW_CLASS} text-text-disabled`}>
+    <div role="button" aria-disabled="true" className={`${ACTION_ROW_CLASS} text-text-disabled`}>
       <ActionRowContent label={label} icon={icon} />
     </div>
   );

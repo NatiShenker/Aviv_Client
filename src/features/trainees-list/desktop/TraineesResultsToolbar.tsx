@@ -20,7 +20,8 @@ interface TraineesResultsToolbarProps {
 
 /**
  * הסרגל שבראש פאנל התוצאות בדסקטופ: החיפוש ומיד אחריו מספר התוצאות שלו, והמיון בקצה.
- * אין תוויות מעל השדות, כדי שכל השורה תהיה בגובה אחד: לחיפוש יש placeholder, והמיון אומר "מיין לפי" בערך שלו
+ * אין תוויות מעל השדות, כדי שכל השורה תהיה בגובה אחד: לחיפוש יש placeholder, והמיון אומר "מיון לפי" בערך שלו.
+ * בלי קו מתחת לסרגל: קווים רק מתחת לכותרת המגירה ומעל פוטר הטופס (design.md)
  */
 export default function TraineesResultsToolbar({
   searchQuery,
@@ -32,7 +33,7 @@ export default function TraineesResultsToolbar({
   isDisabled,
 }: TraineesResultsToolbarProps) {
   return (
-    <div className="flex shrink-0 items-center gap-4 border-b border-divider p-4">
+    <div className="flex shrink-0 items-center gap-4 p-4">
       <div className="w-80 shrink-0">
         <IpsTextField
           type="search"

@@ -8,13 +8,15 @@ export const TRAINEES_LIST_TEXTS = {
     filter: "סינון",
     filterWhenActive: "סינון, יש סינון פעיל",
     sort: "מיון",
-    // מוצעים - ממתינים לאישור (pending-decisions)
+    // מוצע - ממתין לאישור (pending-decisions)
     resultsCount: (count: number) => (count === 1 ? "מוצג חניך אחד" : `מוצגים ${count} חניכים`),
-    sortValue: (sortLabel: string) => `מיין לפי: ${sortLabel}`,
+    // הערך הסגור של המיון בדסקטופ: שם פעולה ונקודתיים אחת, "מיון לפי שם: א׳ עד ת׳" (הוחלט 2026-10-21)
+    sortValue: (sortLabel: string) => `מיון לפי ${sortLabel}`,
   },
 
-  // פאנל המסננים בדסקטופ. "ניקוי מסננים" גם במגירת הסינון במובייל. מוצע - ממתין לאישור (pending-decisions)
+  // פאנל המסננים בדסקטופ. "ניקוי מסננים" גם במגירת הסינון במובייל
   filterPanel: {
+    // השם הנגיש של הפאנל - אין לו כותרת גלויה (הוחלט 2026-10-21)
     title: "מסננים",
     // בלי מספר המסננים הפעילים (הוחלט 2026-10-21)
     clearFilters: "ניקוי מסננים",
@@ -23,7 +25,7 @@ export const TRAINEES_LIST_TEXTS = {
   // דסקטופ: השם הנגיש של אזור הכרטיסים שנגלל
   cardsRegionLabel: "רשימת החניכים",
   // דסקטופ: השם הנגיש של הכרטיס כולו, שפותח את מגירת הפעולות. מוצע - ממתין לאישור (pending-decisions)
-  openTraineeActions: (traineeDisplayName: string) => `פתיחת הפעולות של ${traineeDisplayName}`,
+  openTraineeActions: (traineeAccessibleName: string) => `פתיחת הפעולות של ${traineeAccessibleName}`,
 
   states: {
     selectInstitute: "יש לבחור פנימייה כדי להציג את רשימת החניכים",

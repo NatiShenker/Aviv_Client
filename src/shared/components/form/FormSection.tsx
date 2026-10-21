@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import SectionHeading, { useSectionHeadingLevel } from "../SectionHeading";
 
 interface FormSectionProps {
   title: string;
@@ -9,12 +10,16 @@ interface FormSectionProps {
 
 /**
  * בלוק בטופס: כותרת ותוכן. הקו המפריד בין בלוקים בא מהעוטף (divide-y), כך שאין קו לפני הבלוק הראשון
- * (ספק 00 §3.2, §4.2).
+ * (ספק 00 §3.2, §4.2). רמת הכותרת לפי המסגרת (SectionHeading) - המראה זהה בכל רמה
  */
 export default function FormSection({ title, hint, children }: FormSectionProps) {
+  const headingLevel = useSectionHeadingLevel();
+
   return (
     <section className="py-6">
-      <h2 className="text-base">{title}</h2>
+      <SectionHeading level={headingLevel} className="text-base">
+        {title}
+      </SectionHeading>
       {hint && <p className="mt-1 text-sm text-text-muted">{hint}</p>}
       <div className={hint ? "mt-2" : "mt-4"}>{children}</div>
     </section>

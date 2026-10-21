@@ -1,4 +1,4 @@
-import { forwardRef, useId } from "react";
+import { forwardRef, useId, useImperativeHandle, useRef } from "react";
 import { IpsIconButton, IpsTextField } from "ui-library";
 import AppIcon from "@/shared/components/AppIcon";
 import FieldLabelText from "@/shared/components/form/FieldLabelText";
@@ -33,8 +33,17 @@ const DesktopTextField = forwardRef<HTMLInputElement, TextFieldProps>(function D
   ref,
 ) {
   const labelId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  // הטופס מקבל את השדה עצמו (למשל כדי להעביר אליו פוקוס כשהוא מופיע)
+  useImperativeHandle(ref, () => inputRef.current as HTMLInputElement, []);
   const hasValue = value !== "";
   const canClear = hasValue && Boolean(clearButtonLabel);
+
+  // כפתור הניקוי נעלם עם הערך, ולכן הפוקוס עובר לשדה - ולא נופל לתחילת המגירה
+  const clearValue = () => {
+    onChange?.("");
+    inputRef.current?.focus();
+  };
 
   const fieldEnd = (
     <span className="flex items-center gap-1">
@@ -45,7 +54,7 @@ const DesktopTextField = forwardRef<HTMLInputElement, TextFieldProps>(function D
           edge="end"
           icon={<AppIcon name="close" size="small" />}
           aria-label={clearButtonLabel}
-          onClick={() => onChange?.("")}
+          onClick={clearValue}
         />
       ) : (
         endIcon
@@ -57,7 +66,7 @@ const DesktopTextField = forwardRef<HTMLInputElement, TextFieldProps>(function D
     <div className="min-w-0">
       {label && <FieldLabelText id={labelId} text={label} isRequired={required} />}
       <IpsTextField
-        ref={ref}
+        ref={inputRef}
         id={id}
         fullWidth
         type={type}
@@ -75,6 +84,7 @@ const DesktopTextField = forwardRef<HTMLInputElement, TextFieldProps>(function D
           "aria-label": ariaLabel,
           "aria-labelledby": label && !ariaLabel ? labelId : undefined,
           "aria-describedby": ariaDescribedBy,
+          "aria-required": required,
         }}
         endAdornment={fieldEnd}
       />

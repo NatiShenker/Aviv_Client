@@ -24,33 +24,40 @@ export default function TraineeCard({ trainee, menu }: TraineeCardProps) {
           <TraineePhoto traineeId={trainee.id} />
           {/* השם ומתחתיו המספר: השם מקבל את כל הרוחב ליד התגית, והמספר תמיד קריא (לא נחתך) */}
           <div className="min-w-0 pt-1">
-            <h2 className="truncate text-sm font-medium text-text-primary">{trainee.fullName}</h2>
+            {/* בשם שנחתך - השם המלא בריחוף */}
+            <h2 title={trainee.fullName} className="truncate text-sm font-medium text-text-primary">
+              {trainee.fullName}
+            </h2>
             <p className="mt-0.5 text-xs text-text-secondary">{trainee.traineeCode}</p>
           </div>
         </div>
+        {/* בלי הגבלה אין תגית: המצב הרגיל לא מסומן, כדי שהחניכים המוגבלים יבלטו */}
         <div className="flex shrink-0 items-center gap-1">
-          <TraineeStatusBadge restrictedUntilDate={trainee.restrictedUntilDate ?? null} />
+          {trainee.restrictedUntilDate && <TraineeStatusBadge restrictedUntilDate={trainee.restrictedUntilDate} />}
           {menu}
         </div>
       </div>
 
-      <div className="mt-4 border-t border-divider" />
+      {/* קו פנימי בהיר מהמסגרת של הכרטיס בדסקטופ, כדי שהכרטיס לא ייקרא כשתי קופסאות (ספק 00 §2.1, border-inner) */}
+      <div className="mt-4 border-t border-grey-100" />
 
-      {/* מבנה קבוע בכל רוחב: המיקום מימין והדקות משמאל, והפער (חריג) בשורה משלו רק כשהוא קיים */}
+      {/* מבנה קבוע בכל רוחב: המיקום מימין והדקות משמאל, והפער (חריג) בשורה משלו רק כשהוא קיים -
+          משמאל, מתחת לדקות, כי הוא נוגע ליתרת הדקות שמגיעה מסלקום (הוחלט 2026-10-21).
+          האייקונים 16, ביחס לטקסט של 12 */}
       <div className="mt-2 flex flex-col gap-1 text-xs text-text-muted">
         <div className="flex items-center justify-between gap-3">
           <span className="flex min-w-0 items-center gap-1">
-            <AppIcon name="location" />
+            <AppIcon name="location" size="small" />
             <span className="truncate">{buildTraineeLocationLabel(trainee)}</span>
           </span>
           <span className="flex shrink-0 items-center gap-1">
-            <AppIcon name="timer" />
+            <AppIcon name="timer" size="small" />
             {TEXTS.minutes(trainee.remainingMinutes)}
           </span>
         </div>
         {trainee.flags.hasCellcomDiscrepancy && (
-          <span className="flex items-center gap-1 text-warning">
-            <AppIcon name="warning" />
+          <span className="flex items-center gap-1 self-end text-warning">
+            <AppIcon name="warning" size="small" />
             {TEXTS.cellcomDiscrepancy}
           </span>
         )}

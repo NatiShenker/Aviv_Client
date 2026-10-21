@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { IpsIconButton } from "ui-library";
-import { buildTraineeDisplayName } from "@/features/trainee/traineeDisplay";
 import TraineePhoto from "@/features/trainee/TraineePhoto";
-import TraineeStatusBadge from "@/features/trainee/TraineeStatusBadge";
 import { TRAINEE_TEXTS } from "@/features/trainee/traineeTexts";
 import AppIcon from "@/shared/components/AppIcon";
+import { LiveAnnouncerProvider } from "@/shared/components/LiveAnnouncer";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
 import { DRAWER_ROW_GUTTER_CLASS } from "@/shells/desktop/drawer/drawerSpacing";
 import SideDrawer from "@/shells/desktop/drawer/SideDrawer";
@@ -78,12 +77,15 @@ export default function TraineeDrawer({
           </div>
         ) : (
           <UnsavedChangesReporter onChange={setHasUnsavedChanges}>
-            <DrawerScreens
-              key={openingKey}
-              trainee={trainee}
-              initialScreen={initialScreen}
-              onRecordSaved={onRecordSaved}
-            />
+            {/* המגירה מודאלית ומסתירה מקורא המסך את הטוסט - הודעת השמירה מוכרזת גם כאן */}
+            <LiveAnnouncerProvider>
+              <DrawerScreens
+                key={openingKey}
+                trainee={trainee}
+                initialScreen={initialScreen}
+                onRecordSaved={onRecordSaved}
+              />
+            </LiveAnnouncerProvider>
           </UnsavedChangesReporter>
         )}
       </SideDrawer>
@@ -104,18 +106,34 @@ interface TraineeDrawerHeaderProps {
   onClose: () => void;
 }
 
-// הרמה העליונה בהיררכיה של המגירה (ספק 02 §8.3): תמונה כמו בכרטיס, "שם | מספר" (20, מודגש) ומתחתיו תגית הסטטוס, וסגירה
+// הרמה העליונה בהיררכיה של המגירה (ספק 02 §8.3): תמונה כמו בכרטיס, השם (20, מודגש) ומתחתיו המספר האישי
+// באפור - כמו בכרטיס - וסגירה. בלי תגית סטטוס (הוחלט 2026-10-21)
 function TraineeDrawerHeader({ trainee, titleId, onClose }: TraineeDrawerHeaderProps) {
   return (
     <header className={`flex shrink-0 items-start gap-4 border-b border-divider py-5 ${DRAWER_ROW_GUTTER_CLASS}`}>
       {trainee && <TraineePhoto traineeId={trainee.id} />}
-      <div className="flex min-w-0 flex-1 flex-col items-start gap-2 pt-1">
-        <h2 id={titleId} className="max-w-full truncate text-xl font-medium text-text-primary">
-          {trainee ? buildTraineeDisplayName(trainee) : ""}
-        </h2>
-        {trainee && <TraineeStatusBadge restrictedUntilDate={trainee.restrictedUntilDate ?? null} />}
+      <div className="min-w-0 flex-1 pt-1">
+        {trainee ? (
+          <>
+            <h2 id={titleId} title={trainee.fullName} className="truncate text-xl font-medium text-text-primary">
+              {trainee.fullName}
+            </h2>
+            <p className="mt-0.5 text-sm text-text-secondary">{trainee.traineeCode}</p>
+          </>
+        ) : (
+          // החניך כבר לא ברשימה: ההודעה מוצגת מתחת לכותרת, וכאן היא רק השם הנגיש של המגירה
+          <h2 id={titleId} className="sr-only">
+            {TRAINEE_TEXTS.notFound}
+          </h2>
+        )}
       </div>
-      <IpsIconButton edge="end" icon={<AppIcon name="close" />} aria-label={TEXTS.drawer.close} onClick={onClose} />
+      <IpsIconButton
+        edge="end"
+        icon={<AppIcon name="close" />}
+        aria-label={TEXTS.drawer.close}
+        tooltip={TEXTS.drawer.close}
+        onClick={onClose}
+      />
     </header>
   );
 }

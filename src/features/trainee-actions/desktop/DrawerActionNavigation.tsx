@@ -18,7 +18,13 @@ interface DrawerActionNavigationProps {
 export default function DrawerActionNavigation({ actionKey, onBack, onSwitchAction }: DrawerActionNavigationProps) {
   return (
     <>
-      <IpsIconButton edge="start" icon={<AppIcon name="back" />} aria-label={TEXTS.drawer.backToActions} onClick={onBack} />
+      <IpsIconButton
+        edge="start"
+        icon={<AppIcon name="back" />}
+        aria-label={TEXTS.drawer.backToActions}
+        tooltip={TEXTS.drawer.backToActions}
+        onClick={onBack}
+      />
       <ActionSwitcher actionKey={actionKey} onSwitchAction={onSwitchAction} />
     </>
   );
@@ -39,7 +45,8 @@ function ActionSwitcher({ actionKey, onSwitchAction }: ActionSwitcherProps) {
   const canSwitch = permittedActions.length > 1 && permittedActions.some((item) => item.key === actionKey);
 
   if (!canSwitch) {
-    return <h2 className="min-w-0 truncate text-lg font-medium">{TEXTS.items[actionKey]}</h2>;
+    // h3: מתחת לשם החניך (h2) שבכותרת המגירה
+    return <h3 className="min-w-0 truncate text-lg font-medium">{TEXTS.items[actionKey]}</h3>;
   }
 
   const handleChange = (selectedValue: unknown) => {

@@ -10,7 +10,7 @@ import type { DetailItem } from "./recordDetails";
 import RecordIconCircle, { type RecordIconTone } from "./RecordIconCircle";
 
 interface ExpandableRecordCardProps {
-  /** מזהה ה-DOM של הכרטיס, למשל כדי לגלול אליו אחרי שמירה */
+  /** מזהה ה-DOM של הכרטיס (על כפתור התקציר), כדי לגלול אליו ולהעביר אליו פוקוס אחרי שמירה */
   id?: string;
   icon: AppIconName;
   iconTone: RecordIconTone;
@@ -51,8 +51,10 @@ export default function ExpandableRecordCard({
   const contentId = useId();
 
   return (
-    <article id={id} className="rounded-card bg-paper p-4">
+    <article className="rounded-card bg-paper p-4">
+      {/* המזהה על כפתור התקציר ולא על הכרטיס: אחרי שמירה הפוקוס עובר לכאן, ו-article לא מקבל פוקוס */}
       <button
+        id={id}
         type="button"
         aria-expanded={isOpen}
         aria-controls={contentId}

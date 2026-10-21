@@ -21,6 +21,16 @@ export function focusField(elementId: string): void {
   });
 }
 
+/**
+ * מעביר פוקוס לאלמנט בלי לגלול - כשפקד מחליף את עצמו באותו מקום (למשל שורת הקובץ במקום פקד ההעלאה),
+ * כדי שהפוקוס לא ייפול לתחילת העמוד. בפריים הבא, אחרי שהאלמנט החדש כבר בדף
+ */
+export function focusInPlace(elementId: string): void {
+  requestAnimationFrame(() => {
+    document.getElementById(elementId)?.focus({ preventScroll: true });
+  });
+}
+
 // סוגי input שמקלידים בהם טקסט חופשי
 const TEXT_INPUT_TYPES = ["text", "search", "tel", "email", "number", "url", "password"];
 

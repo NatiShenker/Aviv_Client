@@ -6,6 +6,7 @@ import { useTraineeDrawer } from "@/features/trainee-actions/desktop/useTraineeD
 import DesktopInstituteSelector from "@/features/trainees-list/desktop/DesktopInstituteSelector";
 import DesktopPage from "@/shells/desktop/DesktopPage";
 import { useInstitutes } from "@/store/institutesContext";
+import type { WingDto } from "@/types/organization.schema";
 import { focusField } from "@/utils/dom";
 import { forgetTraineesListPosition } from "../traineesListMemory";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
@@ -13,6 +14,9 @@ import { useTraineesListState } from "../useTraineesListState";
 import TraineeCardsGrid, { TRAINEE_CARDS_REGION_ID } from "./TraineeCardsGrid";
 import TraineesFiltersPanel from "./TraineesFiltersPanel";
 import TraineesResultsToolbar from "./TraineesResultsToolbar";
+
+// הפניה קבועה, כדי שרשימה ריקה לא תיחשב "רשימה חדשה" בכל רינדור
+const NO_WINGS: WingDto[] = [];
 
 /** מסך הבית בדסקטופ: רשימת החניכים בפנימייה הנבחרת (ספק 01, פריסת דסקטופ) */
 export default function DesktopTraineesListScreen() {
@@ -49,25 +53,26 @@ function DesktopTraineesListContent() {
   return (
     <>
       <div className="flex shrink-0 items-center justify-between gap-4">
-        <h1 className="text-2xl font-medium">{TRAINEES_LIST_TEXTS.title}</h1>
+        {/* 20/500: דרגה אחת מעל הכותרת במובייל (18), כמו הבורר שלידה (16 במובייל, 18 כאן) */}
+        <h1 className="text-xl font-medium">{TRAINEES_LIST_TEXTS.title}</h1>
         {/* הבורר יורש את הגופן והצבע מהעוטף, ורוחבו לפי שם הפנימייה */}
         <div className="min-w-0 max-w-80 text-lg font-medium text-text-primary">
           <DesktopInstituteSelector />
         </div>
       </div>
 
-      {selectedInstitute && (
-        <TraineesFiltersPanel
-          filters={listFilters.filters}
-          wings={selectedInstitute.wings}
-          locations={locations}
-          activeFilterCount={listFilters.activeFilterCount}
-          isDisabled={areToolsDisabled}
-          onWingIdsChange={listFilters.setWingIds}
-          onFiltersChange={listFilters.updateFilters}
-          onClearFilters={listFilters.clearFilters}
-        />
-      )}
+      {/* גם לפני שנבחרה פנימייה - מושבת, כדי שהתוצאות לא יזוזו כשהיא נבחרת */}
+      <TraineesFiltersPanel
+        filters={listFilters.filters}
+        wings={selectedInstitute?.wings ?? NO_WINGS}
+        locations={locations}
+        activeFilterCount={listFilters.activeFilterCount}
+        hasSelectedInstitute={selectedInstitute !== null}
+        isDisabled={areToolsDisabled}
+        onWingIdsChange={listFilters.setWingIds}
+        onFiltersChange={listFilters.updateFilters}
+        onClearFilters={listFilters.clearFilters}
+      />
 
       {/* פאנל התוצאות ממלא את שאר הגובה: הסרגל קבוע, ורק אזור הכרטיסים שמתחתיו גולל */}
       <div className="flex min-h-0 flex-1 flex-col rounded-card bg-paper">

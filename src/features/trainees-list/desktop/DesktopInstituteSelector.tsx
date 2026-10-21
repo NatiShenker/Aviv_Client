@@ -1,7 +1,7 @@
 import { IpsSelect } from "ui-library";
 import { INSTITUTES_TEXTS } from "@/features/institutes/institutesTexts";
 import { useInstituteOptions } from "@/features/institutes/useInstituteOptions";
-import { CONTEXT_SELECT_SX } from "@/shells/desktop/contextSelectSx";
+import { CONTEXT_SELECT_SX, EMPTY_CONTEXT_SELECT_SX } from "@/shells/desktop/contextSelectSx";
 
 /** בורר הפנימייה בשורת הכותרת בדסקטופ. כל בחירה נשמרת לזכרון המקומי דרך selectInstitute */
 export default function DesktopInstituteSelector() {
@@ -15,7 +15,8 @@ export default function DesktopInstituteSelector() {
       options={options}
       value={selectedInstituteId ?? undefined}
       onChange={selectInstituteByValue}
-      sx={CONTEXT_SELECT_SX}
+      // לפני בחירה: "בחירת פנימייה" באפור, כמו במובייל
+      sx={selectedInstituteId === null ? EMPTY_CONTEXT_SELECT_SX : CONTEXT_SELECT_SX}
     />
   );
 }

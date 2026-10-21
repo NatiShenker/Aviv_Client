@@ -73,8 +73,9 @@ export const FORM_TEXTS = {
     filePlaceholder: "בחירת קובץ",
     fileUploading: "מעלה…",
     fileCamera: "מצלמה",
-    // מוצע. דסקטופ בלבד - IpsFileUpload מעלה רק אחרי לחיצה על הכפתור שלו (ראו pending-decisions)
-    fileHint: "בחר קובץ ולחץ 'שמור קבצים' כדי לצרף אותו",
+    // דסקטופ בלבד - IpsFileUpload מעלה רק אחרי לחיצה על הכפתור שלו (ראו pending-decisions). לשון סתמית ומירכאות
+    // עבריות (הוחלט 2026-10-21)
+    fileHint: "יש לבחור קובץ וללחוץ על ״שמור קבצים״ כדי לצרף אותו",
     removeFile: "הסרת הקובץ",
     retry: "טעינה מחדש",
   },

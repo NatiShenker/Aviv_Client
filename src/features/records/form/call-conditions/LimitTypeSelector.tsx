@@ -51,6 +51,8 @@ export default function LimitTypeSelector({
   const durationInputRef = useRef<HTMLInputElement>(null);
   // הפוקוס עובר לשדה המשך רק כשהמשתמש החליף סוג - לא כשרשומה קיימת נפתחת לעריכה
   const [shouldFocusDuration, setShouldFocusDuration] = useState(false);
+  // ורק בבחירה בעכבר או בנגיעה: במקלדת החצים עוברים בין האפשרויות, ומעבר לשדה היה מוציא את המשתמש מהקבוצה
+  const isPointerSelectionRef = useRef(false);
 
   useEffect(() => {
     if (shouldFocusDuration && kind === "limited") {
@@ -62,7 +64,7 @@ export default function LimitTypeSelector({
   const handleKindChange = (value: FieldOptionValue) => {
     if (!isLimitKind(value)) return;
     onKindChange(value);
-    setShouldFocusDuration(value === "limited");
+    setShouldFocusDuration(value === "limited" && isPointerSelectionRef.current);
   };
 
   const options = LIMIT_KINDS.map((limitKind) => ({
@@ -74,7 +76,15 @@ export default function LimitTypeSelector({
   return (
     <div>
       <FieldIntro title={texts.title} />
-      <div className="mt-2">
+      <div
+        className="mt-2"
+        onPointerDown={() => {
+          isPointerSelectionRef.current = true;
+        }}
+        onKeyDown={() => {
+          isPointerSelectionRef.current = false;
+        }}
+      >
         <RadioGroupField aria-label={texts.title} options={options} value={kind} onChange={handleKindChange} />
       </div>
 

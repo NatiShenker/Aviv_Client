@@ -3,10 +3,11 @@ export const TRAINEE_TEXTS = {
   notFound: "החניך לא נמצא",
   /** בין השם למספר האישי: "יוסי כהן | 012453" */
   nameSeparator: " | ",
+  /** בשם הנגיש: פסיק ולא "|", שקורא מסך משמיע כ"קו אנכי" - "יוסי כהן, 012453" */
+  accessibleNameSeparator: ", ",
 
-  // התגית בכרטיס החניך ובכותרת המגירה
+  // התגית בכרטיס החניך - רק כשיש הגבלה פעילה
   statusBadge: {
-    active: "פעיל",
     restrictedUntil: "מוגבל עד",
   },
 } as const;

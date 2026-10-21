@@ -8,6 +8,7 @@ import FieldLabelText from "@/shared/components/form/FieldLabelText";
 import { useFormControls } from "@/shared/components/form/FormControlsProvider";
 import { EXPANDED_TOUCH_TARGET_SX } from "@/shared/components/touchTarget";
 import type { FileAttachmentRef } from "@/types/common.schema";
+import { focusInPlace } from "@/utils/dom";
 import { FORM_TEXTS } from "../formTexts";
 
 const TEXTS = FORM_TEXTS.decision;
@@ -29,6 +30,7 @@ interface ApprovalFileFieldProps {
 export default function ApprovalFileField({ id, value, onChange, error, onUploadingChange }: ApprovalFileFieldProps) {
   const { FileUploadField } = useFormControls();
   const labelId = useId();
+  const removeButtonId = useId();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | undefined>(undefined);
   const shownError = uploadError ?? error;
@@ -52,6 +54,8 @@ export default function ApprovalFileField({ id, value, onChange, error, onUpload
     }
     try {
       onChange(await registerApprovedFile({ fileName: uploadedFile.name, path: uploadedFile.path }));
+      // פקד ההעלאה מתחלף בשורת הקובץ - הפוקוס עובר להסרה, ולא נופל לתחילת הטופס
+      focusInPlace(removeButtonId);
     } catch {
       setUploadError(FORM_TEXTS.validation.fileUploadFailed);
     } finally {
@@ -64,13 +68,19 @@ export default function ApprovalFileField({ id, value, onChange, error, onUpload
     setIsUploading(false);
   };
 
+  // שורת הקובץ מתחלפת בפקד ההעלאה - הפוקוס עובר לאזור השדה, שקורא מסך משמיע את שמו
+  const removeFile = () => {
+    onChange(null);
+    focusInPlace(id);
+  };
+
   return (
     // tabIndex -1: הטופס מעביר לכאן פוקוס כשחסר קובץ
     <div id={id} tabIndex={-1} role="group" aria-labelledby={labelId} className="outline-none">
       <FieldLabelText id={labelId} text={TEXTS.fileLabel} isRequired />
 
       {value ? (
-        <AttachedFile fileName={value.fileName} onRemove={() => onChange(null)} />
+        <AttachedFile fileName={value.fileName} removeButtonId={removeButtonId} onRemove={removeFile} />
       ) : (
         <FileUploadField
           sviva={SHAREPOINT_UPLOAD_TARGET.environment}
@@ -94,15 +104,20 @@ export default function ApprovalFileField({ id, value, onChange, error, onUpload
 
 interface AttachedFileProps {
   fileName: string;
+  removeButtonId: string;
   onRemove: () => void;
 }
 
-function AttachedFile({ fileName, onRemove }: AttachedFileProps) {
+function AttachedFile({ fileName, removeButtonId, onRemove }: AttachedFileProps) {
   return (
     <div className="flex h-11 items-center gap-2 rounded-input border border-grey-300 bg-paper ps-3">
       <AppIcon name="file" className="shrink-0 text-text-muted" />
-      <span className="min-w-0 flex-1 truncate text-base text-text-primary">{fileName}</span>
+      {/* שם ארוך נחתך - המלא בריחוף */}
+      <span title={fileName} className="min-w-0 flex-1 truncate text-base text-text-primary">
+        {fileName}
+      </span>
       <IpsIconButton
+        id={removeButtonId}
         icon={<AppIcon name="close" />}
         aria-label={TEXTS.removeFile}
         onClick={onRemove}

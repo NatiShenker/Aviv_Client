@@ -73,16 +73,14 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 
 1. **Top row**
    - **Right:** photo 60×60 (radius 6, cover), loaded from the trainee photo call (§6.2) only for rendered cards. When it fails to load (no photo): gradient placeholder with a white person icon.
-   - **Next to the photo:** the name (14/17, weight 500, one line, truncated), e.g. `"מוחמד אבו סאלח"`, and the personal number under it (12px, `text-secondary`), e.g. `3445874` (decided 2026-10-20: in one line `"{name} | {code}"` the code was cut next to the `"מוגבל עד …"` badge; now the name gets the full width and the code is always readable). No date (removed 2026-10-18).
-   - **Left:** status badge (pill, 12/14, 6px dot):
-     - Active: `"פעיל"` – bg `#e7ffef`, text `#15833a`, dot `#22c55e`.
-     - Restricted: `"מוגבל עד {DD/MM}"` (Restricted until) – bg `#ffe8e8`, text `#d4262b`, dot `#ff3b3b`.
-2. **Divider:** 16px below, 0.6px `#ebebf0`.
-3. **Bottom rows** (8px below, 12/15, gray). One fixed structure at every card width (decided 2026-10-19), so the minutes are in the same place on every card:
+   - **Next to the photo:** the name (14/17, weight 500, one line, truncated – the full name in a tooltip, `title`), e.g. `"מוחמד אבו סאלח"`, and the personal number under it (12px, `text-secondary`), e.g. `3445874` (decided 2026-10-20: in one line `"{name} | {code}"` the code was cut next to the `"מוגבל עד …"` badge; now the name gets the full width and the code is always readable). No date (removed 2026-10-18).
+   - **Left:** a status badge **only when the trainee is restricted** (decided 2026-10-21): `"מוגבל עד {DD/MM}"` (Restricted until) – pill, 12/14, 6px dot, bg `#ffe8e8`, text `#d4262b`, dot `#ff3b3b`. A trainee without a restriction is the normal state and has no badge – the `"פעיל"` badge was removed, so the restricted trainees stand out in the grid (and "פעיל" read as "the trainee is active"). The freed space is kept for the action indicators, if decided ([pending-decisions](../pending-decisions.md) › Trainee card – action indicators).
+2. **Divider:** 16px below, lighter than a card frame – `border-inner` (`#ebebf0`; in code `grey-100`, decided 2026-10-21: in the frame's color the desktop card read as two stacked boxes).
+3. **Bottom rows** (8px below, 12/15, gray; the icons are 16px, decided 2026-10-21 – at 20px they were larger than the 12px text). One fixed structure at every card width (decided 2026-10-19), so the minutes are in the same place on every card:
    - **First row, right:** location pin + `"אגף {wing.name}"` (and wing location `location.name` when present), truncated when long.
    - **First row, left:** timer + `"{remainingMinutes} דקות"`, or `"דקה אחת"` (one minute) for 1 (decided 2026-10-21) (fetched by the backend from the 3rd-party Cellcom service).
-   - **Second row (conditional), right:** warning icon + `"פער בנתונים מול סלקום"` (Data gap with Cellcom, decided 2026-10-21), color `#bd4d00` – **rendered only when `flags.hasCellcomDiscrepancy === true`** (from the 3rd-party Cellcom service).
-   - The loading skeleton follows the same structure (photo, name and badge; then location and minutes).
+   - **Second row (conditional), left – under the minutes** (decided 2026-10-21; it was on the right, under the location, and read as part of it – the gap concerns the minutes balance, which comes from Cellcom too): warning icon + `"פער בנתונים מול סלקום"` (Data gap with Cellcom, decided 2026-10-21), color `#bd4d00` – **rendered only when `flags.hasCellcomDiscrepancy === true`** (from the 3rd-party Cellcom service).
+   - The loading skeleton follows the same structure (photo and name, with no badge; then location and minutes).
 
 ### 3.3 Empty state
 
@@ -125,7 +123,7 @@ SortSheet titled `"מיון"`: one row per field **and** direction (`IpsRadioLis
 
 ### 4.2 Search
 
-- Matches trainees whose **name or trainee code contains the trimmed query** (two separate fields, [OQ-06](../pending-decisions.md#oq-06), closed). The card shows them as `"{name} | {code}"`.
+- Matches trainees whose **name or trainee code contains the trimmed query** (two separate fields, [OQ-06](../pending-decisions.md#oq-06), closed). The card shows the name with the code under it (§3.2).
 
 ### 4.3 Filter
 
@@ -187,20 +185,20 @@ Desktop phase 1 (decided 2026-10-19). The data, the search, the filter and sort 
 
 The page fills the viewport. Top to bottom:
 
-1. **Title row:** `"רשימת חניכים"` (start) and the institute selector (end) – text and chevron with no border, in the main text color, as on mobile (§3.1a).
-2. **Filters panel** (white): a header row with the title `"מסננים"` **(proposed)** and, at the end, the outlined button `"ניקוי מסננים"` (decided 2026-10-21). Below it, the six filter groups (§3.4 a–f) in **one row of equal columns**, each with its label above:
-   - **Wing, location:** multi-selects **without an explicit `"הכל"` option** (a desktop deviation from §3.4, see pending-decisions): an empty selection shows `"הכל"`; one selected → its name; more → `"{n} נבחרו"`. The location keeps its loading / error states and `"טעינה מחדש"`.
+1. **Title row:** `"רשימת חניכים"` (start; 20/500 – one step above the mobile 18, decided 2026-10-21) and the institute selector (end, 18/500) – text and chevron with no border and no background, the text starting at the content line (no inner indent), in the main text color, as on mobile (§3.1a); a focus ring for the keyboard. Before a choice, `"בחירת פנימייה"` is gray.
+2. **Filters panel** (white), **with no visible title** (decided 2026-10-21; its accessible name is `"מסננים"`): a thin first row with `"ניקוי מסננים"` at its end (left) – a text button, 14/500, in the primary color, with no icon and no frame, the same as in the mobile sheet (§3.4) – and 8px below it the six filter groups (§3.4 a–f) in **one row of equal columns**, each with its label above. The panel is shown – disabled – also before an institute is chosen, so the results do not move when it is:
+   - **Wing, location:** multi-selects **without an explicit `"הכל"` option** (a desktop deviation from §3.4, see pending-decisions): an empty selection shows `"הכל"`; one selected → its name; more → `"{n} נבחרו"`. While the locations load, `"טוען מיקומים…"` is shown **inside** the disabled location field, so the panel does not grow and shrink (decided 2026-10-21); a load error shows a line under the field with `"טעינה מחדש"`.
    - **Groups c–f:** single selects with the same options as the mobile chips (`"הכל"` is one of them).
 3. **Results panel** (white), filling the rest of the height:
-   - **Toolbar:** the search field (narrow, at the start, placeholder `"חיפוש לפי שם או מספר"`, clear button `"ניקוי חיפוש"`), right after it the count `"מוצגים {n} חניכים"` / `"מוצג חניך אחד"` **(proposed)** – a skeleton bar in its place while the list loads (2026-10-21) – and at the end the sort. The sort is a select with the rows of §3.5 (no prefix in the menu); its closed value reads `"מיין לפי: {row}"` **(proposed)**. No labels above the toolbar controls.
-   - **Cards:** a grid of the §3.2 cards (columns of at least 340px), each card with a 1px `divider` border. **Only this area scrolls.**
+   - **Toolbar:** the search field (narrow, at the start, placeholder `"חיפוש לפי שם או מספר"`, clear button `"ניקוי חיפוש"`), right after it the count `"מוצגים {n} חניכים"` / `"מוצג חניך אחד"` **(proposed)** – a skeleton bar in its place while the list loads (2026-10-21) – and at the end the sort. The sort is a select with the rows of §3.5 (no prefix in the menu); its closed value reads `"מיון לפי {row}"`, e.g. `"מיון לפי שם: א׳ עד ת׳"` (decided 2026-10-21; it was `"מיין לפי: {row}"` – two colons and an imperative). No labels above the toolbar controls, and no line under the toolbar (design.md › the lines rule).
+   - **Cards:** a grid of the §3.2 cards (columns of at least 340px), each card with a 1px `divider` border. **Only this area scrolls**; it shows the app's focus ring when it has keyboard focus.
 
 ### 8.2 Behavior
 
 - **Filter, search and sort** behave as on mobile (§4): every choice applies at once.
-- **`"ניקוי מסננים"`:** resets all six groups – including the stored wing filter – but not the search and not the sort. Disabled (not hidden) when no group is active, that is, when every group is `"הכל"`. No count in the text (decided 2026-10-21).
+- **`"ניקוי מסננים"`:** resets all six groups – including the stored wing filter – but not the search and not the sort. Disabled (not hidden) when no group is active, that is, when every group is `"הכל"`. No count in the text (decided 2026-10-21). Since it becomes disabled at once, focus moves to the wing filter (decided 2026-10-21), so it does not fall to the top of the page.
 - **Tools disabled** (filters, clear, search, sort) until the list has loaded, as on mobile.
-- **Cards open the trainee drawer** (phase 2, [02 §8](02_child_actions.md)): the whole card is clickable. On hover it gets a `border-strong` frame and a pointer cursor; the card of the trainee whose drawer is open gets a `primary` frame. A ⋮ menu next to the status badge opens the drawer straight on an action ([02 §8.1](02_child_actions.md)).
+- **Cards open the trainee drawer** (phase 2, [02 §8](02_child_actions.md)): the whole card is clickable. On hover it gets a `border-strong` frame and a pointer cursor; the card of the trainee whose drawer is open gets a `primary` frame plus a 1px `primary` ring (2px in all, decided 2026-10-21 – 1px alone was barely visible behind the drawer's overlay). A ⋮ menu at the card's top end opens the drawer straight on an action ([02 §8.1](02_child_actions.md)).
 - **Incremental rendering:** 30 cards, then 30 more when the end of the scroll area is reached. The count starts again from 30 only when the search, the filters or the sort change.
 - **After a save in the drawer** (phase 2, decided 2026-10-19): the list refreshes **silently**. There is no skeleton: the current cards stay until the new data arrives, and the number of cards shown and the scroll position are kept. A failed refresh keeps the current list ([pending-decisions](../pending-decisions.md)).
 - **Returning:** the search, filters and sort are kept until a page reload (as on mobile). The scroll position is **not** restored on desktop.
@@ -208,4 +206,4 @@ The page fills the viewport. Top to bottom:
 
 ### 8.3 States
 
-As in §7, inside the results panel. Loading shows 12 skeleton cards in the grid.
+As in §7, inside the results panel. Loading shows 12 skeleton cards in the grid. Before an institute is chosen, the filters panel is shown disabled (§8.1).

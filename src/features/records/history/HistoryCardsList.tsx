@@ -32,8 +32,15 @@ interface HistoryCardsListProps<TRecord> {
   getRecordKey: (record: TRecord) => string | number;
   renderCard: (record: TRecord) => ReactNode;
   texts: HistoryListTexts;
-  /** עוטף כל כרטיס (וכל כרטיס בשלד) - למשל מסגרת על משטח לבן. בלי - הכרטיסים כמו שהם */
+  /** עוטף כל כרטיס - למשל מסגרת על משטח לבן. בלי - הכרטיסים כמו שהם */
   renderCardFrame?: RenderCardFrame;
+  /** עוטף כל כרטיס בשלד. בלי - כמו הכרטיסים (למשל מסגרת בלי ריחוף) */
+  renderSkeletonCardFrame?: RenderCardFrame;
+  /**
+   * מה מתחיל את הרשימה שוב מ-30 הכרטיסים הראשונים (החיפוש והמיון). רענון שקט אחרי שמירה הוא אותה רשימה,
+   * ולכן שומר את הכרטיסים שכבר מוצגים - וכרטיס שנשמר מעבר ל-30 עדיין נחשף
+   */
+  resetVisibleCountOn: readonly unknown[];
 }
 
 /** אזור הכרטיסים במסך היסטוריה: טעינה, שגיאה, ריק, או הכרטיסים עצמם */
@@ -44,11 +51,13 @@ export default function HistoryCardsList<TRecord>({
   renderCard,
   texts,
   renderCardFrame = showCardAsIs,
+  renderSkeletonCardFrame = renderCardFrame,
+  resetVisibleCountOn,
 }: HistoryCardsListProps<TRecord>) {
   switch (records.status) {
     case "idle":
     case "loading":
-      return <HistorySkeleton loadingLabel={texts.loading} renderCardFrame={renderCardFrame} />;
+      return <HistorySkeleton loadingLabel={texts.loading} renderCardFrame={renderSkeletonCardFrame} />;
     case "error":
       return (
         <ScreenStateMessage
@@ -70,18 +79,28 @@ export default function HistoryCardsList<TRecord>({
           getRecordKey={getRecordKey}
           renderCard={renderCard}
           renderCardFrame={renderCardFrame}
+          resetVisibleCountOn={resetVisibleCountOn}
         />
       );
   }
 }
 
-type HistoryCardsProps<TRecord> = Pick<HistoryCardsListProps<TRecord>, "visibleRecords" | "getRecordKey" | "renderCard"> & {
+type HistoryCardsProps<TRecord> = Pick<
+  HistoryCardsListProps<TRecord>,
+  "visibleRecords" | "getRecordKey" | "renderCard" | "resetVisibleCountOn"
+> & {
   renderCardFrame: RenderCardFrame;
 };
 
 // טעינה הדרגתית: 30 כרטיסים בהתחלה, ועוד 30 בכל הגעה לסוף הרשימה. חיפוש או מיון חדש מתחילים מההתחלה
-function HistoryCards<TRecord>({ visibleRecords, getRecordKey, renderCard, renderCardFrame }: HistoryCardsProps<TRecord>) {
-  const { visibleItems, hasMore, showMore } = useIncrementalList(visibleRecords);
+function HistoryCards<TRecord>({
+  visibleRecords,
+  getRecordKey,
+  renderCard,
+  renderCardFrame,
+  resetVisibleCountOn,
+}: HistoryCardsProps<TRecord>) {
+  const { visibleItems, hasMore, showMore } = useIncrementalList(visibleRecords, { resetOn: resetVisibleCountOn });
 
   return (
     <>

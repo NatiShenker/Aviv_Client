@@ -35,7 +35,7 @@ export const TRAINEE_ACTIONS_TEXTS = {
 
   // דסקטופ: תפריט ⋮ על כרטיס החניך. מוצעים - ממתינים לאישור (pending-decisions)
   cardMenu: {
-    label: (traineeDisplayName: string) => `פעולות עבור ${traineeDisplayName}`,
+    label: (traineeAccessibleName: string) => `פעולות עבור ${traineeAccessibleName}`,
     allActions: "כל הפעולות",
   },
 } as const;

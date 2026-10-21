@@ -64,6 +64,7 @@ export default function RecordHistoryLayout<TRecord, TRecordKey extends string |
           getRecordKey={getRecordKey}
           renderCard={renderCard}
           texts={texts.states}
+          resetVisibleCountOn={[history.searchQuery, history.sortKey]}
         />
       </div>
 

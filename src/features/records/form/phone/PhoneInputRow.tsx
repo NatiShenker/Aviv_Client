@@ -3,10 +3,14 @@ import { IpsButton } from "ui-library";
 import AppIcon from "@/shared/components/AppIcon";
 import type { AppIconName } from "@/shared/components/appIcons";
 import { useFormControls } from "@/shared/components/form/FormControlsProvider";
+import { usePlatform } from "@/store/platformContext";
 import { ENTER_KEY } from "@/utils/dom";
 import { FORM_TEXTS } from "../formTexts";
 
 const TEXTS = FORM_TEXTS.phone;
+
+// הכפתור ממלא את גובה השורה (גובה השדה), בלי הריווח האנכי שלו - הטקסט נשאר ממורכז
+const FIELD_HEIGHT_BUTTON_SX = { height: "100%", paddingTop: 0, paddingBottom: 0 } as const;
 
 interface PhoneInputRowProps {
   id: string;
@@ -40,6 +44,8 @@ export default function PhoneInputRow({
   onAction,
 }: PhoneInputRowProps) {
   const { TextField } = useFormControls();
+  // בדסקטופ השדה (39) נמוך מהכפתור (44), ולכן הכפתור מתיישר לגובה השדה. במובייל השורה נשארת כמו שהייתה (הוחלט 2026-10-21)
+  const isDesktop = usePlatform().layout === "desktop";
   const canRunAction = isActionEnabled && !isActionBusy;
 
   // Enter מפעיל את הפעולה של השדה, ולא שולח את הטופס
@@ -52,7 +58,7 @@ export default function PhoneInputRow({
   };
 
   return (
-    <div className="mt-1 flex items-center gap-2">
+    <div className={`mt-1 flex gap-2 ${isDesktop ? "items-stretch" : "items-center"}`}>
       <div className="min-w-0 flex-1">
         <TextField
           id={id}
@@ -79,6 +85,7 @@ export default function PhoneInputRow({
           loading={isActionBusy}
           endIcon={<AppIcon name={actionIcon} />}
           onClick={onAction}
+          sx={isDesktop ? FIELD_HEIGHT_BUTTON_SX : undefined}
         >
           {actionLabel}
         </IpsButton>

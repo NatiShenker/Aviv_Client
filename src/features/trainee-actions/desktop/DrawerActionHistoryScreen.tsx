@@ -4,7 +4,7 @@ import { PERMISSION_IDS, type PermissionId } from "@/features/institutes/permiss
 import { usePermissionCheck } from "@/features/institutes/usePermissionCheck";
 import NumberRestrictionsDrawerHistory from "@/features/number-restrictions/desktop/NumberRestrictionsDrawerHistory";
 import { NUMBER_RESTRICTIONS_TEXTS } from "@/features/number-restrictions/numberRestrictionsTexts";
-import { renderDrawerCardFrame } from "@/features/records/desktop/DrawerHistoryLayout";
+import { renderDrawerSkeletonCardFrame } from "@/features/records/desktop/DrawerHistoryLayout";
 import HistorySkeleton from "@/features/records/history/HistorySkeleton";
 import TraineeRestrictionsDrawerHistory from "@/features/trainee-restrictions/desktop/TraineeRestrictionsDrawerHistory";
 import { TRAINEE_RESTRICTIONS_TEXTS } from "@/features/trainee-restrictions/traineeRestrictionsTexts";
@@ -92,7 +92,7 @@ export default function DrawerActionHistoryScreen({
       <DrawerTopBar>{navigation}</DrawerTopBar>
       <div className={`min-h-0 flex-1 pb-6 ${DRAWER_SCROLL_AREA_CLASS}`}>
         {permission.status === "loading" ? (
-          <HistorySkeleton loadingLabel={view.loadingLabel} renderCardFrame={renderDrawerCardFrame} />
+          <HistorySkeleton loadingLabel={view.loadingLabel} renderCardFrame={renderDrawerSkeletonCardFrame} />
         ) : (
           <PermissionBlockedMessage permission={permission} />
         )}
