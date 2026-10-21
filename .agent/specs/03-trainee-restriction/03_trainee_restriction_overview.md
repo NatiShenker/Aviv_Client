@@ -1,4 +1,4 @@
-# 03 – Trainee restriction ("הגבלה/היתר לחניך") – Overview
+# 03 – Trainee restriction ("הגבלות לחניך") – Overview
 
 Prototype sources: `client/pages/BlockList.tsx`, `client/pages/BlockForm.tsx`, `client/lib/restrictions.ts`.
 
@@ -64,7 +64,7 @@ Used by the history card ([history.md](03_trainee_restriction_history.md)) and b
 | `durationMinutes` | Label |
 |---|---|
 | `null` | `"הגבלה מלאה"` |
-| X | `"הגבלת משך שיחה – עד X דק'"` (the spaces in "עד X דק'" are non-breaking) |
+| X | `"הגבלת משך שיחה - עד X דק׳"` (the spaces in "עד X דק׳" are non-breaking) |
 
 ### 3.2 "Open by default" rule
 

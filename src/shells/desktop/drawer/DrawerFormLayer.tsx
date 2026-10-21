@@ -7,9 +7,9 @@ import { DRAWER_ROW_GUTTER_CLASS, DRAWER_SCROLL_AREA_CLASS } from "./drawerSpaci
 
 interface DrawerFormLayerProps {
   title: string;
-  /** החץ: חזרה למסך שמתחת בלי שמירה */
+  /** החץ: חזרה למסך שמתחת ללא שמירה */
   onClose: () => void;
-  /** הפוטר הקבוע בתחתית (למשל "ביטול" ו"שמור") */
+  /** הפוטר הקבוע בתחתית (למשל "ביטול" ו"שמירה") */
   footer: ReactNode;
   children: ReactNode;
 }

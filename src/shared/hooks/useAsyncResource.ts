@@ -9,7 +9,7 @@ export interface AsyncResource<TData> {
   status: AsyncStatus;
   data: TData | null;
   error: AppError | null;
-  /** טעינה מהשרת עם מצב טעינה (למשל "נסה שוב") */
+  /** טעינה מהשרת עם מצב טעינה (למשל "טעינה מחדש") */
   reload: () => void;
   /**
    * טעינה מהשרת בשקט: הנתונים הנוכחיים נשארים מוצגים עד שהחדשים מגיעים, בלי מצב טעינה.
@@ -36,7 +36,7 @@ interface UseAsyncResourceOptions<TKey extends RequestKey, TData> {
   isEmpty?: (data: TData) => boolean;
   /**
    * נתונים שכבר נטענו למפתח הזה (למשל בחזרה למסך ממסך אחר): מוצגים מיד, בלי טעינה.
-   * reload ("נסה שוב") טוען תמיד מהשרת.
+   * reload ("טעינה מחדש") טוען תמיד מהשרת.
    */
   readCache?: (requestKey: TKey) => TData | null;
 }

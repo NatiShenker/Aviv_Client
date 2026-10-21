@@ -13,10 +13,11 @@ export const TRAINEES_LIST_TEXTS = {
     sortValue: (sortLabel: string) => `מיין לפי: ${sortLabel}`,
   },
 
-  // דסקטופ: פאנל המסננים. מוצעים - ממתינים לאישור (pending-decisions)
+  // פאנל המסננים בדסקטופ. "ניקוי מסננים" גם במגירת הסינון במובייל. מוצע - ממתין לאישור (pending-decisions)
   filterPanel: {
     title: "מסננים",
-    clearFilters: (activeCount: number) => (activeCount > 0 ? `נקה מסננים (${activeCount})` : "נקה מסננים"),
+    // בלי מספר המסננים הפעילים (הוחלט 2026-10-21)
+    clearFilters: "ניקוי מסננים",
   },
 
   // דסקטופ: השם הנגיש של אזור הכרטיסים שנגלל
@@ -27,20 +28,21 @@ export const TRAINEES_LIST_TEXTS = {
   states: {
     selectInstitute: "יש לבחור פנימייה כדי להציג את רשימת החניכים",
     loadingList: "טוען את רשימת החניכים…",
-    loadFailed: "לא ניתן לטעון את הרשימה",
-    retry: "נסה שוב",
+    loadFailed: "לא ניתן לטעון את רשימת החניכים",
+    retry: "טעינה מחדש",
     noResults: "לא נמצאו חניכים",
   },
 
   card: {
     locationSeparator: ", ",
-    minutes: (minutes: number) => `${minutes} דקות`,
-    cellcomDiscrepancy: "קיים פער בנתונים בסלקום",
+    minutes: (minutes: number) => (minutes === 1 ? "דקה אחת" : `${minutes} דקות`),
+    cellcomDiscrepancy: "פער בנתונים מול סלקום",
   },
 
   filters: {
     title: "סינון",
-    showResults: (resultCount: number) => `הצג תוצאות (${resultCount})`,
+    // בלי מספר התוצאות (הוחלט 2026-10-21)
+    showResults: "הצגת התוצאות",
     all: "הכל",
     none: "ללא",
     selectedCount: (count: number) => `${count} נבחרו`,
@@ -49,12 +51,12 @@ export const TRAINEES_LIST_TEXTS = {
       location: "מיקום באגף",
       traineeRestriction: "הגבלה לחניך",
       recipientMessage: "הודעה קולית לנמען",
-      phoneException: "הגבלה/היתר למספר",
+      phoneException: "הגבלות והיתרים למספר",
       balance: "יתרה",
     },
     traineeRestriction: {
       full: "הגבלה מלאה פעילה",
-      minutes: "הגבלת דקות פעילה",
+      minutes: "הגבלת משך שיחה פעילה",
     },
     // "אינטראקטיבית" בסכמה היא ההודעה החוזרת (כל 5 דקות במהלך השיחה)
     recipientMessage: {
@@ -71,16 +73,16 @@ export const TRAINEES_LIST_TEXTS = {
     },
     locationsLoading: "טוען מיקומים…",
     locationsLoadFailed: "לא ניתן לטעון את המיקומים",
-    retry: "נסה שוב",
+    retry: "טעינה מחדש",
   },
 
   sort: {
     options: {
       nameAscending: "שם: א׳ עד ת׳",
       nameDescending: "שם: ת׳ עד א׳",
-      // מוצעים - ממתינים לאישור (pending-decisions). "הגבלה" כאן היא הגבלה לחניך, לא הגבלה למספר
-      statusRestrictedFirst: "סטטוס: עם הגבלה לחניך קודם",
-      statusActiveFirst: "סטטוס: פעילים קודם",
+      // הוחלט 2026-10-21. "הגבלה" כאן היא הגבלה לחניך, לא הגבלה למספר
+      statusRestrictedFirst: "סטטוס: חניכים עם הגבלה תחילה",
+      statusActiveFirst: "סטטוס: חניכים ללא הגבלה תחילה",
       minutesDescending: "יתרת דקות: מהגבוהה לנמוכה",
       minutesAscending: "יתרת דקות: מהנמוכה לגבוהה",
       wingAscending: "אגף: א׳ עד ת׳",

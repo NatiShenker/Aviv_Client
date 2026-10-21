@@ -108,7 +108,7 @@ export const VOICE_MESSAGE_FIELD_IDS: Record<VoiceMessageErrorSlot, string> = {
 
 // ── מספרים (ספק 05 form §4.3, כמו ספק 04 form §4.7) ──
 
-/** תוצאת "הוסף": הערכים החדשים, או שגיאה לשדה הטלפון */
+/** תוצאת "הוספה": הערכים החדשים, או שגיאה לשדה הטלפון */
 export type AddPhoneOutcome = { values: VoiceMessageFormValues } | { error: string };
 
 export function addDraftPhone(values: VoiceMessageFormValues): AddPhoneOutcome {

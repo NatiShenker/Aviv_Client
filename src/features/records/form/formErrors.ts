@@ -5,7 +5,7 @@
 
 export type FormErrors<TSlot extends string> = Partial<Record<TSlot, string>>;
 
-/** מקומות השגיאה של תנאי השיחה ושל "סיבות והחלטה", המשותפים לכל טפסי ההגבלה וההיתר */
+/** מקומות השגיאה של תנאי השיחה ושל "סיבות ואישורים", המשותפים לכל טפסי ההגבלה וההיתר */
 export type CallFormErrorSlot =
   | "dates"
   | "duration"
@@ -59,7 +59,7 @@ export function withoutErrors<TSlot extends string>(
 
 // ── שגיאות שרת (400) → מקומות בטופס (ספק 03 form §6.3, ספק 04 form §6.3) ──
 
-/** שדות הבקשה של תנאי השיחה ו"סיבות והחלטה", ומקום השגיאה של כל אחד */
+/** שדות הבקשה של תנאי השיחה ו"סיבות ואישורים", ומקום השגיאה של כל אחד */
 export const CALL_FORM_SERVER_FIELD_SLOTS: Record<string, CallFormErrorSlot> = {
   startDate: "dates",
   endDate: "dates",

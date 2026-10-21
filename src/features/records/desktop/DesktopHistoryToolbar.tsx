@@ -1,7 +1,13 @@
 import type { ReactNode } from "react";
 import { IpsSelect, IpsTextField } from "ui-library";
 import AppIcon from "@/shared/components/AppIcon";
-import { HISTORY_SORT_ROWS, findHistorySortOption } from "../history/historySort";
+import ResultsCountLine from "@/shared/components/ResultsCountLine";
+import {
+  buildHistorySortRows,
+  findHistorySortOption,
+  historySortLabel,
+  type StatusSortTexts,
+} from "../history/historySort";
 import { HISTORY_TEXTS } from "../history/historyTexts";
 
 const TEXTS = HISTORY_TEXTS.toolbar;
@@ -17,12 +23,19 @@ interface DesktopHistoryToolbarProps {
   searchPlaceholder: string;
   sortKey: string;
   onSortChange: (sortKey: string) => void;
+  /** תוויות מיון הסטטוס של הפעולה, במין של הרשומה */
+  statusSortTexts: StatusSortTexts;
+  /** "מוצגות X הגבלות" וכדומה. null - אין מה להציג (שגיאה, אין רשומות) */
+  resultsCountText: string | null;
+  /** בזמן טעינת הרשומות שורת המספר מציגה שלד */
+  isResultsCountLoading: boolean;
   /** כל עוד אין רשימה מוכנה, החיפוש והמיון מושבתים */
   isDisabled: boolean;
 }
 
 /**
- * מעל רשימת ההיסטוריה במגירה (ספק 00 §4.4): כותרת המקטע וכפתור היצירה, ומתחתם חיפוש שתמיד גלוי ובורר מיון.
+ * מעל רשימת ההיסטוריה במגירה (ספק 00 §4.4): כותרת המקטע וכפתור היצירה, מתחתם חיפוש שתמיד גלוי ובורר מיון,
+ * ומתחת לחיפוש מספר התוצאות.
  * הכותרת ברמת מקטע (16, רגיל), מתחת לשם החניך ולבורר הפעולה - כדי שלא יהיו שלוש כותרות באותו משקל.
  * ברוחב המגירה אין מקום ל"מיין לפי: …" ליד החיפוש, ולכן הבורר סגור מציג רק "מיון", כמו כפתור המיון במובייל;
  * ברשימה שלו שורה לכל צירוף של שדה וכיוון
@@ -36,9 +49,12 @@ export default function DesktopHistoryToolbar({
   searchPlaceholder,
   sortKey,
   onSortChange,
+  statusSortTexts,
+  resultsCountText,
+  isResultsCountLoading,
   isDisabled,
 }: DesktopHistoryToolbarProps) {
-  const currentSortLabel = findHistorySortOption(sortKey).label;
+  const currentSortLabel = historySortLabel(findHistorySortOption(sortKey), statusSortTexts);
 
   return (
     <div className="flex flex-col gap-3">
@@ -62,7 +78,7 @@ export default function DesktopHistoryToolbar({
         </div>
         <div className="shrink-0">
           <IpsSelect
-            options={HISTORY_SORT_ROWS}
+            options={buildHistorySortRows(statusSortTexts)}
             value={sortKey}
             // רק בערך הסגור; השורות ברשימה מלאות
             renderValue={() => <SortValue />}
@@ -72,6 +88,9 @@ export default function DesktopHistoryToolbar({
           />
         </div>
       </div>
+
+      {/* ברוחב המגירה אין לו מקום ליד החיפוש, ולכן בשורה משלו - כמו במובייל */}
+      <ResultsCountLine className="-mt-1" isLoading={isResultsCountLoading} text={resultsCountText} />
     </div>
   );
 }

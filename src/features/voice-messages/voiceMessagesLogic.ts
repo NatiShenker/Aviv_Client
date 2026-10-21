@@ -74,3 +74,8 @@ export function filterAndSortVoiceMessages(
 ): TraineeVoiceMessageRecordDto[] {
   return sortHistoryRecords(filterBySearchQuery(records, searchQuery, buildVoiceMessageSearchParts), sort);
 }
+
+/** "מוצגות X הודעות" מתחת לחיפוש, לפי ההודעות שמוצגות אחרי החיפוש */
+export function buildVoiceMessagesCountText(visibleRecords: TraineeVoiceMessageRecordDto[]): string {
+  return TEXTS.toolbar.resultsCount(visibleRecords.length);
+}

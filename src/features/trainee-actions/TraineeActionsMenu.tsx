@@ -1,7 +1,8 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { INSTITUTES_TEXTS } from "@/features/institutes/institutesTexts";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
 import { useInstitutes } from "@/store/institutesContext";
+import { ACTION_ROW_CLASS } from "./ActionRow";
 import { buildPermittedTraineeMenu, isTraineeMenuEmpty } from "./traineeActionsLogic";
 import type { TraineeMenuItem } from "./traineeActionsOptions";
 import { TRAINEE_ACTIONS_TEXTS } from "./traineeActionsTexts";
@@ -10,22 +11,32 @@ const TEXTS = TRAINEE_ACTIONS_TEXTS;
 
 const SKELETON_ROW_KEYS = [1, 2, 3];
 
+type RenderRowFrame = (row: ReactNode) => ReactNode;
+
+// בלי עוטף - השורה כמו שהיא (במובייל השורות על רקע העמוד, בלי מסגרת)
+const showRowAsIs: RenderRowFrame = (row) => row;
+
 interface TraineeActionsMenuProps {
   /** השורה של כל פריט. כל פריסה קובעת מה השורה עושה (במובייל - קישור לעמוד של הפעולה) */
   renderItemRow: (item: TraineeMenuItem) => ReactNode;
+  /** העוטף של כל שורה בשלד - אותה מסגרת כמו של השורות האמיתיות בפריסה */
+  renderSkeletonRowFrame?: RenderRowFrame;
 }
 
 /**
  * מקטעי "פעולות" ו"מידע נוסף", לפי ההרשאות של המשתמש בפנימייה.
  * בלי ריווח בצדדים - הוא שייך למכולה של כל פריסה
  */
-export default function TraineeActionsMenu({ renderItemRow }: TraineeActionsMenuProps) {
+export default function TraineeActionsMenu({
+  renderItemRow,
+  renderSkeletonRowFrame = showRowAsIs,
+}: TraineeActionsMenuProps) {
   const { permissions } = useInstitutes();
 
   switch (permissions.status) {
     case "idle":
     case "loading":
-      return <MenuSkeleton />;
+      return <MenuSkeleton renderRowFrame={renderSkeletonRowFrame} />;
     case "error":
       return (
         <ScreenStateMessage
@@ -86,17 +97,44 @@ function MenuSection({ title, items, renderItemRow }: MenuSectionProps) {
   );
 }
 
-// שלד בצורת שורות התפריט, עד שההרשאות מגיעות. ההבהוב פועל רק כשהמשתמש לא ביקש להפחית תנועה
-function MenuSkeleton() {
+interface MenuSkeletonProps {
+  renderRowFrame: RenderRowFrame;
+}
+
+/**
+ * שלד בצורת מקטע "פעולות", עד שההרשאות מגיעות: אותם גבהים כמו הכותרת והשורות האמיתיות (עם שורת ההסבר),
+ * כדי שהמסך לא יקפוץ. ההבהוב פועל רק כשהמשתמש לא ביקש להפחית תנועה
+ */
+function MenuSkeleton({ renderRowFrame }: MenuSkeletonProps) {
   return (
     <div role="status" className={`mt-7 ${SECTION_INSET_CLASS}`}>
       <span className="sr-only">{TEXTS.states.loadingActions}</span>
-      <div aria-hidden="true" className="flex flex-col gap-1 motion-safe:animate-pulse">
-        <div className="h-5 w-16 rounded-sm bg-grey-100" />
-        <div className="mt-3 flex flex-col gap-1">
+      <div aria-hidden="true" className="motion-safe:animate-pulse">
+        {/* בגובה שורת הכותרת (16/24) */}
+        <div className="flex h-6 items-center">
+          <div className="h-4 w-16 rounded-sm bg-grey-100" />
+        </div>
+        <div className="mt-4 flex flex-col gap-1">
           {SKELETON_ROW_KEYS.map((key) => (
-            <div key={key} className="h-15 rounded-card bg-paper" />
+            <Fragment key={key}>{renderRowFrame(<SkeletonActionRow />)}</Fragment>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// כמו ActionRowContent: עיגול, ותווית (16/24) ומתחתיה שורת הסבר (12/16)
+function SkeletonActionRow() {
+  return (
+    <div className={ACTION_ROW_CLASS}>
+      <div className="size-9 shrink-0 rounded-full bg-grey-100" />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex h-6 items-center">
+          <div className="h-4 w-1/3 rounded-sm bg-grey-100" />
+        </div>
+        <div className="mt-0.5 flex h-4 items-center">
+          <div className="h-3 w-2/3 rounded-sm bg-grey-100" />
         </div>
       </div>
     </div>

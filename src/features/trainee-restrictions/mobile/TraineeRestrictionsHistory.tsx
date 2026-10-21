@@ -25,7 +25,7 @@ interface TraineeRestrictionsHistoryProps {
  */
 export default function TraineeRestrictionsHistory({ traineeId, header }: TraineeRestrictionsHistoryProps) {
   const navigate = useNavigate();
-  const { restrictions, history } = useTraineeRestrictionsHistory(traineeId);
+  const { restrictions, history, resultsCountText } = useTraineeRestrictionsHistory(traineeId);
 
   const renderCard = (record: TraineeRestrictionRecordDto) => (
     <TraineeRestrictionCard
@@ -44,6 +44,7 @@ export default function TraineeRestrictionsHistory({ traineeId, header }: Traine
         texts={TRAINEE_RESTRICTIONS_TEXTS}
         records={restrictions}
         history={history}
+        resultsCountText={resultsCountText}
         getRecordKey={traineeRestrictionRecordKey}
         renderCard={renderCard}
         onCreate={() => navigate(ROUTES.newTraineeRestriction(traineeId))}

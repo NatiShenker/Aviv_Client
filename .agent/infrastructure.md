@@ -145,7 +145,7 @@ A small component used by one parent stays a private component in the parent's f
 ## Data loading
 
 - Use `useAsyncResource({ requestKey, load, isEmpty, readCache })` for every query. It returns `idle | loading | success | empty | error`, the data, the error, `reload` and `refreshInBackground`. A changed `requestKey` reloads, and stale responses are ignored.
-  - `reload` goes to the server with a loading state, e.g. "נסה שוב" or a history after a save.
+  - `reload` goes to the server with a loading state, e.g. "טעינה מחדש" or a history after a save.
   - `refreshInBackground` goes to the server **silently**: the current data stays until the new data arrives, and there is no loading state. A failure keeps the current data and is only reported (`reportError`). A response for an older `requestKey` is ignored.
   - Used for the desktop trainees list after a save in the drawer ([01 §8.2](specs/01_children_list.md)).
   - **The one exception:** `usePermitLookup` (04 form, the search for the restrictions of a number). It is not a query of the screen but an action the user triggers, and its result drives the form's state (`completePhoneSearch`, `markLookupOutdated`). It keeps its own request state and takes only the response of the latest search.

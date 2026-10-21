@@ -63,6 +63,8 @@ export interface MultiSelectFieldProps extends FieldBaseProps {
   onChange?: (values: FieldOptionValue[]) => void;
   /** הטקסט של השדה כשנבחרו אפשרויות */
   formatSelection?: (selectedLabels: string[]) => string;
+  /** הטקסט של השדה כשלא נבחר כלום */
+  placeholder?: string;
 }
 
 export interface TextFieldProps extends FieldBaseProps {
@@ -75,7 +77,7 @@ export interface TextFieldProps extends FieldBaseProps {
   enterKeyHint?: InputHTMLAttributes<HTMLInputElement>["enterKeyHint"];
   placeholder?: string;
   "aria-describedby"?: string;
-  /** יחידה שמוצגת אחרי הערך, למשל "דק'" */
+  /** יחידה שמוצגת אחרי הערך, למשל "דק׳" */
   suffix?: string;
   /** אייקון בקצה השדה (מוחלף בכפתור הניקוי כשיש ערך) */
   endIcon?: ReactNode;

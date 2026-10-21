@@ -31,7 +31,7 @@ interface BottomSheetProps {
   /** ה-X, הרקע, Escape וגרירה למטה */
   onClose: () => void;
   children: ReactNode;
-  /** פוטר קבוע מתחת לתוכן (למשל "הצג תוצאות") */
+  /** פוטר קבוע מתחת לתוכן (למשל "הצגת התוצאות") */
   actions?: ReactNode;
 }
 

@@ -4,7 +4,7 @@ export const FORM_TEXTS = {
     // ספק 00 §3.9 - הגדרה להגבלה ולהיתר
     restriction: {
       title: "סוג ההגבלה",
-      full: { label: "הגבלה מלאה", hint: "השיחות חסומות, למעט ההיתרים שיוגדרו למטה" },
+      full: { label: "הגבלה מלאה", hint: "השיחות חסומות, למעט השעות והמכשירים שיוגדרו למטה" },
       limited: { label: "הגבלת משך שיחה", hint: "השיחות מותרות, עד משך מרבי לכל שיחה" },
     },
     permit: {
@@ -16,8 +16,9 @@ export const FORM_TEXTS = {
 
   duration: {
     label: "משך מרבי לכל שיחה",
-    placeholder: "הזן דקות",
-    unit: "דק'",
+    placeholder: "מספר דקות",
+    // גרש עברי (׳), לא גרש מהמקלדת
+    unit: "דק׳",
     clear: "ניקוי משך השיחה",
   },
 
@@ -31,25 +32,24 @@ export const FORM_TEXTS = {
   // "שעות מותרות" ו"מכשירים מותרים" (ספק 00 §3.10, ספק 03 form §3.3)
   conditions: {
     hoursTitle: "שעות מותרות",
-    hoursHint: "השיחות יותרו רק בשעות אלו, בכל יום בטווח התאריכים",
+    hoursHint: "בכל יום בטווח התאריכים",
     startTime: "שעת התחלה",
     endTime: "שעת סיום",
     timePlaceholder: "--:--",
     clearStartTime: "ניקוי שעת התחלה",
     clearEndTime: "ניקוי שעת סיום",
     devicesTitle: "מכשירים מותרים",
-    devicesHint: "השיחות יותרו רק מהמכשירים שנבחרו",
-    pickDevice: "בחר מכשיר",
+    pickDevice: "מכשירים",
     // מוצע - ממתין לאישור (pending-decisions)
     devicesLoadFailed: "לא ניתן לטעון את המכשירים",
-    retry: "נסה שוב",
+    retry: "טעינה מחדש",
   },
 
   // שדה הטלפון (ספק 00 §3.15)
   phone: {
     inputLabel: "מספר טלפון",
-    placeholder: "הקלד",
-    add: "הוסף",
+    placeholder: "מספר טלפון",
+    add: "הוספה",
     search: "חיפוש",
     addedNumbers: "מספרים שנוספו",
     removeNumber: (phone: string) => `הסרת המספר ${phone}`,
@@ -59,12 +59,12 @@ export const FORM_TEXTS = {
   },
 
   decision: {
-    title: "סיבות והחלטה",
+    title: "סיבות ואישורים",
     reasonLabel: "סיבה",
-    reasonPlaceholder: "בחר סיבה",
+    reasonPlaceholder: "בחירת סיבה",
     reasonsLoadFailed: "לא ניתן לטעון את רשימת הסיבות",
     detailsLabel: "פירוט",
-    detailsPlaceholder: "הוסף פירוט",
+    detailsPlaceholder: "הוספת פירוט",
     approverLabel: "גורם מאשר",
     changeApprover: "החלפה",
     cancelApproverChange: "ביטול",
@@ -76,7 +76,7 @@ export const FORM_TEXTS = {
     // מוצע. דסקטופ בלבד - IpsFileUpload מעלה רק אחרי לחיצה על הכפתור שלו (ראו pending-decisions)
     fileHint: "בחר קובץ ולחץ 'שמור קבצים' כדי לצרף אותו",
     removeFile: "הסרת הקובץ",
-    retry: "נסה שוב",
+    retry: "טעינה מחדש",
   },
 
   validation: {
@@ -86,7 +86,7 @@ export const FORM_TEXTS = {
     approverRequired: "יש לבחור גורם מאשר",
     fileRequired: "יש לצרף קובץ",
     // מוצע (ספק 03 form §7)
-    fileUploadFailed: "העלאת הקובץ נכשלה, נסה שוב",
+    fileUploadFailed: "העלאת הקובץ נכשלה. ניתן לנסות שוב",
   },
 
   footer: {
@@ -94,5 +94,5 @@ export const FORM_TEXTS = {
   },
 
   // מוצע (ספק 03 form §7)
-  saveFailed: "השמירה נכשלה. נסה שוב",
+  saveFailed: "השמירה נכשלה. ניתן לנסות שוב",
 } as const;

@@ -10,6 +10,7 @@ import { FORM_TEXTS } from "../formTexts";
 import {
   buildDevicesSummary,
   buildHoursSummary,
+  buildUnsetDevicesText,
   formatDevicesSelection,
   type CallConditionsValues,
   type CallRuleKind,
@@ -25,8 +26,7 @@ const NO_DEVICES: DeviceDto[] = [];
 
 interface PermittedConditionsBlockProps {
   title: string;
-  hint: string;
-  /** קובע את התקציר של שדה שלא הוגדר ("כל היום" / "לא הוגדרו") */
+  /** קובע את הטקסט של שדה שלא הוגדר ("כל היום" / "לא הוגדרו") */
   ruleKind: CallRuleKind;
   values: CallConditionsValues;
   errors: { hours?: string; devices?: string };
@@ -45,7 +45,6 @@ interface PermittedConditionsBlockProps {
 /** בלוק השעות והמכשירים שבהם מותר לשוחח (ספק 03 form §3.3, ספק 04 form §3.5) */
 export default function PermittedConditionsBlock({
   title,
-  hint,
   ruleKind,
   values,
   errors,
@@ -63,7 +62,7 @@ export default function PermittedConditionsBlock({
   const hoursSummary = buildHoursSummary(values, ruleKind);
 
   return (
-    <FormSection title={title} hint={hint}>
+    <FormSection title={title}>
       <ConditionAccordion
         title={TEXTS.hoursTitle}
         summary={hoursSummary.isTimeRange ? <span dir="ltr">{hoursSummary.text}</span> : hoursSummary.text}
@@ -102,17 +101,15 @@ export default function PermittedConditionsBlock({
         onToggle={() => onToggleCondition("devices")}
         error={errors.devices}
       >
-        <p className="text-xs text-text-muted">{TEXTS.devicesHint}</p>
-        <div className="mt-2">
-          <DevicesSelect
-            id={fieldIds.devices}
-            devices={devices}
-            wings={wings}
-            selectedDeviceIds={values.deviceIds}
-            onChange={onDeviceIdsChange}
-            hasError={Boolean(errors.devices)}
-          />
-        </div>
+        <DevicesSelect
+          id={fieldIds.devices}
+          devices={devices}
+          wings={wings}
+          selectedDeviceIds={values.deviceIds}
+          unsetDevicesText={buildUnsetDevicesText(values, ruleKind)}
+          onChange={onDeviceIdsChange}
+          hasError={Boolean(errors.devices)}
+        />
       </ConditionAccordion>
     </FormSection>
   );
@@ -123,24 +120,38 @@ interface DevicesSelectProps {
   devices: AsyncResource<DeviceDto[]>;
   wings: WingDto[];
   selectedDeviceIds: number[];
+  /** הטקסט בשדה כשאין מכשיר נבחר - אותו טקסט כמו בתקציר */
+  unsetDevicesText: string;
   onChange: (deviceIds: number[]) => void;
   hasError: boolean;
 }
 
 /**
- * המכשירים מקובצים לפי אגף, כי בפנימייה יכולים להיות הרבה מכשירים. אין אפשרות "הכל" - בלי בחירה כל המכשירים מותרים.
- * כשרשימת המכשירים לא נטענה - השדה ריק, עם הודעה ו"נסה שוב" (ספק 03 form §7)
+ * המכשירים מקובצים לפי אגף, כי בפנימייה יכולים להיות הרבה מכשירים. אין אפשרות "הכל": בלי בחירה השדה מציג
+ * את הכלל "פתוחה כברירת מחדל", כמו התקציר - "כל המכשירים", או "לא הוגדרו" כשהכל חסום.
+ * כשרשימת המכשירים לא נטענה - הודעה ו"טעינה מחדש" (ספק 03 form §7)
  */
-function DevicesSelect({ id, devices, wings, selectedDeviceIds, onChange, hasError }: DevicesSelectProps) {
+function DevicesSelect({
+  id,
+  devices,
+  wings,
+  selectedDeviceIds,
+  unsetDevicesText,
+  onChange,
+  hasError,
+}: DevicesSelectProps) {
   const { MultiSelectField } = useFormControls();
   const hasFailed = devices.status === "error";
   const options = useMemo(() => buildDeviceOptions(devices.data ?? NO_DEVICES, wings), [devices.data, wings]);
+  // כשנבחרו מכשירים אבל הרשימה עוד לא נטענה (או נכשלה), אין שמות להציג - השדה נשאר ריק ולא מציג את הכלל בטעות
+  const placeholder = selectedDeviceIds.length === 0 ? unsetDevicesText : undefined;
 
   return (
     <div>
       <MultiSelectField
         id={id}
         label={TEXTS.pickDevice}
+        placeholder={placeholder}
         options={options}
         value={selectedDeviceIds}
         onChange={(deviceIds) => onChange(deviceIds.map(Number))}

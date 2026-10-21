@@ -20,6 +20,8 @@ interface DrawerHistoryLayoutProps<TRecord, TRecordKey extends string | number> 
   texts: RecordHistoryTexts;
   records: AsyncResource<TRecord[]>;
   history: RecordHistoryState<TRecord, TRecordKey>;
+  /** "מוצגות X הגבלות" וכדומה - בנוי בפעולה, לפי הרשומות שמוצגות אחרי החיפוש */
+  resultsCountText: string;
   getRecordKey: (record: TRecord) => TRecordKey;
   renderCard: (record: TRecord) => ReactNode;
   onCreate: () => void;
@@ -34,6 +36,7 @@ export default function DrawerHistoryLayout<TRecord, TRecordKey extends string |
   texts,
   records,
   history,
+  resultsCountText,
   getRecordKey,
   renderCard,
   onCreate,
@@ -56,6 +59,9 @@ export default function DrawerHistoryLayout<TRecord, TRecordKey extends string |
           searchPlaceholder={texts.toolbar.searchPlaceholder}
           sortKey={history.sortKey}
           onSortChange={history.changeSort}
+          statusSortTexts={texts.statusSort}
+          resultsCountText={records.status === "success" ? resultsCountText : null}
+          isResultsCountLoading={records.status === "idle" || records.status === "loading"}
           isDisabled={records.status !== "success"}
         />
       </div>

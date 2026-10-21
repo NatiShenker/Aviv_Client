@@ -27,6 +27,10 @@ Excellent UX across all platforms is a primary goal. When building screens, you 
 - **Trainee identity:** where the trainee is the subject (the card, the actions screen header) the name comes first and the personal number in a gray line under it; where the trainee is context (the history and form headers) it is one gray line, `"{name} | {code}"`.
 - **Width:** every mobile screen must fit 320px width without horizontal scroll.
 - **Filters:** filters with many or dynamic options use a select (multi-select where relevant), not chips.
+- **Wording** (decided 2026-10-21, in the copy review after the mobile UI/UX phase):
+  - Buttons and empty-field placeholders name the action as a noun: "שמירה", "בחירת סיבה" – not the imperative ("שמור", "בחר").
+  - Instructions and messages use the impersonal, formal form: "ניתן ל…", "יש ל…" – not "אפשר", and not the imperative.
+  - "ללא", not "בלי" (formal).
 
 ## What not to copy from the sketches
 
@@ -93,6 +97,6 @@ Decided for desktop phase 1 (the trainees list) and phase 2 (the trainee drawer)
   - The same two-column grid as on mobile: short fields (dates, times, duration) take half a row; the others take a full row.
   - There are no desktop-only field widths (decided 2026-10-19: fields of varying widths read as disorder, and a full-width short field does not fit either).
 - **Buttons:** the library's regular size on desktop; `size="large"` (48px, touch) is for mobile only.
-- **Button pairs:** the secondary action is at the start (right) and the primary at the end (left), in every pair: the form footer ("ביטול" | "שמור") and confirmations ("המשך עריכה" | "יציאה בלי שמירה"). In a confirmation of a destructive action:
+- **Button pairs:** the secondary action is at the start (right) and the primary at the end (left), in every pair: the form footer ("ביטול" | "שמירה") and confirmations ("המשך עריכה" | "יציאה ללא שמירה"). In a confirmation of a destructive action:
   - the least destructive button gets the initial focus (WAI-ARIA APG);
   - the destructive one is contained in the error color.

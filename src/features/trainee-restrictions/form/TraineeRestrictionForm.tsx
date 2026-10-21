@@ -40,7 +40,6 @@ export default function TraineeRestrictionForm({ form, devices, wings, reasons }
     <form id={TRAINEE_RESTRICTION_FORM_ID} noValidate onSubmit={form.submit} className="divide-y divide-divider">
       <CallDetailsBlock
         title={TEXTS.detailsBlock.title}
-        dateRangeDescription={TEXTS.detailsBlock.dateRangeDescription}
         ruleKind={RULE_KIND}
         values={values}
         touchedDates={form.touchedDates}
@@ -52,8 +51,7 @@ export default function TraineeRestrictionForm({ form, devices, wings, reasons }
         onDurationTextChange={form.changeDurationText}
       />
       <PermittedConditionsBlock
-        title={TEXTS.permitsBlock.title}
-        hint={TEXTS.permitsBlock.hint[values.limitKind]}
+        title={TEXTS.conditionsBlock.title}
         ruleKind={RULE_KIND}
         values={values}
         errors={{ hours: errors.hours, devices: errors.devices }}

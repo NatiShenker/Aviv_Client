@@ -114,7 +114,7 @@ function matchesTraineeFilters(
     return false;
   }
 
-  // 5. e. סינון לפי הגבלה/היתר למספר
+  // 5. e. סינון לפי הגבלות והיתרים למספר
   if (filters.phoneException === "restriction" && !flags.hasActivePhoneRestriction) return false;
   if (filters.phoneException === "permit" && !flags.hasActivePhonePermit) return false;
   if (

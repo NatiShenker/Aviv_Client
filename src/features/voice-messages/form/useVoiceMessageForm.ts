@@ -68,7 +68,7 @@ export function useVoiceMessageForm({ traineeId, startingPoint, reasons, onSaved
     );
   }, [sourceRecord, reasons.data]);
 
-  // שינויים של המשתמש עוברים כאן (או ב"הוסף" מספר). בחירת הסיבה לפי השם, כשהרשימה מגיעה, לא נחשבת שינוי
+  // שינויים של המשתמש עוברים כאן (או ב"הוספה" מספר). בחירת הסיבה לפי השם, כשהרשימה מגיעה, לא נחשבת שינוי
   const changeValues = (update: Partial<VoiceMessageFormValues>, clearedSlots: VoiceMessageErrorSlot[] = []) => {
     setValues((current) => ({ ...current, ...update }));
     setErrors((current) => withoutErrors(current, clearedSlots));

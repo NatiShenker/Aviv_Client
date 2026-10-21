@@ -5,6 +5,7 @@ import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useIncrementalList } from "@/shared/hooks/useIncrementalList";
 import { showCardAsIs, type RenderCardFrame } from "./historyCardFrame";
 import HistorySkeleton from "./HistorySkeleton";
+import type { StatusSortTexts } from "./historySort";
 import { HISTORY_TEXTS } from "./historyTexts";
 
 export interface HistoryListTexts {
@@ -17,6 +18,8 @@ export interface HistoryListTexts {
 /** הטקסטים של מסך ההיסטוריה, מקובץ הטקסטים של הפיצ'ר - משותפים לשתי הפריסות */
 export interface RecordHistoryTexts {
   toolbar: { sectionTitle: string; searchLabel: string; searchPlaceholder: string };
+  /** תוויות מיון הסטטוס, במין של הרשומה */
+  statusSort: StatusSortTexts;
   states: HistoryListTexts;
   /** כפתור היצירה (במובייל בתחתית המסך, בדסקטופ בשורה העליונה) */
   newRecord: string;

@@ -24,8 +24,9 @@ Prototype source: `client/pages/VoiceMessageList.tsx` (superseded where this spe
 1. **HistoryHeader** – title `"הודעה קולית לנמען"`; back arrow one step back to the actions screen ([00 §3.1](../00_foundations.md)).
 2. **HistoryToolbar** ([00 §3.23](../00_foundations.md))
    - Section title `"היסטוריית הודעות לנמען"` (Messages history).
-   - Search field: aria-label `"חיפוש הודעות לנמען"`, placeholder `"חיפוש לפי מספר, סיבה או תאריך"`.
+   - Search field: aria-label `"חיפוש הודעות לנמען"`, placeholder `"חיפוש חופשי"` (Free search; decided 2026-10-21). It still searches the fields of §4.
    - Sort button (aria-label `"מיון"`).
+   - Results count ([00 §3.23](../00_foundations.md) row 3): `"מוצגות {n} הודעות"` / `"מוצגת הודעה אחת"` (decided 2026-10-21).
 3. **Cards** – one ExpandableRecordCard per record.
 4. **EmptyState** – `"לא נמצאו הודעות לנמען"` (No messages found).
 5. **StickyActionBar** – primary button `"הוספת הודעה לנמען"` (Add message) + plus icon → `/trainee/{id}/voice-message/new`.
@@ -49,16 +50,16 @@ DetailGrid, two columns (right column first). The number, dates and status are a
 | 2 | `"סיבה"` – label or `"לא צוין"` | `"גורם מאשר"` – label or `"לא צוין"` |
 | 3 | `"פירוט"` – full width, **only when not empty** | |
 
-Below the grid: outline button `"עריכה"` with edit icon – or, on an ended record, `"צור הודעה חדשה על בסיס זו"` **(proposed)** with a copy icon (an ended record cannot be edited, [00 §3.22](../00_foundations.md)).
+Below the grid: outline button `"עריכה"` with edit icon – or, on an ended record, `"יצירת הודעה דומה"` (decided 2026-10-21) with a copy icon (an ended record cannot be edited, [00 §3.22](../00_foundations.md)).
 
 ---
 
 ## 4. Behavior & states
 
 - **Search** matches the trimmed query (substring) against: the number, or `"כל השיחות"` (all-calls records only), `"הודעה חוזרת"` (repeating records only), reason, details, approver, date range (`DD/MM/YY-DD/MM/YY`), start and end dates (`YYYY-MM-DD`).
-- **Sort sheet rows** – shared by every history screen ([03 history §4](../03-trainee-restriction/03_trainee_restriction_history.md)).
+- **Sort sheet rows** – the same as the trainee restriction history ([03 history §4](../03-trainee-restriction/03_trainee_restriction_history.md)), including the status rows in the feminine: `"סטטוס: פעילות תחילה"` / `"סטטוס: שהסתיימו תחילה"` (decided 2026-10-21).
 - **Empty list** and **no search match** both show `"לא נמצאו הודעות לנמען"`.
-- **Loading:** skeleton cards, `"טוען הודעות לנמען…"` **(proposed)**. **Failure:** `"לא ניתן לטעון את ההודעות לנמען"` **(proposed)** + `"נסה שוב"`.
+- **Loading:** skeleton cards, `"טוען הודעות לנמען…"` **(proposed)**. **Failure:** `"לא ניתן לטעון את ההודעות לנמען"` **(proposed)** + `"טעינה מחדש"` (decided 2026-10-21).
 - **Permission:** requires the voice-message permission ([02 §7](../02_child_actions.md)).
 - The screen scrolls to the top when opened.
 
@@ -84,4 +85,4 @@ The history opens in the trainee drawer, in the desktop history pattern of [00 �
   - the search, with this screen's label and placeholder (§3);
   - the `"מיון"` select, with the rows of the history screens ([03 history §4](../03-trainee-restriction/03_trainee_restriction_history.md)).
 - **Cards, search, sort, states and permission:** as in §3–§4.
-- **Card actions:** `"עריכה"` and `"צור הודעה חדשה על בסיס זו"` open the form as a layer over the history ([form §8](05_voice_message_form.md)).
+- **Card actions:** `"עריכה"` and `"יצירת הודעה דומה"` open the form as a layer over the history ([form §8](05_voice_message_form.md)).

@@ -22,7 +22,7 @@ interface UnsavedChangesMuteProps {
 
 /**
  * טופס שנסגר ועדיין יוצא באנימציה כבר לא נחשב פתוח: הדיווח שלו מושתק, והמגירה מקבלת "אין שינויים".
- * כך לחיצה על הרקע מיד אחרי "שמור" או "ביטול" לא שואלת על טופס שכבר נסגר
+ * כך לחיצה על הרקע מיד אחרי "שמירה" או "ביטול" לא שואלת על טופס שכבר נסגר
  */
 export function UnsavedChangesMute({ isMuted, children }: UnsavedChangesMuteProps) {
   const report = useContext(UnsavedChangesContext);

@@ -89,3 +89,8 @@ export function filterAndSortTraineeRestrictions(
 ): TraineeRestrictionRecordDto[] {
   return sortHistoryRecords(filterBySearchQuery(records, searchQuery, buildTraineeRestrictionSearchParts), sort);
 }
+
+/** "מוצגות X הגבלות" מתחת לחיפוש, לפי הרשומות שמוצגות אחרי החיפוש */
+export function buildTraineeRestrictionsCountText(visibleRecords: TraineeRestrictionRecordDto[]): string {
+  return TEXTS.toolbar.resultsCount(visibleRecords.length);
+}

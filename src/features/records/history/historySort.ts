@@ -11,21 +11,39 @@ export interface HistorySortOption {
   key: string;
   field: HistorySortField;
   direction: SortDirection;
-  label: string;
 }
 
 export const HISTORY_SORT_OPTIONS: HistorySortOption[] = [
-  { key: "start-desc", field: "startDate", direction: "desc", label: SORT_TEXTS.startDateDescending },
-  { key: "start-asc", field: "startDate", direction: "asc", label: SORT_TEXTS.startDateAscending },
-  { key: "end-desc", field: "endDate", direction: "desc", label: SORT_TEXTS.endDateDescending },
-  { key: "end-asc", field: "endDate", direction: "asc", label: SORT_TEXTS.endDateAscending },
-  // "יורד" בסטטוס = הפעילות קודם
-  { key: "status-desc", field: "status", direction: "desc", label: SORT_TEXTS.statusActiveFirst },
-  { key: "status-asc", field: "status", direction: "asc", label: SORT_TEXTS.statusEndedFirst },
+  { key: "start-desc", field: "startDate", direction: "desc" },
+  { key: "start-asc", field: "startDate", direction: "asc" },
+  { key: "end-desc", field: "endDate", direction: "desc" },
+  { key: "end-asc", field: "endDate", direction: "asc" },
+  // "יורד" בסטטוס = הפעילות תחילה
+  { key: "status-desc", field: "status", direction: "desc" },
+  { key: "status-asc", field: "status", direction: "asc" },
 ];
 
 // ספק 00 §4.1: תאריך התחלה, מהחדש לישן
 export const DEFAULT_HISTORY_SORT_OPTION = HISTORY_SORT_OPTIONS[0];
+
+/** תוויות מיון הסטטוס, מקובץ הטקסטים של כל פעולה - הן במין של הרשומה ("פעילות" / "פעילים") */
+export interface StatusSortTexts {
+  activeFirst: string;
+  endedFirst: string;
+}
+
+/** התווית של אפשרות מיון: תוויות התאריכים משותפות, ותוויות הסטטוס מהפעולה */
+export function historySortLabel(option: HistorySortOption, statusSortTexts: StatusSortTexts): string {
+  const isDescending = option.direction === "desc";
+  switch (option.field) {
+    case "startDate":
+      return isDescending ? SORT_TEXTS.startDateDescending : SORT_TEXTS.startDateAscending;
+    case "endDate":
+      return isDescending ? SORT_TEXTS.endDateDescending : SORT_TEXTS.endDateAscending;
+    case "status":
+      return isDescending ? statusSortTexts.activeFirst : statusSortTexts.endedFirst;
+  }
+}
 
 /** שורה במגירת המיון: צירוף אחד של שדה וכיוון */
 export interface HistorySortRow {
@@ -33,10 +51,12 @@ export interface HistorySortRow {
   label: string;
 }
 
-export const HISTORY_SORT_ROWS: HistorySortRow[] = HISTORY_SORT_OPTIONS.map((option) => ({
-  value: option.key,
-  label: option.label,
-}));
+export function buildHistorySortRows(statusSortTexts: StatusSortTexts): HistorySortRow[] {
+  return HISTORY_SORT_OPTIONS.map((option) => ({
+    value: option.key,
+    label: historySortLabel(option, statusSortTexts),
+  }));
+}
 
 export function findHistorySortOption(key: string): HistorySortOption {
   return HISTORY_SORT_OPTIONS.find((option) => option.key === key) ?? DEFAULT_HISTORY_SORT_OPTION;

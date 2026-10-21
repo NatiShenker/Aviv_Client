@@ -21,7 +21,7 @@ import type { TraineeFilterGroupsUpdate } from "../useTraineesListFilters";
 
 const TEXTS = TRAINEES_LIST_TEXTS.filters;
 
-// "נקה מסננים" היא פעולה משנית: 14/500, קטנה מכותרת המגירה (18) ובגודל כפתורי הבחירה (14).
+// "ניקוי מסננים" היא פעולה משנית: 14/500, קטנה מכותרת המגירה (18) ובגודל כפתורי הבחירה (14).
 // כפתורי הטקסט של הספרייה הם 16, ולכן הגודל מותאם כאן, במקום השימוש
 const CLEAR_FILTERS_BUTTON_SX = {
   fontSize: "14px",
@@ -29,7 +29,7 @@ const CLEAR_FILTERS_BUTTON_SX = {
   ...EXPANDED_TOUCH_TARGET_SX,
 } as const;
 
-// בחירה פעילה ברשימת החניכים בנייבי, כמו בסקיצה (ספק 00 §2.1), כך ש"הצג תוצאות" נשאר הכחול היחיד במגירה.
+// בחירה פעילה ברשימת החניכים בנייבי, כמו בסקיצה (ספק 00 §2.1), כך ש"הצגת התוצאות" נשאר הכחול היחיד במגירה.
 // IpsPillSelect צובע לפי ה-primary; ההתאמה כאן, במקום השימוש, והפקד בספרייה לא משתנה
 const NAVY_PILLS_SX = {
   '& .ips-pill[aria-pressed="true"]': {
@@ -52,8 +52,7 @@ interface TraineesFilterSheetProps {
   filters: TraineeListFiltersState;
   wings: WingDto[];
   locations: AsyncResource<WingLocationDto[]>;
-  resultCount: number;
-  /** כמה מקבוצות הסינון פעילות (ל"נקה מסננים (n)") */
+  /** כמה מקבוצות הסינון פעילות. בלי סינון פעיל "ניקוי מסננים" מושבת */
   activeFilterCount: number;
   onWingIdsChange: (wingIds: number[]) => void;
   onFiltersChange: (update: TraineeFilterGroupsUpdate) => void;
@@ -68,7 +67,6 @@ export default function TraineesFilterSheet({
   filters,
   wings,
   locations,
-  resultCount,
   activeFilterCount,
   onWingIdsChange,
   onFiltersChange,
@@ -83,7 +81,7 @@ export default function TraineesFilterSheet({
       onClose={onClose}
       actions={
         <IpsButton variant="contained" size="large" fullWidth onClick={onClose}>
-          {TEXTS.showResults(resultCount)}
+          {TEXTS.showResults}
         </IpsButton>
       }
     >
@@ -96,7 +94,7 @@ export default function TraineesFilterSheet({
           onClick={onClearFilters}
           sx={CLEAR_FILTERS_BUTTON_SX}
         >
-          {TRAINEES_LIST_TEXTS.filterPanel.clearFilters(activeFilterCount)}
+          {TRAINEES_LIST_TEXTS.filterPanel.clearFilters}
         </IpsButton>
       </div>
 

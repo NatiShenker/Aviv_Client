@@ -8,8 +8,8 @@ Prototype source: `client/pages/ExceptionForm.tsx`. Business rules and model: [o
 
 - **Create** a permit for a restricted number, or a restriction on one or more numbers.
 - **Edit** an existing permit or restriction (dates, conditions, decision – not the type, number or underlying restriction).
-- **Create:** `"הוספת הגבלה/היתר"` on the history screen. **Edit:** `"עריכה"` in an open history card (active or future records only).
-- **Create based on an ended record:** `"צור היתר חדש על בסיס זה"` / `"צור הגבלה חדשה על בסיס זו"` in an open card of an ended record (§4.11).
+- **Create:** `"הוספת הגבלה או היתר"` on the history screen. **Edit:** `"עריכה"` in an open history card (active or future records only).
+- **Create based on an ended record:** `"יצירת היתר דומה"` / `"יצירת הגבלה דומה"` in an open card of an ended record (§4.11).
 
 ---
 
@@ -17,7 +17,7 @@ Prototype source: `client/pages/ExceptionForm.tsx`. Business rules and model: [o
 
 | Mode | Route | Notes |
 |---|---|---|
-| Create | `/trainee/:traineeId/number-restriction/new` | Opens on type `"היתר למספר מוגבל"` |
+| Create | `/trainee/:traineeId/number-restriction/new` | Opens on type `"היתר למספר"` |
 | Create based on | `/trainee/:traineeId/number-restriction/new?basedOn={recordKey}` | The source is taken from the loaded history; the form waits for it. Not found → a plain create form |
 | Edit | `/trainee/:traineeId/number-restriction/:recordKey/edit` | `recordKey` = record type + ID, e.g. `permit-12` or `restriction-12` (restrictions and permits come from separate tables, so IDs can repeat). The record is taken from the loaded history; unknown key or an ended record → redirect to `/trainee/:traineeId/number-restriction` (replace) |
 
@@ -43,20 +43,20 @@ The create title follows the action type selected below. Close X (aria-label `"�
 
 | Order | Title | Description **(proposed)** |
 |---|---|---|
-| 1 (default) | `"היתר למספר מוגבל"` | `"פתיחת מספר שחסום עבור החניך"` (Opening a number that is blocked for the trainee) |
-| 2 | `"הגבלת מספר"` | `"חסימת מספר אחד או יותר לחניך"` (Blocking one or more numbers for the trainee) |
+| 1 (default) | `"היתר למספר"` (decided 2026-10-21) | `"פתיחת מספר שחסום עבור החניך"` (Opening a number that is blocked for the trainee) |
+| 2 | `"הגבלה למספר"` (decided 2026-10-21) | `"חסימת מספר אחד או יותר לחניך"` (Blocking one or more numbers for the trainee) |
 
 3. **Number field** (12px below), by type:
 
 | Type | Component | Hint | Button |
 |---|---|---|---|
-| Permit | PhoneSearchField | `"הזן את המספר המלא כדי לאתר את ההגבלות החלות עליו עבור החניך"` (Enter the full number to find the restrictions that apply to it for this trainee) | `"חיפוש"` + search icon |
-| Restriction | PhoneNumbersField | `"הזן מספר אחד או יותר. כל מספר יישמר כהגבלה נפרדת"` (Enter one or more numbers. Each number is saved as a separate restriction) | `"הוסף"` + plus icon |
+| Permit | PhoneSearchField | `"הזן את המספר המלא, כדי לאתר את ההגבלות החלות עליו עבור החניך"` (Enter the full number, to find the restrictions that apply to it for this trainee; decided 2026-10-21) | `"חיפוש"` + search icon |
+| Restriction | PhoneNumbersField | `"ניתן להזין מספר אחד או יותר. כל מספר יישמר כהגבלה נפרדת"` (One or more numbers can be entered. Each number is saved as a separate restriction; decided 2026-10-21) | `"הוספה"` + plus icon |
 
 4. **Permit lookup result** (16px below the number field, fade-in) – one of:
    - **No results card** (white card, card radius, padding 16, thin outline):
-     - Text (14/18): `"לא נמצאו הגבלות פעילות על המספר עבור החניך – המספר פתוח ואין צורך בהיתר"` (No active restrictions on this number for the trainee – the number is open and no permit is needed).
-     - Link button (8px below, 14/18, `action` color, chevron pointing left): `"להגבלת המספר"` (Restrict the number).
+     - Text (14/18): `"אין הגבלה פעילה על המספר, ולכן אין צורך בהיתר"` (No active restriction on the number, so no permit is needed; decided 2026-10-21).
+     - Link button (8px below, 14/18, `action` color, chevron pointing left): `"הגבלת המספר"` (Restrict the number; decided 2026-10-21).
    - **Restriction picker:**
      - Heading row (44px): title (14/18) at the start; at the end, when shown (§4.4), a text button (14/18, `action`): `"החלפה"` (Change) or `"ביטול"` (Cancel).
      - Hint (12/15 gray), when shown (§4.4).
@@ -72,42 +72,40 @@ White card, card radius, outline 1px `action` when it is the selected restrictio
 |---|---|
 | Line 1 | (padding 16) Scope label (16/20, weight 500): `"הגבלה ארצית"` / `"הגבלת פנימייה – {institute}"` (several institutes joined with `", "`) / `"הגבלה לחניך"` |
 | Line 2 | (14/18 gray, 4px below) date range (LTR) + `" · "` + reason, or `"ללא סיבה"` |
-| Line 3 | Only when this trainee has existing permits on it (14/18 navy, 4px below): `"היתרים קיימים לחניך: {summary}"`, several joined with `"; "`. Summary format: [overview §3](04_number_restriction_overview.md#3-derived-display-values), e.g. `"16:00-19:00 · עד 15 דק'"` |
+| Line 3 | Only when this trainee has existing permits on it (14/18 navy, 4px below): `"היתרים קיימים לחניך: {summary}"`, several joined with `"; "`. Summary format: [overview §3](04_number_restriction_overview.md#3-derived-display-values), e.g. `"16:00-19:00 · עד 15 דק׳"` |
 | Choose row | Only while choosing (§4.4): a 0.5px line, then a 44px+ row with the text button `"בחירה"` + chevron (pointing left) at the end. Accessible name `"בחירה: {scope label}, {range}"`. On the currently selected restriction (after `"החלפה"`) the row shows `"נבחרה"` + check icon instead, not tappable |
 
 ### 3.3 Edit mode – locked number card (instead of block 0)
 
 White card, card radius, padding 16, thin outline, 24px below the header:
 
-- RecordIcon (open lock, red); next to it the phone number (16/20, LTR) and below it the full type label (14/18 gray): `"היתר למספר מוגבל"` or `"הגבלת מספר"`.
-- **Permits only:** a 0.5px line, then `"על הגבלה"` (14/18 gray) and the restriction lines (scope label, then range · reason) as in §3.2.1 lines 1–2.
+- RecordIcon (open lock, red); next to it the phone number (16/20, LTR) and below it the full type label (14/18 gray): `"היתר למספר"` or `"הגבלה למספר"`.
+- **Permits only:** a 0.5px line, then `"חל על הגבלה"` (Applies to restriction, 14/18 gray; decided 2026-10-21) and the restriction lines (scope label, then range · reason) as in §3.2.1 lines 1–2.
 
 ### 3.4 Block 1 – `"פרטי ההיתר"` (Permit details) / `"פרטי ההגבלה"` (Restriction details)
 
 What, then when – the same order in every action form (decided 2026-10-18):
 
 1. **LimitTypeSelector** – permit config (`"סוג ההיתר"`: `"היתר מלא"` / `"היתר עם הגבלת משך"`) or restriction config (`"סוג ההגבלה"`: `"הגבלה מלאה"` / `"הגבלת משך שיחה"`), stacked with the descriptions from [00 §3.9](../00_foundations.md), DurationField, ErrorText – duration.
-2. **FieldIntro** `"טווח תאריכים"` (16px below) with description:
-   - Permit: `"ההיתר יחול בתאריכים אלו, בתוך תקופת ההגבלה"` (The permit applies on these dates, within the restriction's period)
-   - Restriction: `"ההגבלה תחול בתאריכים אלו בלבד"`
+2. **FieldIntro** `"טווח תאריכים"` (16px below):
+   - Permit: with the description `"בתוך תקופת ההגבלה"` (Within the restriction's period; decided 2026-10-21)
+   - Restriction: no description line (removed 2026-10-21)
 3. **Date pair** – start (`"תאריך התחלה"`), end (`"תאריך סיום"`). Limits in §4.8.
 4. ErrorText – dates.
 
-### 3.5 Block 2 – `"הגבלה להיתר"` (Limits on the permit) / `"היתרים להגבלה"` (Permits within the restriction)
+### 3.5 Block 2 – `"שעות ומכשירים"` (Hours and devices)
 
-1. **Hint** (14/18 gray):
-   - Permit (both types): `"ברירת מחדל – פתוח כל היום ובכל המכשירים"` (Default – open all day on all devices)
-   - Restriction, `"הגבלה מלאה"`: `"ללא היתרים – חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח"`
-   - Restriction, `"הגבלת משך שיחה"`: `"ללא הגדרה – מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה"`
-2. **ConditionAccordion `"שעות מותרות"`** and **`"מכשירים מותרים"`** – identical to the trainee form ([03 form §3.3](../03-trainee-restriction/03_trainee_restriction_form.md#33-block-2--היתרים-להגבלה-permits-within-the-restriction)), including content hints and ErrorText – hours.
+The same title for a permit and a restriction (decided 2026-10-21; before it each had its own). There is no hint line under it (removed 2026-10-21).
 
-### 3.6 Block 3 – `"סיבות והחלטה"`
+1. **ConditionAccordion `"שעות מותרות"`** and **`"מכשירים מותרים"`** – identical to the trainee form ([03 form §3.3](../03-trainee-restriction/03_trainee_restriction_form.md#33-block-2--שעות-ומכשירים-hours-and-devices)), including the hours hint, the devices field with its empty text, and ErrorText – hours.
+
+### 3.6 Block 3 – `"סיבות ואישורים"`
 
 As in [00 §4.3](../00_foundations.md), with the number reasons list ([00 §6](../00_foundations.md)). All four fields are required, the reason too (decided 2026-10-19).
 
 ### 3.7 Footer
 
-StickyActionBar, two columns: outline `"ביטול"` (one step back to the history list, [00 §3.1](../00_foundations.md)) and primary submit `"שמור"`.
+StickyActionBar, two columns: outline `"ביטול"` (one step back to the history list, [00 §3.1](../00_foundations.md)) and primary submit `"שמירה"`.
 
 ### 3.8 Visibility of blocks 1–3
 
@@ -127,7 +125,7 @@ StickyActionBar, two columns: outline `"ביטול"` (one step back to the histo
 
 | Item | Create | Edit |
 |---|---|---|
-| Action type | `"היתר למספר מוגבל"` | From the record, locked |
+| Action type | `"היתר למספר"` | From the record, locked |
 | Number area | Empty search field (permit) | Locked card (§3.3) |
 | Dates | Today / tomorrow, muted (replaced when a restriction is selected) | From the record, not muted |
 | Limit type | Option 1 | Option 2 if the record has a duration, else option 1 |
@@ -157,10 +155,10 @@ StickyActionBar, two columns: outline `"ביטול"` (one step back to the histo
 
 | State | Title | Hint | Cards shown | Heading button | Choose row (§3.2.1) |
 |---|---|---|---|---|---|
-| 1 result (auto-selected) | `"ההגבלה שעליה יחול ההיתר"` (The restriction the permit will apply to) | `"זו ההגבלה היחידה החלה על המספר עבור החניך, ולכן נבחרה"` (This is the only restriction on the number for the trainee, so it was selected) | The one card, selected | – | – |
-| 2+ results, none selected | `"בחר את ההגבלה שעליה יחול ההיתר"` (Choose the restriction the permit will apply to) | `"נמצאו {n} הגבלות החלות על המספר עבור החניך"` (Found {n} restrictions on the number for the trainee) | All | – | `"בחירה"` on every card |
+| 1 result (auto-selected) | `"ההגבלה שעליה יחול ההיתר"` (The restriction the permit will apply to) | `"זו ההגבלה היחידה על המספר, ולכן נבחרה"` (This is the only restriction on the number, so it was selected; decided 2026-10-21) | The one card, selected | – | – |
+| 2+ results, none selected | `"בחירת ההגבלה שעליה יחול ההיתר"` (Choosing the restriction the permit will apply to; decided 2026-10-21) | `"נמצאו {n} הגבלות על המספר"` (Found {n} restrictions on the number; decided 2026-10-21) | All | – | `"בחירה"` on every card |
 | 2+ results, one selected | `"ההגבלה שעליה יחול ההיתר"` | – | **Only the selected card** | `"החלפה"` | – |
-| 2+ results, reopened with `"החלפה"` | `"בחר את ההגבלה שעליה יחול ההיתר"` | `"נמצאו {n} הגבלות החלות על המספר עבור החניך"` | All | `"ביטול"` – back to the current selection, nothing changes | `"בחירה"`, and `"נבחרה"` on the current one |
+| 2+ results, reopened with `"החלפה"` | `"בחירת ההגבלה שעליה יחול ההיתר"` | `"נמצאו {n} הגבלות על המספר"` | All | `"ביטול"` – back to the current selection, nothing changes | `"בחירה"`, and `"נבחרה"` on the current one |
 
 - Card order: national → institute → trainee, then start date ascending ([overview §2.7](04_number_restriction_overview.md#27-which-restrictions-the-permit-lookup-returns)).
 - The existing-permits line is information only; it does not block creating another permit ([OQ-12](../../pending-decisions.md#oq-12)).
@@ -176,13 +174,13 @@ StickyActionBar, two columns: outline `"ביטול"` (one step back to the histo
   - Reasons & decision are not touched.
   - Blocks 1–3 appear.
 
-### 4.6 `"להגבלת המספר"` (from the no-results card)
+### 4.6 `"הגבלת המספר"` (from the no-results card)
 
-- Switches the action type to `"הגבלת מספר"` (with the reset of §4.2 – reason, details, approver and file kept) and adds the searched number as the first chip. The input is empty.
+- Switches the action type to `"הגבלה למספר"` (with the reset of §4.2 – reason, details, approver and file kept) and adds the searched number as the first chip. The input is empty.
 
 ### 4.7 Restriction – numbers
 
-- **`"הוסף"` enabled** when the input is not blank. **Enter** adds.
+- **`"הוספה"` enabled** when the input is not blank. **Enter** adds.
 - **On add:** normalize. Invalid → `"מספר טלפון לא תקין"`. Already a chip → `"המספר כבר נוסף"` (Number already added). Otherwise add a chip and clear the input.
 - Typing clears the phone error. A chip's X removes it.
 - **On submit, a number still in the input** is added automatically when valid (skipped silently if it is already a chip); when invalid → `"מספר טלפון לא תקין"`.
@@ -202,9 +200,9 @@ StickyActionBar, two columns: outline `"ביטול"` (one step back to the histo
 Same behavior as the trainee form ([03 form §4.3–4.5](../03-trainee-restriction/03_trainee_restriction_form.md#43-type-selector)), with these differences for a **permit**:
 
 - Option labels and hints are the permit ones.
-- Accordion summaries are always "open by default": unset hours → `"כל היום"`, unset devices → `"כל המכשירים"` (never `"לא הוגדרו"`).
+- Accordion summaries are always "open by default": unset hours → `"כל היום"`, unset devices → `"כל המכשירים"` (never `"לא הוגדרו"`), and the empty devices field shows `"כל המכשירים"` too.
 
-### 4.10 Submit (`"שמור"`)
+### 4.10 Submit (`"שמירה"`)
 
 | Situation | Checks |
 |---|---|
@@ -223,8 +221,8 @@ Same behavior as the trainee form ([03 form §4.3–4.5](../03-trainee-restricti
 
 As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details from the record; dates, approver and file new. Per type:
 
-- **Restriction:** type `"הגבלת מספר"`, the number as the first chip (more can be added), limit type, minutes, hours and devices from the record. Dates today / tomorrow, muted.
-- **Permit:** type `"היתר למספר מוגבל"`, the number in the search field, and **the search runs immediately**. When the results arrive: if the restriction the ended permit relied on is among them, it is selected; otherwise the usual 0 / 1 / several behavior (§4.3). Whenever a restriction is selected, the permit's limit type, minutes, hours and devices are applied (instead of the reset of §4.5); the dates follow the restriction as usual. Changing the action type drops the copied terms.
+- **Restriction:** type `"הגבלה למספר"`, the number as the first chip (more can be added), limit type, minutes, hours and devices from the record. Dates today / tomorrow, muted.
+- **Permit:** type `"היתר למספר"`, the number in the search field, and **the search runs immediately**. When the results arrive: if the restriction the ended permit relied on is among them, it is selected; otherwise the usual 0 / 1 / several behavior (§4.3). Whenever a restriction is selected, the permit's limit type, minutes, hours and devices are applied (instead of the reset of §4.5); the dates follow the restriction as usual. Changing the action type drops the copied terms.
 
 ---
 
@@ -240,7 +238,7 @@ As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details 
 | Restriction | One restriction selected (create permit) | `"יש לבחור הגבלה"` | Submit | A restriction is selected; input changes; a search runs |
 | Dates | Both dates present | `"יש לבחור תאריך התחלה ותאריך סיום"` | Submit | Either date changes; a restriction is selected |
 | Dates | End ≥ start | `"תאריך הסיום לא יכול להיות לפני תאריך ההתחלה"` | Submit | Same |
-| Dates | Permit dates inside the restriction | `"תאריכי ההיתר חייבים להיות בתוך תקופת ההגבלה ({DD/MM/YY-DD/MM/YY})"` (Permit dates must be within the restriction's period) | Submit | Same |
+| Dates | Permit dates inside the restriction | `"תאריכי ההיתר צריכים להיות בתוך תקופת ההגבלה: {DD/MM/YY-DD/MM/YY}"` (Permit dates need to be within the restriction's period; decided 2026-10-21) | Submit | Same |
 | Duration | With option 2: whole number 1–120 | `"יש להזין מספר דקות שלם בין 1 ל-120"` | Submit | Minutes change; limit type changes; a restriction is selected |
 | Hours | Both or none | `"יש לבחור שעת התחלה ושעת סיום"` | Submit (opens accordion) | Either time changes; a restriction is selected |
 | Hours | End > start | `"שעת הסיום חייבת להיות אחרי שעת ההתחלה"` | Submit (opens accordion) | Same |
@@ -283,7 +281,7 @@ As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details 
 | `details` | Details |
 | `approverId` | Approver |
 | `approvedFileId` | File |
-| A key whose slot is not shown (the locked number or restriction in edit; the restriction in a new restriction) | The general save error `"השמירה נכשלה. נסה שוב"`, together with the errors of the shown slots |
+| A key whose slot is not shown (the locked number or restriction in edit; the restriction in a new restriction) | The general save error `"השמירה נכשלה. ניתן לנסות שוב"`, together with the errors of the shown slots |
 | `409 CONFLICT` when creating a permit | Restriction slot: `"ההגבלה שנבחרה אינה פעילה עוד. יש לחפש שוב"` (The selected restriction is no longer active. Search again) **(proposed)**. The earlier results stay shown, and `"חיפוש"` is enabled again for the same number (decided 2026-10-19) |
 
 ---
@@ -294,7 +292,7 @@ As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details 
 |---|---|
 | Edit – loading / 404 | As in the trainee form ([03 form §7](../03-trainee-restriction/03_trainee_restriction_form.md#7-loading--errors-proposed--not-in-the-prototype)) |
 | Searching | `"חיפוש"` disabled until the response arrives |
-| Search failed | Phone slot: `"החיפוש נכשל, נסה שוב"` (Search failed, try again) **(proposed)**; the input keeps its value and the button is enabled again |
+| Search failed | Phone slot: `"החיפוש נכשל. ניתן לנסות שוב"` (Search failed. You can try again; decided 2026-10-21); the input keeps its value and the button is enabled again |
 | File upload, saving, save failure | As in the trainee form |
 
 ---

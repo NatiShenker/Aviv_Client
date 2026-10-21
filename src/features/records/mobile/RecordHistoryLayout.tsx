@@ -7,7 +7,7 @@ import { SCREEN_SIDE_GUTTER_CLASS } from "@/shells/mobile/screenSpacing";
 import SortSheet from "@/shells/mobile/SortSheet";
 import StickyActionBar from "@/shells/mobile/StickyActionBar";
 import HistoryCardsList, { type RecordHistoryTexts } from "../history/HistoryCardsList";
-import { HISTORY_SORT_ROWS } from "../history/historySort";
+import { buildHistorySortRows } from "../history/historySort";
 import type { RecordHistoryState } from "../history/useRecordHistoryState";
 import HistoryToolbar from "./HistoryToolbar";
 
@@ -17,6 +17,8 @@ interface RecordHistoryLayoutProps<TRecord, TRecordKey extends string | number> 
   texts: RecordHistoryTexts;
   records: AsyncResource<TRecord[]>;
   history: RecordHistoryState<TRecord, TRecordKey>;
+  /** "מוצגות X הגבלות" וכדומה - בנוי בפעולה, לפי הרשומות שמוצגות אחרי החיפוש */
+  resultsCountText: string;
   getRecordKey: (record: TRecord) => TRecordKey;
   renderCard: (record: TRecord) => ReactNode;
   onCreate: () => void;
@@ -31,6 +33,7 @@ export default function RecordHistoryLayout<TRecord, TRecordKey extends string |
   texts,
   records,
   history,
+  resultsCountText,
   getRecordKey,
   renderCard,
   onCreate,
@@ -47,6 +50,8 @@ export default function RecordHistoryLayout<TRecord, TRecordKey extends string |
             searchLabel={texts.toolbar.searchLabel}
             searchPlaceholder={texts.toolbar.searchPlaceholder}
             onSortClick={history.openSort}
+            resultsCountText={records.status === "success" ? resultsCountText : null}
+            isResultsCountLoading={records.status === "idle" || records.status === "loading"}
             isDisabled={records.status !== "success"}
           />
         </div>
@@ -65,7 +70,7 @@ export default function RecordHistoryLayout<TRecord, TRecordKey extends string |
       <SortSheet
         open={history.isSortOpen}
         onClose={history.closeSort}
-        rows={HISTORY_SORT_ROWS}
+        rows={buildHistorySortRows(texts.statusSort)}
         selectedValue={history.sortKey}
         onChange={history.changeSort}
       />

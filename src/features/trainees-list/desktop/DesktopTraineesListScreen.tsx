@@ -28,7 +28,7 @@ export default function DesktopTraineesListScreen() {
 // עולה רק אחרי שרשימת הפנימיות הגיעה
 function DesktopTraineesListContent() {
   const { selectedInstitute } = useInstitutes();
-  const { trainees, locations, listFilters } = useTraineesListState(selectedInstitute);
+  const { trainees, locations, listFilters, isListLoading } = useTraineesListState(selectedInstitute);
   const areToolsDisabled = trainees.status !== "success";
   const traineeDrawer = useTraineeDrawer();
   // המגירה מציגה את החניך מתוך הרשימה שכבר נטענה
@@ -75,6 +75,7 @@ function DesktopTraineesListContent() {
           searchQuery={listFilters.filters.searchQuery}
           onSearchQueryChange={listFilters.setSearchQuery}
           resultCount={areToolsDisabled ? null : listFilters.visibleTrainees.length}
+          isResultCountLoading={isListLoading}
           sort={listFilters.sort}
           onSortChange={listFilters.setSort}
           isDisabled={areToolsDisabled}

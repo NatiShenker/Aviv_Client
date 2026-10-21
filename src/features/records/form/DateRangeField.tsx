@@ -8,8 +8,8 @@ import { FORM_TEXTS } from "./formTexts";
 const TEXTS = FORM_TEXTS.dateRange;
 
 interface DateRangeFieldProps {
-  /** מה הטווח קובע, למשל "ההגבלה תחול בתאריכים אלו בלבד" */
-  description: string;
+  /** שורת הסבר מתחת לכותרת, למשל "בתוך תקופת ההגבלה" בהיתר. בלעדיה - רק הכותרת */
+  description?: string;
   values: DateRangeValues;
   touchedDates: TouchedDates;
   error?: string;
@@ -21,7 +21,7 @@ interface DateRangeFieldProps {
   onEndDateChange: (endDate: string) => void;
 }
 
-/** "טווח תאריכים": כותרת והסבר, תאריך התחלה וסיום זה לצד זה, ושגיאה (ספק 00 §3.6, §4.2) */
+/** "טווח תאריכים": כותרת והסבר אם יש, תאריך התחלה וסיום זה לצד זה, ושגיאה (ספק 00 §3.6, §4.2) */
 export default function DateRangeField({
   description,
   values,

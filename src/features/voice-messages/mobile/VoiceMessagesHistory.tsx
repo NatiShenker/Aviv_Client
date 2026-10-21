@@ -27,7 +27,7 @@ interface VoiceMessagesHistoryProps {
  */
 export default function VoiceMessagesHistory({ traineeId, traineeFullName, header }: VoiceMessagesHistoryProps) {
   const navigate = useNavigate();
-  const { voiceMessages, history } = useVoiceMessagesHistory(traineeId);
+  const { voiceMessages, history, resultsCountText } = useVoiceMessagesHistory(traineeId);
 
   const renderCard = (record: TraineeVoiceMessageRecordDto) => (
     <VoiceMessageCard
@@ -46,6 +46,7 @@ export default function VoiceMessagesHistory({ traineeId, traineeFullName, heade
         texts={VOICE_MESSAGES_TEXTS}
         records={voiceMessages}
         history={history}
+        resultsCountText={resultsCountText}
         getRecordKey={voiceMessageRecordKey}
         renderCard={renderCard}
         onCreate={() => navigate(ROUTES.newVoiceMessage(traineeId))}

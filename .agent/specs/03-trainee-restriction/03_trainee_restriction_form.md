@@ -9,7 +9,7 @@ Prototype source: `client/pages/BlockForm.tsx`. Business rules and model: [overv
 - Create a new trainee restriction, or edit an existing one.
 - **Create:** `"הוספת הגבלה"` on the history screen.
 - **Edit:** `"עריכה"` inside an open history card (active or future records only).
-- **Create based on an ended record:** `"צור הגבלה חדשה על בסיס זו"` inside an open card of an ended record (§4.9).
+- **Create based on an ended record:** `"יצירת הגבלה דומה"` inside an open card of an ended record (§4.9).
 
 ---
 
@@ -38,24 +38,23 @@ FormHeader – title `"הגבלה חדשה"` (create) or `"עריכת הגבלה
 What, then when – the same order in every action form (decided 2026-10-18):
 
 1. **LimitTypeSelector – restriction**, see [00 §3.9](../00_foundations.md): title `"סוג ההגבלה"` (Restriction type) and stacked options, each with its description; DurationField; ErrorText – duration.
-2. **FieldIntro** `"טווח תאריכים"` (Date range) / `"ההגבלה תחול בתאריכים אלו בלבד"` (The restriction applies on these dates only), 16px below.
+2. **FieldIntro** `"טווח תאריכים"` (Date range), with no description line (removed 2026-10-21), 16px below.
 3. **Date pair** (PickerInput × 2): start (label `"תאריך התחלה"`), end (label `"תאריך סיום"`, `min` = start date). Placeholder `"--/--/--"`.
 4. ErrorText – dates.
 
-### 3.3 Block 2 – `"היתרים להגבלה"` (Permits within the restriction)
+### 3.3 Block 2 – `"שעות ומכשירים"` (Hours and devices)
 
-1. **Hint** (14/18 gray, 4px below the title), by the selected type:
-   - `"הגבלה מלאה"` → `"ללא היתרים – חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח"` (No permits – fully blocked. Set hours or devices when calls are allowed)
-   - `"הגבלת משך שיחה"` → `"ללא הגדרה – מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה"` (Nothing set – allowed all day on all devices, within the chosen duration)
-2. **ConditionAccordion `"שעות מותרות"`** (Permitted hours), 8px below:
+Title decided 2026-10-21. There is no hint line under it (removed 2026-10-21).
+
+1. **ConditionAccordion `"שעות מותרות"`** (Permitted hours), 16px below the title:
    - Row summary: see §4.5.
-   - Content: hint 12/15 `"השיחות יותרו רק בשעות אלו, בכל יום בטווח התאריכים"` (Calls will be allowed only in these hours, every day in the date range); time pair (8px below): start (label `"שעת התחלה"`), end (label `"שעת סיום"`), placeholder `"--:--"`, both clearable.
+   - Content: hint 12/15 `"בכל יום בטווח התאריכים"` (Every day in the date range; decided 2026-10-21); time pair (8px below): start (label `"שעת התחלה"`), end (label `"שעת סיום"`), placeholder `"--:--"`, both clearable.
    - ErrorText – hours (at the bottom of the accordion, visible open or closed).
-3. **ConditionAccordion `"מכשירים מותרים"`** (Permitted devices):
+2. **ConditionAccordion `"מכשירים מותרים"`** (Permitted devices):
    - Row summary: see §4.5.
-   - Content: hint 12/15 `"השיחות יותרו רק מהמכשירים שנבחרו"` (Calls will be allowed only from the selected devices); NativeMultiSelect `"בחר מכשיר"` with the devices list.
+   - Content: NativeMultiSelect `"מכשירים"` (Devices) with the devices list, with no hint line (removed 2026-10-21). With nothing selected the field shows the same text as the row summary ([00 §3.12](../00_foundations.md), §4.5).
 
-### 3.4 Block 3 – `"סיבות והחלטה"` (Reasons & decision)
+### 3.4 Block 3 – `"סיבות ואישורים"` (Reasons and approvals)
 
 As in [00 §4.3](../00_foundations.md#43-reasons--decision-block), with the trainee-restriction reasons list ([00 §6](../00_foundations.md#6-lookup-lists--external-sources)). Reason and approver are required here. The approver field (MFE + selected-approver card with `"החלפה"`) and the file field (`IpsFileUpload` + attached-file row) are described in 00 §4.3.
 
@@ -63,7 +62,7 @@ As in [00 §4.3](../00_foundations.md#43-reasons--decision-block), with the trai
 
 ### 3.5 Footer
 
-StickyActionBar, two columns: outline `"ביטול"` (closes without saving) and primary submit `"שמור"` – the same in every form ([OQ-17](../../pending-decisions.md#oq-17), closed 2026-10-18).
+StickyActionBar, two columns: outline `"ביטול"` (closes without saving) and primary submit `"שמירה"` – the same in every form ([OQ-17](../../pending-decisions.md#oq-17), closed 2026-10-18).
 
 ---
 
@@ -93,18 +92,18 @@ The screen scrolls to the top on open.
 
 ### 4.3 Type selector
 
-- Switching to `"הגבלת משך שיחה"`: the DurationField fades in and receives focus; the block 2 hint and both accordion summaries update immediately (before any minutes are typed). Each option shows its own description all the time.
+- Switching to `"הגבלת משך שיחה"`: the DurationField fades in and receives focus; both accordion summaries and the empty devices field update immediately (before any minutes are typed). Each option shows its own description all the time.
 - Switching back to `"הגבלה מלאה"`: the field hides; its value is kept in case the user switches again, but the record is saved **without** a duration.
 - Changing the type clears the duration error.
 
-### 4.5 Permits block accordions
+### 4.5 Hours and devices accordions
 
 **Row summaries** (update live):
 
 | Row | Value |
 |---|---|
 | `"שעות מותרות"` | If a start **or** end time is set: `"{start}-{end}"` (LTR), with `"--:--"` for a missing side, e.g. `16:00---:--`. Otherwise `"כל היום"` when open by default, else `"לא הוגדרו"` |
-| `"מכשירים מותרים"` | 1 device → its label; 2+ → `"{n} מכשירים"`; none → `"כל המכשירים"` when open by default, else `"לא הוגדרו"` |
+| `"מכשירים מותרים"` | 1 device → its label; 2+ → `"{n} מכשירים"`; none → `"כל המכשירים"` when open by default, else `"לא הוגדרו"`. With nothing selected, the devices field shows the same text (decided 2026-10-21) |
 
 **Open by default** (in the form) = type is `"הגבלת משך שיחה"`, **or** both hours are set, **or** at least one device is selected ([overview §3.2](03_trainee_restriction_overview.md#32-open-by-default-rule)).
 
@@ -112,7 +111,7 @@ The screen scrolls to the top on open.
 
 - Changing or clearing either time clears the hours error.
 
-### 4.7 Submit (`"שמור"`)
+### 4.7 Submit (`"שמירה"`)
 
 1. Run all rules in §5 and show every error at once.
 2. If there is an hours error, open the hours accordion.
@@ -189,12 +188,12 @@ Only one message per slot is shown (the first failing rule). Devices have no rul
 |---|---|
 | Edit – loading the record | The form opens only once the history has loaded and the record is found in it (§2); until then the history shows its own loading state |
 | Edit – 404 | Redirect to the history list |
-| Lookups failed | Under the field: `"לא ניתן לטעון את רשימת הסיבות"` / `"לא ניתן לטעון את המכשירים"` + `"נסה שוב"` **(proposed)**. The reason is required, so saving waits for the reasons list |
+| Lookups failed | Under the field: `"לא ניתן לטעון את רשימת הסיבות"` / `"לא ניתן לטעון את המכשירים"` **(proposed)** + `"טעינה מחדש"` (decided 2026-10-21). The reason is required, so saving waits for the reasons list |
 | File uploading | The field shows the file name; submit waits for the upload to finish |
-| File upload failed | The field clears; file slot shows `"העלאת הקובץ נכשלה, נסה שוב"` (File upload failed, try again) **(proposed)** |
+| File upload failed | The field clears; file slot shows `"העלאת הקובץ נכשלה. ניתן לנסות שוב"` (File upload failed. You can try again; decided 2026-10-21) |
 | Saving | Submit button disabled until the response arrives (prevents double save) |
 | Save failed – 400 | Map `fieldErrors` to slots (§6.3) |
-| Save failed – other | ErrorText above the submit button inside the footer: `"השמירה נכשלה. נסה שוב"` (Saving failed. Try again) **(proposed)**; all values stay |
+| Save failed – other | ErrorText above the submit button inside the footer: `"השמירה נכשלה. ניתן לנסות שוב"` (Saving failed. You can try again; decided 2026-10-21); all values stay |
 
 ---
 
@@ -209,8 +208,8 @@ The form opens as a layer over the history in the trainee drawer ([00 §4.4](../
 
 ## 9. Acceptance criteria
 
-1. **Given** create mode, **then** the title is `"הגבלה חדשה"`, the type selector comes before the dates, the dates are today and tomorrow in gray, the type is `"הגבלה מלאה"` (its description `"השיחות חסומות, למעט ההיתרים שיוגדרו למטה"`, the other option's `"השיחות מותרות, עד משך מרבי לכל שיחה"`), the block 2 hint is `"ללא היתרים – חסום לחלוטין. הגדר שעות או מכשירים שבהם מותר לשוחח"`, and both accordions are closed showing `"לא הוגדרו"`.
-2. **When** the user selects `"הגבלת משך שיחה"`, **then** the minutes field appears and is focused, the block 2 hint becomes `"ללא הגדרה – מותר כל היום ובכל המכשירים, בהגבלת המשך שנבחרה"`, and the summaries become `"כל היום"` and `"כל המכשירים"`.
+1. **Given** create mode, **then** the title is `"הגבלה חדשה"`, the type selector comes before the dates, the dates are today and tomorrow in gray, the type is `"הגבלה מלאה"` (its description `"השיחות חסומות, למעט השעות והמכשירים שיוגדרו למטה"`, the other option's `"השיחות מותרות, עד משך מרבי לכל שיחה"`), block 2 is titled `"שעות ומכשירים"` with no hint, and both accordions are closed showing `"לא הוגדרו"`; opened, the empty devices field shows `"לא הוגדרו"` too.
+2. **When** the user selects `"הגבלת משך שיחה"`, **then** the minutes field appears and is focused, and the summaries become `"כל היום"` and `"כל המכשירים"` (the empty devices field too).
 3. **Given** `"הגבלת משך שיחה"` with empty minutes, **when** the user saves, **then** `"יש להזין מספר דקות שלם בין 1 ל-120"` is shown and nothing is saved.
 4. **Given** minutes `"0"` or `"121"`, **when** the user saves, **then** the same duration error is shown.
 5. **When** the user types letters in the minutes field, **then** they do not appear.
@@ -219,7 +218,7 @@ The form opens as a layer over the history in the trainee drawer ([00 §4.4](../
 8. **Given** only a start time, **when** the user saves, **then** the hours accordion opens and shows `"יש לבחור שעת התחלה ושעת סיום"`.
 9. **Given** an hours error, **when** the user closes the hours accordion, **then** the error stays visible under the accordion row.
 10. **Given** start 18:00 and end 16:00, **when** the user saves, **then** `"שעת הסיום חייבת להיות אחרי שעת ההתחלה"` is shown.
-11. **Given** type `"הגבלה מלאה"`, **when** the user sets hours 16:00–18:00, **then** the hours summary shows `16:00-18:00` and the devices summary changes from `"לא הוגדרו"` to `"כל המכשירים"`.
+11. **Given** type `"הגבלה מלאה"`, **when** the user sets hours 16:00–18:00, **then** the hours summary shows `16:00-18:00` and the devices summary – and the empty devices field – change from `"לא הוגדרו"` to `"כל המכשירים"`.
 12. **When** the user selects one device, **then** the devices summary shows its name; with two devices it shows `"2 מכשירים"`.
 13. **Given** no file, **when** the user saves, **then** `"יש לצרף קובץ"` is shown; **when** a file is picked, **then** the error disappears and the file name is shown.
 14. **Given** an end date before the start date (possible only by editing the start date afterwards), **when** saved, **then** `"תאריך הסיום לא יכול להיות לפני תאריך ההתחלה"` is shown.

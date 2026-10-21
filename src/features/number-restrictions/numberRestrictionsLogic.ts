@@ -85,7 +85,7 @@ export function buildRestrictionReasonText(restriction: Pick<SourceRestrictionSu
   return restriction.reason || TEXTS.card.noReason;
 }
 
-/** "על הגבלה": "{היקף} · {טווח}". הטווח מבודד כ-LTR, כי הוא חלק ממחרוזת אחת */
+/** "חל על הגבלה": "{היקף} · {טווח}". הטווח מבודד כ-LTR, כי הוא חלק ממחרוזת אחת */
 export function buildOnRestrictionValue(permit: TraineePhonePermitRecordDto): string {
   const { sourceRestriction } = permit;
   const range = formatDateRange(sourceRestriction.startDate, sourceRestriction.endDate);
@@ -98,7 +98,7 @@ export function buildNumberRecordDateRange(record: TraineePhoneRecordDto): strin
   return formatDateRange(record.startDate, record.endDate);
 }
 
-/** "הגבלה מלאה" / "הגבלת משך שיחה – עד X דק'", ובהיתר "היתר מלא" / "היתר עם הגבלת משך – עד X דק'" */
+/** "הגבלה מלאה" / "הגבלת משך שיחה - עד X דק׳", ובהיתר "היתר מלא" / "היתר עם הגבלת משך - עד X דק׳" */
 export function buildNumberRecordTypeLabel(record: TraineePhoneRecordDto): string {
   return buildDurationTypeLabel(record.durationMinutes, record.type);
 }
@@ -160,4 +160,15 @@ export function filterAndSortNumberRecords(
   sort: HistorySortOption,
 ): TraineePhoneRecordDto[] {
   return sortHistoryRecords(filterBySearchQuery(records, searchQuery, buildNumberRecordSearchParts), sort);
+}
+
+/**
+ * "מוצגים X הגבלות והיתרים" מתחת לחיפוש, לפי הרשומות שמוצגות אחרי החיפוש.
+ * רשומה אחת - לפי הסוג שלה: "מוצגת הגבלה אחת" / "מוצג היתר אחד"
+ */
+export function buildNumberRecordsCountText(visibleRecords: TraineePhoneRecordDto[]): string {
+  if (visibleRecords.length === 1) {
+    return TEXTS.toolbar.resultsCount.single[visibleRecords[0].type];
+  }
+  return TEXTS.toolbar.resultsCount.several(visibleRecords.length);
 }

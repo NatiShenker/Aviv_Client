@@ -65,7 +65,7 @@ function MobileActionRow({ item, traineeId }: MobileActionRowProps) {
   if (path === null) {
     return <DisabledActionRow label={item.label} icon={item.icon} />;
   }
-  return <ActionLinkRow label={item.label} icon={item.icon} to={path} />;
+  return <ActionLinkRow label={item.label} description={item.description} icon={item.icon} to={path} />;
 }
 
 interface ActionLinkRowProps extends ActionRowContentProps {
@@ -73,10 +73,10 @@ interface ActionLinkRowProps extends ActionRowContentProps {
 }
 
 /** שורה שמובילה לעמוד של הפעולה. מוכהית ברגע הנגיעה, עד שהמסך הבא נכנס */
-function ActionLinkRow({ label, icon, to }: ActionLinkRowProps) {
+function ActionLinkRow({ label, description, icon, to }: ActionLinkRowProps) {
   return (
     <Link to={to} className={`${ACTION_ROW_CLASS} text-text-primary active:bg-grey-50 ${FOCUS_RING_CLASS}`}>
-      <ActionRowContent label={label} icon={icon} />
+      <ActionRowContent label={label} description={description} icon={icon} />
     </Link>
   );
 }

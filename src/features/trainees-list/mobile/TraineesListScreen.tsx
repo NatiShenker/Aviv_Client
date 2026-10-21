@@ -27,7 +27,7 @@ export default function TraineesListScreen() {
 // עולה רק אחרי שרשימת הפנימיות הגיעה
 function TraineesListContent() {
   const { selectedInstitute } = useInstitutes();
-  const { trainees, locations, listFilters } = useTraineesListState(selectedInstitute);
+  const { trainees, locations, listFilters, isListLoading } = useTraineesListState(selectedInstitute);
   const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
 
   // המיקום ברשימה כפי שהיה כשעזבו את המסך: נקרא פעם אחת, כשהמסך עולה
@@ -49,6 +49,7 @@ function TraineesListContent() {
           isFilterActive={listFilters.isFilterActive}
           areToolsDisabled={trainees.status !== "success"}
           resultCount={trainees.status === "success" ? listFilters.visibleTrainees.length : null}
+          isResultCountLoading={isListLoading}
           onFilterClick={() => setOpenSheet("filter")}
           onSortClick={() => setOpenSheet("sort")}
         />
@@ -69,7 +70,6 @@ function TraineesListContent() {
           filters={listFilters.filters}
           wings={selectedInstitute.wings}
           locations={locations}
-          resultCount={listFilters.visibleTrainees.length}
           activeFilterCount={listFilters.activeFilterCount}
           onWingIdsChange={listFilters.setWingIds}
           onFiltersChange={listFilters.updateFilters}

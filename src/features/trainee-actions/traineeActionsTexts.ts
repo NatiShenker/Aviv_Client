@@ -5,11 +5,19 @@ export const TRAINEE_ACTIONS_TEXTS = {
   },
 
   items: {
-    traineeRestriction: "הגבלה/היתר לחניך",
-    numberRestriction: "הגבלה/היתר למספר",
+    // הוחלט 2026-10-21
+    traineeRestriction: "הגבלות לחניך",
+    numberRestriction: "הגבלות והיתרים למספר",
     voiceMessage: "הודעה קולית לנמען",
     // "היסטוריית" בכל המסכים (הוחלט 2026-10-18)
     minutesHistory: "היסטוריית דקות",
+  },
+
+  // שורת ההסבר מתחת לתווית במסך הפעולות (הוחלט 2026-10-21). ל"היסטוריית דקות" אין הסבר
+  itemDescriptions: {
+    traineeRestriction: "חסימת השיחות של החניך, מלאה או לפי משך שיחה",
+    numberRestriction: "חסימה או פתיחה של מספרי טלפון מסוימים",
+    voiceMessage: "הודעה שמושמעת לנמען בשיחות של החניך",
   },
 
   states: {

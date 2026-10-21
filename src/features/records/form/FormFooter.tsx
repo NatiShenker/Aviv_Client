@@ -13,14 +13,14 @@ export interface FormSaveProps {
 }
 
 interface FormFooterProps extends FormSaveProps {
-  /** "ביטול" - סגירה בלי שמירה */
+  /** "ביטול" - סגירה ללא שמירה */
   onCancel: () => void;
   /** במובייל large (בגודל מגע, ui_library.md); בדסקטופ medium, הגודל הרגיל של הספרייה */
   buttonSize: "medium" | "large";
 }
 
 /**
- * פוטר טופס היצירה / העריכה: "ביטול" ו"שמור" בכל הטפסים (ספק 00 §3.26, OQ-17).
+ * פוטר טופס היצירה / העריכה: "ביטול" ו"שמירה" בכל הטפסים (ספק 00 §3.26, OQ-17).
  * שגיאת שמירה כללית מוצגת מעל הכפתורים (ספק 03 form §7)
  */
 export default function FormFooter({ formId, saveLabel, saveError, isBusy, onCancel, buttonSize }: FormFooterProps) {

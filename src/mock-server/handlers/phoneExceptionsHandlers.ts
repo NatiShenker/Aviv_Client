@@ -40,7 +40,7 @@ import {
 import { throwIfInvalid, validateConditionsAndDecision, type ConditionsAndDecisionInput } from "./recordInputValidation";
 
 /*
- * "הגבלה/היתר למספר" (ספק 04): רשומות החניך, איתור ההגבלות ליצירת היתר, ושמירה של הגבלות והיתרים.
+ * "הגבלות והיתרים למספר" (ספק 04): רשומות החניך, איתור ההגבלות ליצירת היתר, ושמירה של הגבלות והיתרים.
  * כמו בשרת: עדכון לא משנה רשומה - הקודמת נכבית (LOGI_ACTIVE = 0) ונוספת רשומה פעילה חדשה.
  */
 
@@ -49,7 +49,7 @@ const INVALID_INPUT_MESSAGE = "Phone restriction / permit is invalid";
 const PHONE_VALIDATION_MESSAGES = {
   invalid: "מספר טלפון לא תקין",
   required: "יש להוסיף לפחות מספר אחד",
-  permitOutsideRestriction: (range: string) => `תאריכי ההיתר חייבים להיות בתוך תקופת ההגבלה (${range})`,
+  permitOutsideRestriction: (range: string) => `תאריכי ההיתר צריכים להיות בתוך תקופת ההגבלה: ${range}`,
 } as const;
 
 // ── שליפת הרשומות (ספק 04 history §6) ──
@@ -63,7 +63,7 @@ export function handleGetTraineePhoneRecords(request: MockRequest): GetTraineePh
   return { records };
 }
 
-// "על הגבלה" מוצג מההגבלה כפי שהיא עכשיו (JOIN), ולא מהעותק שנשמר עם ההיתר (ספק 04 overview §2.3)
+// "חל על הגבלה" מוצג מההגבלה כפי שהיא עכשיו (JOIN), ולא מהעותק שנשמר עם ההיתר (ספק 04 overview §2.3)
 function withCurrentSourceRestriction(record: TraineePhoneRecordDto): TraineePhoneRecordDto {
   if (record.type !== "permit") return record;
   const currentRestriction = findSourceRestriction(record.sourceRestriction.restrictionId);

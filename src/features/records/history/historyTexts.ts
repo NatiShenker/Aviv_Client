@@ -17,16 +17,15 @@ export const HISTORY_TEXTS = {
     details: "פירוט",
     notSpecified: "לא צוין",
   },
-  // תוויות המיון מוצעות - ממתינות לאישור (pending-decisions)
+  // תוויות מיון התאריכים מוצעות - ממתינות לאישור (pending-decisions).
+  // תוויות מיון הסטטוס בקבצי הטקסטים של כל פעולה (statusSort), כי הן במין של הרשומה ("פעילות" / "פעילים")
   sort: {
     startDateDescending: "תאריך התחלה: מהחדש לישן",
     startDateAscending: "תאריך התחלה: מהישן לחדש",
     endDateDescending: "תאריך סיום: מהחדש לישן",
     endDateAscending: "תאריך סיום: מהישן לחדש",
-    statusActiveFirst: "סטטוס: פעילות קודם",
-    statusEndedFirst: "סטטוס: שהסתיימו קודם",
   },
   states: {
-    retry: "נסה שוב",
+    retry: "טעינה מחדש",
   },
 } as const;

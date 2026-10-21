@@ -1,4 +1,5 @@
 import { IpsSelect, IpsTextField } from "ui-library";
+import ResultsCountLine from "@/shared/components/ResultsCountLine";
 import { TRAINEE_SORT_ROWS, findSortOption, type TraineeSortOption } from "../traineesListOptions";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
 
@@ -9,6 +10,8 @@ interface TraineesResultsToolbarProps {
   onSearchQueryChange: (searchQuery: string) => void;
   /** מספר החניכים אחרי חיפוש וסינון. null כל עוד הרשימה לא מוכנה */
   resultCount: number | null;
+  /** בזמן טעינת הרשימה במקום המספר מוצג שלד */
+  isResultCountLoading: boolean;
   sort: TraineeSortOption;
   onSortChange: (sort: TraineeSortOption) => void;
   /** כל עוד אין רשימה מוכנה, החיפוש והמיון מושבתים */
@@ -23,6 +26,7 @@ export default function TraineesResultsToolbar({
   searchQuery,
   onSearchQueryChange,
   resultCount,
+  isResultCountLoading,
   sort,
   onSortChange,
   isDisabled,
@@ -42,11 +46,10 @@ export default function TraineesResultsToolbar({
         />
       </div>
 
-      {resultCount !== null && (
-        <p role="status" className="shrink-0 text-sm text-text-muted">
-          {TEXTS.resultsCount(resultCount)}
-        </p>
-      )}
+      <ResultsCountLine
+        isLoading={isResultCountLoading}
+        text={resultCount === null ? null : TEXTS.resultsCount(resultCount)}
+      />
 
       <div className="ms-auto w-80 shrink-0">
         <IpsSelect

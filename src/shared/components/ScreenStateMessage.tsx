@@ -8,7 +8,7 @@ interface ScreenStateMessageProps {
   onAction?: () => void;
 }
 
-/** הודעת מצב ממורכזת (טעינה, ריק, שגיאה), עם כפתור פעולה אופציונלי כמו "נסה שוב" */
+/** הודעת מצב ממורכזת (טעינה, ריק, שגיאה), עם כפתור פעולה אופציונלי כמו "טעינה מחדש" */
 export default function ScreenStateMessage({
   message,
   tone = "status",

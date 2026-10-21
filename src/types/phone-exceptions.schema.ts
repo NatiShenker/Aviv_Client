@@ -1,12 +1,12 @@
 /**
  * @file phone-exceptions.schema.ts
- * @description סכמות עבור "הגבלה/היתר למספר" בקליינט "מבט" (ExceptionForm.tsx)
+ * @description סכמות עבור "הגבלות והיתרים למספר" בקליינט "מבט" (ExceptionForm.tsx)
  * וחסימת מספר גלובלית בקליינט "חוסאם".
  *
  * כולל:
  * 1. שליפת רשומות המספרים של חניך (GET).
  * 2. איתור הגבלות פעילות למספר (ארציות, פנימייתיות ושל החניך) עבור יצירת היתר (GET lookup).
- * 3. אנדפוינטים נפרדים ליצירה/עדכון של "הגבלת מספר" (POST/PUT phone-restrictions)
+ * 3. אנדפוינטים נפרדים ליצירה/עדכון של "הגבלה למספר" (POST/PUT phone-restrictions)
  *    וליצירה/עדכון של "היתר למספר" (POST/PUT phone-permits).
  * 4. סכמות תואמות לקליינט "חוסאם" (Global/Institute Restrictions).
  */
@@ -64,7 +64,7 @@ export interface SourceRestrictionSummaryDto {
 }
 
 // ============================================================================
-// 2. שליפת רשומות "הגבלה/היתר למספר" של החניך (POST PhoneExceptions/GetTraineePhoneRecords)
+// 2. שליפת רשומות "הגבלות והיתרים למספר" של החניך (POST PhoneExceptions/GetTraineePhoneRecords)
 // ============================================================================
 
 export interface GetTraineePhoneRecordsRequest {

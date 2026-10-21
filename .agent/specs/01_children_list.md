@@ -17,7 +17,7 @@ Prototype source: `client/pages/ChildrenList.tsx`.
 - **Parameters:** none. Search, filter and sort state are not kept in the URL.
 - **Returning to the list** from another screen (e.g. back from a trainee) shows it as the user left it, until the page is reloaded:
   - The search, every filter group and the sort.
-  - The loaded list itself, with no new load (`"נסה שוב"` always reloads from the server). Exception: a save in an action screen changes the trainee flags, so the list loads again; the search, filters, sort and position are still restored.
+  - The loaded list itself, with no new load (`"טעינה מחדש"` always reloads from the server). Exception: a save in an action screen changes the trainee flags, so the list loads again; the search, filters, sort and position are still restored.
   - The number of cards already shown, and the scroll position (mobile only; see §8.2).
 - **After a page reload** everything resets, except the persisted selections below.
 - **Persisted selections (local storage, 30 days from the last selection):**
@@ -52,12 +52,12 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 
 - The row is uniform: the search field and both buttons are 44px tall, white, and outlined like the form fields ([00 §2.3](00_foundations.md)). The buttons are squares with the button radius (`IpsIconButton variant="surface"`).
 
-**Row 3** (decided 2026-10-20): the results count, the same text as on desktop – `"מוצגים {n} חניכים"` / `"מוצג חניך אחד"` **(proposed)** – 14px, `text-muted`, at the start. It is part of the pinned header, so it updates in view while typing and filtering, and is shown only once the list has loaded.
+**Row 3** (decided 2026-10-20): the results count, the same text as on desktop – `"מוצגים {n} חניכים"` / `"מוצג חניך אחד"` **(proposed)** – 14px, `text-muted`, at the start. It is part of the pinned header, so it updates in view while typing and filtering. The row always keeps its height (decided 2026-10-21): a skeleton bar while the list loads, the text once it has loaded, and empty when there is no list (no institute selected, an error) – so the cards do not jump when the list arrives.
 - The search field and both buttons are disabled until the list has loaded.
 
 ### 3.1a Institute selector
 
-- `IpsSelectMobile variant="plain"`: the visible text and chevron, with a transparent native select over them, so a tap opens the OS picker. aria-label `"פנימייה"`, placeholder `"בחר פנימייה"` (Pick an institute).
+- `IpsSelectMobile variant="plain"`: the visible text and chevron, with a transparent native select over them, so a tap opens the OS picker. aria-label `"פנימייה"`, placeholder `"בחירת פנימייה"` (Pick an institute; decided 2026-10-21).
 - Options: the institutes returned by `GetInstitutionsAndWings` (already filtered by the user's permissions on the server).
 - **Initial value:** the stored selection if it is still in the list. Otherwise, when the user has exactly one institute, it is selected automatically (and not stored). Otherwise, nothing is selected.
 - While no institute is selected, the list area shows `"יש לבחור פנימייה כדי להציג את רשימת החניכים"` and the search, filter and sort buttons are disabled.
@@ -80,8 +80,8 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 2. **Divider:** 16px below, 0.6px `#ebebf0`.
 3. **Bottom rows** (8px below, 12/15, gray). One fixed structure at every card width (decided 2026-10-19), so the minutes are in the same place on every card:
    - **First row, right:** location pin + `"אגף {wing.name}"` (and wing location `location.name` when present), truncated when long.
-   - **First row, left:** timer + `"{remainingMinutes} דקות"` (fetched by the backend from the 3rd-party Cellcom service).
-   - **Second row (conditional), right:** warning icon + `"קיים פער בנתונים בסלקום"` (Data gap in Cellcom), color `#bd4d00` – **rendered only when `flags.hasCellcomDiscrepancy === true`** (from the 3rd-party Cellcom service).
+   - **First row, left:** timer + `"{remainingMinutes} דקות"`, or `"דקה אחת"` (one minute) for 1 (decided 2026-10-21) (fetched by the backend from the 3rd-party Cellcom service).
+   - **Second row (conditional), right:** warning icon + `"פער בנתונים מול סלקום"` (Data gap with Cellcom, decided 2026-10-21), color `#bd4d00` – **rendered only when `flags.hasCellcomDiscrepancy === true`** (from the 3rd-party Cellcom service).
    - The loading skeleton follows the same structure (photo, name and badge; then location and minutes).
 
 ### 3.3 Empty state
@@ -95,25 +95,25 @@ BottomSheet titled `"סינון"`, filtering trainees via `matchesTraineeFilters
 | # | Group label (12, `text-secondary`, like every field label – decided 2026-10-20) | Options | Mapped Schema Field (`trainees.schema.ts`) |
 |---|---|---|---|
 | **a** | `"אגף"` (Wing) | **Multi-select** (`IpsMultiSelectMobile`): an explicit `"הכל"` option first, then the institute's wings (`InstituteWithWingsDto.wings`) | `trainee.wing.id` |
-| **b** | `"מיקום באגף"` (Location in wing) | **Multi-select**: `"הכל"` first, then the locations of the selected wings (of the whole institute when no wing is selected), **grouped by wing** (native `optgroup` / menu subheaders). Disabled with a status text while locations load or after they fail (+ `"נסה שוב"`) | `trainee.location?.id` |
-| **c** | `"הגבלה לחניך"` (Trainee restriction) | `"הכל"` (default), `"הגבלה מלאה פעילה"`, `"הגבלת דקות פעילה"`, `"ללא"` | `flags.hasActiveFullRestriction`, `flags.hasActiveMinutesRestriction` |
+| **b** | `"מיקום באגף"` (Location in wing) | **Multi-select**: `"הכל"` first, then the locations of the selected wings (of the whole institute when no wing is selected), **grouped by wing** (native `optgroup` / menu subheaders). Disabled with a status text while locations load or after they fail (+ `"טעינה מחדש"`) | `trainee.location?.id` |
+| **c** | `"הגבלה לחניך"` (Trainee restriction) | `"הכל"` (default), `"הגבלה מלאה פעילה"`, `"הגבלת משך שיחה פעילה"` (decided 2026-10-21), `"ללא"` | `flags.hasActiveFullRestriction`, `flags.hasActiveMinutesRestriction` |
 | **d** | `"הודעה קולית לנמען"` (Voice message to the recipient) | `"הכל"` (default), `"הודעה רגילה פעילה"` (active regular message), `"הודעה חוזרת פעילה"` (active repeating message – "interactive" in the schema, [05 overview §2](05-voice-message/05_voice_message_overview.md)), `"ללא"` | `flags.hasActiveMessage`, `flags.hasActiveInteractiveMessage` |
-| **e** | `"הגבלה/היתר למספר"` (Phone exception) | `"הכל"` (default), `"הגבלה למספר פעילה"`, `"היתר למספר פעיל"`, `"ללא"` | `flags.hasActivePhoneRestriction`, `flags.hasActivePhonePermit` |
+| **e** | `"הגבלות והיתרים למספר"` (Phone exception) | `"הכל"` (default), `"הגבלה למספר פעילה"`, `"היתר למספר פעיל"`, `"ללא"` | `flags.hasActivePhoneRestriction`, `flags.hasActivePhonePermit` |
 | **f** | `"יתרה"` (Balance) | `"הכל"` (default), `"קיימת יתרה"`, `"ללא יתרה"` | `flags.hasBalance` |
 
 - **Multi-select text:** `"הכל"` when nothing is selected; one selected → its name; more → `"{n} נבחרו"`.
 - **`"הכל"` and specific options exclude each other:** choosing `"הכל"` clears the selected options, and choosing an option while `"הכל"` is selected keeps only that option.
-- **Groups c–f:** `IpsPillSelect` with a group label (built by the app, so it matches the other labels); tapping the selected chip again keeps it (`allowDeselect={false}`). The selected chip is navy (`text-primary`) with white text and the others are white with a gray outline and navy text (decided 2026-10-20, as in the sketch and §2.1 of spec 00), so `"הצג תוצאות"` is the only blue in the sheet.
+- **Groups c–f:** `IpsPillSelect` with a group label (built by the app, so it matches the other labels); tapping the selected chip again keeps it (`allowDeselect={false}`). The selected chip is navy (`text-primary`) with white text and the others are white with a gray outline and navy text (decided 2026-10-20, as in the sketch and §2.1 of spec 00), so `"הצגת התוצאות"` is the only blue in the sheet.
 - **Wing → location dependency:** changing the wings removes selected locations that no longer belong to the selected wings. Changing the institute reloads both.
-- **Button:** `"הצג תוצאות ({count})"` (Show results), full width. Closes the sheet.
-- **`"נקה מסננים ({n})"`** (decided 2026-10-20): the first row of the sheet's content, a small text button at the end (left), 14/500 in the primary color, with a 44px touch target. Same rule and text as on desktop (§8.2): it resets the six groups, including the stored wing filter, but not the search and the sort; disabled (not hidden, so the content does not jump) when no group is active, and then shown without the count.
-- **Text sizes in the sheet:** title 18/500 · `"נקה מסננים"` and the chips 14 · labels 12 · field values 16.
+- **Button:** `"הצגת התוצאות"` (Show results), full width, with no count (decided 2026-10-21; the count is in the header, §3.1 row 3). Closes the sheet.
+- **`"ניקוי מסננים"`** (decided 2026-10-20; the text with no count decided 2026-10-21): the first row of the sheet's content, a small text button at the end (left), 14/500 in the primary color, with a 44px touch target. Same rule and text as on desktop (§8.2): it resets the six groups, including the stored wing filter, but not the search and the sort; disabled (not hidden, so the content does not jump) when no group is active.
+- **Text sizes in the sheet:** title 18/500 · `"ניקוי מסננים"` and the chips 14 · labels 12 · field values 16.
 
 ### 3.5 Sort sheet
 
 SortSheet titled `"מיון"`: one row per field **and** direction (`IpsRadioListMobile`), no separate direction row. The selected row is bold, in the primary color, with a check icon. Rows:
 
-`"שם: א׳ עד ת׳"` (default), `"שם: ת׳ עד א׳"`, `"סטטוס: עם הגבלה לחניך קודם"`, `"סטטוס: פעילים קודם"` **(proposed labels)**, `"יתרת דקות: מהגבוהה לנמוכה"`, `"יתרת דקות: מהנמוכה לגבוהה"`, `"אגף: א׳ עד ת׳"`, `"אגף: ת׳ עד א׳"`, `"מיקום באגף: א׳ עד ת׳"`, `"מיקום באגף: ת׳ עד א׳"`.
+`"שם: א׳ עד ת׳"` (default), `"שם: ת׳ עד א׳"`, `"סטטוס: חניכים עם הגבלה תחילה"`, `"סטטוס: חניכים ללא הגבלה תחילה"` (decided 2026-10-21), `"יתרת דקות: מהגבוהה לנמוכה"`, `"יתרת דקות: מהנמוכה לגבוהה"`, `"אגף: א׳ עד ת׳"`, `"אגף: ת׳ עד א׳"`, `"מיקום באגף: א׳ עד ת׳"`, `"מיקום באגף: ת׳ עד א׳"`.
 
 ---
 
@@ -129,7 +129,7 @@ SortSheet titled `"מיון"`: one row per field **and** direction (`IpsRadioLis
 
 ### 4.3 Filter
 
-- Every selection applies the filter **immediately**. The list behind the sheet and the count in `"הצג תוצאות ({count})"` update live.
+- Every selection applies the filter **immediately**. The list behind the sheet and the results count in the header (§3.1 row 3) update live.
 - All groups combine with **AND**, and also combine with the search query. Inside a multi-select group, the selected values combine with **OR**.
 - The filter button shows the active-filter dot when any group is not `"הכל"`.
 
@@ -169,11 +169,11 @@ All calls go to Aviv_Service. `clientIds` is always `[AVIV_CLIENT_ID]` (55).
 | State | Behavior |
 |---|---|
 | Institutes loading | The whole screen shows `"טוען…"` (Loading) |
-| Institutes failed | `"לא ניתן לטעון את רשימת הפנימיות"` + `"נסה שוב"` **(proposed)** |
+| Institutes failed | `"לא ניתן לטעון את רשימת הפנימיות"` **(proposed)** + `"טעינה מחדש"` (decided 2026-10-21) |
 | No permitted institutes | `"אין לך הרשאה לאף פנימייה"` **(proposed)** |
 | Trainees loading | Header, toolbar and institute selector are shown. In place of the list: skeleton cards |
-| Trainees failed | EmptyState text `"לא ניתן לטעון את הרשימה"` (The list could not be loaded) **(proposed)** + text button `"נסה שוב"` (Try again) **(proposed)**, which repeats the call |
-| Locations loading / failed | Shown only inside filter group **b**: `"טוען מיקומים…"` / `"לא ניתן לטעון את המיקומים"` + `"נסה שוב"` **(proposed)** |
+| Trainees failed | EmptyState text `"לא ניתן לטעון את רשימת החניכים"` (The trainees list could not be loaded) + text button `"טעינה מחדש"` (Reload), both decided 2026-10-21,, which repeats the call |
+| Locations loading / failed | Shown only inside filter group **b**: `"טוען מיקומים…"` / `"לא ניתן לטעון את המיקומים"` **(proposed)** + `"טעינה מחדש"` (decided 2026-10-21) |
 | Permissions failed | Toast `"לא ניתן לטעון את ההרשאות לפנימייה"` **(proposed)** |
 | Photo failed to load | Show the gradient placeholder |
 
@@ -188,17 +188,17 @@ Desktop phase 1 (decided 2026-10-19). The data, the search, the filter and sort 
 The page fills the viewport. Top to bottom:
 
 1. **Title row:** `"רשימת חניכים"` (start) and the institute selector (end) – text and chevron with no border, in the main text color, as on mobile (§3.1a).
-2. **Filters panel** (white): a header row with the title `"מסננים"` **(proposed)** and, at the end, the outlined button `"נקה מסננים ({n})"` **(proposed)**. Below it, the six filter groups (§3.4 a–f) in **one row of equal columns**, each with its label above:
-   - **Wing, location:** multi-selects **without an explicit `"הכל"` option** (a desktop deviation from §3.4, see pending-decisions): an empty selection shows `"הכל"`; one selected → its name; more → `"{n} נבחרו"`. The location keeps its loading / error states and `"נסה שוב"`.
+2. **Filters panel** (white): a header row with the title `"מסננים"` **(proposed)** and, at the end, the outlined button `"ניקוי מסננים"` (decided 2026-10-21). Below it, the six filter groups (§3.4 a–f) in **one row of equal columns**, each with its label above:
+   - **Wing, location:** multi-selects **without an explicit `"הכל"` option** (a desktop deviation from §3.4, see pending-decisions): an empty selection shows `"הכל"`; one selected → its name; more → `"{n} נבחרו"`. The location keeps its loading / error states and `"טעינה מחדש"`.
    - **Groups c–f:** single selects with the same options as the mobile chips (`"הכל"` is one of them).
 3. **Results panel** (white), filling the rest of the height:
-   - **Toolbar:** the search field (narrow, at the start, placeholder `"חיפוש לפי שם או מספר"`, clear button `"ניקוי חיפוש"`), right after it the count `"מוצגים {n} חניכים"` / `"מוצג חניך אחד"` **(proposed)**, and at the end the sort. The sort is a select with the rows of §3.5 (no prefix in the menu); its closed value reads `"מיין לפי: {row}"` **(proposed)**. No labels above the toolbar controls.
+   - **Toolbar:** the search field (narrow, at the start, placeholder `"חיפוש לפי שם או מספר"`, clear button `"ניקוי חיפוש"`), right after it the count `"מוצגים {n} חניכים"` / `"מוצג חניך אחד"` **(proposed)** – a skeleton bar in its place while the list loads (2026-10-21) – and at the end the sort. The sort is a select with the rows of §3.5 (no prefix in the menu); its closed value reads `"מיין לפי: {row}"` **(proposed)**. No labels above the toolbar controls.
    - **Cards:** a grid of the §3.2 cards (columns of at least 340px), each card with a 1px `divider` border. **Only this area scrolls.**
 
 ### 8.2 Behavior
 
 - **Filter, search and sort** behave as on mobile (§4): every choice applies at once.
-- **`"נקה מסננים ({n})"`:** `n` is the number of filter groups that are not `"הכל"`. It resets all six groups – including the stored wing filter – but not the search and not the sort. Disabled (not hidden) when no group is active, and then shown without the count.
+- **`"ניקוי מסננים"`:** resets all six groups – including the stored wing filter – but not the search and not the sort. Disabled (not hidden) when no group is active, that is, when every group is `"הכל"`. No count in the text (decided 2026-10-21).
 - **Tools disabled** (filters, clear, search, sort) until the list has loaded, as on mobile.
 - **Cards open the trainee drawer** (phase 2, [02 §8](02_child_actions.md)): the whole card is clickable. On hover it gets a `border-strong` frame and a pointer cursor; the card of the trainee whose drawer is open gets a `primary` frame. A ⋮ menu next to the status badge opens the drawer straight on an action ([02 §8.1](02_child_actions.md)).
 - **Incremental rendering:** 30 cards, then 30 more when the end of the scroll area is reached. The count starts again from 30 only when the search, the filters or the sort change.

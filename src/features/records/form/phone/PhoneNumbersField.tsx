@@ -21,7 +21,7 @@ interface PhoneNumbersFieldProps {
   onRemove: (phone: PhoneString) => void;
 }
 
-/** כמה מספרים: שדה עם "הוסף", ומתחתיו המספרים שנוספו כצ'יפים עם X להסרה (ספק 00 §3.15) */
+/** כמה מספרים: שדה עם "הוספה", ומתחתיו המספרים שנוספו כצ'יפים עם X להסרה (ספק 00 §3.15) */
 export default function PhoneNumbersField({
   id,
   hint,

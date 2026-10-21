@@ -26,7 +26,7 @@ export default function VoiceMessagesDrawerHistory({
   navigation,
   onRecordSaved,
 }: VoiceMessagesDrawerHistoryProps) {
-  const { voiceMessages, history } = useVoiceMessagesHistory(traineeId);
+  const { voiceMessages, history, resultsCountText } = useVoiceMessagesHistory(traineeId);
   // הטופס שנפתח מעל ההיסטוריה. בזכרון בלבד, כמו כל המגירה
   const [formTarget, setFormTarget] = useState<VoiceMessageFormTarget | null>(null);
 
@@ -65,6 +65,7 @@ export default function VoiceMessagesDrawerHistory({
         texts={VOICE_MESSAGES_TEXTS}
         records={voiceMessages}
         history={history}
+        resultsCountText={resultsCountText}
         getRecordKey={voiceMessageRecordKey}
         renderCard={renderCard}
         onCreate={() => setFormTarget({ mode: "create", basedOnRef: null })}

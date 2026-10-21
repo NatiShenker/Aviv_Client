@@ -1,6 +1,7 @@
 import { IpsIconButton, IpsSearchFieldMobile } from "ui-library";
 import InstituteSelector from "@/features/trainees-list/mobile/InstituteSelector";
 import AppIcon from "@/shared/components/AppIcon";
+import ResultsCountLine from "@/shared/components/ResultsCountLine";
 import { TRAINEES_LIST_TEXTS } from "../traineesListTexts";
 
 const TEXTS = TRAINEES_LIST_TEXTS;
@@ -13,6 +14,8 @@ interface TraineesListHeaderProps {
   areToolsDisabled: boolean;
   /** מספר החניכים אחרי חיפוש וסינון. null כל עוד הרשימה לא מוכנה */
   resultCount: number | null;
+  /** בזמן טעינת הרשימה שורת המספר מציגה שלד */
+  isResultCountLoading: boolean;
   onFilterClick: () => void;
   onSortClick: () => void;
 }
@@ -24,6 +27,7 @@ export default function TraineesListHeader({
   isFilterActive,
   areToolsDisabled,
   resultCount,
+  isResultCountLoading,
   onFilterClick,
   onSortClick,
 }: TraineesListHeaderProps) {
@@ -59,12 +63,13 @@ export default function TraineesListHeader({
         />
       </div>
 
-      {/* ננעץ עם הכלים, כדי שהמספר יתעדכן לנגד העיניים בזמן הקלדה וסינון. אותו טקסט כמו בדסקטופ */}
-      {resultCount !== null && (
-        <p role="status" className="-mt-1 text-sm text-text-muted">
-          {TEXTS.toolbar.resultsCount(resultCount)}
-        </p>
-      )}
+      {/* ננעץ עם הכלים, כדי שהמספר יתעדכן לנגד העיניים בזמן הקלדה וסינון. אותו טקסט כמו בדסקטופ.
+          השורה תמיד תופסת את מקומה, כדי שהכרטיסים לא יקפצו כשהרשימה נטענת */}
+      <ResultsCountLine
+        className="-mt-1"
+        isLoading={isResultCountLoading}
+        text={resultCount === null ? null : TEXTS.toolbar.resultsCount(resultCount)}
+      />
     </header>
   );
 }

@@ -40,7 +40,7 @@ export interface TraineeVoiceMessageRecordDto extends DecisionApprovalDto, Audit
   id: number;
   traineeId: number;
   scope: VoiceMessageScope;
-  /** מזהה המספר בטבלת המספרים (AVIV_PHONE_NUMBERS), כמו ברשומות "הגבלה/היתר למספר". null כש-scope === "all" */
+  /** מזהה המספר בטבלת המספרים (AVIV_PHONE_NUMBERS), כמו ברשומות "הגבלות והיתרים למספר". null כש-scope === "all" */
   phoneNumberId: number | null;
   /** המספר שההודעה מושמעת בשיחות אליו. null כש-scope === "all" */
   phoneNumber: PhoneString | null;

@@ -25,7 +25,7 @@ interface NumberRestrictionsHistoryProps {
  */
 export default function NumberRestrictionsHistory({ traineeId, header }: NumberRestrictionsHistoryProps) {
   const navigate = useNavigate();
-  const { phoneRecords, history } = useNumberRestrictionsHistory(traineeId);
+  const { phoneRecords, history, resultsCountText } = useNumberRestrictionsHistory(traineeId);
 
   const renderCard = (record: TraineePhoneRecordDto) => {
     const recordKey = buildNumberRecordKey(record);
@@ -47,6 +47,7 @@ export default function NumberRestrictionsHistory({ traineeId, header }: NumberR
         texts={NUMBER_RESTRICTIONS_TEXTS}
         records={phoneRecords}
         history={history}
+        resultsCountText={resultsCountText}
         getRecordKey={buildNumberRecordKey}
         renderCard={renderCard}
         onCreate={() => navigate(ROUTES.newNumberRecord(traineeId))}
