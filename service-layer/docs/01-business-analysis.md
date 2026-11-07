@@ -1,6 +1,6 @@
 # Number restrictions and permits – server side, phase 1: business analysis of the schema
 
-Status: approved on 2026-11-05 (two review rounds with the product owner). Decisions and open items are tracked in [decisions.md](decisions.md).
+Status: approved on 2026-11-05 (two review rounds with the product owner); sections 4–7 were updated on 2026-11-07 with the phase-2 decisions (A-n). Decisions and open items are tracked in [decisions.md](decisions.md); the architecture is in [02-architecture.md](02-architecture.md).
 
 Scope of this document: feature 04, "הגבלות והיתרים למספר" (number restrictions and permits for one trainee). It checks the DBA's tables against the product specs (00, 03, 04) and the client contract (`src/types/*.schema.ts`), records what was decided, and lists the schema changes to request from the DBA. It does not design controllers or procedures; that is phase 2.
 
@@ -77,7 +77,7 @@ erDiagram
 | Client field | Table.column | Status |
 |---|---|---|
 | restriction.`id` / `restrictionNumberId` / `inlinePermitId` | `AVIV_TRAINEE_RESTRICTION_NUMBER` / `AVIV_RESTRICTION_NUMBER` / `AVIV_PERMITS_FOR_RESTRICTION` (flag = 1) | OK |
-| restriction.`startDate` / `endDate` | `AVIV_RESTRICTION_NUMBER.DATE_RESTRICTION_START/END` | OK (type change proposed, P-8) |
+| restriction.`startDate` / `endDate` | `AVIV_RESTRICTION_NUMBER.DATE_RESTRICTION_START/END` | OK (columns stay `datetime`, A-8) |
 | restriction.`durationMinutes`, `startTime` / `endTime`, `devices` | conditions row: `NUMB_DURATION_LIMIT`, `TIME_PERMIT_START/END`, `AVIV_PERMITS_DEVICE` | OK |
 | restriction.`details` / `reason` | `AVIV_RESTRICTION_NUMBER.TEXT_RESTRICTION_REASON` / not stored | OK (D-6, D-7) |
 | restriction.`approver` / `approvedFile` | `AVIV_RESTRICTION_NUMBER.IDNT_USER_APPROVAL` / `IDNT_APPROVED_FILE` → `AVIV_FILE` | OK; approver name for GET – Q-1 |
@@ -89,8 +89,8 @@ erDiagram
 | lookup `phoneNumbers[]` / `instituteId` | `AVIV_LIST_PHONE_NUMBER.TEXT_PHONE_NUMBER` / taken from the client | OK (B-4) |
 | `isActive`, `temporalStatus`, `createdAt` / `updatedAt` / `updatedByUserId` | `LOGI_ACTIVE`; derived from the dates against `CAST(GETDATE() AS date)`; `DATE_CREATED` / `DATE_UPDATED` / `IDNT_USER_UPDATE` | OK |
 | `syncStatus`, `requestUid` | returned empty; the procedure stamps `LAST_REQUEST_UID` | OK (D-19) |
-| `createdIds[]` (order) | new ids in input order | OK (P-13: `VARCHAR_TABLE` with `NUMB_ORDER`) |
-| `traineeIds[]`, `deviceIds[]` / `phoneNumbers[]` | `INT_TABLE` / `VARCHAR_TABLE` (new type) | OK |
+| `createdIds[]` (order) | new ids; order is not a requirement (A-9) | OK |
+| `traineeIds[]`, `deviceIds[]` / `phoneNumbers[]` | `INT_TABLE` / comma-separated `VARCHAR(500)` + `STRING_SPLIT` (A-9) | OK |
 | `approvedFileId` → `approvedFilePath` (client change, C-1) | `AVIV_FILE`, inserted by the save procedure | OK (D-13) |
 
 ---
@@ -106,11 +106,11 @@ erDiagram
 | No column for the free-text details; no reason on permits | `TEXT_*_REASON` columns hold the details (D-6); the reason from the list is not stored for now (D-7). |
 | The DBA's "????" (permits pointing to `AVIV_TRAINEE_RESTRICTION_NUMBER`) | Not needed (D-4); permits point to the parent. |
 | Approval columns on five tables | Restriction approval on `AVIV_RESTRICTION_NUMBER`, permit approval on the permit row, NULL elsewhere (P-3). |
-| `phoneNumbers[]` cannot travel in `INT_TABLE`; `createdIds` order | New `VARCHAR_TABLE` type with an order column (P-13). |
+| `phoneNumbers[]` cannot travel in `INT_TABLE`; `createdIds` order | Comma-separated `VARCHAR(500)` + `STRING_SPLIT`; order is not a requirement (A-9). |
 | Sync columns and `syncStatus` | The push to Cellcom is a background job. The procedures stamp `LAST_REQUEST_UID` with a GUID the service generates per save; `syncStatus` is returned empty (D-19). To confirm with the job owner (Q-6). |
 | Server validation scope | Integrity rules only – CHECK constraints plus two cross-row checks in the procedures; a documented deviation from spec 00 §7 (D-18). |
-| Data types (`datetime` for dates and times, `varchar` for Hebrew) | Proposed: `date`, `time(0)`, `nvarchar(1000)` (P-8, P-9); the end day is inclusive either way. |
-| `INT_TABLE` has no primary key | Left as is (changing a type affects existing procedures); the new type gets one. |
+| Data types (`datetime` for dates and times, `varchar` for Hebrew) | The columns stay `datetime` (A-8); every date comparison casts both sides to `date` so the end day is inclusive; times of day sit on the base date 1900-01-01. `nvarchar(1000)` for the new details column (P-9). |
+| `INT_TABLE` has no primary key | Left as is (changing a type affects existing procedures). |
 
 ---
 
@@ -122,37 +122,27 @@ The DDL is in [`stored-procedures/schema/01-proposed-schema-changes.sql`](../../
 |---|---|---|
 | `AVIV_RESTRICTION_NUMBER` | `+ CODE_RESTRICTION_SCOPE int NOT NULL` (1 general, 2 trainee) | closed |
 | | `TEXT_RESTRICTION_REASON` = details; `nvarchar(1000)` unless the DB collation is Hebrew | closed / Q-2 |
-| | `DATE_RESTRICTION_START/END` → `date` | proposed |
-| | CHECK end ≥ start; index on the phone number for the lookup | closed |
-| `AVIV_TRAINEE_RESTRICTION_NUMBER` | index on `IDNT_TRAINEE`; unique active link per parent (1:1) | closed |
-| `AVIV_INSTITUTES_RESTRICTION_NUMBER` | unique active (parent, institute) | closed |
+| | `DATE_RESTRICTION_START/END` stay `datetime` (comparisons cast to `date`) | closed (A-8) |
+| | CHECK end ≥ start | closed |
+| `AVIV_TRAINEE_RESTRICTION_NUMBER` | index on `IDNT_TRAINEE` (filtered on active rows); the 1:1 link is guaranteed by the procedures, no unique index | closed (A-1) |
+| `AVIV_INSTITUTES_RESTRICTION_NUMBER` | no change | – |
 | `AVIV_PERMITS_FOR_RESTRICTION` | `+ LOGI_RESTRICTION_INLINE_PERMIT bit NOT NULL DEFAULT 0`; `+ TEXT_PERMIT_REASON nvarchar(1000) NULL` | closed |
-| | `TIME_PERMIT_START/END` → `time(0)`; `DATE_PERMIT_START/END` → `date` | proposed |
-| | CHECKs: dates order, time pair, duration 1–120; indexes by trainee and by parent; one inline row per (parent, trainee) | closed |
-| `AVIV_PERMITS_DEVICE` | unique (permit, device) | closed |
-| `AVIV_LIST_PHONE_NUMBER` | `TEXT_PHONE_NUMBER varchar(15) NOT NULL`, digits only, unique | proposed (format – Q-5) |
+| | `TIME_PERMIT_START/END`, `DATE_PERMIT_START/END` stay `datetime` (times on the base date 1900-01-01) | closed (A-8) |
+| | CHECKs: dates order, time pair, duration 1–120; one index by `IDNT_TRAINEE` + flag (filtered on active rows) | closed (A-1) |
+| `AVIV_PERMITS_DEVICE` | no change; duplicates prevented with `DISTINCT` in the procedures; rows deactivated with their permit (P-4) | closed (A-1) |
+| `AVIV_LIST_PHONE_NUMBER` | `TEXT_PHONE_NUMBER varchar(15) NOT NULL`, digits only; **unique index** (required: get-or-create concurrency) | closed index; format – Q-5 |
 | `AVIV_FILE` | no change; optional `TEXT_FILE_NAME` | optional |
 | `AVIV_TRAINEE_RESTRICTION` | `IDNT_AVIV_TRAINEE_DATA` → `IDNT_TRAINEE` | closed, feature 03, DBA |
 | `DECODE` | sets `AVIV_RESTRICTION_TYPE` {1 trainee restriction, 2 number restriction}, `AVIV_RESTRICTION_SCOPE` {1 general, 2 trainee} | closed (values proposed) |
-| New type | `VARCHAR_TABLE (NUMB_ORDER int, TEXT_GENERAL varchar(20))` | proposed |
-| Not added | UID columns, duration on the parent, reason code, `IDNT_REPLACED_BY`, `IDNT_USER_CREATE`, idempotency key | decided |
+| Not added | UID columns, duration on the parent, reason code, `IDNT_REPLACED_BY`, `IDNT_USER_CREATE`, idempotency key, a `VARCHAR` table type, `date` / `time(0)` conversions | decided |
 
 ---
 
 ## 7. Versioning rule for a trainee's number restriction (input to phase 2)
 
-One transaction with `SET XACT_ABORT ON`:
+The final, step-by-step rule is in [02-architecture.md §9](02-architecture.md); in short, inside one transaction with `SET XACT_ABORT ON`: claim the previous trainee row (409 if already replaced or ended); deactivate the previous parent, its inline conditions row and that row's devices; insert the `AVIV_FILE` row; insert the new parent and the new trainee row; insert the new inline conditions row and its devices when the request carries conditions; re-point the active user permits to the new parent; return the new id. Every inserted or updated row carries the audit columns and `LAST_REQUEST_UID = @REQUEST_UID`.
 
-1. **Claim** the previous trainee row: `UPDATE AVIV_TRAINEE_RESTRICTION_NUMBER SET LOGI_ACTIVE = 0, DATE_UPDATED = GETDATE(), IDNT_USER_UPDATE = @UserId, LAST_REQUEST_UID = @RequestUid WHERE IDNT_AVIV_TRAINEE_RESTRICTION_NUMBER = @PreviousId AND LOGI_ACTIVE = 1`. `@@ROWCOUNT = 0` means the row was already replaced → 409.
-2. Deactivate the previous parent row the same way.
-3. Deactivate the previous inline conditions row and its device rows (they belong to the old version).
-4. Insert the new parent row and the new trainee row.
-5. Insert the new inline conditions row (flag = 1) and its devices, when the request carries conditions.
-6. Re-point the active user permits (flag = 0) from the old parent to the new one.
-7. Insert the `AVIV_FILE` row from the path in the request and use its id as the new parent's `IDNT_APPROVED_FILE`.
-8. Every inserted or updated row carries `LAST_REQUEST_UID = @RequestUid`.
-
-The same procedure serves the future national client for general restrictions (without steps 1, 3 and 5). The permit update procedure takes the restriction from the previous permit row, never from the request's `sourceRestrictionId`.
+Each operation has its own self-contained procedure (A-3); the future general client gets its own procedures that repeat the parent-version block under identical section headers. The permit update procedure takes the restriction from the previous permit row, never from the request.
 
 Business rules the procedures enforce (D-18): date order, duration range, hours pair, permit dates inside the restriction, restriction active and applicable to the trainee (409), required fields and existing ids. Everything else stays in the client.
 
@@ -178,4 +168,4 @@ Business rules the procedures enforce (D-18): date order, duration range, hours 
 
 ## 10. Open items
 
-See [decisions.md](decisions.md), section "Open". None of them blocks phase 2; Q-1 to Q-6 must be closed before the procedures are written.
+See [decisions.md](decisions.md), section "Open". None of them blocks phase 3; Q-1, Q-9 and Q-10 (names of approvers, devices and institutes) are mocked until the reference tables are known, and Q-2 to Q-6 are answered during implementation.
