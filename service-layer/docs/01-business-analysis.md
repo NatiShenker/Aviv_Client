@@ -4,6 +4,8 @@ Status: approved on 2026-11-05 (two review rounds with the product owner); secti
 
 Scope of this document: feature 04, "הגבלות והיתרים למספר" (number restrictions and permits for one trainee). It checks the DBA's tables against the product specs (00, 03, 04) and the client contract (`src/types/*.schema.ts`), records what was decided, and lists the schema changes to request from the DBA. It does not design controllers or procedures; that is phase 2.
 
+Amended 2026-11-08 (phase 3, after the owner's review): the response contract changed after this analysis was written. `scope` is returned as the DECODE code (`CodeRestrictionScope`) next to the institutes, `type` and `temporalStatus` are the procedure flags `IsPermit` and `IsEnded`, and `isActive`, `syncStatus`, `reason`, `requestUid`, `inlinePermitId` are not returned. The mappings below describe the phase-1 reading; the current contract is in [02-architecture.md](02-architecture.md) section 7 and decisions.md I-19, I-20, C-9 to C-12.
+
 ---
 
 ## 1. Inputs and sources
@@ -108,29 +110,29 @@ erDiagram
 | Approval columns on five tables | Restriction approval on `AVIV_RESTRICTION_NUMBER`, permit approval on the permit row, NULL elsewhere (P-3). |
 | `phoneNumbers[]` cannot travel in `INT_TABLE`; `createdIds` order | Comma-separated `VARCHAR(500)` + `STRING_SPLIT`; order is not a requirement (A-9). |
 | Sync columns and `syncStatus` | The push to Cellcom is a background job. The procedures stamp `LAST_REQUEST_UID` with a GUID the service generates per save; `syncStatus` is returned empty (D-19). To confirm with the job owner (Q-6). |
-| Server validation scope | Integrity rules only – CHECK constraints plus two cross-row checks in the procedures; a documented deviation from spec 00 §7 (D-18). |
-| Data types (`datetime` for dates and times, `varchar` for Hebrew) | The columns stay `datetime` (A-8); every date comparison casts both sides to `date` so the end day is inclusive; times of day sit on the base date 1900-01-01. `nvarchar(1000)` for the new details column (P-9). |
+| Server validation scope | Integrity rules only – CHECK constraints plus two cross-row checks in the procedures; a documented deviation from spec 00 §7 (D-18). Amended 2026-11-08: the CHECK constraints were dropped by the owner; the service validator holds those rules, the procedures keep the cross-row checks. |
+| Data types (`datetime` for dates and times, `varchar` for Hebrew) | The columns stay `datetime` (A-8); every date comparison casts both sides to `date` so the end day is inclusive; times of day sit on the base date 1900-01-01. The details columns stay `varchar` (P-9, amended 2026-11-08; `nvarchar(1000)` was the original proposal). |
 | `INT_TABLE` has no primary key | Left as is (changing a type affects existing procedures). |
 
 ---
 
 ## 6. Schema changes to request from the DBA
 
-The DDL is in [`stored-procedures/schema/01-proposed-schema-changes.sql`](../../stored-procedures/schema/01-proposed-schema-changes.sql). Each block is marked `CLOSED` (decided), `PROPOSED` (adopted unless objected) or `OPEN (Q-n)`.
+The DDL is in [`stored-procedures/schema/01-proposed-schema-changes.sql`](../../stored-procedures/schema/01-proposed-schema-changes.sql). Amended 2026-11-08: by the owner's decision the script applies three columns and two `DECODE` sets only; CHECK constraints and indexes were removed (decisions.md D-18, A-1), and the details columns stay `varchar` (P-9).
 
 | Table | Change | Status |
 |---|---|---|
 | `AVIV_RESTRICTION_NUMBER` | `+ CODE_RESTRICTION_SCOPE int NOT NULL` (1 general, 2 trainee) | closed |
-| | `TEXT_RESTRICTION_REASON` = details; `nvarchar(1000)` unless the DB collation is Hebrew | closed / Q-2 |
+| | `TEXT_RESTRICTION_REASON` = details; stays `varchar` as it is (length assumed 1000, I-14) | closed (P-9, 2026-11-08) |
 | | `DATE_RESTRICTION_START/END` stay `datetime` (comparisons cast to `date`) | closed (A-8) |
-| | CHECK end ≥ start | closed |
-| `AVIV_TRAINEE_RESTRICTION_NUMBER` | index on `IDNT_TRAINEE` (filtered on active rows); the 1:1 link is guaranteed by the procedures, no unique index | closed (A-1) |
+| | CHECK end ≥ start | not applied (2026-11-08); the service validator enforces it |
+| `AVIV_TRAINEE_RESTRICTION_NUMBER` | no change; the 1:1 link is guaranteed by the procedures | index by `IDNT_TRAINEE` not applied (A-1, 2026-11-08) |
 | `AVIV_INSTITUTES_RESTRICTION_NUMBER` | no change | – |
-| `AVIV_PERMITS_FOR_RESTRICTION` | `+ LOGI_RESTRICTION_INLINE_PERMIT bit NOT NULL DEFAULT 0`; `+ TEXT_PERMIT_REASON nvarchar(1000) NULL` | closed |
+| `AVIV_PERMITS_FOR_RESTRICTION` | `+ LOGI_RESTRICTION_INLINE_PERMIT bit NOT NULL DEFAULT 0`; `+ TEXT_PERMIT_REASON varchar(1000) NULL` | closed |
 | | `TIME_PERMIT_START/END`, `DATE_PERMIT_START/END` stay `datetime` (times on the base date 1900-01-01) | closed (A-8) |
-| | CHECKs: dates order, time pair, duration 1–120; one index by `IDNT_TRAINEE` + flag (filtered on active rows) | closed (A-1) |
+| | CHECKs (dates order, time pair, duration 1–120) and the index by `IDNT_TRAINEE` + flag | not applied (2026-11-08); the service validator enforces the rules |
 | `AVIV_PERMITS_DEVICE` | no change; duplicates prevented with `DISTINCT` in the procedures; rows deactivated with their permit (P-4) | closed (A-1) |
-| `AVIV_LIST_PHONE_NUMBER` | `TEXT_PHONE_NUMBER varchar(15) NOT NULL`, digits only; **unique index** (required: get-or-create concurrency) | closed index; format – Q-5 |
+| `AVIV_LIST_PHONE_NUMBER` | no change; `TEXT_PHONE_NUMBER` keeps its type, local format (0 + 8–9 digits); digits-only enforced by the service validator; concurrent creation serialized with `sp_getapplock` in the create procedure (I-13) | unique index and digits CHECK not applied (2026-11-08); format – Q-5 |
 | `AVIV_FILE` | no change; optional `TEXT_FILE_NAME` | optional |
 | `AVIV_TRAINEE_RESTRICTION` | `IDNT_AVIV_TRAINEE_DATA` → `IDNT_TRAINEE` | closed, feature 03, DBA |
 | `DECODE` | sets `AVIV_RESTRICTION_TYPE` {1 trainee restriction, 2 number restriction}, `AVIV_RESTRICTION_SCOPE` {1 general, 2 trainee} | closed (values proposed) |
@@ -144,7 +146,7 @@ The final, step-by-step rule is in [02-architecture.md §9](02-architecture.md);
 
 Each operation has its own self-contained procedure (A-3); the future general client gets its own procedures that repeat the parent-version block under identical section headers. The permit update procedure takes the restriction from the previous permit row, never from the request.
 
-Business rules the procedures enforce (D-18): date order, duration range, hours pair, permit dates inside the restriction, restriction active and applicable to the trainee (409), required fields and existing ids. Everything else stays in the client.
+Business rules the procedures enforce (D-18): permit dates inside the restriction, restriction active and applicable to the trainee (409), required fields and existing ids. Date order, duration range and hours pair were meant for CHECK constraints and are enforced by the service validator since the constraints were dropped (amended 2026-11-08). Everything else stays in the client.
 
 ---
 
@@ -168,4 +170,4 @@ Business rules the procedures enforce (D-18): date order, duration range, hours 
 
 ## 10. Open items
 
-See [decisions.md](decisions.md), section "Open". None of them blocks phase 3; Q-1, Q-9 and Q-10 (names of approvers, devices and institutes) are mocked until the reference tables are known, and Q-2 to Q-6 are answered during implementation.
+See [decisions.md](decisions.md), section "Open". None of them blocks phase 3; Q-1 (approver name) is mocked until the users table is known, Q-9 and Q-10 (device and institute names) are joined since 2026-11-08 with column names to confirm in SSMS (I-15), and Q-2 to Q-6 are answered during implementation.

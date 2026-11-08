@@ -125,7 +125,7 @@ ALTER PROCEDURE [dbo].[SP_AVIV_GET_LOCATIONS]
 
                                 SELECT
 
-                                                LOCAT.IDNT_LOCATION_ASIR                                                                                                                                                      AS LocationId
+                                                LOCAT.IDNT_LOCATION_TRAINEE                                                                                                                                                      AS LocationId
 
                                                 ,LOCAT.TEXT_NAME_LOCATION                                                                                                                                                 AS LocationName
 
@@ -143,7 +143,7 @@ ALTER PROCEDURE [dbo].[SP_AVIV_GET_LOCATIONS]
 
                                 JOIN                      ODSINTERNALDATA..A_LOCATION            AS LOCATION_PARENT (NOLOCK)
 
-                                ON                                         LOCATION_PARENT.IDNT_LOCATION_ASIR = LOCAT.IDNT_LOCATION_AV
+                                ON                                         LOCATION_PARENT.IDNT_LOCATION_TRAINEE = LOCAT.IDNT_LOCATION_AV
 
    
 
@@ -171,7 +171,7 @@ ALTER PROCEDURE [dbo].[SP_AVIV_GET_LOCATIONS]
 
                                                 FROM   [AVIV_DEVICE_DATA] DD (NOLOCK)
 
-                                                WHERE DD.IDNT_WING = LOCAT.IDNT_LOCATION_ASIR AND DD.LOGI_ACTIVE = 1
+                                                WHERE DD.IDNT_WING = LOCAT.IDNT_LOCATION_TRAINEE AND DD.LOGI_ACTIVE = 1
 
                                                 -- העמודה שכיום נקראת אגף, צריכה להשתנות ולהיקרא כמיקום
 

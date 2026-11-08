@@ -1,23 +1,30 @@
 /* ============================================================================
    Aviv - number restrictions and permits (feature 04)
-   Proposed schema changes for the DBA - phase 1 output, trimmed in phase 2
+   Schema changes for the DBA - phase 1 output, trimmed in phase 2, reduced
+   again on 2026-11-08 by the product owner's decision (see below).
 
-   Source of every item: service-layer/docs/decisions.md (IDs D-n, A-n, P-n, Q-n).
+   Source of every item: service-layer/docs/decisions.md (IDs D-n, A-n, P-n, Q-n, I-n).
 
-   Markers:
-     CLOSED   - decided with the product owner; please apply.
-     PROPOSED - recommended by the analysis, adopted unless objected.
-     OPEN     - depends on an answer (see the Q-n in decisions.md).
+   WHAT THIS SCRIPT DOES: adds three columns (with the defaults that an
+   ADD ... NOT NULL needs on a populated table) and proposes two DECODE sets.
+   Nothing else. The script is re-runnable (every step checks before it acts).
 
-   The script is re-runnable (every step checks before it acts).
-   Constraint and index names follow the pattern used below; rename to the
-   house convention if there is one.
+   NOT APPLIED, by the owner's decision of 2026-11-08 (decisions.md D-18, A-1, P-7, P-9):
+     - CHECK constraints (date order, duration 1-120, time pair, digits-only
+       phone number, scope values). The service validator enforces these rules;
+       the database trusts its writers.
+     - Indexes, including the unique index on AVIV_LIST_PHONE_NUMBER.TEXT_PHONE_NUMBER.
+       The get-or-create of phone numbers is serialized with sp_getapplock inside
+       SP_AVIV_CREATE_TRAINEE_RESTRICTION_NUMBER instead (I-13). Performance
+       indexes can be added later without any code change.
+     - Converting TEXT_RESTRICTION_REASON to nvarchar: the column stays varchar,
+       and TEXT_PERMIT_REASON is created as varchar as well. Characters outside
+       the column's code page are stored as '?'.
 
-   NOT in this script, by decision: UID columns, NUMB_DURATION_LIMIT on the
-   parent table, a reason-code column, IDNT_REPLACED_BY, IDNT_USER_CREATE,
-   an idempotency key, a VARCHAR table type, any change to INT_TABLE, and
-   any change of the datetime columns (they stay datetime, A-8).
-   Indexes were reduced in phase 2 (A-1) to the three that matter.
+   NOT in this script, by earlier decisions: UID columns, NUMB_DURATION_LIMIT on
+   the parent table, a reason-code column, IDNT_REPLACED_BY, IDNT_USER_CREATE,
+   an idempotency key, a VARCHAR table type, any change to INT_TABLE, and any
+   change of the datetime columns (they stay datetime, A-8).
    ============================================================================ */
 
 SET NOCOUNT ON;
@@ -41,6 +48,7 @@ GO
    ---------------------------------------------------------------------------- */
 
 -- 2.1 Scope: 1 = general, 2 = trainee.                                 CLOSED (D-5, A-5)
+--     The default fills the existing rows; the procedures always set the value.
 IF COL_LENGTH('dbo.AVIV_RESTRICTION_NUMBER', 'CODE_RESTRICTION_SCOPE') IS NULL
 BEGIN
     ALTER TABLE dbo.AVIV_RESTRICTION_NUMBER
@@ -48,43 +56,18 @@ BEGIN
             CONSTRAINT DF_AVIV_RESTRICTION_NUMBER_SCOPE DEFAULT (1);
 END;
 GO
-IF OBJECT_ID('dbo.CK_AVIV_RESTRICTION_NUMBER_SCOPE', 'C') IS NULL
-BEGIN
-    ALTER TABLE dbo.AVIV_RESTRICTION_NUMBER WITH CHECK
-        ADD CONSTRAINT CK_AVIV_RESTRICTION_NUMBER_SCOPE
-            CHECK (CODE_RESTRICTION_SCOPE IN (1, 2));
-END;
-GO
 
--- 2.2 Free-text details live in TEXT_RESTRICTION_REASON.               CLOSED (D-6)
---     Hebrew text: nvarchar unless the DB collation is Hebrew.          OPEN (Q-2)
--- ALTER TABLE dbo.AVIV_RESTRICTION_NUMBER ALTER COLUMN TEXT_RESTRICTION_REASON nvarchar(1000) NULL;
-
--- 2.3 Integrity: end not before start (the columns stay datetime).     CLOSED (D-18)
-IF OBJECT_ID('dbo.CK_AVIV_RESTRICTION_NUMBER_DATES', 'C') IS NULL
-BEGIN
-    ALTER TABLE dbo.AVIV_RESTRICTION_NUMBER WITH CHECK
-        ADD CONSTRAINT CK_AVIV_RESTRICTION_NUMBER_DATES
-            CHECK (DATE_RESTRICTION_END >= DATE_RESTRICTION_START);
-END;
-GO
+-- 2.2 Free-text details live in TEXT_RESTRICTION_REASON.               CLOSED (D-6, P-9)
+--     The column stays varchar (decided 2026-11-08). No change here.
+--     The procedures and the service assume 1000 characters (I-14); if the
+--     column is shorter, set its length in the @TEXT_RESTRICTION_REASON and
+--     @TEXT_PERMIT_REASON parameters and in the service validator.
 
 /* ----------------------------------------------------------------------------
    3. AVIV_TRAINEE_RESTRICTION_NUMBER (the trainee link, 1:1 with the parent
       for trainee scope - guaranteed by the procedures, D-11)
+   No change. The index by IDNT_TRAINEE was not applied (A-1, 2026-11-08).
    ---------------------------------------------------------------------------- */
-
--- 3.1 History per trainee and the trainee flags.                        CLOSED (A-1)
-IF NOT EXISTS (SELECT 1 FROM sys.indexes
-               WHERE name = 'IX_AVIV_TRAINEE_RESTRICTION_NUMBER_TRAINEE_ACTIVE'
-                 AND object_id = OBJECT_ID('dbo.AVIV_TRAINEE_RESTRICTION_NUMBER'))
-BEGIN
-    CREATE NONCLUSTERED INDEX IX_AVIV_TRAINEE_RESTRICTION_NUMBER_TRAINEE_ACTIVE
-        ON dbo.AVIV_TRAINEE_RESTRICTION_NUMBER (IDNT_TRAINEE)
-        INCLUDE (IDNT_AVIV_RESTRICTION_NUMBER)
-        WHERE LOGI_ACTIVE = 1;
-END;
-GO
 
 /* ----------------------------------------------------------------------------
    4. AVIV_PERMITS_FOR_RESTRICTION (permits, and inline conditions rows)
@@ -100,87 +83,27 @@ BEGIN
 END;
 GO
 
--- 4.2 Free-text details of a permit.                                     CLOSED (D-6)
---     OPEN (Q-2): varchar instead of nvarchar if the collation is Hebrew.
+-- 4.2 Free-text details of a permit, varchar like TEXT_RESTRICTION_REASON.  CLOSED (D-6, P-9)
 IF COL_LENGTH('dbo.AVIV_PERMITS_FOR_RESTRICTION', 'TEXT_PERMIT_REASON') IS NULL
 BEGIN
     ALTER TABLE dbo.AVIV_PERMITS_FOR_RESTRICTION
-        ADD TEXT_PERMIT_REASON nvarchar(1000) NULL;
-END;
-GO
-
--- 4.3 Integrity rules the DB enforces (columns stay datetime; the time
---     comparison casts to time so only the time of day is compared).     CLOSED (D-18)
-IF OBJECT_ID('dbo.CK_AVIV_PERMITS_FOR_RESTRICTION_DATES', 'C') IS NULL
-BEGIN
-    ALTER TABLE dbo.AVIV_PERMITS_FOR_RESTRICTION WITH CHECK
-        ADD CONSTRAINT CK_AVIV_PERMITS_FOR_RESTRICTION_DATES
-            CHECK (DATE_PERMIT_END >= DATE_PERMIT_START);
-END;
-GO
-IF OBJECT_ID('dbo.CK_AVIV_PERMITS_FOR_RESTRICTION_TIMES', 'C') IS NULL
-BEGIN
-    ALTER TABLE dbo.AVIV_PERMITS_FOR_RESTRICTION WITH CHECK
-        ADD CONSTRAINT CK_AVIV_PERMITS_FOR_RESTRICTION_TIMES
-            CHECK (
-                (TIME_PERMIT_START IS NULL AND TIME_PERMIT_END IS NULL)
-                OR (TIME_PERMIT_START IS NOT NULL AND TIME_PERMIT_END IS NOT NULL
-                    AND CAST(TIME_PERMIT_END AS time) > CAST(TIME_PERMIT_START AS time))
-            );
-END;
-GO
-IF OBJECT_ID('dbo.CK_AVIV_PERMITS_FOR_RESTRICTION_DURATION', 'C') IS NULL
-BEGIN
-    ALTER TABLE dbo.AVIV_PERMITS_FOR_RESTRICTION WITH CHECK
-        ADD CONSTRAINT CK_AVIV_PERMITS_FOR_RESTRICTION_DURATION
-            CHECK (NUMB_DURATION_LIMIT IS NULL OR NUMB_DURATION_LIMIT BETWEEN 1 AND 120);
-END;
-GO
-
--- 4.4 History per trainee and the trainee flags. The flag column is in
---     the key: the flags query must exclude inline rows.                 CLOSED (A-1)
-IF NOT EXISTS (SELECT 1 FROM sys.indexes
-               WHERE name = 'IX_AVIV_PERMITS_FOR_RESTRICTION_TRAINEE_ACTIVE'
-                 AND object_id = OBJECT_ID('dbo.AVIV_PERMITS_FOR_RESTRICTION'))
-BEGIN
-    CREATE NONCLUSTERED INDEX IX_AVIV_PERMITS_FOR_RESTRICTION_TRAINEE_ACTIVE
-        ON dbo.AVIV_PERMITS_FOR_RESTRICTION (IDNT_TRAINEE, LOGI_RESTRICTION_INLINE_PERMIT)
-        INCLUDE (DATE_PERMIT_START, DATE_PERMIT_END, IDNT_AVIV_RESTRICTION_TABLE, CODE_RESTRICTION_TYPE)
-        WHERE LOGI_ACTIVE = 1;
+        ADD TEXT_PERMIT_REASON varchar(1000) NULL;
 END;
 GO
 
 /* ----------------------------------------------------------------------------
    5. AVIV_PERMITS_DEVICE
-   No index: duplicates are prevented with DISTINCT in the procedures (A-1);
+   No change: duplicates are prevented with DISTINCT in the procedures (A-1);
    rows of a replaced permit are deactivated with it (P-4).
    ---------------------------------------------------------------------------- */
 
 /* ----------------------------------------------------------------------------
    6. AVIV_LIST_PHONE_NUMBER
+   No change. Local format (0 + 8-9 digits) as the client sends it (P-7, Q-5);
+   the digits-only rule is enforced by the service validator. No unique index:
+   concurrent creation of the same number is serialized in the create
+   procedure with sp_getapplock (I-13).
    ---------------------------------------------------------------------------- */
-
--- 6.1 Digits only, local format (0 + 8-9 digits), room for E.164 later.
---     PROPOSED (P-7); stored format OPEN (Q-5).
--- ALTER TABLE dbo.AVIV_LIST_PHONE_NUMBER ALTER COLUMN TEXT_PHONE_NUMBER varchar(15) NOT NULL;
-IF OBJECT_ID('dbo.CK_AVIV_LIST_PHONE_NUMBER_DIGITS', 'C') IS NULL
-BEGIN
-    ALTER TABLE dbo.AVIV_LIST_PHONE_NUMBER WITH CHECK
-        ADD CONSTRAINT CK_AVIV_LIST_PHONE_NUMBER_DIGITS
-            CHECK (TEXT_PHONE_NUMBER NOT LIKE '%[^0-9]%' AND LEN(TEXT_PHONE_NUMBER) BETWEEN 9 AND 15);
-END;
-GO
-
--- 6.2 One row per number. Required: it closes the concurrency window of the
---     get-or-create in the save procedure.                               CLOSED (A-1)
-IF NOT EXISTS (SELECT 1 FROM sys.indexes
-               WHERE name = 'UX_AVIV_LIST_PHONE_NUMBER_TEXT'
-                 AND object_id = OBJECT_ID('dbo.AVIV_LIST_PHONE_NUMBER'))
-BEGIN
-    CREATE UNIQUE NONCLUSTERED INDEX UX_AVIV_LIST_PHONE_NUMBER_TEXT
-        ON dbo.AVIV_LIST_PHONE_NUMBER (TEXT_PHONE_NUMBER);
-END;
-GO
 
 /* ----------------------------------------------------------------------------
    7. AVIV_FILE                                                           CLOSED (D-13)
@@ -196,7 +119,21 @@ GO
 -- EXEC sp_rename 'dbo.AVIV_TRAINEE_RESTRICTION.IDNT_AVIV_TRAINEE_DATA', 'IDNT_TRAINEE', 'COLUMN';
 
 /* ----------------------------------------------------------------------------
-   9. Environment checks (answers to Q-2, Q-3, Q-4; read-only, run once)
+   9. Environment checks (read-only, run once)
    ---------------------------------------------------------------------------- */
--- SELECT GETDATE() AS server_now, SYSDATETIMEOFFSET() AS server_now_with_offset;                       -- Q-3
--- SELECT name, collation_name, is_read_committed_snapshot_on FROM sys.databases WHERE name = DB_NAME(); -- Q-2, Q-4
+-- Q-3: is the server clock Israel time?
+-- SELECT GETDATE() AS server_now, SYSDATETIMEOFFSET() AS server_now_with_offset;
+
+-- Q-4: locking behaviour of the database
+-- SELECT name, collation_name, is_read_committed_snapshot_on FROM sys.databases WHERE name = DB_NAME();
+
+-- Q-2 / I-14: the details columns stay varchar - their collation decides which
+-- characters survive, and their length must match the 1000 assumed in the code.
+-- SELECT COLUMNS.name, TYPES.name AS type_name, COLUMNS.max_length, COLUMNS.collation_name
+-- FROM   sys.columns AS COLUMNS
+-- JOIN   sys.types AS TYPES ON TYPES.user_type_id = COLUMNS.user_type_id
+-- WHERE  COLUMNS.object_id IN (OBJECT_ID('dbo.AVIV_RESTRICTION_NUMBER'), OBJECT_ID('dbo.AVIV_PERMITS_FOR_RESTRICTION'), OBJECT_ID('dbo.AVIV_LIST_PHONE_NUMBER'))
+--   AND  COLUMNS.name IN ('TEXT_RESTRICTION_REASON', 'TEXT_PERMIT_REASON', 'TEXT_PHONE_NUMBER');
+
+-- STRING_SPLIT needs compatibility level 130 or higher.
+-- SELECT name, compatibility_level FROM sys.databases WHERE name = DB_NAME();
