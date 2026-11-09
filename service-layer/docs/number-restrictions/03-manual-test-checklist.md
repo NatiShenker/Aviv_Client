@@ -68,6 +68,12 @@ SELECT TOP (1) IDNT_LOCATION_TRAINEE, TEXT_NAME_LOCATION, CODE_SUG_LOCATION
 FROM   ODSINTERNALDATA..A_LOCATION WHERE CODE_SUG_LOCATION = 3330016;   -- institute type, as in SP_AVIV_GET_LOCATIONS
 ```
 
+- [ ] **A.7b Approver name columns (I-22, added 2026-11-09).** The history procedures of both features join `ODSINTERNALDATA..A_WORKERS` by `IDNT_WORKER` and build the name from `TEXT_FIRST_NAME + ' ' + TEXT_LAST_NAME`. All three names are assumptions. The query must return a row; if a column differs, change it in the three joins (`SP_AVIV_GET_TRAINEE_NUMBER_RESTRICTIONS_AND_PERMITS` sets 1 and 2, `SP_AVIV_GET_TRAINEE_RESTRICTIONS` set 1) before section C, and record the real names in §H.
+
+```sql
+SELECT TOP (1) IDNT_WORKER, TEXT_FIRST_NAME, TEXT_LAST_NAME FROM ODSINTERNALDATA..A_WORKERS;
+```
+
 - [ ] **A.8 `dbo.INT_TABLE` has the column `IDNT_GENERAL`** (used by the reference; all six procedures rely on it).
 - [ ] **A.9 `DECODE` column names.** Section 1 of the DDL script is commented out until the real column list is known. Write the names down for B.3.
 
@@ -240,16 +246,16 @@ The exact statements are at the end of `00-test-data.sql`.
 
 Run after section D, so that the test scenario is in the database. Bodies are camelCase JSON; property names match the C# records (`System.Text.Json` default binding).
 
-- [ ] **F.4.1 History.** `POST api/PhoneExceptions/GetTraineePhoneRecords` with `{ "idntTraineeList": [999001] }`. Expected 200 with `records` (count = set 1 + set 2 of D.8 if the saves ran, i.e. 10). Spot-check one restriction and one permit: `isPermit`, `isEnded`, `dateStart` as `yyyy-MM-dd`, `timePermitStart` as `HH:mm`, `devices[]` with `id` / `name` (name empty), `dateCreated` as `yyyy-MM-ddTHH:mm:ss`; on a permit `sourceRestriction.codeRestrictionScope` (1 or 2) and `institutes[]`; on a restriction `sourceRestriction` null.
+- [ ] **F.4.1 History.** `POST api/PhoneExceptions/GetTraineePhoneRecords` with `{ "idntTraineeList": [999001] }`. Expected 200 with `records` (count = set 1 + set 2 of D.8 if the saves ran, i.e. 10). Spot-check one restriction and one permit: `isPermit`, `isEnded`, `dateStart` as `yyyy-MM-dd`, `timePermitStart` as `HH:mm`, `devices[]` with `id` / `name` (name empty), `dateCreated` as `yyyy-MM-ddTHH:mm:ss`; on a permit `sourceRestriction.codeRestrictionScope` (1 or 2) and `institutes[]`; on a restriction `sourceRestriction` null. `approver.fullName` is empty for the sentinel approver 999001 and filled for a record saved with a real worker id (I-22; `roleTitle` null).
 - [ ] **F.4.2 Empty body.** `POST` with no body. Expected 400 from `[ApiController]` – ASP.NET's `ProblemDetails` body, **not** `ApiErrorDto`. The client treats any 400 without `fieldErrors` as a generic error; note this difference (C-4).
 - [ ] **F.4.3 Validator 400.** `{ "idntTraineeList": [] }`. Expected 400 `{ "code": "VALIDATION_ERROR", "message": "idntTraineeList", "fieldErrors": { "idntTraineeList": "" } }`.
 - [ ] **F.4.4 Lookup.** `POST LookupPhoneRestrictionsForPermit` with `{ "idntTrainee": 999001, "idntInstitution": 999001, "phoneNumberList": ["059-9990002", "0599990001", "0599990099"] }`. Expected 200, `results` in request order with the **normalized** numbers (`0599990002` first), each with `activeRestrictions` sorted general-national → general-institute → trainee, then by `dateStart`; `0599990099` with an empty list. `existingTraineePermits` filled on N2.
 - [ ] **F.4.5 Lookup 400.** `phoneNumberList: ["12345"]` → 400 `phoneNumberList`; `idntInstitution: 0` → 400 `idntInstitution`.
-- [ ] **F.4.6 Create restriction 200.** `POST CreateTraineePhoneRestriction` with two numbers, `dateRestrictionStart` today, `dateRestrictionEnd` +30 days, `numbDurationLimit` 20, `timePermitStart` "10:00", `timePermitEnd` "12:00", `idntDeviceList` [999002], a reason, `idntUserApproval` 999001, `textFile` a path. Expected 200 `{ "createdIds": [a, b] }`; the history then shows both with `isEnded` false; the rows carry `IDNT_USER_UPDATE` = the logged-in user's id (not 999999).
-- [ ] **F.4.7 Create restriction 400s**, one field at a time; expected `message` = the field: end before start → `dateRestrictionEnd`; `timePermitStart` without `timePermitEnd` → `timePermitEnd`; `numbDurationLimit` 0 or 121 → `numbDurationLimit`; empty `textRestrictionReason` → `textRestrictionReason`; `idntUserApproval` 0 → `idntUserApproval`; empty `textFile` → `textFile`; `idntDeviceList` [0] → `idntDeviceList`; a number with letters → `phoneNumberList`.
+- [ ] **F.4.6 Create restriction 200.** `POST CreateTraineePhoneRestriction` with two numbers, `dateRestrictionStart` today, `dateRestrictionEnd` +30 days, `numbDurationLimit` 20, `timePermitStart` "10:00", `timePermitEnd` "12:00", `idntDeviceList` [999002], `textRestrictionReason` a text, `codeRestrictionReason` 1 (I-23), `idntUserApproval` 999001, `textFile` a path. Expected 200 `{ "createdIds": [a, b] }`; the history then shows both with `isEnded` false; the rows carry `IDNT_USER_UPDATE` = the logged-in user's id (not 999999). No column holds the reason code yet.
+- [ ] **F.4.7 Create restriction 400s**, one field at a time; expected `message` = the field: end before start → `dateRestrictionEnd`; `timePermitStart` without `timePermitEnd` → `timePermitEnd`; `numbDurationLimit` 0 or 121 → `numbDurationLimit`; empty `textRestrictionReason` → `textRestrictionReason`; `codeRestrictionReason` 0 or missing → `codeRestrictionReason` (I-23); `idntUserApproval` 0 → `idntUserApproval`; empty `textFile` → `textFile`; `idntDeviceList` [0] → `idntDeviceList`; a number with letters → `phoneNumberList`.
 - [ ] **F.4.8 Update restriction 409.** `PUT UpdateTraineePhoneRestriction` with `idntPrevious` of a row the test script already replaced (the old N3 trainee row from D.1). Expected 409 `{ "code": "CONFLICT", "message": "idntPrevious", "fieldErrors": { "idntPrevious": "" } }`.
 - [ ] **F.4.9 Create permit 409 / 400 from the procedure.** On N4's parent → 409 `idntAvivRestrictionNumber`; on N2's parent with `datePermitEnd` +100 days → 400 `datePermitStart` (thrown by the procedure, translated by `SqlErrorMapper`).
-- [ ] **F.4.10 Create and update permit 200.** Create on N2's parent with `idntInstitution` 999001 → 200 one id; update it with `PUT UpdateTraineePhonePermit` → 200 a new id; the history shows only the new one.
+- [ ] **F.4.10 Create and update permit 200.** Create on N2's parent with `idntInstitution` 999001 and `codePermitReason` 1 → 200 one id; update it with `PUT UpdateTraineePhonePermit` (also with `codePermitReason`) → 200 a new id; the history shows only the new one. `codePermitReason` 0 → 400 `codePermitReason` (I-23).
 - [ ] **F.4.11 500 path.** Hold window A of section E open, then `POST CreateTraineePhoneRestriction` on a new number. Expected after 5 seconds: 500 `{ "code": "SERVER_ERROR", "message": "An unexpected error occurred." }` and one log line `Error at CreateTraineePhoneRestriction` with the `SqlException` 50500. Commit A afterwards and clean up (E.5).
 
 ---
@@ -258,18 +264,18 @@ Run after section D, so that the test scenario is in the database. Bodies are ca
 
 ### G.1 Prerequisite: the C-list applied in the client
 
-The client is not changed in this task. Before section G, apply the deferred changes (decisions.md section C, architecture §11). File pointers are the places found while writing the server; the client session verifies them.
+**Done on 2026-11-09** (client-alignment session): the client follows this list, with I-22 / I-23; what remains for section G is pointing `src/config/serviceEndpoints.ts` at the real service. For the record, the list was: apply the deferred changes (decisions.md section C, architecture §11). File pointers are the places found while writing the server; the client session verifies them.
 
 | ID | Change | Where to start in the client |
 |---|---|---|
 | C-1 | Save requests send `textFile` (+ `textFileName`); the file-registration step goes away | `src/services/phoneExceptionsService.ts`, `src/services/approvedFilesService.ts`, the approval-file field of the form |
-| C-2, C-12 | `reason` / `reasonCode`, `isActive`, `syncStatus`, `requestUid` are not returned; the mutation result holds `createdIds` only | `src/types/phone-exceptions.schema.ts`, `src/types/common.schema.ts`, card and "create similar" logic |
+| C-2, C-12 | `reason` / `reasonCode`, `isActive`, `syncStatus`, `requestUid` are not returned; the mutation result holds `createdIds` only. *(2026-11-09, I-23)* The requests carry `codeRestrictionReason` / `codePermitReason`; the card has no reason row | `src/types/phone-exceptions.schema.ts`, `src/types/common.schema.ts`, card and "create similar" logic |
 | C-3 | `syncStatus` / `requestUid` comments removed | `src/types/common.schema.ts` |
 | C-4 | 400 carries field names only; texts stay in the client | `src/features/number-restrictions/form/numberRecordValidation.ts` (the server-field slot map must use the **server** names: `phoneNumberList`, `idntAvivRestrictionNumber`, `idntTraineeList`, `dateRestrictionStart`…) |
 | C-5 | Fix the table-name comment on the permit DTO | `src/types/phone-exceptions.schema.ts` |
 | C-6 | `idntInstitution` added to the create-permit request | form save logic, `phoneExceptionsService.ts` |
 | C-7 | DB-style field names in requests and responses | `src/types/phone-exceptions.schema.ts`, `phoneExceptionsService.ts`, mock handlers and data |
-| C-8 | Empty institute / device names and mocked approver fall back to caches or the id | card and summary components |
+| C-8 | Empty institute / device names and mocked approver fall back to caches or the id. *(2026-11-09, I-22)* The approver name is joined; "לא צוין" only when it is empty | card and summary components |
 | C-9 | `codeRestrictionScope` + `institutes` instead of `scope` | `src/features/number-restrictions/numberRestrictionsLogic.ts` (`buildScopeLabel`), `src/mock-server/data/globalPhoneRestrictionsMockData.ts` |
 | C-10 | `isPermit` instead of `type`; `inlinePermitId` gone | record union and type guards in `phone-exceptions.schema.ts` and `numberRestrictionsLogic.ts` |
 | C-11 | `isEnded` instead of `temporalStatus`, in the shared `AuditMetadataDto` (histories 03, 04, 05) | `src/types/common.schema.ts`, the shared record-status helper (`isRecordActive = !isEnded`), mocks of the three histories |
@@ -299,6 +305,8 @@ Also point `src/config/serviceEndpoints.ts` at the real service; the six paths a
 | I-11 IDENTITY keys | A.4 | confirmed / which table is not |
 | I-14 details length | A.5 | the real `max_length` |
 | I-15 lookup column names | A.7, C.7 | confirmed / corrected names |
+| I-22 `A_WORKERS` columns (approver name) | A.7b, F.4.1 | confirmed / corrected names; Q-1 closed |
+| I-23 reason code accepted, not stored | F.4.6, F.4.7, F.4.10 | 400 on 0; saves succeed; no column written |
 | I-18 nullability of audit columns | A.6 | tightened the `Rows` or left nullable |
 | I-7 `ICurrentUserService` member | F.2 row 1 | the member name |
 | I-6 SqlClient namespace | F.2 row 2 | which one |

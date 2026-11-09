@@ -13,10 +13,11 @@ import { TRAINEE_VOICE_MESSAGES_MOCK_DATA } from "../data/traineeVoiceMessagesMo
 import { isTodayInRange } from "../mockDates";
 import type { MockRequest } from "../mockRequest";
 
+// רשומה כפי שהמוק שומר אותה: הדגל LOGI_ACTIVE והתאריכים
 interface DatedRecord {
   isActive: boolean;
-  startDate: ISODateString;
-  endDate: ISODateString;
+  dateStart: ISODateString;
+  dateEnd: ISODateString;
 }
 
 export function handleGetTrainees(request: MockRequest): GetTraineesResponse {
@@ -41,10 +42,10 @@ export function resolveTraineePhotoUri(params: unknown): string {
 function toTraineeListItem(record: TraineeMockRecord): TraineeListItemDto {
   const { staticFlags, ...traineeFields } = record;
   const activeRestrictions = TRAINEE_RESTRICTIONS_MOCK_DATA.filter(
-    (restriction) => restriction.traineeId === record.id && isActiveToday(restriction),
+    (restriction) => restriction.idntTrainee === record.id && isActiveToday(restriction),
   );
   const activePhoneRecords = TRAINEE_PHONE_RECORDS_MOCK_DATA.filter(
-    (phoneRecord) => phoneRecord.traineeId === record.id && isActiveToday(phoneRecord),
+    (phoneRecord) => phoneRecord.idntTrainee === record.id && isActiveToday(phoneRecord),
   );
   const activeVoiceMessages = TRAINEE_VOICE_MESSAGES_MOCK_DATA.filter(
     (voiceMessage) => voiceMessage.traineeId === record.id && isActiveToday(voiceMessage),
@@ -54,10 +55,10 @@ function toTraineeListItem(record: TraineeMockRecord): TraineeListItemDto {
     ...traineeFields,
     restrictedUntilDate: latestEndDate(activeRestrictions),
     flags: {
-      hasActiveFullRestriction: activeRestrictions.some((restriction) => restriction.durationMinutes === null),
-      hasActiveMinutesRestriction: activeRestrictions.some((restriction) => restriction.durationMinutes !== null),
-      hasActivePhoneRestriction: activePhoneRecords.some((phoneRecord) => phoneRecord.type === "restriction"),
-      hasActivePhonePermit: activePhoneRecords.some((phoneRecord) => phoneRecord.type === "permit"),
+      hasActiveFullRestriction: activeRestrictions.some((restriction) => restriction.numbDurationLimit === null),
+      hasActiveMinutesRestriction: activeRestrictions.some((restriction) => restriction.numbDurationLimit !== null),
+      hasActivePhoneRestriction: activePhoneRecords.some((phoneRecord) => !phoneRecord.isPermit),
+      hasActivePhonePermit: activePhoneRecords.some((phoneRecord) => phoneRecord.isPermit),
       // "הודעה רגילה" מושמעת פעם אחת; "אינטראקטיבית" היא ההודעה החוזרת
       hasActiveMessage: activeVoiceMessages.some((voiceMessage) => !voiceMessage.repeatDuringCall),
       hasActiveInteractiveMessage: activeVoiceMessages.some((voiceMessage) => voiceMessage.repeatDuringCall),
@@ -67,7 +68,7 @@ function toTraineeListItem(record: TraineeMockRecord): TraineeListItemDto {
 }
 
 function isActiveToday(record: DatedRecord): boolean {
-  return record.isActive && isTodayInRange(record.startDate, record.endDate);
+  return record.isActive && isTodayInRange(record.dateStart, record.dateEnd);
 }
 
 // "מוגבל עד" = תאריך הסיום המאוחר מבין ההגבלות הפעילות (OQ-03)
@@ -76,7 +77,7 @@ function latestEndDate(records: DatedRecord[]): ISODateString | null {
     return null;
   }
   return records.reduce(
-    (latest, record) => (record.endDate > latest ? record.endDate : latest),
-    records[0].endDate,
+    (latest, record) => (record.dateEnd > latest ? record.dateEnd : latest),
+    records[0].dateEnd,
   );
 }

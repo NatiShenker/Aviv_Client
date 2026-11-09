@@ -1,11 +1,12 @@
 import type { LookupItem, PhoneString } from "@/types/common.schema";
-import type { GlobalPhoneRestrictionRecordDto } from "@/types/phone-exceptions.schema";
+import { RESTRICTION_SCOPE_CODE, type GlobalPhoneRestrictionRecordDto } from "@/types/phone-exceptions.schema";
 import { daysFromToday } from "../mockDates";
 import { INSTITUTES_MOCK_DATA } from "./institutesMockData";
 import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
+import type { StoredRecord } from "./storedRecords";
 
 /*
- * הגבלות מספר ארציות ופנימייתיות (AVIV_RESTRICTION_NUMBER), שנוצרו ב"חוסאם".
+ * הגבלות מספר ארציות ופנימייתיות (AVIV_RESTRICTION_NUMBER עם CODE_RESTRICTION_SCOPE כללי), שנוצרו ב"חוסאם".
  * עליהן יושבים היתרי המספר של החניכים, והן מופיעות בחיפוש של יצירת היתר.
  *
  * מספרי ההדגמה של ספק 04 overview §8.
@@ -29,6 +30,7 @@ export const DEMO_PHONE_NUMBERS = {
 const GENERAL_NATIONAL_PHONE = "0721234567";
 const GENERAL_INSTITUTE_PHONE = "0739876543";
 
+// מזהי AVIV_LIST_PHONE_NUMBER של המספרים
 const PHONE_NUMBER_IDS: Record<PhoneString, number> = {
   [GENERAL_NATIONAL_PHONE]: 8001,
   [GENERAL_INSTITUTE_PHONE]: 8002,
@@ -52,12 +54,13 @@ export const GLOBAL_RESTRICTION_IDS = {
 
 interface GlobalRestrictionSeed {
   id: number;
-  phoneNumber: PhoneString;
+  textPhoneNumber: PhoneString;
   /** ריק = ארצית */
   institutes: LookupItem<number>[];
   startDaysFromToday: number;
   endDaysFromToday: number;
-  reason: string;
+  /** הפירוט החופשי של ההגבלה (TEXT_RESTRICTION_REASON) */
+  textReason: string;
 }
 
 const toInstituteRef = ({ id, name }: LookupItem<number>) => ({ id, name });
@@ -66,88 +69,89 @@ const NATIONAL: LookupItem<number>[] = [];
 const GLOBAL_RESTRICTION_SEEDS: GlobalRestrictionSeed[] = [
   {
     id: GLOBAL_RESTRICTION_IDS.generalNational,
-    phoneNumber: GENERAL_NATIONAL_PHONE,
+    textPhoneNumber: GENERAL_NATIONAL_PHONE,
     institutes: NATIONAL,
     startDaysFromToday: -60,
     endDaysFromToday: 300,
-    reason: "אחר",
+    textReason: "חסימה ארצית לפי החלטת ההנהלה.",
   },
   {
     id: GLOBAL_RESTRICTION_IDS.generalHadar,
-    phoneNumber: GENERAL_INSTITUTE_PHONE,
+    textPhoneNumber: GENERAL_INSTITUTE_PHONE,
     institutes: [toInstituteRef(HADAR_INSTITUTE)],
     startDaysFromToday: -30,
     endDaysFromToday: 120,
-    reason: "בקשת הורים",
+    textReason: "בקשת הורים.",
   },
   {
     id: GLOBAL_RESTRICTION_IDS.demoNational,
-    phoneNumber: DEMO_PHONE_NUMBERS.nationalAndInstitute,
+    textPhoneNumber: DEMO_PHONE_NUMBERS.nationalAndInstitute,
     institutes: NATIONAL,
     startDaysFromToday: -20,
     endDaysFromToday: 250,
-    reason: "אחר",
+    textReason: "",
   },
   // מתחילה בעתיד: בבחירה שלה תאריך ההתחלה של ההיתר הוא תחילת ההגבלה, ולא היום (ספק 04 form §4.5)
   {
     id: GLOBAL_RESTRICTION_IDS.demoHadar,
-    phoneNumber: DEMO_PHONE_NUMBERS.nationalAndInstitute,
+    textPhoneNumber: DEMO_PHONE_NUMBERS.nationalAndInstitute,
     institutes: [toInstituteRef(HADAR_INSTITUTE)],
     startDaysFromToday: 5,
     endDaysFromToday: 100,
-    reason: "בקשת הורים",
+    textReason: "בקשת הורים.",
   },
   {
     id: GLOBAL_RESTRICTION_IDS.demoOrot,
-    phoneNumber: DEMO_PHONE_NUMBERS.nationalAndInstitute,
+    textPhoneNumber: DEMO_PHONE_NUMBERS.nationalAndInstitute,
     institutes: [toInstituteRef(OROT_INSTITUTE)],
     startDaysFromToday: -10,
     endDaysFromToday: 90,
-    reason: "קשר עם גורם טיפולי",
+    textReason: "קשר עם גורם טיפולי.",
   },
   {
     id: GLOBAL_RESTRICTION_IDS.demoHadarOnly,
-    phoneNumber: DEMO_PHONE_NUMBERS.instituteOnly,
+    textPhoneNumber: DEMO_PHONE_NUMBERS.instituteOnly,
     institutes: [toInstituteRef(HADAR_INSTITUTE)],
     startDaysFromToday: -15,
     endDaysFromToday: 60,
-    reason: "",
+    textReason: "",
   },
   {
     id: GLOBAL_RESTRICTION_IDS.demoNationalOnly,
-    phoneNumber: DEMO_PHONE_NUMBERS.nationalOnly,
+    textPhoneNumber: DEMO_PHONE_NUMBERS.nationalOnly,
     institutes: NATIONAL,
     startDaysFromToday: -100,
     endDaysFromToday: 365,
-    reason: "קשר עם בן משפחה",
+    textReason: "קשר עם בן משפחה.",
   },
   {
     id: GLOBAL_RESTRICTION_IDS.demoEndedNational,
-    phoneNumber: DEMO_PHONE_NUMBERS.endedNational,
+    textPhoneNumber: DEMO_PHONE_NUMBERS.endedNational,
     institutes: NATIONAL,
     startDaysFromToday: -200,
     endDaysFromToday: -5,
-    reason: "אחר",
+    textReason: "",
   },
 ];
 
-function buildGlobalRestriction(seed: GlobalRestrictionSeed): GlobalPhoneRestrictionRecordDto {
-  const startDate = daysFromToday(seed.startDaysFromToday);
-  const endDate = daysFromToday(seed.endDaysFromToday);
-  const decision = buildDecisionApproval(seed.id, seed.reason);
+function buildGlobalRestriction(seed: GlobalRestrictionSeed): StoredRecord<GlobalPhoneRestrictionRecordDto> {
+  const dateStart = daysFromToday(seed.startDaysFromToday);
+  const dateEnd = daysFromToday(seed.endDaysFromToday);
+  const decision = buildDecisionApproval(seed.id, seed.textReason);
 
   return {
     id: seed.id,
-    phoneNumberId: PHONE_NUMBER_IDS[seed.phoneNumber],
-    phoneNumber: seed.phoneNumber,
-    startDate,
-    endDate,
-    scope: seed.institutes.length === 0 ? "national" : "institute",
+    idntAvivListPhoneNumber: PHONE_NUMBER_IDS[seed.textPhoneNumber],
+    textPhoneNumber: seed.textPhoneNumber,
+    dateStart,
+    dateEnd,
+    codeRestrictionScope: RESTRICTION_SCOPE_CODE.general,
     institutes: seed.institutes,
     ...decision,
-    ...buildAuditMetadata(startDate, endDate, seed.startDaysFromToday, decision.approver.id),
+    ...buildAuditMetadata(dateEnd, seed.startDaysFromToday, decision.approver.id),
+    isActive: true,
   };
 }
 
-export const GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA: GlobalPhoneRestrictionRecordDto[] =
+export const GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA: StoredRecord<GlobalPhoneRestrictionRecordDto>[] =
   GLOBAL_RESTRICTION_SEEDS.map(buildGlobalRestriction);

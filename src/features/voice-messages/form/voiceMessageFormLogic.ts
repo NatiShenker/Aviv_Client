@@ -3,7 +3,7 @@ import {
   createBasedOnDecisionValues,
   createEmptyDecisionValues,
   decisionValuesFromRecord,
-  toDecisionInput,
+  toApprovalInput,
   validateDecision,
   type DecisionValues,
   type ValidatedDecision,
@@ -17,6 +17,7 @@ import type {
   CreateTraineeVoiceMessageRequest,
   TraineeVoiceMessageRecordDto,
   UpdateTraineeVoiceMessageRequest,
+  VoiceMessageDecisionInput,
   VoiceMessageScope,
 } from "@/types/voice-messages.schema";
 import { DEFAULT_SCOPE } from "./voiceMessagesOptions";
@@ -67,8 +68,8 @@ export function createInitialVoiceMessageValues(
     case "edit":
       return {
         ...messageTermsFromRecord(startingPoint.record),
-        startDate: startingPoint.record.startDate,
-        endDate: startingPoint.record.endDate,
+        startDate: startingPoint.record.dateStart,
+        endDate: startingPoint.record.dateEnd,
         ...decisionValuesFromRecord(startingPoint.record),
       };
     case "basedOn":
@@ -154,6 +155,7 @@ export function checkVoiceMessageSubmission(values: VoiceMessageFormValues, isEd
 
 // ── שגיאות שרת (400) → מקומות בטופס (ספק 05 form §6.3) ──
 
+// השדות של 05 בשמות שנוסחו בקליינט; שדות האישור המשותפים בשמות הסרביס (idntUserApproval, textFile)
 const VOICE_MESSAGE_SERVER_FIELD_SLOTS: Record<string, VoiceMessageErrorSlot> = {
   phoneNumber: "phone",
   phoneNumbers: "phone",
@@ -162,8 +164,8 @@ const VOICE_MESSAGE_SERVER_FIELD_SLOTS: Record<string, VoiceMessageErrorSlot> = 
   reason: "reason",
   reasonCode: "reason",
   details: "details",
-  approverId: "approver",
-  approvedFileId: "file",
+  idntUserApproval: "approver",
+  textFile: "file",
 };
 
 /** מקומות שגיאה בלי שדה גלוי: בעריכה ההיקף נעול בכרטיס, ובהודעה לכל השיחות אין שדה מספרים */
@@ -181,6 +183,16 @@ export function mapVoiceMessageSaveError(appError: AppError): VoiceMessageFormEr
 
 // ── שמירה: בניית הבקשות (ספק 05 form §6.1) ──
 
+/** ההחלטה של 05: הסיבה (שם וקוד) והפירוט כפי שנוסחו בקליינט, והאישור המשותף (גורם מאשר וקובץ) */
+function buildDecisionInput(details: string, decision: ValidatedDecision): VoiceMessageDecisionInput {
+  return {
+    reason: decision.reasonName,
+    reasonCode: decision.reasonId,
+    details,
+    ...toApprovalInput(decision),
+  };
+}
+
 /** בכל השיחות - בלי מספרים; במספרים נבחרים - כל מספר יישמר כהודעה נפרדת עם אותם ערכים */
 export function buildCreateVoiceMessageRequest(
   values: VoiceMessageFormValues,
@@ -194,7 +206,7 @@ export function buildCreateVoiceMessageRequest(
     repeatDuringCall: values.repeatDuringCall,
     startDate: values.startDate,
     endDate: values.endDate,
-    ...toDecisionInput(values.details, decision),
+    ...buildDecisionInput(values.details, decision),
   };
 }
 
@@ -212,6 +224,6 @@ export function buildUpdateVoiceMessageRequest(
     repeatDuringCall: values.repeatDuringCall,
     startDate: values.startDate,
     endDate: values.endDate,
-    ...toDecisionInput(values.details, decision),
+    ...buildDecisionInput(values.details, decision),
   };
 }

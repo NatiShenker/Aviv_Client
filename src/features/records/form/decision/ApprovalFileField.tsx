@@ -1,13 +1,12 @@
 import { useEffect, useId, useState } from "react";
 import { IpsIconButton, type UploadResult } from "ui-library";
 import { SHAREPOINT_UPLOAD_TARGET } from "@/config/appConstants";
-import { registerApprovedFile } from "@/services/approvedFilesService";
 import AppIcon from "@/shared/components/AppIcon";
 import ErrorText from "@/shared/components/form/ErrorText";
 import FieldLabelText from "@/shared/components/form/FieldLabelText";
 import { useFormControls } from "@/shared/components/form/FormControlsProvider";
 import { EXPANDED_TOUCH_TARGET_SX } from "@/shared/components/touchTarget";
-import type { FileAttachmentRef } from "@/types/common.schema";
+import type { ApprovedFileInput } from "@/types/common.schema";
 import { focusInPlace } from "@/utils/dom";
 import { FORM_TEXTS } from "../formTexts";
 
@@ -16,8 +15,8 @@ const TEXTS = FORM_TEXTS.decision;
 interface ApprovalFileFieldProps {
   /** מזהה האזור, כדי שאפשר יהיה להעביר אליו פוקוס כשיש בו שגיאה */
   id: string;
-  value: FileAttachmentRef | null;
-  onChange: (file: FileAttachmentRef | null) => void;
+  value: ApprovedFileInput | null;
+  onChange: (file: ApprovedFileInput | null) => void;
   error?: string;
   /** מדווח כשהעלאה מתחילה ומסתיימת, כדי שהשמירה תחכה לה */
   onUploadingChange: (isUploading: boolean) => void;
@@ -25,7 +24,8 @@ interface ApprovalFileFieldProps {
 
 /**
  * "צירוף קובץ" (חובה): בלי קובץ - פקד ההעלאה של הפריסה (במובייל מעלה מיד, בדסקטופ אחרי "שמור קבצים"),
- * שמעלה ל-SharePoint. אחרי ההעלאה הקובץ נרשם בסרביס (כדי לקבל את המזהה שלו), ובמקום הפקד מוצגת שורת הקובץ עם X.
+ * שמעלה ל-SharePoint. הנתיב שחזר מההעלאה נשלח בשמירה, והשרת מכניס ממנו את שורת הקובץ (D-13) - אין רישום נפרד.
+ * אחרי ההעלאה מוצגת במקום הפקד שורת הקובץ עם X.
  */
 export default function ApprovalFileField({ id, value, onChange, error, onUploadingChange }: ApprovalFileFieldProps) {
   const { FileUploadField } = useFormControls();
@@ -46,21 +46,14 @@ export default function ApprovalFileField({ id, value, onChange, error, onUpload
     return true;
   };
 
-  const handleUploadSuccess = async (uploadedFiles: UploadResult[]) => {
+  const handleUploadSuccess = (uploadedFiles: UploadResult[]) => {
     const [uploadedFile] = uploadedFiles;
-    if (!uploadedFile) {
-      setIsUploading(false);
-      return;
-    }
-    try {
-      onChange(await registerApprovedFile({ fileName: uploadedFile.name, path: uploadedFile.path }));
+    if (uploadedFile) {
+      onChange({ fileName: uploadedFile.name, textFile: uploadedFile.path });
       // פקד ההעלאה מתחלף בשורת הקובץ - הפוקוס עובר להסרה, ולא נופל לתחילת הטופס
       focusInPlace(removeButtonId);
-    } catch {
-      setUploadError(FORM_TEXTS.validation.fileUploadFailed);
-    } finally {
-      setIsUploading(false);
     }
+    setIsUploading(false);
   };
 
   const handleUploadError = () => {

@@ -10,7 +10,7 @@ public class LookupItemDto
     public string Name { get; set; } = "";
 }
 
-/// <summary>הגורם המאשר (IDNT_USER_APPROVAL). Q-1, I-8: טבלת המשתמשים במסד אחר – השם ריק עד שיהיה JOIN; הקליינט מציג את המזהה.</summary>
+/// <summary>הגורם המאשר (IDNT_USER_APPROVAL). I-22: השם מצורף בפרוצדורות מ-ODSINTERNALDATA..A_WORKERS; ריק כשאין שורת ייחוס (C-8). התפקיד לא מצורף.</summary>
 public class ApproverDto
 {
     public int Id { get; set; }

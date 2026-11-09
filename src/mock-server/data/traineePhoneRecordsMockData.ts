@@ -8,9 +8,9 @@ import type {
 import { daysFromToday } from "../mockDates";
 import { DEVICES_MOCK_DATA } from "./devicesMockData";
 import { GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA, GLOBAL_RESTRICTION_IDS } from "./globalPhoneRestrictionsMockData";
-import { PHONE_EXCEPTION_REASONS_MOCK_DATA } from "./reasonsMockData";
 import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
 import { summarizeGlobalRestriction, summarizeTraineeRestriction } from "./sourceRestrictionBuilders";
+import type { StoredRecord } from "./storedRecords";
 import {
   SHOWCASE_TRAINEES,
   TRAINEES_MOCK_DATA,
@@ -20,7 +20,8 @@ import {
 
 /*
  * רשומות "הגבלות והיתרים למספר" של החניכים (ספק 04).
- * להגבלות ולהיתרים יש טבלאות נפרדות, ולכן גם רצפי מזהים נפרדים - אותו מזהה יכול להופיע בשניהם.
+ * להגבלות (AVIV_TRAINEE_RESTRICTION_NUMBER) ולהיתרים (AVIV_PERMITS_FOR_RESTRICTION) יש טבלאות נפרדות,
+ * ולכן גם רצפי מזהים נפרדים - אותו מזהה יכול להופיע בשניהם.
  *
  * חניך ההדגמה (הראשון בפנימיית הדר) מקבל את התרחישים של ספק 04 overview §8, ועוד רשומות
  * שמכסות את ערכי התצוגה: הגבלה שהסתיימה, הגבלה עתידית עם שעות ומכשירים, והיתר שהסתיים.
@@ -44,6 +45,7 @@ interface CallTerms {
   durationMinutes: number | null;
   permittedHours: PermittedHours | null;
   deviceIds: number[];
+  /** הפירוט החופשי (TEXT_RESTRICTION_REASON / TEXT_PERMIT_REASON) */
   details: string;
 }
 
@@ -58,13 +60,11 @@ interface RestrictionSeed extends RecordDates {
   trainee: TraineeMockRecord;
   phoneNumber: PhoneString;
   terms: CallTerms;
-  reason: string;
 }
 
 interface PermitSeed extends RecordDates {
   trainee: TraineeMockRecord;
   terms: CallTerms;
-  reason: string;
 }
 
 // ── חניך ההדגמה ──
@@ -75,8 +75,7 @@ const DEMO_RESTRICTION_SEEDS: RestrictionSeed[] = [
     phoneNumber: DEMO_TRAINEE_RESTRICTION_PHONE,
     startDaysFromToday: -5,
     endDaysFromToday: 40,
-    terms: FULL_TERMS,
-    reason: "בקשת הורים",
+    terms: { ...FULL_TERMS, details: "בקשת ההורים." },
   },
   {
     trainee: DEMO_TRAINEE,
@@ -84,7 +83,6 @@ const DEMO_RESTRICTION_SEEDS: RestrictionSeed[] = [
     startDaysFromToday: -60,
     endDaysFromToday: -20,
     terms: { ...FULL_TERMS, durationMinutes: 10 },
-    reason: "אחר",
   },
   {
     trainee: DEMO_TRAINEE,
@@ -97,7 +95,6 @@ const DEMO_RESTRICTION_SEEDS: RestrictionSeed[] = [
       deviceIds: [1, 2],
       details: "שיחות רק אחרי שעות הלימודים.",
     },
-    reason: "קשר עם גורם טיפולי",
   },
 ];
 
@@ -109,8 +106,12 @@ const DEMO_GLOBAL_PERMIT_SEEDS: (PermitSeed & { restrictionId: number })[] = [
     restrictionId: GLOBAL_RESTRICTION_IDS.demoNational,
     startDaysFromToday: -3,
     endDaysFromToday: 30,
-    terms: { ...FULL_TERMS, durationMinutes: 15, permittedHours: { startTime: "16:00", endTime: "19:00" } },
-    reason: "קשר עם בן משפחה",
+    terms: {
+      ...FULL_TERMS,
+      durationMinutes: 15,
+      permittedHours: { startTime: "16:00", endTime: "19:00" },
+      details: "קשר עם בן משפחה.",
+    },
   },
   // ספק 04 overview §8: "כל היום · טלפון משרד הפנימייה"
   {
@@ -119,7 +120,6 @@ const DEMO_GLOBAL_PERMIT_SEEDS: (PermitSeed & { restrictionId: number })[] = [
     startDaysFromToday: -1,
     endDaysFromToday: 60,
     terms: { ...FULL_TERMS, deviceIds: [4] },
-    reason: "מורשה לזמן מוגבל",
   },
   {
     trainee: DEMO_TRAINEE,
@@ -127,7 +127,6 @@ const DEMO_GLOBAL_PERMIT_SEEDS: (PermitSeed & { restrictionId: number })[] = [
     startDaysFromToday: -50,
     endDaysFromToday: -30,
     terms: FULL_TERMS,
-    reason: "אחר",
   },
 ];
 
@@ -136,8 +135,7 @@ const DEMO_TRAINEE_PERMIT_SEED: PermitSeed = {
   trainee: DEMO_TRAINEE,
   startDaysFromToday: 0,
   endDaysFromToday: 10,
-  terms: { ...FULL_TERMS, permittedHours: { startTime: "18:00", endTime: "19:00" } },
-  reason: "בקשת הורים",
+  terms: { ...FULL_TERMS, permittedHours: { startTime: "18:00", endTime: "19:00" }, details: "בקשת ההורים." },
 };
 
 // ── פיזור קבוע בין שאר החניכים: מי עם הגבלה פעילה למספר ומי עם היתר פעיל למספר ──
@@ -147,10 +145,10 @@ interface Distribution {
   offset: number;
 }
 
-const DISTRIBUTION: Record<TraineePhoneRecordDto["type"], Distribution> = {
+const DISTRIBUTION = {
   restriction: { every: 7, offset: 3 },
   permit: { every: 7, offset: 6 },
-};
+} satisfies Record<string, Distribution>;
 
 const DISTRIBUTED_RESTRICTION_DAYS: RecordDates = { startDaysFromToday: -3, endDaysFromToday: 30 };
 const DISTRIBUTED_PERMIT_DAYS: RecordDates = { startDaysFromToday: -1, endDaysFromToday: 14 };
@@ -164,10 +162,6 @@ function matchesDistribution(index: number, { every, offset }: Distribution): bo
   return index % every === offset;
 }
 
-function reasonFor(index: number): string {
-  return PHONE_EXCEPTION_REASONS_MOCK_DATA[index % PHONE_EXCEPTION_REASONS_MOCK_DATA.length].name;
-}
-
 const OTHER_TRAINEES = TRAINEES_MOCK_DATA.map((trainee, index) => ({ trainee, index })).filter(
   ({ trainee }) => trainee.id !== DEMO_TRAINEE.id,
 );
@@ -179,7 +173,6 @@ const DISTRIBUTED_RESTRICTION_SEEDS: RestrictionSeed[] = OTHER_TRAINEES.filter((
   phoneNumber: `${DISTRIBUTED_PHONE_PREFIX}${String(index).padStart(DISTRIBUTED_PHONE_SUFFIX_DIGITS, "0")}`,
   ...DISTRIBUTED_RESTRICTION_DAYS,
   terms: FULL_TERMS,
-  reason: reasonFor(index),
 }));
 
 /** ההגבלה הפנימייתית חלה רק על חניכי הדר; לכל השאר - ההגבלה הארצית */
@@ -198,7 +191,6 @@ const DISTRIBUTED_PERMIT_SEEDS: (PermitSeed & { restrictionId: number })[] = OTH
   restrictionId: distributedPermitRestrictionId(trainee, index),
   ...DISTRIBUTED_PERMIT_DAYS,
   terms: { ...FULL_TERMS, durationMinutes: DISTRIBUTED_PERMIT_DURATION_MINUTES },
-  reason: reasonFor(index),
 }));
 
 // ── חניכי התצוגה (הראשונים ברשימה): הגבלות והיתרים פעילים, עתידיים ושהסתיימו ──
@@ -240,7 +232,6 @@ function showcaseRestrictionSeeds(trainee: TraineeMockRecord, rank: number): Res
     startDaysFromToday: -4,
     endDaysFromToday: 25,
     terms: FULL_TERMS,
-    reason: reasonFor(rank),
   };
   const futureSeed: RestrictionSeed = {
     trainee,
@@ -248,7 +239,6 @@ function showcaseRestrictionSeeds(trainee: TraineeMockRecord, rank: number): Res
     startDaysFromToday: 6,
     endDaysFromToday: 30,
     terms: showcaseTerms(2),
-    reason: reasonFor(rank + 1),
   };
   const currentSeeds = [activeSeed, futureSeed];
   const endedSeeds = Array.from({ length: endedCount }, (_, order): RestrictionSeed => {
@@ -259,7 +249,6 @@ function showcaseRestrictionSeeds(trainee: TraineeMockRecord, rank: number): Res
       startDaysFromToday: endDaysFromToday - SHOWCASE_ENDED_LENGTH_DAYS,
       endDaysFromToday,
       terms: showcaseTerms(order),
-      reason: reasonFor(order),
     };
   });
   return [...currentSeeds, ...endedSeeds];
@@ -273,7 +262,6 @@ function showcasePermitSeeds(trainee: TraineeMockRecord, rank: number): (PermitS
     startDaysFromToday: -2,
     endDaysFromToday: 20,
     terms: showcaseTerms(1),
-    reason: reasonFor(rank),
   };
   // היתר שהסתיים על הגבלה שגם היא הסתיימה - "יצירת היתר דומה" לא ימצא הגבלה פעילה למספר
   const endedOnEndedRestrictionSeed = {
@@ -282,7 +270,6 @@ function showcasePermitSeeds(trainee: TraineeMockRecord, rank: number): (PermitS
     startDaysFromToday: -30,
     endDaysFromToday: -20,
     terms: FULL_TERMS,
-    reason: reasonFor(rank + 2),
   };
   const endedSeeds = Array.from({ length: endedCount - 1 }, (_, order) => {
     const endDaysFromToday = -(SHOWCASE_LATEST_ENDED_PERMIT_DAYS_AGO + order * SHOWCASE_DAYS_BETWEEN_ENDED_PERMITS);
@@ -292,7 +279,6 @@ function showcasePermitSeeds(trainee: TraineeMockRecord, rank: number): (PermitS
       startDaysFromToday: endDaysFromToday - SHOWCASE_ENDED_PERMIT_LENGTH_DAYS,
       endDaysFromToday,
       terms: showcaseTerms(order + 1),
-      reason: reasonFor(order + 1),
     };
   });
   return [activeSeed, endedOnEndedRestrictionSeed, ...endedSeeds];
@@ -303,10 +289,10 @@ const SHOWCASE_PERMIT_SEEDS = SHOWCASE_TRAINEES.flatMap((trainee, rank) => showc
 
 // ── בניית הרשומות ──
 
+// מזהי טבלת האב (AVIV_RESTRICTION_NUMBER) ומזהי המספרים (AVIV_LIST_PHONE_NUMBER) של הגבלות החניכים
 const RESTRICTION_NUMBER_ID_BASE = 6000;
-const INLINE_PERMIT_ID_BASE = 6500;
 const PHONE_NUMBER_ID_BASE = 7000;
-// מזהי קבצי האסמכתא, נפרדים לכל טבלה (ראו approvedFilesMockData)
+// מזהי קבצי האסמכתא (AVIV_FILE), נפרדים לכל טבלה
 const RESTRICTION_FILE_ID_BASE = 5000;
 const PERMIT_FILE_ID_BASE = 5500;
 
@@ -316,36 +302,32 @@ function devicesOf(deviceIds: number[]): LookupItem<number>[] {
 
 function conditionsOf(terms: CallTerms): PermittedCallConditionsDto {
   return {
-    durationMinutes: terms.durationMinutes,
-    startTime: terms.permittedHours?.startTime ?? null,
-    endTime: terms.permittedHours?.endTime ?? null,
+    numbDurationLimit: terms.durationMinutes,
+    timePermitStart: terms.permittedHours?.startTime ?? null,
+    timePermitEnd: terms.permittedHours?.endTime ?? null,
     devices: devicesOf(terms.deviceIds),
   };
 }
 
-function hasInlinePermit(terms: CallTerms): boolean {
-  return terms.durationMinutes !== null || terms.permittedHours !== null || terms.deviceIds.length > 0;
-}
-
-function buildRestrictionRecord(seed: RestrictionSeed, id: number): TraineePhoneRestrictionRecordDto {
-  const startDate = daysFromToday(seed.startDaysFromToday);
-  const endDate = daysFromToday(seed.endDaysFromToday);
-  const decision = buildDecisionApproval(RESTRICTION_FILE_ID_BASE + id, seed.reason);
+function buildRestrictionRecord(seed: RestrictionSeed, id: number): StoredRecord<TraineePhoneRestrictionRecordDto> {
+  const dateStart = daysFromToday(seed.startDaysFromToday);
+  const dateEnd = daysFromToday(seed.endDaysFromToday);
+  const decision = buildDecisionApproval(RESTRICTION_FILE_ID_BASE + id, seed.terms.details);
 
   return {
-    type: "restriction",
+    isPermit: false,
     id,
-    restrictionNumberId: RESTRICTION_NUMBER_ID_BASE + id,
-    inlinePermitId: hasInlinePermit(seed.terms) ? INLINE_PERMIT_ID_BASE + id : null,
-    traineeId: seed.trainee.id,
-    phoneNumberId: PHONE_NUMBER_ID_BASE + id,
-    phoneNumber: seed.phoneNumber,
-    startDate,
-    endDate,
+    idntAvivRestrictionNumber: RESTRICTION_NUMBER_ID_BASE + id,
+    idntTrainee: seed.trainee.id,
+    idntAvivListPhoneNumber: PHONE_NUMBER_ID_BASE + id,
+    textPhoneNumber: seed.phoneNumber,
+    dateStart,
+    dateEnd,
+    sourceRestriction: null,
     ...conditionsOf(seed.terms),
     ...decision,
-    details: seed.terms.details,
-    ...buildAuditMetadata(startDate, endDate, seed.startDaysFromToday, decision.approver.id),
+    ...buildAuditMetadata(dateEnd, seed.startDaysFromToday, decision.approver.id),
+    isActive: true,
   };
 }
 
@@ -353,24 +335,26 @@ function buildPermitRecord(
   seed: PermitSeed,
   sourceRestriction: SourceRestrictionSummaryDto,
   id: number,
-): TraineePhonePermitRecordDto {
-  const startDate = daysFromToday(seed.startDaysFromToday);
-  const endDate = daysFromToday(seed.endDaysFromToday);
-  const decision = buildDecisionApproval(PERMIT_FILE_ID_BASE + id, seed.reason);
+): StoredRecord<TraineePhonePermitRecordDto> {
+  const dateStart = daysFromToday(seed.startDaysFromToday);
+  const dateEnd = daysFromToday(seed.endDaysFromToday);
+  const decision = buildDecisionApproval(PERMIT_FILE_ID_BASE + id, seed.terms.details);
 
   return {
-    type: "permit",
+    isPermit: true,
     id,
-    traineeId: seed.trainee.id,
-    phoneNumberId: sourceRestriction.phoneNumberId,
-    phoneNumber: sourceRestriction.phoneNumber,
-    startDate,
-    endDate,
+    idntAvivRestrictionNumber: sourceRestriction.idntAvivRestrictionNumber,
+    idntTrainee: seed.trainee.id,
+    // המספר נגזר מההגבלה שעליה חל ההיתר (ספק 04 form §6.1)
+    idntAvivListPhoneNumber: sourceRestriction.idntAvivListPhoneNumber,
+    textPhoneNumber: sourceRestriction.textPhoneNumber,
+    dateStart,
+    dateEnd,
     sourceRestriction,
     ...conditionsOf(seed.terms),
     ...decision,
-    details: seed.terms.details,
-    ...buildAuditMetadata(startDate, endDate, seed.startDaysFromToday, decision.approver.id),
+    ...buildAuditMetadata(dateEnd, seed.startDaysFromToday, decision.approver.id),
+    isActive: true,
   };
 }
 
@@ -382,7 +366,7 @@ function globalRestrictionSummary(restrictionId: number): SourceRestrictionSumma
   return summarizeGlobalRestriction(restriction);
 }
 
-const RESTRICTION_RECORDS: TraineePhoneRestrictionRecordDto[] = [
+const RESTRICTION_RECORDS: StoredRecord<TraineePhoneRestrictionRecordDto>[] = [
   ...DEMO_RESTRICTION_SEEDS,
   ...DISTRIBUTED_RESTRICTION_SEEDS,
   ...SHOWCASE_RESTRICTION_SEEDS,
@@ -391,7 +375,7 @@ const RESTRICTION_RECORDS: TraineePhoneRestrictionRecordDto[] = [
 // הראשונה ברשימה היא ההגבלה של חניך ההדגמה על DEMO_TRAINEE_RESTRICTION_PHONE
 const DEMO_TRAINEE_RESTRICTION = RESTRICTION_RECORDS[0];
 
-const PERMIT_RECORDS: TraineePhonePermitRecordDto[] = [
+const PERMIT_RECORDS: StoredRecord<TraineePhonePermitRecordDto>[] = [
   ...[...DEMO_GLOBAL_PERMIT_SEEDS, ...DISTRIBUTED_PERMIT_SEEDS, ...SHOWCASE_PERMIT_SEEDS].map((seed) => ({
     seed,
     sourceRestriction: globalRestrictionSummary(seed.restrictionId),
@@ -399,4 +383,7 @@ const PERMIT_RECORDS: TraineePhonePermitRecordDto[] = [
   { seed: DEMO_TRAINEE_PERMIT_SEED, sourceRestriction: summarizeTraineeRestriction(DEMO_TRAINEE_RESTRICTION) },
 ].map(({ seed, sourceRestriction }, index) => buildPermitRecord(seed, sourceRestriction, index + 1));
 
-export const TRAINEE_PHONE_RECORDS_MOCK_DATA: TraineePhoneRecordDto[] = [...RESTRICTION_RECORDS, ...PERMIT_RECORDS];
+export const TRAINEE_PHONE_RECORDS_MOCK_DATA: StoredRecord<TraineePhoneRecordDto>[] = [
+  ...RESTRICTION_RECORDS,
+  ...PERMIT_RECORDS,
+];

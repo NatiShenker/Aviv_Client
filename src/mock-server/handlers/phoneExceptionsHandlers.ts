@@ -1,139 +1,160 @@
-import type { ISODateString, PermittedCallConditionsDto, PhoneString } from "@/types/common.schema";
-import type {
-  CreateTraineePhonePermitRequest,
-  CreateTraineePhonePermitResponse,
-  CreateTraineePhoneRestrictionRequest,
-  CreateTraineePhoneRestrictionResponse,
-  ExistingPermitBriefDto,
-  GetTraineePhoneRecordsRequest,
-  GetTraineePhoneRecordsResponse,
-  LookupPhoneRestrictionsForPermitRequest,
-  LookupPhoneRestrictionsForPermitResponse,
-  PhoneRestrictionScope,
-  SourceRestrictionSummaryDto,
-  TraineePhonePermitRecordDto,
-  TraineePhoneRecordDto,
-  TraineePhoneRestrictionRecordDto,
-  UpdateTraineePhonePermitRequest,
-  UpdateTraineePhonePermitResponse,
-  UpdateTraineePhoneRestrictionRequest,
-  UpdateTraineePhoneRestrictionResponse,
+import type { ISODateString, PhoneString } from "@/types/common.schema";
+import {
+  RESTRICTION_SCOPE_CODE,
+  type CreateTraineePhonePermitRequest,
+  type CreateTraineePhonePermitResponse,
+  type CreateTraineePhoneRestrictionRequest,
+  type CreateTraineePhoneRestrictionResponse,
+  type ExistingPermitDto,
+  type GetTraineePhoneRecordsRequest,
+  type GetTraineePhoneRecordsResponse,
+  type LookupPhoneRestrictionsForPermitRequest,
+  type LookupPhoneRestrictionsForPermitResponse,
+  type PhonePermitSaveFields,
+  type PhoneRestrictionSaveFields,
+  type SourceRestrictionSummaryDto,
+  type TraineePhonePermitRecordDto,
+  type TraineePhoneRecordDto,
+  type TraineePhoneRestrictionRecordDto,
+  type UpdateTraineePhonePermitRequest,
+  type UpdateTraineePhonePermitResponse,
+  type UpdateTraineePhoneRestrictionRequest,
+  type UpdateTraineePhoneRestrictionResponse,
 } from "@/types/phone-exceptions.schema";
-import { todayIsoDate, formatDateRange } from "@/utils/dates";
-import { isValidPhone } from "@/utils/phone";
 import { GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA } from "../data/globalPhoneRestrictionsMockData";
 import { buildAuditMetadata } from "../data/recordMetadataBuilders";
 import { summarizeGlobalRestriction, summarizeTraineeRestriction } from "../data/sourceRestrictionBuilders";
+import { activeRecords, toRecordDto, type StoredRecord } from "../data/storedRecords";
 import { TRAINEE_PHONE_RECORDS_MOCK_DATA } from "../data/traineePhoneRecordsMockData";
 import { TRAINEES_MOCK_DATA } from "../data/traineesMockData";
-import type { MockRequest } from "../mockRequest";
+import { hasEnded } from "../mockDates";
+import { throwConflictError, type MockRequest } from "../mockRequest";
 import {
   MOCK_CURRENT_USER_ID,
+  allocateFileId,
   decisionFromInput,
   devicesFromIds,
+  findReplaceableRecord,
   nextRecordId,
-  throwConflict,
-  throwIfEnded,
-  throwNotFound,
   toMutationResult,
 } from "./mutationHelpers";
-import { throwIfInvalid, validateConditionsAndDecision, type ConditionsAndDecisionInput } from "./recordInputValidation";
+import {
+  SERVER_FIELDS,
+  checkApproval,
+  checkConditions,
+  normalizeDistinctPhoneNumbers,
+  requireDateRange,
+  requireIdList,
+  requirePhoneNumberList,
+  requirePositive,
+  requirePositiveWhenPresent,
+  throwIfInvalid,
+  type FailedField,
+} from "./recordInputValidation";
 
 /*
- * "הגבלות והיתרים למספר" (ספק 04): רשומות החניך, איתור ההגבלות ליצירת היתר, ושמירה של הגבלות והיתרים.
- * כמו בשרת: עדכון לא משנה רשומה - הקודמת נכבית (LOGI_ACTIVE = 0) ונוספת רשומה פעילה חדשה.
+ * "הגבלות והיתרים למספר" (ספק 04), כמו PhoneExceptionsController והפרוצדורות שלו: רשומות החניך, איתור ההגבלות
+ * ליצירת היתר, ושמירה של הגבלות והיתרים. עדכון לא משנה רשומה - הקודמת נכבית (LOGI_ACTIVE = 0) ונוספת רשומה
+ * פעילה חדשה (D-1). השגיאות העסקיות הן של השרת: 400 עם שם השדה, 409 כשהרשומה שמפנים אליה כבר אינה תקפה (A-2).
  */
 
-const INVALID_INPUT_MESSAGE = "Phone restriction / permit is invalid";
+type StoredRestriction = StoredRecord<TraineePhoneRestrictionRecordDto>;
+type StoredPermit = StoredRecord<TraineePhonePermitRecordDto>;
 
-const PHONE_VALIDATION_MESSAGES = {
-  invalid: "מספר טלפון לא תקין",
-  required: "יש להוסיף לפחות מספר אחד",
-  permitOutsideRestriction: (range: string) => `תאריכי ההיתר צריכים להיות בתוך תקופת ההגבלה: ${range}`,
-} as const;
-
-// ── שליפת הרשומות (ספק 04 history §6) ──
+// ── שליפת הרשומות (ספק 04 history §6, B-5) ──
 
 export function handleGetTraineePhoneRecords(request: MockRequest): GetTraineePhoneRecordsResponse {
-  const { traineeIds } = request.body as GetTraineePhoneRecordsRequest;
+  const { idntTraineeList } = request.body as GetTraineePhoneRecordsRequest;
+  throwIfInvalid(requireIdList(idntTraineeList, SERVER_FIELDS.idntTraineeList));
 
-  const records = TRAINEE_PHONE_RECORDS_MOCK_DATA.filter(
-    (record) => record.isActive && traineeIds.includes(record.traineeId),
-  ).map(withCurrentSourceRestriction);
+  const records = activeRecords(TRAINEE_PHONE_RECORDS_MOCK_DATA)
+    .filter((record) => idntTraineeList.includes(record.idntTrainee))
+    .map(toRecordDto)
+    .map(withCurrentSourceRestriction);
   return { records };
 }
 
-// "חל על הגבלה" מוצג מההגבלה כפי שהיא עכשיו (JOIN), ולא מהעותק שנשמר עם ההיתר (ספק 04 overview §2.3)
+// "חל על הגבלה" מוצג מההגבלה כפי שהיא עכשיו (JOIN לטבלת האב), ולא מהעותק שנשמר עם ההיתר (ספק 04 overview §2.3).
+// ההיתרים הקיימים אינם ממולאים בהיסטוריה (02-architecture.md §8)
 function withCurrentSourceRestriction(record: TraineePhoneRecordDto): TraineePhoneRecordDto {
-  if (record.type !== "permit") return record;
-  const currentRestriction = findSourceRestriction(record.sourceRestriction.restrictionId);
+  if (!record.isPermit) return record;
+  const currentRestriction = findSourceRestriction(record.idntAvivRestrictionNumber);
   return currentRestriction ? { ...record, sourceRestriction: currentRestriction } : record;
 }
 
 // ── איתור ההגבלות ליצירת היתר (ספק 04 overview §2.7) ──
 
 export function handleLookupPhoneRestrictionsForPermit(request: MockRequest): LookupPhoneRestrictionsForPermitResponse {
-  const { traineeId, instituteId, phoneNumbers } = request.body as LookupPhoneRestrictionsForPermitRequest;
+  const { idntTrainee, idntInstitution, phoneNumberList } = request.body as LookupPhoneRestrictionsForPermitRequest;
+  throwIfInvalid(
+    requirePositive(idntTrainee, SERVER_FIELDS.idntTrainee) ??
+      requirePositive(idntInstitution, SERVER_FIELDS.idntInstitution) ??
+      requirePhoneNumberList(phoneNumberList),
+  );
 
+  // תוצאה לכל מספר, בסדר הבקשה, עם המספר המנורמל (A-9, I-4)
   return {
-    results: phoneNumbers.map((phoneNumber) => ({
-      phoneNumber,
-      activeRestrictions: findApplicableRestrictions(traineeId, instituteId, phoneNumber),
+    results: normalizeDistinctPhoneNumbers(phoneNumberList).map((textPhoneNumber) => ({
+      textPhoneNumber,
+      activeRestrictions: findApplicableRestrictions(idntTrainee, idntInstitution, textPhoneNumber),
     })),
   };
 }
 
-const SCOPE_ORDER: Record<PhoneRestrictionScope, number> = { national: 0, institute: 1, trainee: 2 };
-
-/** ארציות, של הפנימייה של החניך ושל החניך עצמו; רק כאלה שלא הסתיימו, כולל עתידיות */
+/** הגבלות שלא הסתיימו: כלליות בלי צמצום, כלליות המצומצמות לפנימיית החניך, ושל החניך עצמו (A-5) */
 function findApplicableRestrictions(
-  traineeId: number,
-  instituteId: number,
-  phoneNumber: PhoneString,
+  idntTrainee: number,
+  idntInstitution: number,
+  textPhoneNumber: PhoneString,
 ): SourceRestrictionSummaryDto[] {
-  const today = todayIsoDate();
-  const globalRestrictions = GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA.filter(
-    (restriction) =>
-      restriction.isActive &&
-      restriction.phoneNumber === phoneNumber &&
-      restriction.endDate >= today &&
-      (restriction.scope === "national" || restriction.institutes.some((institute) => institute.id === instituteId)),
-  ).map((restriction) => summarizeGlobalRestriction(restriction));
-
-  const traineeRestrictions = activeTraineeRestrictions()
+  const generalRestrictions = currentGlobalRestrictions()
     .filter(
       (restriction) =>
-        restriction.traineeId === traineeId && restriction.phoneNumber === phoneNumber && restriction.endDate >= today,
+        restriction.textPhoneNumber === textPhoneNumber &&
+        (restriction.institutes.length === 0 || isLinkedToInstitute(restriction.institutes, idntInstitution)),
+    )
+    .map((restriction) => summarizeGlobalRestriction(restriction));
+
+  const traineeRestrictions = currentTraineeRestrictions()
+    .filter(
+      (restriction) => restriction.idntTrainee === idntTrainee && restriction.textPhoneNumber === textPhoneNumber,
     )
     .map((restriction) => summarizeTraineeRestriction(restriction));
 
-  return [...globalRestrictions, ...traineeRestrictions]
+  // המיון של PhoneRecordsAssembler: קוד ה-scope (כללית לפני חניך), בלי פנימיות (ארצית) לפני עם פנימיות, ואז תאריך ההתחלה
+  return [...generalRestrictions, ...traineeRestrictions]
     .map((restriction) => ({
       ...restriction,
-      existingTraineePermits: activePermitsOn(traineeId, restriction.restrictionId, today),
+      existingTraineePermits: currentPermitsOn(idntTrainee, restriction.idntAvivRestrictionNumber),
     }))
     .sort(
       (first, second) =>
-        SCOPE_ORDER[first.scope] - SCOPE_ORDER[second.scope] || first.startDate.localeCompare(second.startDate),
+        first.codeRestrictionScope - second.codeRestrictionScope ||
+        Number(first.institutes.length > 0) - Number(second.institutes.length > 0) ||
+        first.dateStart.localeCompare(second.dateStart),
     );
 }
 
+function isLinkedToInstitute(institutes: { id: number }[], idntInstitution: number): boolean {
+  return institutes.some((institute) => institute.id === idntInstitution);
+}
+
 /** ההיתרים של החניך על ההגבלה שלא הסתיימו - מוצגים כדי לעזור להימנע מכפילויות */
-function activePermitsOn(traineeId: number, restrictionId: number, today: ISODateString): ExistingPermitBriefDto[] {
+function currentPermitsOn(idntTrainee: number, idntAvivRestrictionNumber: number): ExistingPermitDto[] {
   return activePermits()
     .filter(
       (permit) =>
-        permit.traineeId === traineeId &&
-        permit.sourceRestriction.restrictionId === restrictionId &&
-        permit.endDate >= today,
+        permit.idntTrainee === idntTrainee &&
+        permit.idntAvivRestrictionNumber === idntAvivRestrictionNumber &&
+        !hasEnded(permit.dateEnd),
     )
     .map((permit) => ({
-      permitId: permit.id,
-      startDate: permit.startDate,
-      endDate: permit.endDate,
-      durationMinutes: permit.durationMinutes,
-      startTime: permit.startTime,
-      endTime: permit.endTime,
+      id: permit.id,
+      dateStart: permit.dateStart,
+      dateEnd: permit.dateEnd,
+      numbDurationLimit: permit.numbDurationLimit,
+      timePermitStart: permit.timePermitStart,
+      timePermitEnd: permit.timePermitEnd,
       devices: permit.devices,
     }));
 }
@@ -143,284 +164,312 @@ function activePermitsOn(traineeId: number, restrictionId: number, today: ISODat
 export function handleCreateTraineePhoneRestriction(request: MockRequest): CreateTraineePhoneRestrictionResponse {
   const input = request.body as CreateTraineePhoneRestrictionRequest;
   throwIfInvalid(
-    { ...validatePhoneNumbers(input.phoneNumbers), ...validateConditionsAndDecision(input) },
-    INVALID_INPUT_MESSAGE,
+    requireIdList(input.idntTraineeList, SERVER_FIELDS.idntTraineeList) ??
+      requirePhoneNumberList(input.phoneNumberList) ??
+      checkRestrictionFields(input),
   );
 
-  // כל מספר נשמר כהגבלה נפרדת, עם אותם תאריכים, תנאים והחלטה
-  const records = input.traineeIds.flatMap((traineeId) =>
-    input.phoneNumbers.map((phoneNumber) => {
+  // רשומה לכל זוג חניך × מספר, עם אותם תאריכים, תנאים ואישור (P-12); שורת קובץ אחת לכל השמירה (D-13)
+  const fileId = allocateFileId();
+  const records = input.idntTraineeList.flatMap((idntTrainee) =>
+    normalizeDistinctPhoneNumbers(input.phoneNumberList).map((textPhoneNumber) => {
       const record = buildPhoneRestrictionRecord(input, {
-        id: nextPhoneRecordId("restriction"),
-        restrictionNumberId: nextRestrictionNumberId(),
-        traineeId,
-        phoneNumber,
+        id: nextPhoneRecordId(false),
+        idntAvivRestrictionNumber: nextRestrictionNumberId(),
+        idntTrainee,
+        idntAvivListPhoneNumber: phoneNumberIdOf(textPhoneNumber),
+        textPhoneNumber,
+        fileId,
       });
       TRAINEE_PHONE_RECORDS_MOCK_DATA.push(record);
       return record;
     }),
   );
-  return toMutationResult(records);
+  return toMutationResult(records.map((record) => record.id));
 }
 
 export function handleUpdateTraineePhoneRestriction(request: MockRequest): UpdateTraineePhoneRestrictionResponse {
   const input = request.body as UpdateTraineePhoneRestrictionRequest;
-  const previous = findReplaceableRestriction(input.previousId);
-  throwIfInvalid(validateConditionsAndDecision(input), INVALID_INPUT_MESSAGE);
+  throwIfInvalid(requirePositive(input.idntPrevious, SERVER_FIELDS.idntPrevious) ?? checkRestrictionFields(input));
 
-  // המספר נעול בעריכה. מזהה טבלת האב נשמר, כדי שההיתרים שעל ההגבלה יישארו מחוברים אליה
+  // תפיסת הגרסה הקודמת (409); המספר והחניך נלקחים ממנה ולא מהבקשה
+  const previous = findReplaceableRecord(allRestrictions(), input.idntPrevious);
   previous.isActive = false;
+
+  // D-1: גרסה חדשה = אב חדש ב-AVIV_RESTRICTION_NUMBER, וההיתרים הפעילים שעל האב הקודם מוצבעים מחדש אליו
   const record = buildPhoneRestrictionRecord(input, {
-    id: nextPhoneRecordId("restriction"),
-    restrictionNumberId: previous.restrictionNumberId,
-    traineeId: previous.traineeId,
-    phoneNumber: previous.phoneNumber,
-    phoneNumberId: previous.phoneNumberId,
+    id: nextPhoneRecordId(false),
+    idntAvivRestrictionNumber: nextRestrictionNumberId(),
+    idntTrainee: previous.idntTrainee,
+    idntAvivListPhoneNumber: previous.idntAvivListPhoneNumber,
+    textPhoneNumber: previous.textPhoneNumber,
+    fileId: allocateFileId(),
   });
   TRAINEE_PHONE_RECORDS_MOCK_DATA.push(record);
-  return toMutationResult([record]);
+  repointActivePermits(previous.idntAvivRestrictionNumber, record);
+  return toMutationResult([record.id]);
 }
 
-function validatePhoneNumbers(phoneNumbers: PhoneString[]): Record<string, string> {
-  if (phoneNumbers.length === 0) {
-    return { phoneNumbers: PHONE_VALIDATION_MESSAGES.required };
-  }
-  if (!phoneNumbers.every(isValidPhone)) {
-    return { phoneNumbers: PHONE_VALIDATION_MESSAGES.invalid };
-  }
-  return {};
-}
-
-function findReplaceableRestriction(recordId: number): TraineePhoneRestrictionRecordDto {
-  const previous = TRAINEE_PHONE_RECORDS_MOCK_DATA.find(
-    (record): record is TraineePhoneRestrictionRecordDto => record.type === "restriction" && record.id === recordId,
-  );
-  if (!previous) {
-    throwNotFound(`No trainee phone restriction ${recordId}`);
-  }
-  if (!previous.isActive) {
-    throwConflict(`Trainee phone restriction ${recordId} was already replaced`);
-  }
-  throwIfEnded(previous, `Trainee phone restriction ${recordId}`);
-  return previous;
+/** D-1: ההיתרים הפעילים של ההגבלה עוברים לגרסת האב החדשה, ו"חל על הגבלה" שלהם מתעדכן */
+function repointActivePermits(previousRestrictionNumberId: number, newRestriction: StoredRestriction): void {
+  const newSummary = summarizeTraineeRestriction(newRestriction);
+  activePermits()
+    .filter((permit) => permit.idntAvivRestrictionNumber === previousRestrictionNumberId)
+    .forEach((permit) => {
+      permit.idntAvivRestrictionNumber = newRestriction.idntAvivRestrictionNumber;
+      permit.sourceRestriction = newSummary;
+    });
 }
 
 // ── שמירת היתר (ספק 04 overview §2.3) ──
 
 export function handleCreateTraineePhonePermit(request: MockRequest): CreateTraineePhonePermitResponse {
   const input = request.body as CreateTraineePhonePermitRequest;
-  const today = todayIsoDate();
+  throwIfInvalid(
+    requireIdList(input.idntTraineeList, SERVER_FIELDS.idntTraineeList) ??
+      requirePositiveWhenPresent(input.idntInstitution, SERVER_FIELDS.idntInstitution) ??
+      requirePositive(input.idntAvivRestrictionNumber, SERVER_FIELDS.idntAvivRestrictionNumber) ??
+      checkPermitFields(input),
+  );
 
-  const records = input.traineeIds.map((traineeId) => {
-    // ההגבלה שנבחרה הסתיימה או כבר לא חלה על החניך מאז החיפוש
-    const sourceRestriction = findSourceRestrictionForTrainee(input.sourceRestrictionId, traineeId);
-    if (!sourceRestriction || sourceRestriction.endDate < today) {
-      throwConflict(`Restriction ${input.sourceRestrictionId} is no longer active for trainee ${traineeId}`);
-    }
-    throwIfInvalid(
-      { ...validateConditionsAndDecision(input), ...validatePermitDates(input, sourceRestriction) },
-      INVALID_INPUT_MESSAGE,
-    );
-    return buildPermitRecord(input, { id: nextPhoneRecordId("permit"), traineeId, sourceRestriction });
+  // הבדיקות של הפרוצדורה: ההגבלה פעילה ולא הסתיימה, חלה על החניכים (409), והתאריכים בתוכה (400)
+  const sourceRestriction = findSourceRestriction(input.idntAvivRestrictionNumber);
+  if (!sourceRestriction || !appliesToTrainees(sourceRestriction, input.idntTraineeList, input.idntInstitution)) {
+    throwConflictError(SERVER_FIELDS.idntAvivRestrictionNumber);
+  }
+  throwIfInvalid(checkPermitDatesInsideRestriction(input, sourceRestriction));
+
+  const fileId = allocateFileId();
+  const records = input.idntTraineeList.map((idntTrainee) => {
+    const record = buildPermitRecord(input, { id: nextPhoneRecordId(true), idntTrainee, sourceRestriction, fileId });
+    TRAINEE_PHONE_RECORDS_MOCK_DATA.push(record);
+    return record;
   });
-
-  TRAINEE_PHONE_RECORDS_MOCK_DATA.push(...records);
-  return toMutationResult(records);
+  return toMutationResult(records.map((record) => record.id));
 }
 
 export function handleUpdateTraineePhonePermit(request: MockRequest): UpdateTraineePhonePermitResponse {
   const input = request.body as UpdateTraineePhonePermitRequest;
-  const previous = findReplaceablePermit(input.previousPermitId);
-  // ההיתר עצמו פעיל (נבדק למעלה); אם ההגבלה כבר לא קיימת - העותק שנשמר עם ההיתר
-  const sourceRestriction = findSourceRestriction(input.sourceRestrictionId) ?? previous.sourceRestriction;
-  throwIfInvalid(
-    { ...validateConditionsAndDecision(input), ...validatePermitDates(input, sourceRestriction) },
-    INVALID_INPUT_MESSAGE,
-  );
+  throwIfInvalid(requirePositive(input.idntPrevious, SERVER_FIELDS.idntPrevious) ?? checkPermitFields(input));
+
+  // תפיסת ההיתר הקודם (409 idntPrevious); ההגבלה והחניך נלקחים ממנו ולא מהבקשה (D-1)
+  const previous = findReplaceableRecord(allPermits(), input.idntPrevious);
+
+  // B-3: הגבלה שהסתיימה (או הוחלפה בלי הצבעה מחדש) - 409; התאריכים בתוך ההגבלה - 400
+  const sourceRestriction = findSourceRestriction(previous.idntAvivRestrictionNumber);
+  if (!sourceRestriction) {
+    throwConflictError(SERVER_FIELDS.idntAvivRestrictionNumber);
+  }
+  throwIfInvalid(checkPermitDatesInsideRestriction(input, sourceRestriction));
 
   previous.isActive = false;
   const record = buildPermitRecord(input, {
-    id: nextPhoneRecordId("permit"),
-    traineeId: previous.traineeId,
+    id: nextPhoneRecordId(true),
+    idntTrainee: previous.idntTrainee,
     sourceRestriction,
+    fileId: allocateFileId(),
   });
   TRAINEE_PHONE_RECORDS_MOCK_DATA.push(record);
-  return toMutationResult([record]);
+  return toMutationResult([record.id]);
 }
 
-/** תאריכי ההיתר בתוך תקופת ההגבלה (ספק 04 form §5) */
-function validatePermitDates(
-  input: { startDate: ISODateString; endDate: ISODateString },
+/**
+ * ההגבלה חלה על החניכים: כללית בלי צמצום; כללית מצומצמת - רק עם קישור לפנימייה שנשלחה (null מדלג, C-6);
+ * של חניך - רק אם כל החניכים הם החניך שלה (I-3)
+ */
+function appliesToTrainees(
   sourceRestriction: SourceRestrictionSummaryDto,
-): Record<string, string> {
-  const isInsideRestriction =
-    input.startDate >= sourceRestriction.startDate && input.endDate <= sourceRestriction.endDate;
-  if (isInsideRestriction) return {};
-  const range = formatDateRange(sourceRestriction.startDate, sourceRestriction.endDate);
-  return { startDate: PHONE_VALIDATION_MESSAGES.permitOutsideRestriction(range) };
+  idntTraineeList: number[],
+  idntInstitution: number | null,
+): boolean {
+  if (sourceRestriction.codeRestrictionScope === RESTRICTION_SCOPE_CODE.trainee) {
+    return idntTraineeList.every((idntTrainee) =>
+      currentTraineeRestrictions().some(
+        (restriction) =>
+          restriction.idntAvivRestrictionNumber === sourceRestriction.idntAvivRestrictionNumber &&
+          restriction.idntTrainee === idntTrainee,
+      ),
+    );
+  }
+  const isNarrowedToInstitutes = sourceRestriction.institutes.length > 0;
+  if (!isNarrowedToInstitutes || idntInstitution === null) return true;
+  return isLinkedToInstitute(sourceRestriction.institutes, idntInstitution);
 }
 
-function findReplaceablePermit(recordId: number): TraineePhonePermitRecordDto {
-  const previous = allPermits().find((permit) => permit.id === recordId);
-  if (!previous) {
-    throwNotFound(`No trainee phone permit ${recordId}`);
-  }
-  if (!previous.isActive) {
-    throwConflict(`Trainee phone permit ${recordId} was already replaced`);
-  }
-  throwIfEnded(previous, `Trainee phone permit ${recordId}`);
-  return previous;
+/** ספק 04 §2.3: תאריכי ההיתר בתוך תקופת ההגבלה; השרת מחזיר את השדה datePermitStart */
+function checkPermitDatesInsideRestriction(
+  input: { datePermitStart: ISODateString; datePermitEnd: ISODateString },
+  sourceRestriction: SourceRestrictionSummaryDto,
+): FailedField {
+  const isInsideRestriction =
+    input.datePermitStart >= sourceRestriction.dateStart && input.datePermitEnd <= sourceRestriction.dateEnd;
+  return isInsideRestriction ? null : SERVER_FIELDS.datePermitStart;
+}
+
+// ── אימות (PhoneExceptionsRequestValidator) ──
+
+function checkRestrictionFields(input: PhoneRestrictionSaveFields): FailedField {
+  return (
+    requireDateRange(
+      input.dateRestrictionStart,
+      input.dateRestrictionEnd,
+      SERVER_FIELDS.dateRestrictionStart,
+      SERVER_FIELDS.dateRestrictionEnd,
+    ) ??
+    checkConditions(input) ??
+    checkApproval(
+      input.textRestrictionReason,
+      SERVER_FIELDS.textRestrictionReason,
+      input.codeRestrictionReason,
+      SERVER_FIELDS.codeRestrictionReason,
+      input,
+    )
+  );
+}
+
+function checkPermitFields(input: PhonePermitSaveFields): FailedField {
+  return (
+    requireDateRange(
+      input.datePermitStart,
+      input.datePermitEnd,
+      SERVER_FIELDS.datePermitStart,
+      SERVER_FIELDS.datePermitEnd,
+    ) ??
+    checkConditions(input) ??
+    checkApproval(
+      input.textPermitReason,
+      SERVER_FIELDS.textPermitReason,
+      input.codePermitReason,
+      SERVER_FIELDS.codePermitReason,
+      input,
+    )
+  );
 }
 
 // ── הגבלות המקור ──
 
-/** ההגבלה (ארצית, פנימייתית או של חניך) לפי המזהה שלה בטבלת האב, כמו שהיא עכשיו */
-function findSourceRestriction(restrictionId: number): SourceRestrictionSummaryDto | null {
-  const globalRestriction = GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA.find(
-    (restriction) => restriction.isActive && restriction.id === restrictionId,
-  );
+/** ההגבלה (ארצית, פנימייתית או של חניך) לפי המזהה שלה בטבלת האב, כמו שהיא עכשיו - רק פעילה ושלא הסתיימה */
+function findSourceRestriction(idntAvivRestrictionNumber: number): SourceRestrictionSummaryDto | null {
+  const globalRestriction = currentGlobalRestrictions().find((restriction) => restriction.id === idntAvivRestrictionNumber);
   if (globalRestriction) {
     return summarizeGlobalRestriction(globalRestriction);
   }
-  const traineeRestriction = activeTraineeRestrictions().find(
-    (restriction) => restriction.restrictionNumberId === restrictionId,
+  const traineeRestriction = currentTraineeRestrictions().find(
+    (restriction) => restriction.idntAvivRestrictionNumber === idntAvivRestrictionNumber,
   );
   return traineeRestriction ? summarizeTraineeRestriction(traineeRestriction) : null;
 }
 
-/** ההגבלה, רק אם היא חלה על החניך: ארצית, של הפנימייה שלו, או שנוצרה לו */
-function findSourceRestrictionForTrainee(restrictionId: number, traineeId: number): SourceRestrictionSummaryDto | null {
-  const sourceRestriction = findSourceRestriction(restrictionId);
-  const trainee = TRAINEES_MOCK_DATA.find((candidate) => candidate.id === traineeId);
-  if (!sourceRestriction || !trainee) return null;
-
-  switch (sourceRestriction.scope) {
-    case "national":
-      return sourceRestriction;
-    case "institute":
-      return sourceRestriction.institutes.some((institute) => institute.id === trainee.instituteId)
-        ? sourceRestriction
-        : null;
-    case "trainee": {
-      const isOwnRestriction = activeTraineeRestrictions().some(
-        (restriction) => restriction.restrictionNumberId === restrictionId && restriction.traineeId === traineeId,
-      );
-      return isOwnRestriction ? sourceRestriction : null;
-    }
-  }
+/** ההגבלות הכלליות הפעילות שלא הסתיימו */
+function currentGlobalRestrictions() {
+  return activeRecords(GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA).filter((restriction) => !hasEnded(restriction.dateEnd));
 }
 
-function activeTraineeRestrictions(): TraineePhoneRestrictionRecordDto[] {
-  return TRAINEE_PHONE_RECORDS_MOCK_DATA.filter(
-    (record): record is TraineePhoneRestrictionRecordDto => record.type === "restriction" && record.isActive,
-  );
+/** הגבלות החניכים הפעילות שלא הסתיימו */
+function currentTraineeRestrictions(): StoredRestriction[] {
+  return activeRecords(allRestrictions()).filter((restriction) => !hasEnded(restriction.dateEnd));
 }
 
-function allPermits(): TraineePhonePermitRecordDto[] {
-  return TRAINEE_PHONE_RECORDS_MOCK_DATA.filter(
-    (record): record is TraineePhonePermitRecordDto => record.type === "permit",
-  );
+function allRestrictions(): StoredRestriction[] {
+  return TRAINEE_PHONE_RECORDS_MOCK_DATA.filter((record): record is StoredRestriction => !record.isPermit);
 }
 
-function activePermits(): TraineePhonePermitRecordDto[] {
-  return allPermits().filter((permit) => permit.isActive);
+function allPermits(): StoredPermit[] {
+  return TRAINEE_PHONE_RECORDS_MOCK_DATA.filter((record): record is StoredPermit => record.isPermit);
+}
+
+function activePermits(): StoredPermit[] {
+  return activeRecords(allPermits());
 }
 
 // ── בניית הרשומות ──
 
-// מזהי מספרי טלפון חדשים (AVIV_PHONE_NUMBERS), אחרי אלה שבמוק
+// מזהי מספרי טלפון חדשים (AVIV_LIST_PHONE_NUMBER), אחרי אלה שבמוק
 const NEW_PHONE_NUMBER_ID_BASE = 7500;
-const INLINE_PERMIT_ID_OFFSET = 500;
 
-/** לכל טבלה רצף מזהים משלה */
-function nextPhoneRecordId(type: TraineePhoneRecordDto["type"]): number {
-  return nextRecordId(TRAINEE_PHONE_RECORDS_MOCK_DATA.filter((record) => record.type === type));
+/** לכל טבלה רצף מזהים משלה: שורות החניך של ההגבלות, וההיתרים */
+function nextPhoneRecordId(isPermit: boolean): number {
+  return nextRecordId(TRAINEE_PHONE_RECORDS_MOCK_DATA.filter((record) => record.isPermit === isPermit));
 }
 
-/** הגבלות הארציות והפנימייתיות וההגבלות של החניכים נמצאות באותה טבלת אב (AVIV_RESTRICTION_NUMBER) */
+/** ההגבלות הארציות והפנימייתיות והגבלות החניכים נמצאות באותה טבלת אב (AVIV_RESTRICTION_NUMBER) */
 function nextRestrictionNumberId(): number {
   const usedIds = [
     ...GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA.map((restriction) => restriction.id),
-    ...TRAINEE_PHONE_RECORDS_MOCK_DATA.filter(
-      (record): record is TraineePhoneRestrictionRecordDto => record.type === "restriction",
-    ).map((restriction) => restriction.restrictionNumberId),
+    ...allRestrictions().map((restriction) => restriction.idntAvivRestrictionNumber),
   ];
   return Math.max(0, ...usedIds) + 1;
 }
 
-/** מספר שכבר קיים במערכת שומר על המזהה שלו; מספר חדש מקבל מזהה חדש */
-function phoneNumberIdOf(phoneNumber: PhoneString): number {
+/** מספר שכבר קיים במילון המספרים שומר על המזהה שלו; מספר חדש מקבל מזהה חדש (get-or-create בפרוצדורה) */
+function phoneNumberIdOf(textPhoneNumber: PhoneString): number {
   const knownNumbers = [...GLOBAL_PHONE_RESTRICTIONS_MOCK_DATA, ...TRAINEE_PHONE_RECORDS_MOCK_DATA];
-  const knownNumber = knownNumbers.find((record) => record.phoneNumber === phoneNumber);
-  if (knownNumber) return knownNumber.phoneNumberId;
-  return Math.max(NEW_PHONE_NUMBER_ID_BASE, ...knownNumbers.map((record) => record.phoneNumberId)) + 1;
+  const knownNumber = knownNumbers.find((record) => record.textPhoneNumber === textPhoneNumber);
+  if (knownNumber) return knownNumber.idntAvivListPhoneNumber;
+  return Math.max(NEW_PHONE_NUMBER_ID_BASE, ...knownNumbers.map((record) => record.idntAvivListPhoneNumber)) + 1;
 }
 
 interface PhoneRestrictionIdentity {
   id: number;
-  restrictionNumberId: number;
-  traineeId: number;
-  phoneNumber: PhoneString;
-  /** בעריכה - המזהה של המספר הנעול */
-  phoneNumberId?: number;
+  idntAvivRestrictionNumber: number;
+  idntTrainee: number;
+  idntAvivListPhoneNumber: number;
+  textPhoneNumber: PhoneString;
+  fileId: number;
 }
 
-function hasInlinePermit(input: ConditionsAndDecisionInput): boolean {
-  return (
-    input.durationMinutes !== null || input.startTime !== null || input.endTime !== null || input.deviceIds.length > 0
-  );
-}
-
-function buildPhoneRestrictionRecord(
-  input: ConditionsAndDecisionInput,
-  identity: PhoneRestrictionIdentity,
-): TraineePhoneRestrictionRecordDto {
+// codeRestrictionReason מתקבל ולא נשמר, כמו בפרוצדורה (I-23)
+function buildPhoneRestrictionRecord(input: PhoneRestrictionSaveFields, identity: PhoneRestrictionIdentity): StoredRestriction {
   return {
-    type: "restriction",
+    isPermit: false,
     id: identity.id,
-    restrictionNumberId: identity.restrictionNumberId,
-    // משך, שעות או מכשירים נשמרים כשורת היתר צמודה להגבלה
-    inlinePermitId: hasInlinePermit(input) ? identity.restrictionNumberId + INLINE_PERMIT_ID_OFFSET : null,
-    traineeId: identity.traineeId,
-    phoneNumberId: identity.phoneNumberId ?? phoneNumberIdOf(identity.phoneNumber),
-    phoneNumber: identity.phoneNumber,
-    ...buildDatesAndConditions(input),
-    ...decisionFromInput(input),
-    ...buildAuditMetadata(input.startDate, input.endDate, 0, MOCK_CURRENT_USER_ID),
+    idntAvivRestrictionNumber: identity.idntAvivRestrictionNumber,
+    idntTrainee: identity.idntTrainee,
+    idntAvivListPhoneNumber: identity.idntAvivListPhoneNumber,
+    textPhoneNumber: identity.textPhoneNumber,
+    dateStart: input.dateRestrictionStart,
+    dateEnd: input.dateRestrictionEnd,
+    sourceRestriction: null,
+    ...conditionsFromInput(input),
+    ...decisionFromInput(input.textRestrictionReason, input, identity.fileId),
+    ...buildAuditMetadata(input.dateRestrictionEnd, 0, MOCK_CURRENT_USER_ID),
+    isActive: true,
   };
 }
 
 interface PermitIdentity {
   id: number;
-  traineeId: number;
+  idntTrainee: number;
   sourceRestriction: SourceRestrictionSummaryDto;
+  fileId: number;
 }
 
-function buildPermitRecord(input: ConditionsAndDecisionInput, identity: PermitIdentity): TraineePhonePermitRecordDto {
+// codePermitReason מתקבל ולא נשמר, כמו בפרוצדורה (I-23)
+function buildPermitRecord(input: PhonePermitSaveFields, identity: PermitIdentity): StoredPermit {
   const { sourceRestriction } = identity;
   return {
-    type: "permit",
+    isPermit: true,
     id: identity.id,
-    traineeId: identity.traineeId,
+    idntAvivRestrictionNumber: sourceRestriction.idntAvivRestrictionNumber,
+    idntTrainee: identity.idntTrainee,
     // המספר נגזר מההגבלה שעליה חל ההיתר (ספק 04 form §6.1)
-    phoneNumberId: sourceRestriction.phoneNumberId,
-    phoneNumber: sourceRestriction.phoneNumber,
+    idntAvivListPhoneNumber: sourceRestriction.idntAvivListPhoneNumber,
+    textPhoneNumber: sourceRestriction.textPhoneNumber,
+    dateStart: input.datePermitStart,
+    dateEnd: input.datePermitEnd,
     sourceRestriction: { ...sourceRestriction, existingTraineePermits: [] },
-    ...buildDatesAndConditions(input),
-    ...decisionFromInput(input),
-    ...buildAuditMetadata(input.startDate, input.endDate, 0, MOCK_CURRENT_USER_ID),
+    ...conditionsFromInput(input),
+    ...decisionFromInput(input.textPermitReason, input, identity.fileId),
+    ...buildAuditMetadata(input.datePermitEnd, 0, MOCK_CURRENT_USER_ID),
+    isActive: true,
   };
 }
 
-type DatesAndConditions = PermittedCallConditionsDto & { startDate: ISODateString; endDate: ISODateString };
-
-function buildDatesAndConditions(input: ConditionsAndDecisionInput): DatesAndConditions {
+function conditionsFromInput(input: PhoneRestrictionSaveFields | PhonePermitSaveFields) {
   return {
-    startDate: input.startDate,
-    endDate: input.endDate,
-    durationMinutes: input.durationMinutes,
-    startTime: input.startTime,
-    endTime: input.endTime,
-    devices: devicesFromIds(input.deviceIds),
+    numbDurationLimit: input.numbDurationLimit,
+    timePermitStart: input.timePermitStart,
+    timePermitEnd: input.timePermitEnd,
+    devices: devicesFromIds(input.idntDeviceList),
   };
 }

@@ -14,21 +14,29 @@ export interface DetailItem {
   isFullWidth?: boolean;
 }
 
-type DecisionDisplayFields = Pick<DecisionApprovalDto, "reason" | "details" | "approver">;
+type DecisionDisplayFields = Pick<DecisionApprovalDto, "textReason" | "approver">;
 
-/** "למה ומי" – אחרונים בכרטיס הפתוח (ספק 00 §3.22): סיבה, גורם מאשר, ופירוט לכל הרוחב כשיש */
+/**
+ * "למה ומי" – אחרונים בכרטיס הפתוח (ספק 00 §3.22): גורם מאשר, ופירוט לכל הרוחב כשיש.
+ * הסיבה מהרשימה הסגורה אינה מוחזרת מהשרת (I-23), ולכן אין לה שורה כאן; פעולה שהרשומה שלה עדיין נושאת סיבה
+ * מוסיפה אותה בעצמה (buildReasonDetailItem)
+ */
 export function buildDecisionDetailItems(record: DecisionDisplayFields): DetailItem[] {
   const items: DetailItem[] = [
-    { key: "reason", label: TEXTS.reason, value: record.reason || TEXTS.notSpecified },
     { key: "approver", label: TEXTS.approver, value: record.approver.fullName || TEXTS.notSpecified },
   ];
-  if (record.details) {
-    items.push({ key: "details", label: TEXTS.details, value: record.details, isFullWidth: true });
+  if (record.textReason) {
+    items.push({ key: "details", label: TEXTS.details, value: record.textReason, isFullWidth: true });
   }
   return items;
 }
 
+/** שורת "סיבה" לרשומה שנושאת סיבה מהרשימה הסגורה; ריקה - "לא צוין" */
+export function buildReasonDetailItem(reason: string): DetailItem {
+  return { key: "reason", label: TEXTS.reason, value: reason || TEXTS.notSpecified };
+}
+
 /** הערכים של "סיבות ואישורים" שהחיפוש בהיסטוריה בודק */
 export function decisionSearchParts(record: DecisionDisplayFields): string[] {
-  return [record.reason, record.details, record.approver.fullName];
+  return [record.textReason, record.approver.fullName];
 }

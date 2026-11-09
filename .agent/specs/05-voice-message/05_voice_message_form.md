@@ -128,7 +128,9 @@ Only one message per slot (first failing rule, in table order).
 | Chips (+ valid pending input) | `phoneNumbers: PhoneString[]` (`[]` with `"בכל השיחות"`); the server creates one record per number | `phoneNumber: PhoneString \| null` – locked, as in the record |
 | `"הודעה חוזרת"` | `repeatDuringCall: boolean` | `repeatDuringCall` |
 | Dates | `startDate`, `endDate` | `startDate`, `endDate` |
-| Reasons & decision | `reason`, `reasonCode?`, `details`, `approverId`, `approvedFileId` | same |
+| Reasons & decision | `reason`, `reasonCode?`, `details` (as drafted for 05), and the approval shared with 03/04 (2026-11-09): `idntUserApproval`, `textFile` (the SharePoint path) + `textFileName` | same |
+
+The record (`TraineeVoiceMessageRecordDto`) follows the shared conventions of 03/04 for its common parts (2026-11-09): `dateStart` / `dateEnd`, `isEnded`, `textReason` (details), `approver`, `approvedFile { id, fileName, textFile }`, `dateCreated` / `dateUpdated` / `idntUserUpdate`; `reason` stays a 05 field. The request field names of 05 itself are still the client's draft until its service exists ([pending-decisions](../../pending-decisions.md)).
 
 ### 6.3 Server errors → form slots
 
@@ -138,8 +140,8 @@ Only one message per slot (first failing rule, in table order).
 | `startDate`, `endDate` | Dates |
 | `reason`, `reasonCode` | Reason |
 | `details` | Details |
-| `approverId` | Approver |
-| `approvedFileId` | File |
+| `idntUserApproval` | Approver |
+| `textFile` | File |
 | A key whose slot is not shown (the locked number in edit; the numbers with `"בכל השיחות"`) | The general save error `"השמירה נכשלה. ניתן לנסות שוב"`, together with the errors of the shown slots |
 
 ---

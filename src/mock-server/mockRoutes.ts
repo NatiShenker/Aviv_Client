@@ -1,7 +1,7 @@
 import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
 import type { HttpMethod } from "@/infrastructure/http/httpClient";
 import { APPROVER_STAND_IN_ENDPOINTS } from "@/integrations/approver-mfe/approversStandInService";
-import type { ApproverRef, FileAttachmentRef, LookupItem, MutationResultDto } from "@/types/common.schema";
+import type { ApproverRef, LookupItem, MutationResultDto } from "@/types/common.schema";
 import type {
   GetInstituteDevicesResponse,
   GetInstitutesAndWingsResponse,
@@ -16,7 +16,6 @@ import type { GetTraineeRestrictionsResponse } from "@/types/trainee-restriction
 import type { GetTraineesResponse } from "@/types/trainees.schema";
 import type { GetTraineeVoiceMessagesResponse } from "@/types/voice-messages.schema";
 import { handleSearchApprovers } from "./handlers/approverStandInHandlers";
-import { handleRegisterApprovedFile } from "./handlers/filesHandlers";
 import {
   handleGetInstitutesAndWings,
   handleGetPermissionsForInstitute,
@@ -192,13 +191,6 @@ const MOCK_ROUTES: MockRoute[] = [
     handle: handleGetVoiceMessageReasons,
     createEmptyResponse: (): LookupItem<number>[] => [],
   },
-  {
-    method: "POST",
-    url: SERVICE_ENDPOINTS.files.registerApprovedFile,
-    scenarioKey: "approvedFiles",
-    handle: handleRegisterApprovedFile,
-    createEmptyResponse: (): FileAttachmentRef => ({ id: 0, fileName: "" }),
-  },
   // סימולציה של ה-MFE של הגורם המאשר - יימחק כשה-MFE ישולב
   {
     method: "GET",
@@ -210,7 +202,7 @@ const MOCK_ROUTES: MockRoute[] = [
 ];
 
 function createEmptyMutationResult(): MutationResultDto {
-  return { createdIds: [], requestUid: "", syncStatus: "pending", records: [] };
+  return { createdIds: [] };
 }
 
 // משאבים שהדפדפן טוען ישירות מהכתובת (למשל ב-src של תמונה)

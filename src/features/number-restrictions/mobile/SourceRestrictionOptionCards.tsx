@@ -21,10 +21,10 @@ export default function SourceRestrictionOptionCards({
     <>
       <ul aria-labelledby={RESTRICTION_PICKER_HEADING_ID} aria-describedby={hintId} className="mt-2 flex flex-col gap-2">
         {visibleItems.map((restriction) => (
-          <li key={restriction.restrictionId}>
+          <li key={restriction.idntAvivRestrictionNumber}>
             <SourceRestrictionOptionCard
               restriction={restriction}
-              isSelected={restriction.restrictionId === selectedRestrictionId}
+              isSelected={restriction.idntAvivRestrictionNumber === selectedRestrictionId}
               isChoosing={isChoosing}
               onChoose={() => onChoose(restriction)}
             />

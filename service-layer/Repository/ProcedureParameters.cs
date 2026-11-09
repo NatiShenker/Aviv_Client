@@ -42,11 +42,21 @@ public static class ProcedureParameters
     }
 
     /// <summary>
-    /// הפירוט (varchar, P-9; שם הפרמטר ואורך העמודה הם של כל פיצ'ר, I-14), המאשר וקובץ האישור (D-13).
+    /// הפירוט (varchar, P-9; שם הפרמטר ואורך העמודה הם של כל פיצ'ר, I-14), קוד הסיבה (I-23: שם הפרמטר לפי הפעולה –
+    /// @CODE_RESTRICTION_REASON / @CODE_PERMIT_REASON; הפרוצדורה מקבלת ולא כותבת עד שתהיה עמודה), המאשר וקובץ האישור (D-13).
     /// </summary>
-    public static void AddApproval(DynamicParameters parameters, string detailsParameterName, string details, int detailsMaxLength, int approverId, string textFile)
+    public static void AddApproval(
+        DynamicParameters parameters,
+        string detailsParameterName,
+        string details,
+        int detailsMaxLength,
+        string codeReasonParameterName,
+        int codeReason,
+        int approverId,
+        string textFile)
     {
         parameters.Add(detailsParameterName, details, DbType.AnsiString, size: detailsMaxLength);
+        parameters.Add(codeReasonParameterName, codeReason, DbType.Int32);
         parameters.Add("@IDNT_USER_APPROVAL", approverId, DbType.Int32);
         parameters.Add("@TEXT_FILE", textFile, DbType.String, size: FilePaths.TextFileMaxLength);
     }

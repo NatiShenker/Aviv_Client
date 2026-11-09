@@ -1,6 +1,6 @@
 import { formatDevicesSelection } from "@/features/records/form/call-conditions/callConditionsLogic";
 import { CALL_CONDITIONS_TEXTS } from "@/features/records/form/call-conditions/callConditionsTexts";
-import type { ExistingPermitBriefDto, SourceRestrictionSummaryDto } from "@/types/phone-exceptions.schema";
+import type { ExistingPermitDto, SourceRestrictionSummaryDto } from "@/types/phone-exceptions.schema";
 import { formatDateRange, formatTimeRange } from "@/utils/dates";
 import { isolateLtr } from "@/utils/text";
 import { buildScopeLabel } from "../../numberRestrictionsLogic";
@@ -70,7 +70,7 @@ export function buildLookupAnnouncement(lookup: PermitLookup): string {
 
 /** שם הכפתור "בחירה" לקורא מסך: איזו הגבלה בוחרים */
 export function buildChooseSourceRestrictionLabel(restriction: SourceRestrictionSummaryDto): string {
-  const range = formatDateRange(restriction.startDate, restriction.endDate);
+  const range = formatDateRange(restriction.dateStart, restriction.dateEnd);
   return TEXTS.chooseLabel(buildScopeLabel(restriction), isolateLtr(range));
 }
 
@@ -80,22 +80,22 @@ export function buildChooseSourceRestrictionLabel(restriction: SourceRestriction
  * לכל היתר: שעות או "כל היום"; אחר כך מכשירים (אחד - השם, כמה - "{n} מכשירים") אם יש;
  * אחר כך "עד X דק׳" אם יש. כמה היתרים מופרדים ב-"; ".
  */
-export function formatExistingPermitsSummary(permits: ExistingPermitBriefDto[]): string {
+export function formatExistingPermitsSummary(permits: ExistingPermitDto[]): string {
   return permits.map(formatExistingPermit).join(TEXTS.existingPermitsSeparator);
 }
 
-function formatExistingPermit(permit: ExistingPermitBriefDto): string {
+function formatExistingPermit(permit: ExistingPermitDto): string {
   const hours =
-    permit.startTime && permit.endTime
-      ? isolateLtr(formatTimeRange(permit.startTime, permit.endTime))
+    permit.timePermitStart && permit.timePermitEnd
+      ? isolateLtr(formatTimeRange(permit.timePermitStart, permit.timePermitEnd))
       : CALL_CONDITIONS_TEXTS.values.allDay;
   const parts = [hours];
 
   if (permit.devices.length > 0) {
     parts.push(formatDevicesSelection(permit.devices.map((device) => device.name)));
   }
-  if (permit.durationMinutes !== null) {
-    parts.push(CALL_CONDITIONS_TEXTS.values.durationUpTo(permit.durationMinutes));
+  if (permit.numbDurationLimit !== null) {
+    parts.push(CALL_CONDITIONS_TEXTS.values.durationUpTo(permit.numbDurationLimit));
   }
   return parts.join(PARTS_SEPARATOR);
 }

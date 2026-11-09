@@ -46,8 +46,8 @@ export type OpenConditions = Record<PermittedCondition, boolean>;
 /** תנאי השיחה בלי התאריכים: הסוג, המשך, השעות והמכשירים */
 export type CallTermsValues = Omit<CallConditionsValues, "startDate" | "endDate">;
 
-/** רשומה שמורה: תנאי השיחה והתאריכים */
-export type DatedCallConditions = PermittedCallConditionsDto & { startDate: ISODateString; endDate: ISODateString };
+/** רשומה שמורה: תנאי השיחה והתאריכים, בשמות השרת */
+export type DatedCallConditions = PermittedCallConditionsDto & { dateStart: ISODateString; dateEnd: ISODateString };
 
 /** סוג מלא, בלי משך, שעות ומכשירים */
 export const EMPTY_CALL_TERMS: CallTermsValues = {
@@ -65,16 +65,16 @@ export function createNewConditionsValues(today: ISODateString): CallConditionsV
 
 export function callTermsFromRecord(record: PermittedCallConditionsDto): CallTermsValues {
   return {
-    limitKind: record.durationMinutes === null ? "full" : "limited",
-    durationText: record.durationMinutes === null ? "" : String(record.durationMinutes),
-    startTime: record.startTime ?? "",
-    endTime: record.endTime ?? "",
+    limitKind: record.numbDurationLimit === null ? "full" : "limited",
+    durationText: record.numbDurationLimit === null ? "" : String(record.numbDurationLimit),
+    startTime: record.timePermitStart ?? "",
+    endTime: record.timePermitEnd ?? "",
     deviceIds: record.devices.map((device) => device.id),
   };
 }
 
 export function conditionsValuesFromRecord(record: DatedCallConditions): CallConditionsValues {
-  return { startDate: record.startDate, endDate: record.endDate, ...callTermsFromRecord(record) };
+  return { startDate: record.dateStart, endDate: record.dateEnd, ...callTermsFromRecord(record) };
 }
 
 export const CLOSED_CONDITIONS: OpenConditions = { hours: false, devices: false };
@@ -120,10 +120,10 @@ export function validateHours({ startTime, endTime }: HoursValues): string | und
 export function toConditionsInput(values: CallConditionsValues): PermittedCallConditionsInput {
   return {
     // הסוג המלא נשמר תמיד בלי משך, גם אם הוקלד ערך
-    durationMinutes: values.limitKind === "limited" ? Number(values.durationText) : null,
-    startTime: values.startTime || null,
-    endTime: values.endTime || null,
-    deviceIds: values.deviceIds,
+    numbDurationLimit: values.limitKind === "limited" ? Number(values.durationText) : null,
+    timePermitStart: values.startTime || null,
+    timePermitEnd: values.endTime || null,
+    idntDeviceList: values.deviceIds,
   };
 }
 
@@ -205,20 +205,20 @@ export function formatDevicesSelection(selectedDeviceNames: string[]): string {
 // ── ערכי התצוגה של רשומה שמורה (ספק 03 overview §3, ספק 04 overview §3) ──
 
 export function hasPermittedHours(record: PermittedCallConditionsDto): boolean {
-  return record.startTime !== null && record.endTime !== null;
+  return record.timePermitStart !== null && record.timePermitEnd !== null;
 }
 
 function recordPermitsState(record: PermittedCallConditionsDto): PermittedConditionsState {
   return {
-    isDurationLimited: record.durationMinutes !== null,
+    isDurationLimited: record.numbDurationLimit !== null,
     hasPermittedHours: hasPermittedHours(record),
     permittedDeviceCount: record.devices.length,
   };
 }
 
 export function buildPermittedHoursValue(record: PermittedCallConditionsDto, ruleKind: CallRuleKind): string {
-  if (record.startTime !== null && record.endTime !== null) {
-    return formatTimeRange(record.startTime, record.endTime);
+  if (record.timePermitStart !== null && record.timePermitEnd !== null) {
+    return formatTimeRange(record.timePermitStart, record.timePermitEnd);
   }
   return isOpenByDefault(ruleKind, recordPermitsState(record)) ? TEXTS.values.allDay : TEXTS.values.notSet;
 }

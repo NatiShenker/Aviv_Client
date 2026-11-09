@@ -15,7 +15,7 @@ export default function RecordPeriodSummary({ record, activeLabel, endedLabel }:
   return (
     <>
       <span dir="ltr" className="whitespace-nowrap">
-        {formatDateRange(record.startDate, record.endDate)}
+        {formatDateRange(record.dateStart, record.dateEnd)}
       </span>
       <RecordStatusBadge isActive={isRecordActive(record)} activeLabel={activeLabel} endedLabel={endedLabel} />
     </>

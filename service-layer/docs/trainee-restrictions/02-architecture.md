@@ -2,6 +2,8 @@
 
 Status: approved by the product owner on 2026-11-09 after one review round (two parts: procedures and shared code, then the folder layout). Phase 1 is in [01-business-analysis.md](01-business-analysis.md); every decision referenced here is in [decisions.md](decisions.md) (T-n, TQ-n, TC-n) or in feature 04's log ([../number-restrictions/decisions.md](../number-restrictions/decisions.md), D-n, B-n, A-n, P-n, G-n, I-n, C-n, Q-n).
 
+Amended on 2026-11-09 by the client alignment (04's decisions I-22, I-23; 03's T-4, T-5, TI-8): set 1 of the history procedure joins the approver name from `ODSINTERNALDATA..A_WORKERS` (`ApproverName` on `TraineeRestrictionRow`), and the two save requests carry `CodeRestrictionReason` (validated > 0), which reaches the procedures as `@CODE_RESTRICTION_REASON` and is not written until the DBA adds the column. The affected rows below carry an "amended 2026-11-09" note.
+
 Scope: the server side of feature 03 ("הגבלות לחניך") – three HTTP actions, three stored procedures, the service layers, the contracts and the error handling – plus the code that 03 and 04 share from now on (T-12) and the folder layout that holds both (T-13). Phase 3 (implementation) starts from this document, in batches, after an explicit go-ahead.
 
 Where this document says nothing, [../number-restrictions/02-architecture.md](../number-restrictions/02-architecture.md) applies as written: the principles (§1), the procedure conventions (§4), the error contract (§5.2, §5.3) and the validation rules (§6) are the same, and are only summarized here.
@@ -100,7 +102,7 @@ The stored procedures live in `stored-procedures/trainee-restrictions/`, one fil
 | `POST CreateTraineeRestriction` | `SP_AVIV_CREATE_TRAINEE_RESTRICTION` | `@IDNT_TRAINEE_LIST INT_TABLE`, `@DATE_RESTRICTION_START DATETIME`, `@DATE_RESTRICTION_END DATETIME`, `@NUMB_DURATION_LIMIT INT = NULL`, `@TIME_PERMIT_START DATETIME = NULL`, `@TIME_PERMIT_END DATETIME = NULL`, `@IDNT_DEVICE_LIST INT_TABLE`, `@TEXT_RESTRICTION_REASON VARCHAR(1000)`, `@IDNT_USER_APPROVAL INT`, `@TEXT_FILE NVARCHAR(500)`, `@IDNT_USER INT`, `@REQUEST_UID UNIQUEIDENTIFIER` | 1 created ids (`CreatedIdRow`), one per trainee (P-12) |
 | `PUT UpdateTraineeRestriction` | `SP_AVIV_UPDATE_TRAINEE_RESTRICTION` | `@IDNT_PREVIOUS INT` (the previous restriction row), then the same fields without the trainee list | 1 the new id |
 
-Shared parameter rules as in 04: id lists are `dbo.INT_TABLE`; every string has an explicit size (A-10); the acting user and the request GUID come from the service (D-14, D-19); dates and times arrive as `DATETIME` built by the repository from the request strings (A-8).
+Shared parameter rules as in 04: id lists are `dbo.INT_TABLE`; every string has an explicit size (A-10); the acting user and the request GUID come from the service (D-14, D-19); dates and times arrive as `DATETIME` built by the repository from the request strings (A-8). *(Amended 2026-11-09, I-23)* Both save procedures also take `@CODE_RESTRICTION_REASON INT = NULL` right after `@TEXT_RESTRICTION_REASON` – accepted and not written until the DBA adds the column `CODE_RESTRICTION_REASON`.
 
 ---
 
@@ -146,6 +148,7 @@ Runs before any database call; the first failing rule per field becomes `ApiExce
 | `TimePermitStart` / `TimePermitEnd` | both null or both present, `HH:mm`, end > start (`ValidateTimeWindow`; OQ-13 as in 04) |
 | `IdntDeviceList` | all > 0, duplicates removed, empty allowed (`DistinctPositiveIds`) |
 | `TextRestrictionReason` | not blank, ≤ `TraineeRestrictionsLimits.DetailsMaxLength` (`RequireText`) |
+| `CodeRestrictionReason` *(amended 2026-11-09, I-23)* | > 0 (`RequirePositive`); accepted, not stored |
 | `IdntUserApproval` | > 0 (`RequirePositive`) |
 | `TextFile` | not blank, ≤ `FilePaths.TextFileMaxLength` (`RequireText`) |
 
@@ -173,7 +176,7 @@ public record UpdateTraineeRestrictionRequestDto(
     string TextRestrictionReason, int IdntUserApproval, string TextFile, string? TextFileName);
 ```
 
-No trainee in the update request (T-9). `TextFileName` is display-only, as in 04.
+No trainee in the update request (T-9). `TextFileName` is display-only, as in 04. *(Amended 2026-11-09, I-23)* Both save records carry `int CodeRestrictionReason` after `TextRestrictionReason`.
 
 ### 7.2 Responses (`Models/TraineeRestrictions/TraineeRestrictionsResponses.cs`)
 
@@ -206,7 +209,7 @@ Saves return the shared `MutationResultDto { CreatedIds }`. Not returned: `restr
 
 | Class | Columns (aliases) | Produced by |
 |---|---|---|
-| `TraineeRestrictionRow` | `Id`, `IsEnded`, `ConditionsRowId?`, `TraineeId`, `DateStart`, `DateEnd`, `NumbDurationLimit?`, `TimePermitStart?`, `TimePermitEnd?`, `TextReason?`, `IdntUserApproval?`, `IdntApprovedFile?`, `TextFile?`, `DateCreated?`, `DateUpdated?`, `IdntUserUpdate?` | history set 1 |
+| `TraineeRestrictionRow` | `Id`, `IsEnded`, `ConditionsRowId?`, `TraineeId`, `DateStart`, `DateEnd`, `NumbDurationLimit?`, `TimePermitStart?`, `TimePermitEnd?`, `TextReason?`, `IdntUserApproval?`, `ApproverName?` *(2026-11-09, I-22)*, `IdntApprovedFile?`, `TextFile?`, `DateCreated?`, `DateUpdated?`, `IdntUserUpdate?` | history set 1 |
 | `DeviceRow` (shared) | `ConditionsRowId`, `DeviceId`, `DeviceName` | history set 2 |
 | `CreatedIdRow` (shared) | `CreatedId` | every save |
 | `TraineeRestrictionsRowSets(List<TraineeRestrictionRow> Restrictions, List<DeviceRow> Devices)` | the two result sets of one history call | repository |
@@ -219,7 +222,7 @@ Audit and approval columns are nullable in the row class (I-18); `ConditionsRowI
 
 1. Read the two sets with `QueryMultiple`: `TraineeRestrictionRow` list, then `DeviceRow` list.
 2. Build one lookup: devices by `ConditionsRowId`.
-3. Each row → `TraineeRestrictionRecordDto`: flags copied; devices from `ConditionsRowId` (none when it is null); strings for dates, times and timestamps through `DateTimeStrings`; `ApprovedFile` through `FilePaths.FileNameFromPath`; `TextReason ?? ""`, `IdntUserApproval ?? 0`, `IdntUserUpdate ?? 0`.
+3. Each row → `TraineeRestrictionRecordDto`: flags copied; devices from `ConditionsRowId` (none when it is null); strings for dates, times and timestamps through `DateTimeStrings`; `ApprovedFile` through `FilePaths.FileNameFromPath`; `Approver` from `IdntUserApproval ?? 0` and `ApproverName ?? ""` (I-22); `TextReason ?? ""`, `IdntUserUpdate ?? 0`.
 4. Return the list; sorting and search are the client's (B-5).
 
 ---

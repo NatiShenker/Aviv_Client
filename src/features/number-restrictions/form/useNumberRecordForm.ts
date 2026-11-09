@@ -2,26 +2,21 @@ import { useEffect, useState, type FormEvent } from "react";
 import type { PermittedCondition } from "@/features/records/form/call-conditions/callConditionsLogic";
 import {
   decisionErrorSlotsFor,
-  findReasonIdByName,
   toValidatedDecision,
   type DecisionValues,
 } from "@/features/records/form/decision/decisionLogic";
 import { findFirstErrorSlot, hasErrors, splitByHiddenSlots } from "@/features/records/form/formErrors";
-import { editedRecordOf, sourceRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
+import { editedRecordOf, type FormStartingPoint } from "@/features/records/form/formStartingPoint";
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
 import { useSaveSuccessToast } from "@/features/records/form/useSaveSuccessToast";
 import { toAppError } from "@/infrastructure/errors/appError";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useFocusAfterRender } from "@/shared/hooks/useFocusAfterRender";
 import type { CallLimitKind, LookupItem, PhoneString } from "@/types/common.schema";
-import type {
-  SourceRestrictionSummaryDto,
-  TraineePhoneRecordDto,
-  TraineePhoneRecordType,
-} from "@/types/phone-exceptions.schema";
+import type { SourceRestrictionSummaryDto, TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import { todayIsoDate } from "@/utils/dates";
 import { isValidPhone, normalizePhone } from "@/utils/phone";
-import { buildNumberRecordKey } from "../numberRestrictionsLogic";
+import { buildNumberRecordKey, type TraineePhoneRecordType } from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import {
   NUMBER_RECORD_ERROR_SLOTS,
@@ -89,7 +84,6 @@ export function useNumberRecordForm({
   onSaved,
 }: UseNumberRecordFormOptions) {
   const editedRecord = editedRecordOf(startingPoint);
-  const sourceRecord = sourceRecordOf(startingPoint);
   const [state, setState] = useState(() => createInitialNumberRecordState(startingPoint, todayIsoDate()));
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | undefined>(undefined);
@@ -113,16 +107,7 @@ export function useNumberRecordForm({
     onFailure: (phone) => update((current) => failPhoneSearch(current, phone)),
   });
 
-  // הרשומה שמורה עם שם הסיבה: כשרשימת הסיבות מגיעה, הסיבה נבחרת בה לפי השם
-  useEffect(() => {
-    const reasonList = reasons.data;
-    if (!sourceRecord || !reasonList) return;
-    setState((current) =>
-      current.values.reasonId !== null
-        ? current
-        : { ...current, values: { ...current.values, reasonId: findReasonIdByName(reasonList, sourceRecord.reason) } },
-    );
-  }, [sourceRecord, reasons.data]);
+  // השרת לא מחזיר את הסיבה (I-23), ולכן גם בעריכה וב"יצירת דומה" הבורר מתחיל ריק והמשתמש בוחר מחדש
 
   // היתר על בסיס היתר שהסתיים: המספר נבדק מיד כשהטופס נפתח.
   // בכל הרכבה מחדש החיפוש רץ שוב, כי ניקוי ההרכבה מבטל את החיפוש הקודם (usePermitLookup)
@@ -179,7 +164,7 @@ export function useNumberRecordForm({
   const saveRecord = async (submittedState: NumberRecordFormState) => {
     const decision = toValidatedDecision(submittedState.values, reasons.data ?? []);
     if (!decision) return null;
-    return saveNumberRecord({ state: submittedState, decision, traineeId, record: editedRecord });
+    return saveNumberRecord({ state: submittedState, decision, traineeId, instituteId, record: editedRecord });
   };
 
   const handleSaveError = (error: unknown, submittedState: NumberRecordFormState) => {

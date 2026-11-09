@@ -35,11 +35,11 @@ export function matchesTraineeRestrictionId(record: TraineeRestrictionRecordDto,
 // ── ערכי התצוגה של רשומה (ספק 03 overview §3) ──
 
 export function buildTraineeRestrictionDateRange(record: TraineeRestrictionRecordDto): string {
-  return formatDateRange(record.startDate, record.endDate);
+  return formatDateRange(record.dateStart, record.dateEnd);
 }
 
 export function buildTraineeRestrictionTypeLabel(record: TraineeRestrictionRecordDto): string {
-  return buildDurationTypeLabel(record.durationMinutes, RULE_KIND);
+  return buildDurationTypeLabel(record.numbDurationLimit, RULE_KIND);
 }
 
 const CARD_DOM_ID_PREFIX = "restriction-card-";
@@ -77,8 +77,8 @@ function buildTraineeRestrictionSearchParts(record: TraineeRestrictionRecordDto)
     buildPermittedDevicesValue(record, RULE_KIND),
     ...buildPermittedDeviceNames(record),
     buildTraineeRestrictionDateRange(record),
-    record.startDate,
-    record.endDate,
+    record.dateStart,
+    record.dateEnd,
   ];
 }
 

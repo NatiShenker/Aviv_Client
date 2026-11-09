@@ -11,9 +11,9 @@ import type {
 } from "@/types/trainee-restrictions.schema";
 import { clearCachedTrainees } from "./traineesService";
 
-/** כל ההגבלות של החניך, פעילות ושהסתיימו (ספק 03 history §6). בלי זכרון - תמיד מהשרת */
+/** כל ההגבלות של החניך, פעילות ושהסתיימו (ספק 03 history §6, B-5). בלי זכרון - תמיד מהשרת */
 export async function getTraineeRestrictions(traineeId: number): Promise<TraineeRestrictionRecordDto[]> {
-  const request: GetTraineeRestrictionsRequest = { traineeIds: [traineeId] };
+  const request: GetTraineeRestrictionsRequest = { idntTraineeList: [traineeId] };
   const response = await serviceClient.post<GetTraineeRestrictionsResponse>(
     SERVICE_ENDPOINTS.traineeRestrictions.getTraineeRestrictions,
     request,

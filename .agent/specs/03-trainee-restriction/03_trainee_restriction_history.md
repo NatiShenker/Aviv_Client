@@ -49,8 +49,10 @@ DetailGrid, two columns, in this order (right column first). The type and dates 
 | Row | Right | Left |
 |---|---|---|
 | 1 | `"שעות מותרות"` (Permitted hours) – hours value ([overview §3.2](03_trainee_restriction_overview.md)); LTR when hours are set | `"מכשירים מותרים"` (Permitted devices) – devices value |
-| 2 | `"סיבה"` (Reason) – label or `"לא צוין"` (Not specified) | `"גורם מאשר"` (Approver) – label or `"לא צוין"` |
+| 2 | `"גורם מאשר"` (Approver) – name or `"לא צוין"` | |
 | 3 | `"פירוט"` (Details) – full width, **only when not empty** | |
+
+There is no `"סיבה"` row: the server does not return the reason while it is not stored ([pending-decisions](../../pending-decisions.md), 2026-11-09). It comes back when the column exists.
 
 Below the grid: outline button `"עריכה"` (Edit) with edit icon – or, on an ended record, `"יצירת הגבלה דומה"` (decided 2026-10-21) with a copy icon (an ended record cannot be edited, [00 §3.22](../00_foundations.md)).
 
@@ -60,7 +62,7 @@ Note: like the form summary ([form.md §4.5](03_trainee_restriction_form.md#45-h
 
 ## 4. Behavior & states
 
-- **Search** matches the trimmed query (substring) against a text built from: reason, details, approver, type label, hours value, devices value and every device label (so a device is found even when the card shows only the count), date range (`DD/MM/YY-DD/MM/YY`), start date and end date (`YYYY-MM-DD`). Non-breaking spaces in the type label count as spaces, so `"עד 10 דק׳"` matches.
+- **Search** matches the trimmed query (substring) against a text built from: details, approver, type label, hours value, devices value and every device label (so a device is found even when the card shows only the count), date range (`DD/MM/YY-DD/MM/YY`), start date and end date (`YYYY-MM-DD`). Non-breaking spaces in the type label count as spaces, so `"עד 10 דק׳"` matches.
 - **Empty list** and **no search match** both show `"לא נמצאו הגבלות"`.
 - **Sort sheet rows** (field + direction, [00 §3.25](../00_foundations.md)): `"תאריך התחלה: מהחדש לישן"` (default), `"תאריך התחלה: מהישן לחדש"`, `"תאריך סיום: מהחדש לישן"`, `"תאריך סיום: מהישן לחדש"` **(proposed)**, `"סטטוס: פעילות תחילה"`, `"סטטוס: שהסתיימו תחילה"` (in the record's gender, decided 2026-10-21, [00 §4.1](../00_foundations.md)).
 - **Loading:** skeleton cards. **Failure:** `"לא ניתן לטעון את ההגבלות"` **(proposed)** + `"טעינה מחדש"` (decided 2026-10-21).
@@ -72,10 +74,10 @@ Note: like the form summary ([form.md §4.5](03_trainee_restriction_form.md#45-h
 
 | When | Call | Schema |
 |---|---|---|
-| Every time the screen opens (no client cache – the history is always fresh); returning from the form | `POST TraineeRestrictions/GetTraineeRestrictions` *(name is a placeholder – see pending-decisions)* | Request: `GetTraineeRestrictionsRequest` (`traineeIds: [traineeId]`)<br>Response: `GetTraineeRestrictionsResponse` (`records: TraineeRestrictionRecordDto[]`) |
+| Every time the screen opens (no client cache – the history is always fresh); returning from the form | `POST TraineeRestrictions/GetTraineeRestrictions` (`TraineeRestrictionsController`, 2026-11-09) | Request: `GetTraineeRestrictionsRequest` (`idntTraineeList: [traineeId]`)<br>Response: `GetTraineeRestrictionsResponse` (`records: TraineeRestrictionRecordDto[]`) – the active versions only, active and ended, no paging |
 
 - Search and sort run on the client over the loaded `records` list.
-- Display values come from `TraineeRestrictionRecordDto`: `reason`, `details`, `approver.fullName`, `devices[].name`, `startTime`/`endTime`, `durationMinutes`, `temporalStatus`.
+- Display values come from `TraineeRestrictionRecordDto`: `textReason` (details), `approver.fullName`, `devices[].name`, `timePermitStart` / `timePermitEnd`, `numbDurationLimit`, `dateStart` / `dateEnd`, and the status from `isEnded` (computed by the server, day level).
 
 ---
 

@@ -39,7 +39,7 @@ export default function SourceRestrictionRadioCards({
   }, [isChoosing, selectedRestrictionId]);
 
   const chooseRestriction = (restrictionId: number | null, shouldFocusPicker: boolean) => {
-    const restriction = restrictions.find((item) => item.restrictionId === restrictionId);
+    const restriction = restrictions.find((item) => item.idntAvivRestrictionNumber === restrictionId);
     if (restriction && restrictionId !== selectedRestrictionId) {
       onChoose(restriction, { shouldFocusPicker });
     }
@@ -113,7 +113,7 @@ export default function SourceRestrictionRadioCards({
 // כרטיס: ההיקף ככותרת, ומתחתיו התאריכים והסיבה, וההיתרים הקיימים לחניך כשיש (ספק 04 form §3.2.1)
 function toRestrictionCardOption(restriction: SourceRestrictionSummaryDto): IpsRadioGroupOption {
   return {
-    value: restriction.restrictionId,
+    value: restriction.idntAvivRestrictionNumber,
     label: buildScopeLabel(restriction),
     description: <RestrictionCardDetails restriction={restriction} />,
   };
@@ -125,7 +125,7 @@ function RestrictionCardDetails({ restriction }: { restriction: SourceRestrictio
   return (
     <>
       <span className="block">
-        <span dir="ltr">{formatDateRange(restriction.startDate, restriction.endDate)}</span>
+        <span dir="ltr">{formatDateRange(restriction.dateStart, restriction.dateEnd)}</span>
         {NUMBER_RESTRICTIONS_TEXTS.values.partsSeparator}
         {buildRestrictionReasonText(restriction)}
       </span>

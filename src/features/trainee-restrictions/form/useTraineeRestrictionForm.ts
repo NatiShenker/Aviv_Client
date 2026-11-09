@@ -1,9 +1,8 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { openConditionsForRecord, type PermittedCondition } from "@/features/records/form/call-conditions/callConditionsLogic";
 import { touchedDatesFor } from "@/features/records/form/dateRangeLogic";
 import {
   decisionErrorSlotsFor,
-  findReasonIdByName,
   toValidatedDecision,
   type DecisionValues,
 } from "@/features/records/form/decision/decisionLogic";
@@ -56,18 +55,9 @@ export function useTraineeRestrictionForm({ traineeId, startingPoint, reasons, o
   const focusAfterRender = useFocusAfterRender();
   const showSavedToast = useSaveSuccessToast();
 
-  // הרשומה שמורה עם שם הסיבה: כשרשימת הסיבות מגיעה, הסיבה נבחרת בה לפי השם
-  useEffect(() => {
-    const reasonList = reasons.data;
-    if (!sourceRecord || !reasonList) return;
-    setValues((current) =>
-      current.reasonId !== null
-        ? current
-        : { ...current, reasonId: findReasonIdByName(reasonList, sourceRecord.reason) },
-    );
-  }, [sourceRecord, reasons.data]);
+  // השרת לא מחזיר את הסיבה (I-23), ולכן גם בעריכה וב"יצירת דומה" הבורר מתחיל ריק והמשתמש בוחר מחדש
 
-  // כל שינוי של המשתמש עובר כאן (בחירת הסיבה לפי השם, כשהרשימה מגיעה, לא נחשבת שינוי)
+  // כל שינוי של המשתמש עובר כאן
   const changeValues = (update: Partial<TraineeRestrictionFormValues>, clearedSlots: TraineeRestrictionErrorSlot[] = []) => {
     setValues((current) => ({ ...current, ...update }));
     setErrors((current) => withoutErrors(current, clearedSlots));

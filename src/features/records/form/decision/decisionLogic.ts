@@ -1,8 +1,8 @@
 import type {
+  ApprovalInput,
+  ApprovedFileInput,
   ApproverRef,
   DecisionApprovalDto,
-  DecisionApprovalInput,
-  FileAttachmentRef,
   LookupItem,
 } from "@/types/common.schema";
 import { FORM_TEXTS } from "../formTexts";
@@ -17,7 +17,8 @@ export interface DecisionValues {
   reasonId: number | null;
   details: string;
   approver: ApproverRef | null;
-  approvedFile: FileAttachmentRef | null;
+  /** הקובץ שהועלה ל-SharePoint (או הקובץ של הרשומה בעריכה): הנתיב והשם לתצוגה */
+  approvedFile: ApprovedFileInput | null;
 }
 
 export interface DecisionErrors {
@@ -38,24 +39,27 @@ export function createEmptyDecisionValues(): DecisionValues {
   };
 }
 
-/** עריכה: הסיבה נמצאת לפי השם כשרשימת הסיבות מגיעה (ראו findReasonIdByName) */
+/**
+ * עריכה: הפירוט, הגורם המאשר והקובץ מהרשומה. הסיבה מתחילה ריקה - ב-03 וב-04 השרת לא מחזיר אותה (I-23),
+ * וב-05 היא נמצאת לפי השם כשרשימת הסיבות מגיעה (findReasonIdByName)
+ */
 export function decisionValuesFromRecord(record: DecisionApprovalDto): DecisionValues {
   return {
     reasonId: null,
-    details: record.details,
+    details: record.textReason,
     approver: record.approver,
-    approvedFile: record.approvedFile,
+    approvedFile: { fileName: record.approvedFile.fileName, textFile: record.approvedFile.textFile },
   };
 }
 
 /**
- * רשומה חדשה על בסיס רשומה שהסתיימה: הסיבה (לפי השם, כשהרשימה מגיעה) והפירוט עוברים;
+ * רשומה חדשה על בסיס רשומה שהסתיימה: הפירוט עובר (והסיבה, כשהרשומה נושאת אותה - 05);
  * הגורם המאשר והקובץ ריקים, כי החלטה חדשה צריכה אישור חדש
  */
 export function createBasedOnDecisionValues(record: DecisionApprovalDto): DecisionValues {
   return {
     reasonId: null,
-    details: record.details,
+    details: record.textReason,
     approver: null,
     approvedFile: null,
   };
@@ -90,9 +94,10 @@ export function decisionErrorSlotsFor(update: Partial<DecisionValues>): Decision
 /** "סיבות ואישורים" אחרי ולידציה: השדות החובה מלאים */
 export interface ValidatedDecision {
   reasonId: number;
+  /** שם הסיבה, לבקשות ששולחות גם אותו (05) */
   reasonName: string;
-  approverId: number;
-  approvedFileId: number;
+  idntUserApproval: number;
+  approvedFile: ApprovedFileInput;
 }
 
 /** השדות של "סיבות ואישורים" לשליחה, או null אם שדה חובה עדיין ריק */
@@ -103,22 +108,24 @@ export function toValidatedDecision(values: DecisionValues, reasons: LookupItem<
   return {
     reasonId: values.reasonId,
     reasonName,
-    approverId: values.approver.id,
-    approvedFileId: values.approvedFile.id,
+    idntUserApproval: values.approver.id,
+    approvedFile: values.approvedFile,
   };
 }
 
-export function toDecisionInput(details: string, decision: ValidatedDecision): DecisionApprovalInput {
+/**
+ * חלק האישור של כל בקשת שמירה: הגורם המאשר והקובץ (D-13: הנתיב ב-SharePoint, והשם לתצוגה בלבד).
+ * הפירוט וקוד הסיבה נשלחים בשם של כל פעולה, ולכן כל טופס מוסיף אותם בעצמו
+ */
+export function toApprovalInput(decision: ValidatedDecision): ApprovalInput {
   return {
-    reason: decision.reasonName,
-    reasonCode: decision.reasonId,
-    details,
-    approverId: decision.approverId,
-    approvedFileId: decision.approvedFileId,
+    idntUserApproval: decision.idntUserApproval,
+    textFile: decision.approvedFile.textFile,
+    textFileName: decision.approvedFile.fileName,
   };
 }
 
-/** הרשומה שמורה עם שם הסיבה; המזהה שלה ברשימה נמצא לפי השם (ראו pending-decisions) */
+/** רשומה ששמורה עם שם הסיבה (05): המזהה שלה ברשימה נמצא לפי השם (ראו pending-decisions) */
 export function findReasonIdByName(reasons: LookupItem<number>[], reasonName: string): number | null {
   return reasons.find((reason) => reason.name === reasonName)?.id ?? null;
 }

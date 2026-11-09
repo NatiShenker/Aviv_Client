@@ -8,6 +8,8 @@ Amended again on 2026-11-08 after the owner's review of the C# batch: flags come
 
 Amended on 2026-11-09 by feature 03 (decisions T-12 and T-13 in [../trainee-restrictions/decisions.md](../trainee-restrictions/decisions.md)): the code that both features share – the error translation (`ApiActionRunner`), the acting user (`ActingUserId`), the input rules (`RequestRules`), the record parts (`RecordPartsAssembler`: devices, institutes, approver, file), the Dapper helpers (`ProcedureParameters`, `CreatedIds`), the file-name rule (`FilePaths`) and the DTOs / rows (`Models/RecordDtos.cs`: `LookupItemDto`, `ApproverDto`, `FileDto`, `MutationResultDto`; `Models/RecordRows.cs`: `DeviceRow`, `InstituteRow`, `CreatedIdRow`) – was extracted from the 04 files into feature-neutral files, and the `Models/` and `Services/` files of 04 moved into `PhoneExceptions/` sub-folders with the namespaces `Aviv_Service.Models.PhoneExceptions` / `Aviv_Service.Services.PhoneExceptions`. The 04 logic is unchanged. The current file list and copy order are in [../trainee-restrictions/02-architecture.md §2](../trainee-restrictions/02-architecture.md) and in the 03 checklist §F; section 2 below describes the 2026-11-08 state and is kept for the history of the design.
 
+Amended on 2026-11-09 by the client alignment (decisions.md I-22, I-23): the record SELECTs of the history procedure join the approver name from `ODSINTERNALDATA..A_WORKERS` (`ApproverName` on `PhoneRecordRow`), and the four save requests carry a reason code by action (`CodeRestrictionReason` / `CodePermitReason`, validated > 0) that reaches the procedures as `@CODE_RESTRICTION_REASON` / `@CODE_PERMIT_REASON` and is not written until the DBA adds the columns. The affected rows below carry an "amended 2026-11-09" note.
+
 Scope: the server side of feature 04 ("הגבלות והיתרים למספר") – six HTTP actions, six stored procedures, the service layers, the contracts and the error handling. Phase 3 (implementation) starts from this document in a fresh session, after an explicit go-ahead.
 
 ---
@@ -54,7 +56,7 @@ The stored procedures live in `stored-procedures/number-restrictions/`, one file
 | `POST CreateTraineePhonePermit` | `SP_AVIV_CREATE_TRAINEE_PERMIT_FOR_RESTRICTION_NUMBER` | `@IDNT_TRAINEE_LIST INT_TABLE`, `@IDNT_INSTITUTION INT = NULL` (C-6; `NULL` skips the institute-narrowing check), `@IDNT_AVIV_RESTRICTION_NUMBER INT`, `@DATE_PERMIT_START/END DATETIME`, `@NUMB_DURATION_LIMIT INT = NULL`, `@TIME_PERMIT_START/END DATETIME = NULL`, `@IDNT_DEVICE_LIST INT_TABLE`, `@TEXT_PERMIT_REASON VARCHAR(1000)`, `@IDNT_USER_APPROVAL INT`, `@TEXT_FILE NVARCHAR(500)`, `@IDNT_USER INT`, `@REQUEST_UID UNIQUEIDENTIFIER` | 1 created ids (`IDNT_AVIV_PERMITS_FOR_RESTRICTION`) |
 | `PUT UpdateTraineePhonePermit` | `SP_AVIV_UPDATE_TRAINEE_PERMIT_FOR_RESTRICTION_NUMBER` | `@IDNT_PREVIOUS INT` (the previous permit row), the same fields without the trainee list and the restriction id (taken from the previous row) | 1 the new id |
 
-Shared parameter rules: lists of ids are `dbo.INT_TABLE`; the list of phone numbers is one comma-separated `VARCHAR(500)` split with `STRING_SPLIT` (order is not a requirement, A-9); every string has an explicit size (A-10); the acting user and the request GUID come from the service (D-14, D-19).
+Shared parameter rules: lists of ids are `dbo.INT_TABLE`; the list of phone numbers is one comma-separated `VARCHAR(500)` split with `STRING_SPLIT` (order is not a requirement, A-9); every string has an explicit size (A-10); the acting user and the request GUID come from the service (D-14, D-19). *(Amended 2026-11-09, I-23)* Every save procedure also takes the reason code right after its details parameter – `@CODE_RESTRICTION_REASON INT = NULL` (restrictions) / `@CODE_PERMIT_REASON INT = NULL` (permits) – accepted and not written until the DBA adds the columns of the same names.
 
 ---
 
@@ -125,6 +127,7 @@ Runs before any database call; the first failing rule per field becomes `ApiExce
 | `TimePermitStart/End` | both null or both present, format `HH:mm`, end > start |
 | `IdntDeviceList` | all > 0, duplicates removed |
 | `TextRestrictionReason` / `TextPermitReason` (details) | not blank, ≤ 1000 characters |
+| `CodeRestrictionReason` / `CodePermitReason` *(amended 2026-11-09, I-23)* | > 0 (accepted, not stored) |
 | `IdntUserApproval` | > 0 |
 | `TextFile` | not blank, ≤ 500 characters |
 
@@ -166,7 +169,7 @@ public record UpdateTraineePermitRequestDto(
     string TextPermitReason, int IdntUserApproval, string TextFile, string? TextFileName);
 ```
 
-`TextFileName` is kept for display only (the orchestrator falls back to the last path segment); the procedures take `@TEXT_FILE` alone until `AVIV_FILE` gets a name column.
+`TextFileName` is kept for display only (the orchestrator falls back to the last path segment); the procedures take `@TEXT_FILE` alone until `AVIV_FILE` gets a name column. *(Amended 2026-11-09, I-23)* The four save records also carry `int CodeRestrictionReason` (restrictions) / `int CodePermitReason` (permits), placed after the details field.
 
 ### 7.2 Responses (`Models/PhoneExceptionsResponses.cs`)
 
@@ -231,14 +234,14 @@ public class ApiErrorDto { public string Code { get; set; } = ""; public string 
 
 | Class | Columns (aliases) | Produced by |
 |---|---|---|
-| `PhoneRecordRow` *(2026-11-08)* | `Id`, `IsPermit`, `IsEnded`, `RestrictionNumberId`, `ConditionsRowId?`, `TraineeId`, `PhoneNumberId`, `PhoneNumber`, `DateStart`, `DateEnd`, `NumbDurationLimit?`, `TimePermitStart?`, `TimePermitEnd?`, `TextReason`, `IdntUserApproval`, `IdntApprovedFile`, `TextFile`, `DateCreated`, `DateUpdated?`, `IdntUserUpdate`; permits only: `SourceCodeRestrictionScope`, `SourceDateStart`, `SourceDateEnd`, `SourceTextReason`, `SourceTraineeRestrictionNumberId?` | history sets 1 (restrictions) and 2 (permits), read into one list |
+| `PhoneRecordRow` *(2026-11-08)* | `Id`, `IsPermit`, `IsEnded`, `RestrictionNumberId`, `ConditionsRowId?`, `TraineeId`, `PhoneNumberId`, `PhoneNumber`, `DateStart`, `DateEnd`, `NumbDurationLimit?`, `TimePermitStart?`, `TimePermitEnd?`, `TextReason`, `IdntUserApproval`, `ApproverName` *(2026-11-09, I-22)*, `IdntApprovedFile`, `TextFile`, `DateCreated`, `DateUpdated?`, `IdntUserUpdate`; permits only: `SourceCodeRestrictionScope`, `SourceDateStart`, `SourceDateEnd`, `SourceTextReason`, `SourceTraineeRestrictionNumberId?` | history sets 1 (restrictions) and 2 (permits), read into one list |
 | `SourceRestrictionRow` | `PhoneNumber`, `RestrictionNumberId`, `TraineeRestrictionNumberId?`, `PhoneNumberId`, `CodeRestrictionScope`, `DateStart`, `DateEnd`, `TextReason` | lookup set 1 |
 | `InstituteRow` | `RestrictionNumberId`, `InstituteId`, `InstituteName` | history set 4, lookup set 2 |
 | `ExistingPermitRow` | `PermitId`, `RestrictionNumberId`, `DateStart`, `DateEnd`, `NumbDurationLimit?`, `TimePermitStart?`, `TimePermitEnd?` | lookup set 3 |
 | `DeviceRow` | `ConditionsRowId`, `DeviceId`, `DeviceName` | history set 3, lookup set 4 |
 | `CreatedIdRow` | `CreatedId` | every save |
 
-`InstituteName` and `DeviceName` are joined in the procedures (amended 2026-11-08, I-15): devices from `AVIV_DEVICE_DATA`, institutes from `ODSINTERNALDATA..A_LOCATION` (type "פנימייה"), both `LEFT JOIN` with `ISNULL(name, '')`, so a missing lookup row still yields the id with an empty name (C-8). The column names follow `SP_AVIV_GET_LOCATIONS` and are confirmed in SSMS before the first run (Q-9, Q-10). The approver name is still mocked in the service (Q-1).
+`InstituteName` and `DeviceName` are joined in the procedures (amended 2026-11-08, I-15): devices from `AVIV_DEVICE_DATA`, institutes from `ODSINTERNALDATA..A_LOCATION` (type "פנימייה"), both `LEFT JOIN` with `ISNULL(name, '')`, so a missing lookup row still yields the id with an empty name (C-8). The column names follow `SP_AVIV_GET_LOCATIONS` and are confirmed in SSMS before the first run (Q-9, Q-10). *(Amended 2026-11-09, I-22)* `ApproverName` is joined the same way from `ODSINTERNALDATA..A_WORKERS` (`IDNT_WORKER`, `TEXT_FIRST_NAME` + `TEXT_LAST_NAME`; assumed, confirmed in SSMS); `RecordPartsAssembler.ToApprover(id, name)` fills `ApproverDto.FullName`, and `RoleTitle` stays empty.
 
 ---
 

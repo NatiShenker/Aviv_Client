@@ -24,6 +24,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AVIV_UPDATE_TRAINEE_RESTRICTION_NUMBER]
     @TIME_PERMIT_END            DATETIME = NULL,
     @IDNT_DEVICE_LIST           dbo.INT_TABLE READONLY,
     @TEXT_RESTRICTION_REASON    VARCHAR(1000),            -- D-6: הפירוט החופשי; varchar כמו העמודה (P-9), אורך לפי I-14
+    @CODE_RESTRICTION_REASON    INT = NULL,               -- I-23, Q-12: קוד הסיבה מהרשימה – מתקבל ולא נכתב עד שה-DBA יוסיף את העמודה CODE_RESTRICTION_REASON
     @IDNT_USER_APPROVAL         INT,
     @TEXT_FILE                  NVARCHAR(500),            -- D-13: נתיב הקובץ ב-SharePoint
     @IDNT_USER                  INT,                      -- D-14: המשתמש הפועל

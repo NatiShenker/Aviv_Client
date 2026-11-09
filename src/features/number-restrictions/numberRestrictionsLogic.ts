@@ -11,11 +11,11 @@ import {
   type DetailItem,
 } from "@/features/records/history/card/recordDetails";
 import { sortHistoryRecords, type HistorySortOption } from "@/features/records/history/historySort";
-import type {
-  SourceRestrictionSummaryDto,
-  TraineePhonePermitRecordDto,
-  TraineePhoneRecordDto,
-  TraineePhoneRecordType,
+import {
+  RESTRICTION_SCOPE_CODE,
+  type SourceRestrictionSummaryDto,
+  type TraineePhonePermitRecordDto,
+  type TraineePhoneRecordDto,
 } from "@/types/phone-exceptions.schema";
 import { formatDateRange } from "@/utils/dates";
 import { isolateLtr, filterBySearchQuery } from "@/utils/text";
@@ -23,7 +23,14 @@ import { NUMBER_RESTRICTIONS_TEXTS } from "./numberRestrictionsTexts";
 
 const TEXTS = NUMBER_RESTRICTIONS_TEXTS;
 
-// ── זיהוי רשומה ──
+// ── סוג הרשומה וזיהויה ──
+
+/** סוג הרשומה ברשימת המספרים, בשם של הקליינט: נגזר מהדגל isPermit של השרת (C-10) */
+export type TraineePhoneRecordType = "restriction" | "permit";
+
+export function recordTypeOf(record: Pick<TraineePhoneRecordDto, "isPermit">): TraineePhoneRecordType {
+  return record.isPermit ? "permit" : "restriction";
+}
 
 /** להגבלות ולהיתרים יש טבלאות נפרדות, ולכן רשומה מזוהה לפי הסוג והמזהה יחד */
 export interface NumberRecordRef {
@@ -48,12 +55,20 @@ export function parseNumberRecordKey(recordKey: string | undefined): NumberRecor
 }
 
 /** הסוג והמזהה של רשומה, בלי שאר השדות שלה (למשל לטופס שנפתח עליה) */
-export function numberRecordRefOf({ type, id }: NumberRecordRef): NumberRecordRef {
-  return { type, id };
+export function numberRecordRefOf(record: Pick<TraineePhoneRecordDto, "isPermit" | "id">): NumberRecordRef {
+  return { type: recordTypeOf(record), id: record.id };
 }
 
-export function matchesNumberRecordRef(record: NumberRecordRef, recordRef: NumberRecordRef): boolean {
-  return record.type === recordRef.type && record.id === recordRef.id;
+/** המפתח של רשומה בהיסטוריה: הכרטיס הפתוח והרשומה שנשמרה */
+export function numberRecordKeyOf(record: Pick<TraineePhoneRecordDto, "isPermit" | "id">): string {
+  return buildNumberRecordKey(numberRecordRefOf(record));
+}
+
+export function matchesNumberRecordRef(
+  record: Pick<TraineePhoneRecordDto, "isPermit" | "id">,
+  recordRef: NumberRecordRef,
+): boolean {
+  return recordTypeOf(record) === recordRef.type && record.id === recordRef.id;
 }
 
 const CARD_DOM_ID_PREFIX = "number-record-card-";
@@ -65,15 +80,28 @@ export function numberRecordCardDomId(recordKey: string): string {
 
 // ── ההגבלה שעליה יושב היתר (ספק 04 overview §2.2, §3) ──
 
-type RestrictionScopeFields = Pick<SourceRestrictionSummaryDto, "scope" | "institutes">;
+/**
+ * היקף ההגבלה כפי שהקליינט מציג אותו (C-9): השרת מחזיר את קוד ה-DECODE ואת הפנימיות, והתווית נגזרת כאן -
+ * "national": כללית בלי פנימיות; "institute": כללית המצומצמת לפנימיות; "trainee": הגבלה של החניך
+ */
+export type PhoneRestrictionScope = "national" | "institute" | "trainee";
+
+type RestrictionScopeFields = Pick<SourceRestrictionSummaryDto, "codeRestrictionScope" | "institutes">;
+
+export function scopeOf({ codeRestrictionScope, institutes }: RestrictionScopeFields): PhoneRestrictionScope {
+  if (codeRestrictionScope === RESTRICTION_SCOPE_CODE.trainee) return "trainee";
+  return institutes.length > 0 ? "institute" : "national";
+}
 
 /** "הגבלה ארצית" / "הגבלת פנימייה – {פנימייה}" / "הגבלה לחניך". כמה פנימיות - מופרדות בפסיק */
-export function buildScopeLabel({ scope, institutes }: RestrictionScopeFields): string {
-  switch (scope) {
+export function buildScopeLabel(restriction: RestrictionScopeFields): string {
+  switch (scopeOf(restriction)) {
     case "national":
       return TEXTS.scopes.national;
     case "institute": {
-      const instituteNames = institutes.map((institute) => institute.name).join(TEXTS.scopes.institutesSeparator);
+      const instituteNames = restriction.institutes
+        .map((institute) => institute.name)
+        .join(TEXTS.scopes.institutesSeparator);
       return TEXTS.scopes.institute(instituteNames);
     }
     case "trainee":
@@ -81,26 +109,27 @@ export function buildScopeLabel({ scope, institutes }: RestrictionScopeFields): 
   }
 }
 
-export function buildRestrictionReasonText(restriction: Pick<SourceRestrictionSummaryDto, "reason">): string {
-  return restriction.reason || TEXTS.card.noReason;
+/** הפירוט החופשי של הגבלת המקור, או "ללא פירוט" (הסיבה מהרשימה אינה נשמרת - I-23) */
+export function buildRestrictionReasonText(restriction: Pick<SourceRestrictionSummaryDto, "textReason">): string {
+  return restriction.textReason || TEXTS.card.noReason;
 }
 
 /** "חל על הגבלה": "{היקף} · {טווח}". הטווח מבודד כ-LTR, כי הוא חלק ממחרוזת אחת */
 export function buildOnRestrictionValue(permit: TraineePhonePermitRecordDto): string {
   const { sourceRestriction } = permit;
-  const range = formatDateRange(sourceRestriction.startDate, sourceRestriction.endDate);
+  const range = formatDateRange(sourceRestriction.dateStart, sourceRestriction.dateEnd);
   return [buildScopeLabel(sourceRestriction), isolateLtr(range)].join(TEXTS.values.partsSeparator);
 }
 
 // ── ערכי התצוגה של רשומה (ספק 04 overview §3, history §3) ──
 
 export function buildNumberRecordDateRange(record: TraineePhoneRecordDto): string {
-  return formatDateRange(record.startDate, record.endDate);
+  return formatDateRange(record.dateStart, record.dateEnd);
 }
 
 /** "הגבלה מלאה" / "הגבלת משך שיחה - עד X דק׳", ובהיתר "היתר מלא" / "היתר עם הגבלת משך - עד X דק׳" */
 export function buildNumberRecordTypeLabel(record: TraineePhoneRecordDto): string {
-  return buildDurationTypeLabel(record.durationMinutes, record.type);
+  return buildDurationTypeLabel(record.numbDurationLimit, recordTypeOf(record));
 }
 
 /**
@@ -108,11 +137,12 @@ export function buildNumberRecordTypeLabel(record: TraineePhoneRecordDto): strin
  * המספר, תגית הסוג והתאריכים כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן
  */
 export function buildNumberRecordDetails(record: TraineePhoneRecordDto): DetailItem[] {
+  const recordType = recordTypeOf(record);
   const details: DetailItem[] = [
     { key: "type", label: TEXTS.details.type, value: buildNumberRecordTypeLabel(record), isFullWidth: true },
   ];
 
-  if (record.type === "permit") {
+  if (record.isPermit) {
     details.push({
       key: "onRestriction",
       label: TEXTS.details.onRestriction,
@@ -125,10 +155,10 @@ export function buildNumberRecordDetails(record: TraineePhoneRecordDto): DetailI
     {
       key: "hours",
       label: TEXTS.details.hours,
-      value: buildPermittedHoursValue(record, record.type),
+      value: buildPermittedHoursValue(record, recordType),
       isLtr: hasPermittedHours(record),
     },
-    { key: "devices", label: TEXTS.details.devices, value: buildPermittedDevicesValue(record, record.type) },
+    { key: "devices", label: TEXTS.details.devices, value: buildPermittedDevicesValue(record, recordType) },
     ...buildDecisionDetailItems(record),
   );
   return details;
@@ -138,19 +168,20 @@ export function buildNumberRecordDetails(record: TraineePhoneRecordDto): DetailI
 
 /** הערכים הגלויים של הרשומה, שהחיפוש בודק */
 function buildNumberRecordSearchParts(record: TraineePhoneRecordDto): string[] {
-  const scopeLabel = record.type === "permit" ? buildScopeLabel(record.sourceRestriction) : "";
+  const recordType = recordTypeOf(record);
+  const scopeLabel = record.isPermit ? buildScopeLabel(record.sourceRestriction) : "";
   return [
-    record.phoneNumber,
-    TEXTS.recordTypes[record.type],
+    record.textPhoneNumber,
+    TEXTS.recordTypes[recordType],
     buildNumberRecordTypeLabel(record),
     scopeLabel,
     ...decisionSearchParts(record),
-    buildPermittedHoursValue(record, record.type),
-    buildPermittedDevicesValue(record, record.type),
+    buildPermittedHoursValue(record, recordType),
+    buildPermittedDevicesValue(record, recordType),
     ...buildPermittedDeviceNames(record),
     buildNumberRecordDateRange(record),
-    record.startDate,
-    record.endDate,
+    record.dateStart,
+    record.dateEnd,
   ];
 }
 
@@ -168,7 +199,7 @@ export function filterAndSortNumberRecords(
  */
 export function buildNumberRecordsCountText(visibleRecords: TraineePhoneRecordDto[]): string {
   if (visibleRecords.length === 1) {
-    return TEXTS.toolbar.resultsCount.single[visibleRecords[0].type];
+    return TEXTS.toolbar.resultsCount.single[recordTypeOf(visibleRecords[0])];
   }
   return TEXTS.toolbar.resultsCount.several(visibleRecords.length);
 }

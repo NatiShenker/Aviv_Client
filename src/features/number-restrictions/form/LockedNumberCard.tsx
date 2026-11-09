@@ -1,5 +1,6 @@
 import RecordIconCircle from "@/features/records/history/card/RecordIconCircle";
 import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
+import { recordTypeOf } from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import SourceRestrictionSummaryLines from "./source-restriction/SourceRestrictionSummaryLines";
 
@@ -18,13 +19,13 @@ export default function LockedNumberCard({ record }: LockedNumberCardProps) {
           <RecordIconCircle icon="numberRestriction" tone="danger" />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="text-base text-text-primary">
-              <span dir="ltr">{record.phoneNumber}</span>
+              <span dir="ltr">{record.textPhoneNumber}</span>
             </p>
-            <p className="text-sm text-text-muted">{TEXTS.recordTypes[record.type]}</p>
+            <p className="text-sm text-text-muted">{TEXTS.recordTypes[recordTypeOf(record)]}</p>
           </div>
         </div>
 
-        {record.type === "permit" && (
+        {record.isPermit && (
           <div className="mt-3 border-t border-divider pt-3">
             <p className="text-sm text-text-muted">{TEXTS.form.lockedCard.onRestriction}</p>
             <div className="mt-0.5">

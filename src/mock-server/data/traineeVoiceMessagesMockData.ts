@@ -3,6 +3,7 @@ import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema
 import { daysFromToday } from "../mockDates";
 import { VOICE_MESSAGE_REASONS_MOCK_DATA } from "./reasonsMockData";
 import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
+import type { StoredRecord } from "./storedRecords";
 import {
   SHOWCASE_TRAINEES,
   TRAINEES_MOCK_DATA,
@@ -228,10 +229,10 @@ const PHONE_NUMBER_ID_BASE = 7700;
 // מזהי קבצי האסמכתא, נפרדים לכל טבלה (ראו approvedFilesMockData)
 const FILE_ID_BASE = 8000;
 
-function buildVoiceMessageRecord(seed: VoiceMessageSeed, id: number): TraineeVoiceMessageRecordDto {
-  const startDate = daysFromToday(seed.startDaysFromToday);
-  const endDate = daysFromToday(seed.endDaysFromToday);
-  const decision = buildDecisionApproval(FILE_ID_BASE + id, seed.reason);
+function buildVoiceMessageRecord(seed: VoiceMessageSeed, id: number): StoredRecord<TraineeVoiceMessageRecordDto> {
+  const dateStart = daysFromToday(seed.startDaysFromToday);
+  const dateEnd = daysFromToday(seed.endDaysFromToday);
+  const decision = buildDecisionApproval(FILE_ID_BASE + id, seed.details);
 
   return {
     id,
@@ -240,15 +241,16 @@ function buildVoiceMessageRecord(seed: VoiceMessageSeed, id: number): TraineeVoi
     phoneNumberId: seed.phoneNumber === null ? null : PHONE_NUMBER_ID_BASE + id,
     phoneNumber: seed.phoneNumber,
     repeatDuringCall: seed.repeatDuringCall,
-    startDate,
-    endDate,
+    reason: seed.reason,
+    dateStart,
+    dateEnd,
     ...decision,
-    details: seed.details,
-    ...buildAuditMetadata(startDate, endDate, seed.startDaysFromToday, decision.approver.id),
+    ...buildAuditMetadata(dateEnd, seed.startDaysFromToday, decision.approver.id),
+    isActive: true,
   };
 }
 
-export const TRAINEE_VOICE_MESSAGES_MOCK_DATA: TraineeVoiceMessageRecordDto[] = [
+export const TRAINEE_VOICE_MESSAGES_MOCK_DATA: StoredRecord<TraineeVoiceMessageRecordDto>[] = [
   ...DEMO_SEEDS,
   ...DISTRIBUTED_REGULAR_SEEDS,
   ...DISTRIBUTED_REPEATING_SEEDS,

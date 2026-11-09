@@ -1,3 +1,5 @@
+import { FORM_TEXTS } from "./formTexts";
+
 /*
  * שגיאות בטפסי ההגבלה וההיתר: בכל "מקום שגיאה" (slot) מוצגת הודעה אחת לכל היותר,
  * ומקומות השגיאה מסודרים לפי סדר ההופעה שלהם בטופס, מלמעלה למטה.
@@ -59,21 +61,31 @@ export function withoutErrors<TSlot extends string>(
 
 // ── שגיאות שרת (400) → מקומות בטופס (ספק 03 form §6.3, ספק 04 form §6.3) ──
 
-/** שדות הבקשה של תנאי השיחה ו"סיבות ואישורים", ומקום השגיאה של כל אחד */
+/**
+ * שדות הבקשה של תנאי השיחה ו"סיבות ואישורים", בשמות השרת (…RequestFields), ומקום השגיאה של כל אחד.
+ * התאריכים, הפירוט וקוד הסיבה נקראים לפי הפעולה (הגבלה / היתר), ולכן לכל אחד שני שמות
+ */
 export const CALL_FORM_SERVER_FIELD_SLOTS: Record<string, CallFormErrorSlot> = {
-  startDate: "dates",
-  endDate: "dates",
-  durationMinutes: "duration",
-  startTime: "hours",
-  endTime: "hours",
-  deviceIds: "devices",
-  reason: "reason",
-  reasonCode: "reason",
-  details: "details",
-  approverId: "approver",
-  approvedFileId: "file",
+  dateRestrictionStart: "dates",
+  dateRestrictionEnd: "dates",
+  datePermitStart: "dates",
+  datePermitEnd: "dates",
+  numbDurationLimit: "duration",
+  timePermitStart: "hours",
+  timePermitEnd: "hours",
+  idntDeviceList: "devices",
+  codeRestrictionReason: "reason",
+  codePermitReason: "reason",
+  textRestrictionReason: "details",
+  textPermitReason: "details",
+  idntUserApproval: "approver",
+  textFile: "file",
 };
 
+/**
+ * C-4: השרת מחזיר את שם השדה עם טקסט ריק, וההודעות בעברית נשארות בקליינט. הקליינט בודק את כל הכללים לפני
+ * השליחה, ולכן 400 מהשרת הוא פער בין הבדיקות - והטקסט הכללי אומר למשתמש איזה שדה לבדוק
+ */
 export function mapServerFieldErrors<TSlot extends string>(
   fieldErrors: Record<string, string>,
   fieldToSlot: Record<string, TSlot>,
@@ -83,7 +95,7 @@ export function mapServerFieldErrors<TSlot extends string>(
     const slot = fieldToSlot[fieldName];
     // בכל מקום - השגיאה הראשונה
     if (slot && !errors[slot]) {
-      errors[slot] = message;
+      errors[slot] = message || FORM_TEXTS.validation.serverRejectedField;
     }
   });
   return errors;

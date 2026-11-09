@@ -49,7 +49,7 @@ public class TraineeRestrictionsRepository(IDataAccess dataAccess) : ITraineeRes
         ProcedureParameters.AddIdList(parameters, "@IDNT_TRAINEE_LIST", request.IdntTraineeList);
         ProcedureParameters.AddDateRange(parameters, "@DATE_RESTRICTION_START", request.DateRestrictionStart, "@DATE_RESTRICTION_END", request.DateRestrictionEnd);
         ProcedureParameters.AddConditions(parameters, request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ProcedureParameters.AddApproval(parameters, "@TEXT_RESTRICTION_REASON", request.TextRestrictionReason, TraineeRestrictionsLimits.DetailsMaxLength, request.IdntUserApproval, request.TextFile);
+        ProcedureParameters.AddApproval(parameters, "@TEXT_RESTRICTION_REASON", request.TextRestrictionReason, TraineeRestrictionsLimits.DetailsMaxLength, "@CODE_RESTRICTION_REASON", request.CodeRestrictionReason, request.IdntUserApproval, request.TextFile);
         ProcedureParameters.AddActingUser(parameters, actingUserId, requestUid);
 
         return CreatedIds.ReadAsync(dataAccess, DatabaseName, StoredProcedures.CREATE_TRAINEE_RESTRICTION, parameters);
@@ -61,7 +61,7 @@ public class TraineeRestrictionsRepository(IDataAccess dataAccess) : ITraineeRes
         parameters.Add("@IDNT_PREVIOUS", request.IdntPrevious, DbType.Int32);
         ProcedureParameters.AddDateRange(parameters, "@DATE_RESTRICTION_START", request.DateRestrictionStart, "@DATE_RESTRICTION_END", request.DateRestrictionEnd);
         ProcedureParameters.AddConditions(parameters, request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ProcedureParameters.AddApproval(parameters, "@TEXT_RESTRICTION_REASON", request.TextRestrictionReason, TraineeRestrictionsLimits.DetailsMaxLength, request.IdntUserApproval, request.TextFile);
+        ProcedureParameters.AddApproval(parameters, "@TEXT_RESTRICTION_REASON", request.TextRestrictionReason, TraineeRestrictionsLimits.DetailsMaxLength, "@CODE_RESTRICTION_REASON", request.CodeRestrictionReason, request.IdntUserApproval, request.TextFile);
         ProcedureParameters.AddActingUser(parameters, actingUserId, requestUid);
 
         return CreatedIds.ReadAsync(dataAccess, DatabaseName, StoredProcedures.UPDATE_TRAINEE_RESTRICTION, parameters);

@@ -23,10 +23,10 @@ public static class RecordPartsAssembler
             .ToList();
     }
 
-    /// <summary>Q-1, I-8: טבלת המשתמשים במסד אחר – השם ריק עד שיהיה JOIN; כשיגיע, זה המקום היחיד שמשתנה.</summary>
-    public static ApproverDto ToApprover(int? approverId)
+    /// <summary>I-22: השם מגיע מהפרוצדורה (JOIN ל-A_WORKERS); ריק כשאין שורת ייחוס (C-8). התפקיד לא מצורף.</summary>
+    public static ApproverDto ToApprover(int? approverId, string? approverName)
     {
-        return new ApproverDto { Id = approverId ?? 0 };
+        return new ApproverDto { Id = approverId ?? 0, FullName = approverName ?? "" };
     }
 
     /// <summary>D-13: שם הקובץ נגזר מהקטע האחרון של הנתיב ב-SharePoint (FilePaths).</summary>
