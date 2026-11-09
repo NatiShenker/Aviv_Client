@@ -15,6 +15,7 @@ GO
 --                1 ההגבלות (שורת ההגבלה + שורת התנאים הפנימית + נתיב הקובץ), 2 המכשירים של שורות התנאים.
 --                I-19: הדגל IsEnded ומזהה שורת התנאים (ConditionsRowId) מחושבים כאן, והסרביס מעביר אותם כמו שהם.
 --                T-2: משך השיחה יושב על שורת ההגבלה; השעות והמכשירים על השורה הפנימית, שקיימת רק כשיש אותם.
+--                I-22: שם הגורם המאשר מצורף מ-ODSINTERNALDATA..A_WORKERS.
 -- =============================================
 CREATE OR ALTER PROCEDURE [dbo].[SP_AVIV_GET_TRAINEE_RESTRICTIONS]
     @IDNT_TRAINEE_LIST dbo.INT_TABLE READONLY
@@ -70,6 +71,7 @@ BEGIN
             INLINE_CONDITIONS.TIME_PERMIT_END               AS TimePermitEnd,
             RESTRICTION.TEXT_RESTRICTION_REASON             AS TextReason,             -- T-3: הפירוט החופשי
             RESTRICTION.IDNT_USER_APPROVAL                  AS IdntUserApproval,
+            ISNULL(APPROVER.TEXT_FIRST_NAME + N' ' + APPROVER.TEXT_LAST_NAME, N'') AS ApproverName,
             RESTRICTION.IDNT_APPROVED_FILE                  AS IdntApprovedFile,
             APPROVED_FILE.TEXT_FILE                         AS TextFile,
             RESTRICTION.DATE_CREATED                        AS DateCreated,
@@ -81,7 +83,10 @@ BEGIN
     LEFT JOIN dbo.AVIV_PERMITS_FOR_RESTRICTION AS INLINE_CONDITIONS (NOLOCK)
             ON INLINE_CONDITIONS.IDNT_AVIV_PERMITS_FOR_RESTRICTION = KEYS.InlineConditionsId
     LEFT JOIN dbo.AVIV_FILE AS APPROVED_FILE (NOLOCK)
-            ON APPROVED_FILE.IDNT_AVIV_FILE = RESTRICTION.IDNT_APPROVED_FILE;
+            ON APPROVED_FILE.IDNT_AVIV_FILE = RESTRICTION.IDNT_APPROVED_FILE
+    -- I-22: שם הגורם המאשר מטבלת העובדים; שמות העמודות משוערים ומאומתים ב-SSMS (צ'קליסט §A.7). בלי שורה – שם ריק (C-8)
+    LEFT JOIN ODSINTERNALDATA..A_WORKERS AS APPROVER (NOLOCK)
+            ON APPROVER.IDNT_WORKER = RESTRICTION.IDNT_USER_APPROVAL;
 
     -- ===========================================
     -- תוצאה 2: מכשירים של שורות התנאים (DeviceRow)

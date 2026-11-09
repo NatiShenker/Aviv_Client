@@ -12,7 +12,10 @@ public record GetTraineePhoneRecordsRequestDto(int[] IdntTraineeList);
 /// </summary>
 public record LookupRestrictionsForPermitRequestDto(int IdntTrainee, int IdntInstitution, string[] PhoneNumberList);
 
-/// <summary>POST PhoneExceptions/CreateTraineePhoneRestriction – "הגבלה למספר" לחניכים, רשומה לכל זוג חניך × מספר (P-12).</summary>
+/// <summary>
+/// POST PhoneExceptions/CreateTraineePhoneRestriction – "הגבלה למספר" לחניכים, רשומה לכל זוג חניך × מספר (P-12).
+/// CodeRestrictionReason – קוד הסיבה מהרשימה הסגורה; מתקבל ועובר לפרוצדורה, לא נשמר עד שתהיה עמודה (I-23, Q-12).
+/// </summary>
 public record CreateTraineeRestrictionNumberRequestDto(
     int[] IdntTraineeList,
     string[] PhoneNumberList,
@@ -23,6 +26,7 @@ public record CreateTraineeRestrictionNumberRequestDto(
     string? TimePermitEnd,
     int[] IdntDeviceList,
     string TextRestrictionReason,
+    int CodeRestrictionReason,
     int IdntUserApproval,
     string TextFile,
     string? TextFileName);
@@ -40,6 +44,7 @@ public record UpdateTraineeRestrictionNumberRequestDto(
     string? TimePermitEnd,
     int[] IdntDeviceList,
     string TextRestrictionReason,
+    int CodeRestrictionReason,
     int IdntUserApproval,
     string TextFile,
     string? TextFileName);
@@ -47,6 +52,7 @@ public record UpdateTraineeRestrictionNumberRequestDto(
 /// <summary>
 /// POST PhoneExceptions/CreateTraineePhonePermit – "היתר למספר" לחניכים על הגבלת מקור אחת (D-4).
 /// C-6: IdntInstitution נדרש לבדיקה שהגבלה כללית המצומצמת לפנימיות חלה על החניכים; null מדלג על הבדיקה.
+/// CodePermitReason – קוד הסיבה מהרשימה הסגורה; מתקבל ועובר לפרוצדורה, לא נשמר עד שתהיה עמודה (I-23, Q-12).
 /// </summary>
 public record CreateTraineePermitRequestDto(
     int[] IdntTraineeList,
@@ -59,6 +65,7 @@ public record CreateTraineePermitRequestDto(
     string? TimePermitEnd,
     int[] IdntDeviceList,
     string TextPermitReason,
+    int CodePermitReason,
     int IdntUserApproval,
     string TextFile,
     string? TextFileName);
@@ -76,6 +83,7 @@ public record UpdateTraineePermitRequestDto(
     string? TimePermitEnd,
     int[] IdntDeviceList,
     string TextPermitReason,
+    int CodePermitReason,
     int IdntUserApproval,
     string TextFile,
     string? TextFileName);

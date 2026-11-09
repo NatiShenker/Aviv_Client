@@ -1,6 +1,7 @@
 import type { AxiosRequestConfig } from "axios";
 import type { ApiErrorDto } from "@/infrastructure/errors/appError";
 import type { HttpMethod } from "@/infrastructure/http/httpClient";
+import { HTTP_STATUS } from "@/infrastructure/http/httpStatus";
 import type { MockScenarioKey, MockScenarios } from "./mockScenarios";
 
 // החוזה בין השרת המדומה ל-handlers. קובץ נפרד מ-mockServer, כדי שה-handlers לא ייבאו את השרת (ייבוא מעגלי)
@@ -50,4 +51,25 @@ export class MockHandlerError extends Error {
     this.status = status;
     this.body = body;
   }
+}
+
+/**
+ * 400 של השרת (A-13, C-4): הקוד, שם השדה כהודעה, ואותו שדה עם טקסט ריק ב-fieldErrors -
+ * ההודעות בעברית נשארות בקליינט
+ */
+export function throwValidationError(fieldName: string): never {
+  throw new MockHandlerError(HTTP_STATUS.badRequest, {
+    code: "VALIDATION_ERROR",
+    message: fieldName,
+    fieldErrors: { [fieldName]: "" },
+  });
+}
+
+/** 409 של השרת (A-2): הרשומה שהבקשה מפנה אליה כבר אינה תקפה - לא קיימת, הוחלפה או הסתיימה. אותו גוף כמו 400 */
+export function throwConflictError(fieldName: string): never {
+  throw new MockHandlerError(HTTP_STATUS.conflict, {
+    code: "CONFLICT",
+    message: fieldName,
+    fieldErrors: { [fieldName]: "" },
+  });
 }

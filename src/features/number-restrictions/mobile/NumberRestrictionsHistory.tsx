@@ -9,7 +9,7 @@ import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import type { NumberRecordFormTarget } from "../form/useNumberRecordFormSession";
 import NumberRecordCard from "../history/NumberRecordCard";
 import { useNumberRestrictionsHistory } from "../history/useNumberRestrictionsHistory";
-import { buildNumberRecordKey, matchesNumberRecordRef, parseNumberRecordKey } from "../numberRestrictionsLogic";
+import { matchesNumberRecordRef, numberRecordKeyOf, parseNumberRecordKey } from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import NumberRecordFormSheet from "./NumberRecordFormSheet";
 
@@ -28,7 +28,7 @@ export default function NumberRestrictionsHistory({ traineeId, header }: NumberR
   const { phoneRecords, history, resultsCountText } = useNumberRestrictionsHistory(traineeId);
 
   const renderCard = (record: TraineePhoneRecordDto) => {
-    const recordKey = buildNumberRecordKey(record);
+    const recordKey = numberRecordKeyOf(record);
     return (
       <NumberRecordCard
         record={record}
@@ -48,7 +48,7 @@ export default function NumberRestrictionsHistory({ traineeId, header }: NumberR
         records={phoneRecords}
         history={history}
         resultsCountText={resultsCountText}
-        getRecordKey={buildNumberRecordKey}
+        getRecordKey={numberRecordKeyOf}
         renderCard={renderCard}
         onCreate={() => navigate(ROUTES.newNumberRecord(traineeId))}
       />

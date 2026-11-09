@@ -71,7 +71,7 @@ White card, card radius, outline 1px `action` when it is the selected restrictio
 | Part | Content |
 |---|---|
 | Line 1 | (padding 16) Scope label (16/20, weight 500): `"הגבלה ארצית"` / `"הגבלת פנימייה – {institute}"` (several institutes joined with `", "`) / `"הגבלה לחניך"` |
-| Line 2 | (14/18 gray, 4px below) date range (LTR) + `" · "` + reason, or `"ללא סיבה"` |
+| Line 2 | (14/18 gray, 4px below) date range (LTR) + `" · "` + the restriction's details (`textReason`), or `"ללא פירוט"` **(proposed, 2026-11-09; was the reason, which the server does not return)** |
 | Line 3 | Only when this trainee has existing permits on it (14/18 navy, 4px below): `"היתרים קיימים לחניך: {summary}"`, several joined with `"; "`. Summary format: [overview §3](04_number_restriction_overview.md#3-derived-display-values), e.g. `"16:00-19:00 · עד 15 דק׳"` |
 | Choose row | Only while choosing (§4.4): a 0.5px line, then a 44px+ row with the text button `"בחירה"` + chevron (pointing left) at the end. Accessible name `"בחירה: {scope label}, {range}"`. On the currently selected restriction (after `"החלפה"`) the row shows `"נבחרה"` + check icon instead, not tappable |
 
@@ -80,7 +80,7 @@ White card, card radius, outline 1px `action` when it is the selected restrictio
 White card, card radius, padding 16, thin outline, 24px below the header:
 
 - RecordIcon (open lock, red); next to it the phone number (16/20, LTR) and below it the full type label (14/18 gray): `"היתר למספר"` or `"הגבלה למספר"`.
-- **Permits only:** a 0.5px line, then `"חל על הגבלה"` (Applies to restriction, 14/18 gray; decided 2026-10-21) and the restriction lines (scope label, then range · reason) as in §3.2.1 lines 1–2.
+- **Permits only:** a 0.5px line, then `"חל על הגבלה"` (Applies to restriction, 14/18 gray; decided 2026-10-21) and the restriction lines (scope label, then range · details) as in §3.2.1 lines 1–2.
 
 ### 3.4 Block 1 – `"פרטי ההיתר"` (Permit details) / `"פרטי ההגבלה"` (Restriction details)
 
@@ -219,7 +219,7 @@ Same behavior as the trainee form ([03 form §4.3–4.5](../03-trainee-restricti
 
 ### 4.11 Create based on an ended record
 
-As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details from the record; dates, approver and file new. Per type:
+As in [00 §4.2](../00_foundations.md) – details from the record (the reason starts empty – the server does not return it); dates, approver and file new. Per type:
 
 - **Restriction:** type `"הגבלה למספר"`, the number as the first chip (more can be added), limit type, minutes, hours and devices from the record. Dates today / tomorrow, muted.
 - **Permit:** type `"היתר למספר"`, the number in the search field, and **the search runs immediately**. When the results arrive: if the restriction the ended permit relied on is among them, it is selected; otherwise the usual 0 / 1 / several behavior (§4.3). Whenever a restriction is selected, the permit's limit type, minutes, hours and devices are applied (instead of the reset of §4.5); the dates follow the restriction as usual. Changing the action type drops the copied terms.
@@ -256,33 +256,40 @@ As in [00 §4.2](../00_foundations.md) – reason (matched by name) and details 
 
 ### 6.1 Field mapping (Separate Payloads for Restriction vs. Permit)
 
+The names are the service's (`PhoneExceptionsController`, 2026-11-09). An update sends `idntPrevious` only: the trainee, the number and the source restriction are taken on the server from the previous record.
+
 | Form Field | Restriction (`Create` / `UpdateTraineePhoneRestrictionRequest`) | Permit (`Create` / `UpdateTraineePhonePermitRequest`) |
 |---|---|---|
-| Trainee | `traineeIds: [traineeId]` (create) / `traineeId` (update) | `traineeIds: [traineeId]` (create) / `traineeId` (update) |
-| Phone(s) | `phoneNumbers: PhoneString[]` (create) / `phoneNumber` (update) | Derived from `sourceRestrictionId` |
-| Selected restriction | – | `sourceRestrictionId: number` |
-| Dates | `startDate`, `endDate` | `startDate`, `endDate` |
-| Limit type + minutes | `durationMinutes: number \| null` | `durationMinutes: number \| null` |
-| Permitted hours | `startTime: TimeString \| null`, `endTime: TimeString \| null` | `startTime: TimeString \| null`, `endTime: TimeString \| null` |
-| Permitted devices | `deviceIds: number[]` | `deviceIds: number[]` |
-| Reasons & decision | `reason`, `reasonCode`, `details`, `approverId: number`, `approvedFileId: number` | `reason`, `reasonCode`, `details`, `approverId: number`, `approvedFileId: number` |
+| Trainee | `idntTraineeList: [traineeId]` (create) / `idntPrevious` (update) | `idntTraineeList: [traineeId]` + `idntInstitution` (create; the server checks that an institute-narrowed restriction applies) / `idntPrevious` (update) |
+| Phone(s) | `phoneNumberList: PhoneString[]` (create); locked on update | Derived on the server from the restriction |
+| Selected restriction | – | `idntAvivRestrictionNumber: number` (create); locked on update |
+| Dates | `dateRestrictionStart`, `dateRestrictionEnd` | `datePermitStart`, `datePermitEnd` |
+| Limit type + minutes | `numbDurationLimit: number \| null` | `numbDurationLimit: number \| null` |
+| Permitted hours | `timePermitStart: TimeString \| null`, `timePermitEnd: TimeString \| null` | `timePermitStart: TimeString \| null`, `timePermitEnd: TimeString \| null` |
+| Permitted devices | `idntDeviceList: number[]` | `idntDeviceList: number[]` |
+| `"סיבה"` | `codeRestrictionReason: number` – accepted by the server, not stored yet ([pending-decisions](../../pending-decisions.md)) | `codePermitReason: number` – same |
+| `"פירוט"` | `textRestrictionReason: string` | `textPermitReason: string` |
+| `"גורם מאשר"`, `"צירוף קובץ"` | `idntUserApproval: number`, `textFile: string` (+ `textFileName`, display only) | same |
 
 ### 6.3 Server errors → form slots
 
+The keys are the server's field names; the text is empty, and the form shows its generic text ([00 §7](../00_foundations.md)).
+
 | `fieldErrors` key | Slot |
 |---|---|
-| `phoneNumber`, `phoneNumbers` | Phone |
-| `sourceRestrictionId` | Restriction |
-| `startDate`, `endDate` | Dates |
-| `durationMinutes` | Duration |
-| `startTime`, `endTime` | Hours (opens the accordion) |
-| `deviceIds` | Under the devices accordion row (opens it) |
-| `reason`, `reasonCode` | Reason |
-| `details` | Details |
-| `approverId` | Approver |
-| `approvedFileId` | File |
-| A key whose slot is not shown (the locked number or restriction in edit; the restriction in a new restriction) | The general save error `"השמירה נכשלה. ניתן לנסות שוב"`, together with the errors of the shown slots |
-| `409 CONFLICT` when creating a permit | Restriction slot: `"ההגבלה שנבחרה אינה פעילה עוד. יש לחפש שוב"` (The selected restriction is no longer active. Search again) **(proposed)**. The earlier results stay shown, and `"חיפוש"` is enabled again for the same number (decided 2026-10-19) |
+| `phoneNumberList` | Phone |
+| `idntAvivRestrictionNumber` (400) | Restriction |
+| `dateRestrictionStart`, `dateRestrictionEnd`, `datePermitStart`, `datePermitEnd` | Dates. The server returns `datePermitStart` when the permit's dates fall outside the restriction |
+| `numbDurationLimit` | Duration |
+| `timePermitStart`, `timePermitEnd` | Hours (opens the accordion) |
+| `idntDeviceList` | Under the devices accordion row (opens it) |
+| `codeRestrictionReason`, `codePermitReason` | Reason |
+| `textRestrictionReason`, `textPermitReason` | Details |
+| `idntUserApproval` | Approver |
+| `textFile` | File |
+| A key whose slot is not shown (`idntTraineeList`, `idntInstitution`, `idntPrevious`; the locked number or restriction in edit; the restriction in a new restriction) | The general save error `"השמירה נכשלה. ניתן לנסות שוב"`, together with the errors of the shown slots |
+| `409 CONFLICT` when creating a permit (`idntAvivRestrictionNumber`: the restriction ended, was replaced, or does not apply to the trainee) | Restriction slot: `"ההגבלה שנבחרה אינה פעילה עוד. יש לחפש שוב"` (The selected restriction is no longer active. Search again) **(proposed)**. The earlier results stay shown, and `"חיפוש"` is enabled again for the same number (decided 2026-10-19) |
+| `409 CONFLICT` on an update (`idntPrevious`: the record was replaced or has ended; `idntAvivRestrictionNumber`: the permit's restriction has ended) | The general save error |
 
 ---
 

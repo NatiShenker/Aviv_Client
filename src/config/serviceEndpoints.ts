@@ -13,13 +13,14 @@ export const SERVICE_ENDPOINTS = {
   locations: {
     getLocationsAndVirtualLocations: "Locations/GetLocationsAndVirtualLocations",
   },
-  // מכאן והלאה - שמות זמניים, הפעולות עדיין לא הוגדרו בסרביס (ראו pending-decisions)
+  // הפעולות של TraineeRestrictionsController (service-layer/Controllers)
   traineeRestrictions: {
     getTraineeRestrictions: "TraineeRestrictions/GetTraineeRestrictions",
     createTraineeRestriction: "TraineeRestrictions/CreateTraineeRestriction",
     /** PUT: מכבה את הרשומה הקודמת ויוצר רשומה פעילה חדשה */
     updateTraineeRestriction: "TraineeRestrictions/UpdateTraineeRestriction",
   },
+  // הפעולות של PhoneExceptionsController (service-layer/Controllers)
   phoneExceptions: {
     /** כל הרשומות של החניך: הגבלות והיתרים למספרים (ספק 04 history §6) */
     getTraineePhoneRecords: "PhoneExceptions/GetTraineePhoneRecords",
@@ -32,6 +33,7 @@ export const SERVICE_ENDPOINTS = {
     /** PUT: מכבה את ההיתר הקודם ויוצר היתר פעיל חדש */
     updateTraineePhonePermit: "PhoneExceptions/UpdateTraineePhonePermit",
   },
+  // מכאן והלאה - שמות זמניים, הפעולות עדיין לא הוגדרו בסרביס (ראו pending-decisions); המוק מספק אותן בינתיים
   voiceMessages: {
     /** כל ההודעות לנמען של החניך (ספק 05 history §6) */
     getTraineeVoiceMessages: "VoiceMessages/GetTraineeVoiceMessages",
@@ -42,13 +44,10 @@ export const SERVICE_ENDPOINTS = {
   devices: {
     getInstituteDevices: "Devices/GetInstituteDevices",
   },
+  // רשימות הסיבות: בעתיד מטבלאות DECODE לפי CODE_TABLE (ראו pending-decisions)
   lookups: {
     getTraineeRestrictionReasons: "Lookups/GetTraineeRestrictionReasons",
     getPhoneExceptionReasons: "Lookups/GetPhoneExceptionReasons",
     getVoiceMessageReasons: "Lookups/GetVoiceMessageReasons",
-  },
-  files: {
-    /** רישום קובץ שהועלה ל-SharePoint, כדי לקבל את המזהה שלו (IDNT_APPROVED_FILE) */
-    registerApprovedFile: "Files/RegisterApprovedFile",
   },
 } as const;

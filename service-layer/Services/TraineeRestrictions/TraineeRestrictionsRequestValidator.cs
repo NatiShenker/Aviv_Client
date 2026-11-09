@@ -22,7 +22,7 @@ public static class TraineeRestrictionsRequestValidator
         int[] traineeIds = RequestRules.RequireIdList(request.IdntTraineeList, TraineeRestrictionsRequestFields.IdntTraineeList);
         RequestRules.RequireDateRange(request.DateRestrictionStart, request.DateRestrictionEnd, TraineeRestrictionsRequestFields.DateRestrictionStart, TraineeRestrictionsRequestFields.DateRestrictionEnd);
         int[] deviceIds = ValidateConditions(request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ValidateApproval(request.TextRestrictionReason, request.IdntUserApproval, request.TextFile);
+        ValidateApproval(request.TextRestrictionReason, request.CodeRestrictionReason, request.IdntUserApproval, request.TextFile);
 
         return request with { IdntTraineeList = traineeIds, IdntDeviceList = deviceIds };
     }
@@ -32,7 +32,7 @@ public static class TraineeRestrictionsRequestValidator
         RequestRules.RequirePositive(request.IdntPrevious, TraineeRestrictionsRequestFields.IdntPrevious);
         RequestRules.RequireDateRange(request.DateRestrictionStart, request.DateRestrictionEnd, TraineeRestrictionsRequestFields.DateRestrictionStart, TraineeRestrictionsRequestFields.DateRestrictionEnd);
         int[] deviceIds = ValidateConditions(request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ValidateApproval(request.TextRestrictionReason, request.IdntUserApproval, request.TextFile);
+        ValidateApproval(request.TextRestrictionReason, request.CodeRestrictionReason, request.IdntUserApproval, request.TextFile);
 
         return request with { IdntDeviceList = deviceIds };
     }
@@ -50,10 +50,11 @@ public static class TraineeRestrictionsRequestValidator
         return RequestRules.DistinctPositiveIds(deviceIds, TraineeRestrictionsRequestFields.IdntDeviceList);
     }
 
-    /// <summary>פירוט חובה עד אורך העמודה (T-3, I-14), מאשר, ונתיב קובץ חובה (D-13).</summary>
-    private static void ValidateApproval(string? details, int approverId, string? textFile)
+    /// <summary>פירוט חובה עד אורך העמודה (T-3, I-14), קוד סיבה חובה (I-23), מאשר, ונתיב קובץ חובה (D-13).</summary>
+    private static void ValidateApproval(string? details, int codeReason, int approverId, string? textFile)
     {
         RequestRules.RequireText(details, TraineeRestrictionsLimits.DetailsMaxLength, TraineeRestrictionsRequestFields.TextRestrictionReason);
+        RequestRules.RequirePositive(codeReason, TraineeRestrictionsRequestFields.CodeRestrictionReason);
         RequestRules.RequirePositive(approverId, TraineeRestrictionsRequestFields.IdntUserApproval);
         RequestRules.RequireText(textFile, FilePaths.TextFileMaxLength, TraineeRestrictionsRequestFields.TextFile);
     }

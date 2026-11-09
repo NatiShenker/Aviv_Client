@@ -324,7 +324,9 @@ Fields 1–3 are stacked 8px apart; the file field is 16px below them. See [OQ-1
   - **Mobile** (decided 2026-10-20): `IpsFileUploadMobile` – a field (`"בחירת קובץ"`) and a camera button (`"מצלמה"`) **(proposed)**. Choosing a file uploads it at once; while it uploads the field shows its name and `"מעלה…"` **(proposed)**. It keeps `IpsFileUpload`'s mechanics as they are (the same hidden file input, camera dialog and upload hook), because the upload is sensitive across iOS and Android in the organization's environment.
   - **Desktop:** a hint `"יש לבחור קובץ וללחוץ על ״שמור קבצים״ כדי לצרף אותו"` (decided 2026-10-21: impersonal, with Hebrew quotation marks) and `IpsFileUpload`, laid out at the usage (decided 2026-10-21): `"או"` between the drop text and the drop zone's buttons; each pair of buttons equal in width (by the longer one); the pair under the drop zone aligned to the end (left), like every action pair in a form, with `"נקה הכל"` (secondary) on the right and `"שמור קבצים"` (primary) on the left – in the DOM order too, so also for the keyboard; and the buttons at weight 400, like every other button. The emoji, the drop text and the error message are the control's own and stay.
 
-  After the upload the file is registered in the service (to get its `approvedFileId`), and the field shows a file row (icon, name, X `"הסרת הקובץ"`) instead of `IpsFileUpload`. Saving waits while a file uploads. Upload or registration failure: `"העלאת הקובץ נכשלה. ניתן לנסות שוב"` (decided 2026-10-21).
+  After the upload the field shows a file row (icon, name, X `"הסרת הקובץ"`) instead of `IpsFileUpload`. There is no separate registration call: the SharePoint path travels in the save request (`textFile`, with `textFileName` for display), and the service inserts the `AVIV_FILE` row in the same transaction (server decision D-13, 2026-11-09). Saving waits while a file uploads. Upload failure: `"העלאת הקובץ נכשלה. ניתן לנסות שוב"` (decided 2026-10-21).
+
+- **Reason (2026-11-09):** the chosen reason is sent as a code named by the action – `codeRestrictionReason` (03, number restriction) / `codePermitReason` (number permit) – and the service accepts it but does not store it yet, so the history does not return it and the select starts empty on edit and on "create based on" (pending-decisions, "Reason from the closed list"). Feature 05 still sends `reason` + `reasonCode` as drafted.
 
 ### 4.4 Desktop: history and form in the trainee drawer
 
@@ -394,6 +396,7 @@ In production each lookup item is typed as `LookupItem<number> { id: number; nam
   - **Trainee restriction:** `"הפרת משמעת"`, `"שימוש לא תקין בטלפון"`, `"בקשת גורם טיפולי"`, `"בקשת הורים"`, `"אחר"`.
   - **Number restriction / permit:** `"מורשה לזמן מוגבל"`, `"קשר עם בן משפחה"`, `"קשר עם גורם טיפולי"`, `"בקשת הורים"`, `"אחר"`.
   - **Voice message to the recipient:** `"זיהוי מקור השיחה"`, `"בקשת הורים"`, `"בקשת גורם טיפולי"`, `"הנחיית הנהלה"`, `"אחר"`.
+  - The three lists come from `Lookups/Get*Reasons` – placeholder actions that the mock serves until the service builds them; the intended source is a `DECODE` set per list, read by `CODE_TABLE` (pending-decisions, 2026-11-09).
 
 ---
 
@@ -401,27 +404,28 @@ In production each lookup item is typed as `LookupItem<number> { id: number; nam
 
 Full TypeScript contracts live in `common.schema.ts`, `organization.schema.ts`, `trainees.schema.ts`, `trainee-restrictions.schema.ts`, `phone-exceptions.schema.ts`, and `voice-messages.schema.ts` (the last one approximate, drafted in the client – see pending-decisions):
 
-- **Style:** JSON over HTTP to Aviv_Service in `Controller/Action` form (e.g. `Institutions/GetInstitutionsAndWings`), through the internal HTTP client. Queries may use `POST` when they send arrays of IDs. The feature specs (03–05) list placeholder `Controller/Action` names until those endpoints are defined ([pending-decisions](../pending-decisions.md)).
+- **Style:** JSON over HTTP to Aviv_Service in `Controller/Action` form (e.g. `Institutions/GetInstitutionsAndWings`), through the internal HTTP client. Queries may use `POST` when they send arrays of IDs. The 03 and 04 actions are the ones of `TraineeRestrictionsController` and `PhoneExceptionsController` (`service-layer/`, 2026-11-09); 05, the devices and the reasons lookups are still placeholder names ([pending-decisions](../pending-decisions.md)).
+- **Field names (2026-11-09):** the DTOs follow the service's DB-style names in camelCase – `idntTraineeList`, `idntTrainee`, `dateStart` / `dateEnd` on records, `dateRestrictionStart` / `datePermitStart` on requests, `numbDurationLimit`, `timePermitStart` / `timePermitEnd`, `idntDeviceList`, `textReason` (details on a record) / `textRestrictionReason` / `textPermitReason` (on requests), `idntUserApproval`, `textFile`, `isEnded`, `isPermit`, `codeRestrictionScope`. The client keeps its own names only for form values and display derivations.
 - **IDs:** `number`.
-- **Scalability with Arrays:** `GET`, `Lookup`, and `POST` (create) endpoints accept arrays (`clientIds: number[]`, `instituteIds: number[]`, `traineeIds: number[]`, `phoneNumbers: PhoneString[]`, `deviceIds: number[]`) where cost is low. `PUT` (update) targets a single record ID (`previousId: number`).
-- **Immutable Updates:** Updating an existing record (`PUT`) sets `LOGI_ACTIVE = 0` on the previous DB record and inserts a new active record (`LOGI_ACTIVE = 1`), returning the new ID(s) in `MutationResultDto`.
-- **Dates & Times:** Dates `YYYY-MM-DD` (`ISODateString`), Times `HH:mm` (`TimeString`).
+- **Scalability with Arrays:** `GET`, `Lookup`, and `POST` (create) endpoints accept arrays (`clientIds: number[]`, `instituteIds: number[]`, `idntTraineeList: number[]`, `phoneNumberList: PhoneString[]`, `idntDeviceList: number[]`) where cost is low. `PUT` (update) targets a single record ID (`idntPrevious: number`); the trainee, the number and the source restriction are taken on the server from the previous record, not from the request.
+- **Immutable Updates:** Updating an existing record (`PUT`) sets `LOGI_ACTIVE = 0` on the previous DB record and inserts a new active record (`LOGI_ACTIVE = 1`), returning the new ID(s) in `MutationResultDto` (`createdIds` only).
+- **Dates & Times:** Dates `YYYY-MM-DD` (`ISODateString`), Times `HH:mm` (`TimeString`); audit timestamps `yyyy-MM-ddTHH:mm:ss` in the server's local time.
 - **Errors:** one shape for every failure.
 
 ```json
 {
   "code": "VALIDATION_ERROR",
-  "message": "Human-readable summary",
-  "fieldErrors": { "endDate": "תאריך הסיום לא יכול להיות לפני תאריך ההתחלה" }
+  "message": "dateRestrictionEnd",
+  "fieldErrors": { "dateRestrictionEnd": "" }
 }
 ```
 
 | HTTP | `code` | When |
 |---|---|---|
-| 400 | `VALIDATION_ERROR` | Field rules failed. `fieldErrors` keys are request field names; each form spec maps them to its error slots |
+| 400 | `VALIDATION_ERROR` | Field rules failed. `fieldErrors` keys are the server's request field names; each form spec maps them to its error slots |
 | 403 | `FORBIDDEN` | The user may not perform the action |
-| 404 | `NOT_FOUND` | Unknown child or record |
-| 409 | `CONFLICT` | State changed since the screen loaded (e.g. the restriction a permit relies on is no longer active) |
+| 404 | `NOT_FOUND` | Unknown child. Not used by 03 / 04 for records – an unknown record is a 409 |
+| 409 | `CONFLICT` | State changed since the screen loaded: the previous record of an update does not exist, was replaced or has ended (`idntPrevious`), or the restriction a permit relies on is no longer active or does not apply (`idntAvivRestrictionNumber`) |
 | 5xx | `SERVER_ERROR` | Anything else |
 
-The server repeats every client-side validation rule; the Hebrew messages in the form specs are the expected `fieldErrors` texts.
+The server repeats the structural rules (dates, duration, hours, phone format, required fields) and returns the field name with an **empty text** (server decision C-4, 2026-11-09); the Hebrew messages stay in the client. The client validates everything before sending, so a 400 from the server is a gap between the two sets of rules, and the form shows its generic text for the field: `"הערך שהוזן לא התקבל. יש לבדוק אותו"` **(proposed)**. A 400 for a field with no visible slot (`idntTraineeList`, `idntPrevious`, `idntInstitution`) shows the general save error.

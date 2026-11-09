@@ -1,8 +1,14 @@
 import ExpandableRecordCard from "@/features/records/history/card/ExpandableRecordCard";
 import RecordPeriodSummary from "@/features/records/history/card/RecordPeriodSummary";
 import { isRecordActive } from "@/features/records/history/recordStatus";
-import type { TraineePhoneRecordDto, TraineePhoneRecordType } from "@/types/phone-exceptions.schema";
-import { buildNumberRecordDetails, buildNumberRecordKey, numberRecordCardDomId } from "../numberRestrictionsLogic";
+import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
+import {
+  buildNumberRecordDetails,
+  numberRecordCardDomId,
+  numberRecordKeyOf,
+  recordTypeOf,
+  type TraineePhoneRecordType,
+} from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 
 const CARD_TEXTS = NUMBER_RESTRICTIONS_TEXTS.card;
@@ -20,24 +26,26 @@ interface NumberRecordCardProps {
  * אותו אייקון לשניהם - מנעול פתוח אדום (ספק 04 history §3.1-3.2)
  */
 export default function NumberRecordCard({ record, isOpen, onToggle, onEdit, onCreateBasedOn }: NumberRecordCardProps) {
+  const recordType = recordTypeOf(record);
+
   return (
     <ExpandableRecordCard
-      id={numberRecordCardDomId(buildNumberRecordKey(record))}
+      id={numberRecordCardDomId(numberRecordKeyOf(record))}
       icon="numberRestriction"
       iconTone="danger"
       summaryTitle={
         <>
           <span dir="ltr" className="whitespace-nowrap">
-            {record.phoneNumber}
+            {record.textPhoneNumber}
           </span>
-          <RecordTypeTag type={record.type} />
+          <RecordTypeTag type={recordType} />
         </>
       }
       summaryMeta={
         <RecordPeriodSummary
           record={record}
-          activeLabel={CARD_TEXTS.activeBadge[record.type]}
-          endedLabel={CARD_TEXTS.endedBadge[record.type]}
+          activeLabel={CARD_TEXTS.activeBadge[recordType]}
+          endedLabel={CARD_TEXTS.endedBadge[recordType]}
         />
       }
       details={buildNumberRecordDetails(record)}
@@ -45,7 +53,7 @@ export default function NumberRecordCard({ record, isOpen, onToggle, onEdit, onC
       onToggle={onToggle}
       isEnded={!isRecordActive(record)}
       onEdit={onEdit}
-      createBasedOnLabel={CARD_TEXTS.createBasedOn[record.type]}
+      createBasedOnLabel={CARD_TEXTS.createBasedOn[recordType]}
       onCreateBasedOn={onCreateBasedOn}
     />
   );

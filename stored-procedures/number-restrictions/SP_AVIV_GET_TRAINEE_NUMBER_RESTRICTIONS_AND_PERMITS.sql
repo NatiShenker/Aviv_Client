@@ -15,6 +15,7 @@ GO
 --                ארבע תוצאות, מורכבות לתשובה אחת בסרביס (A-4, 02-architecture.md §3):
 --                1 הגבלות, 2 היתרים (אותן עמודות + תקציר הגבלת המקור), 3 מכשירים של שתיהן, 4 פנימיות של הגבלות המקור.
 --                I-19: הדגלים IsPermit ו-IsEnded מחושבים כאן, והסרביס מעביר אותם כמו שהם.
+--                I-22: שם הגורם המאשר מצורף מ-ODSINTERNALDATA..A_WORKERS בשתי תוצאות הרשומות.
 -- =============================================
 CREATE OR ALTER PROCEDURE [dbo].[SP_AVIV_GET_TRAINEE_NUMBER_RESTRICTIONS_AND_PERMITS]
     @IDNT_TRAINEE_LIST dbo.INT_TABLE READONLY
@@ -96,6 +97,7 @@ BEGIN
             INLINE_CONDITIONS.TIME_PERMIT_END               AS TimePermitEnd,
             RESTRICTION.TEXT_RESTRICTION_REASON             AS TextReason,
             RESTRICTION.IDNT_USER_APPROVAL                  AS IdntUserApproval,
+            ISNULL(APPROVER.TEXT_FIRST_NAME + N' ' + APPROVER.TEXT_LAST_NAME, N'') AS ApproverName,
             RESTRICTION.IDNT_APPROVED_FILE                  AS IdntApprovedFile,
             APPROVED_FILE.TEXT_FILE                         AS TextFile,
             RESTRICTION.DATE_CREATED                        AS DateCreated,
@@ -111,7 +113,10 @@ BEGIN
     LEFT JOIN dbo.AVIV_PERMITS_FOR_RESTRICTION AS INLINE_CONDITIONS (NOLOCK)
             ON INLINE_CONDITIONS.IDNT_AVIV_PERMITS_FOR_RESTRICTION = KEYS.InlinePermitId
     LEFT JOIN dbo.AVIV_FILE AS APPROVED_FILE (NOLOCK)
-            ON APPROVED_FILE.IDNT_AVIV_FILE = RESTRICTION.IDNT_APPROVED_FILE;
+            ON APPROVED_FILE.IDNT_AVIV_FILE = RESTRICTION.IDNT_APPROVED_FILE
+    -- I-22: שם הגורם המאשר מטבלת העובדים; שמות העמודות משוערים ומאומתים ב-SSMS (צ'קליסט §A.7). בלי שורה – שם ריק (C-8)
+    LEFT JOIN ODSINTERNALDATA..A_WORKERS AS APPROVER (NOLOCK)
+            ON APPROVER.IDNT_WORKER = RESTRICTION.IDNT_USER_APPROVAL;
 
     -- ===========================================
     -- תוצאה 2: היתרים (PhoneRecordRow, IsPermit = 1) כולל תקציר הגבלת המקור
@@ -133,6 +138,7 @@ BEGIN
             PERMIT.TIME_PERMIT_END                          AS TimePermitEnd,
             PERMIT.TEXT_PERMIT_REASON                       AS TextReason,
             PERMIT.IDNT_USER_APPROVAL                       AS IdntUserApproval,
+            ISNULL(APPROVER.TEXT_FIRST_NAME + N' ' + APPROVER.TEXT_LAST_NAME, N'') AS ApproverName,
             PERMIT.IDNT_APPROVED_FILE                       AS IdntApprovedFile,
             APPROVED_FILE.TEXT_FILE                         AS TextFile,
             PERMIT.DATE_CREATED                             AS DateCreated,
@@ -156,7 +162,10 @@ BEGIN
             ON  SOURCE_TRAINEE_RESTRICTION.IDNT_AVIV_RESTRICTION_NUMBER = RESTRICTION.IDNT_AVIV_RESTRICTION_NUMBER
             AND SOURCE_TRAINEE_RESTRICTION.LOGI_ACTIVE = 1
     LEFT JOIN dbo.AVIV_FILE AS APPROVED_FILE (NOLOCK)
-            ON APPROVED_FILE.IDNT_AVIV_FILE = PERMIT.IDNT_APPROVED_FILE;
+            ON APPROVED_FILE.IDNT_AVIV_FILE = PERMIT.IDNT_APPROVED_FILE
+    -- I-22: שם הגורם המאשר, כמו בתוצאה 1
+    LEFT JOIN ODSINTERNALDATA..A_WORKERS AS APPROVER (NOLOCK)
+            ON APPROVER.IDNT_WORKER = PERMIT.IDNT_USER_APPROVAL;
 
     -- ===========================================
     -- תוצאה 3: מכשירים של שורות התנאים ושל ההיתרים (DeviceRow)

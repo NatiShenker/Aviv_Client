@@ -1,19 +1,19 @@
 import { toConditionsInput } from "@/features/records/form/call-conditions/callConditionsLogic";
-import { toDecisionInput, type ValidatedDecision } from "@/features/records/form/decision/decisionLogic";
+import { toApprovalInput, type ValidatedDecision } from "@/features/records/form/decision/decisionLogic";
 import {
   createTraineePhonePermit,
   createTraineePhoneRestriction,
   updateTraineePhonePermit,
   updateTraineePhoneRestriction,
 } from "@/services/phoneExceptionsService";
-import type { ISODateString, MutationResultDto, PermittedCallConditionsInput } from "@/types/common.schema";
+import type { MutationResultDto } from "@/types/common.schema";
 import type {
   CreateTraineePhonePermitRequest,
   CreateTraineePhoneRestrictionRequest,
+  PhonePermitSaveFields,
+  PhoneRestrictionSaveFields,
   SourceRestrictionSummaryDto,
-  TraineePhonePermitRecordDto,
   TraineePhoneRecordDto,
-  TraineePhoneRestrictionRecordDto,
   UpdateTraineePhonePermitRequest,
   UpdateTraineePhoneRestrictionRequest,
 } from "@/types/phone-exceptions.schema";
@@ -24,6 +24,8 @@ interface SaveNumberRecordOptions {
   state: NumberRecordFormState;
   decision: ValidatedDecision;
   traineeId: number;
+  /** הפנימייה של החניך - השרת בודק איתה שהגבלה פנימייתית חלה עליו (C-6). null = בלי הבדיקה */
+  instituteId: number | null;
   /** בעריכה - הרשומה שמוחלפת */
   record: TraineePhoneRecordDto | null;
 }
@@ -42,82 +44,93 @@ function sendSaveRequest({
   state,
   decision,
   traineeId,
+  instituteId,
   record,
 }: SaveNumberRecordOptions): Promise<MutationResultDto> | null {
-  if (record?.type === "restriction") {
-    return updateTraineePhoneRestriction(buildUpdateNumberRestrictionRequest(state, decision, record));
+  if (record && !record.isPermit) {
+    return updateTraineePhoneRestriction(buildUpdateNumberRestrictionRequest(state, decision, record.id));
   }
-  if (record?.type === "permit") {
-    return updateTraineePhonePermit(buildUpdatePermitRequest(state, decision, record));
+  if (record?.isPermit) {
+    return updateTraineePhonePermit(buildUpdatePermitRequest(state, decision, record.id));
   }
   if (state.recordType === "restriction") {
     return createTraineePhoneRestriction(buildCreateNumberRestrictionRequest(state, decision, traineeId));
   }
   // היתר חדש נשמר רק אחרי שנבחרה הגבלה (הוולידציה בודקת זאת)
   if (state.selectedRestriction === null) return null;
-  return createTraineePhonePermit(buildCreatePermitRequest(state, decision, traineeId, state.selectedRestriction));
+  return createTraineePhonePermit(
+    buildCreatePermitRequest(state, decision, traineeId, instituteId, state.selectedRestriction),
+  );
 }
 
-// ── שמירה: בניית הבקשות (ספק 04 form §6.1) ──
+// ── שמירה: בניית הבקשות (ספק 04 form §6.1), בשמות השרת ──
 
-type DatesAndConditionsInput = PermittedCallConditionsInput & { startDate: ISODateString; endDate: ISODateString };
-
-function datesAndConditions(values: NumberRecordFormValues): DatesAndConditionsInput {
-  return { startDate: values.startDate, endDate: values.endDate, ...toConditionsInput(values) };
+/** שדות ההגבלה המשותפים ליצירה ולעדכון. I-23: קוד הסיבה מתקבל בשרת ולא נשמר עד שתהיה עמודה */
+function buildRestrictionFields(values: NumberRecordFormValues, decision: ValidatedDecision): PhoneRestrictionSaveFields {
+  return {
+    dateRestrictionStart: values.startDate,
+    dateRestrictionEnd: values.endDate,
+    ...toConditionsInput(values),
+    textRestrictionReason: values.details,
+    codeRestrictionReason: decision.reasonId,
+    ...toApprovalInput(decision),
+  };
 }
 
-/** כל מספר יישמר כהגבלה נפרדת עם אותם ערכים */
+/** שדות ההיתר המשותפים ליצירה ולעדכון */
+function buildPermitFields(values: NumberRecordFormValues, decision: ValidatedDecision): PhonePermitSaveFields {
+  return {
+    datePermitStart: values.startDate,
+    datePermitEnd: values.endDate,
+    ...toConditionsInput(values),
+    textPermitReason: values.details,
+    codePermitReason: decision.reasonId,
+    ...toApprovalInput(decision),
+  };
+}
+
+/** כל מספר יישמר כהגבלה נפרדת עם אותם ערכים (P-12) */
 function buildCreateNumberRestrictionRequest(
   state: NumberRecordFormState,
   decision: ValidatedDecision,
   traineeId: number,
 ): CreateTraineePhoneRestrictionRequest {
   return {
-    traineeIds: [traineeId],
-    phoneNumbers: state.addedPhones,
-    ...datesAndConditions(state.values),
-    ...toDecisionInput(state.values.details, decision),
+    idntTraineeList: [traineeId],
+    phoneNumberList: state.addedPhones,
+    ...buildRestrictionFields(state.values, decision),
   };
 }
 
+/** המספר והחניך נעולים בעריכה ונלקחים בשרת מהרשומה הקודמת (D-1) */
 function buildUpdateNumberRestrictionRequest(
   state: NumberRecordFormState,
   decision: ValidatedDecision,
-  record: TraineePhoneRestrictionRecordDto,
+  previousId: number,
 ): UpdateTraineePhoneRestrictionRequest {
-  return {
-    previousId: record.id,
-    traineeId: record.traineeId,
-    phoneNumber: record.phoneNumber,
-    ...datesAndConditions(state.values),
-    ...toDecisionInput(state.values.details, decision),
-  };
+  return { idntPrevious: previousId, ...buildRestrictionFields(state.values, decision) };
 }
 
 function buildCreatePermitRequest(
   state: NumberRecordFormState,
   decision: ValidatedDecision,
   traineeId: number,
+  instituteId: number | null,
   restriction: SourceRestrictionSummaryDto,
 ): CreateTraineePhonePermitRequest {
   return {
-    traineeIds: [traineeId],
-    sourceRestrictionId: restriction.restrictionId,
-    ...datesAndConditions(state.values),
-    ...toDecisionInput(state.values.details, decision),
+    idntTraineeList: [traineeId],
+    idntInstitution: instituteId,
+    idntAvivRestrictionNumber: restriction.idntAvivRestrictionNumber,
+    ...buildPermitFields(state.values, decision),
   };
 }
 
+/** ההגבלה והחניך נעולים בעריכה ונלקחים בשרת מההיתר הקודם (D-1) */
 function buildUpdatePermitRequest(
   state: NumberRecordFormState,
   decision: ValidatedDecision,
-  record: TraineePhonePermitRecordDto,
+  previousId: number,
 ): UpdateTraineePhonePermitRequest {
-  return {
-    previousPermitId: record.id,
-    traineeId: record.traineeId,
-    sourceRestrictionId: record.sourceRestriction.restrictionId,
-    ...datesAndConditions(state.values),
-    ...toDecisionInput(state.values.details, decision),
-  };
+  return { idntPrevious: previousId, ...buildPermitFields(state.values, decision) };
 }

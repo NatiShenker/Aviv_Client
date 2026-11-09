@@ -88,6 +88,8 @@ export const FORM_TEXTS = {
     fileRequired: "יש לצרף קובץ",
     // מוצע (ספק 03 form §7)
     fileUploadFailed: "העלאת הקובץ נכשלה. ניתן לנסות שוב",
+    // מוצע - ממתין לאישור (pending-decisions). 400 מהשרת מגיע עם שם השדה בלבד (C-4), בלי טקסט
+    serverRejectedField: "הערך שהוזן לא התקבל. יש לבדוק אותו",
   },
 
   footer: {

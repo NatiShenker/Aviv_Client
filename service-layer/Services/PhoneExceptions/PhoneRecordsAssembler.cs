@@ -57,7 +57,7 @@ public static class PhoneRecordsAssembler
             TimePermitEnd = DateTimeStrings.FormatTime(row.TimePermitEnd),
             Devices = devices,
             TextReason = row.TextReason ?? "",
-            Approver = RecordPartsAssembler.ToApprover(row.IdntUserApproval),
+            Approver = RecordPartsAssembler.ToApprover(row.IdntUserApproval, row.ApproverName),
             ApprovedFile = RecordPartsAssembler.ToFile(row.IdntApprovedFile, row.TextFile),
             DateCreated = DateTimeStrings.FormatTimestamp(row.DateCreated) ?? "",
             DateUpdated = DateTimeStrings.FormatTimestamp(row.DateUpdated),

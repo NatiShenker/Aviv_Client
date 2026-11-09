@@ -26,8 +26,8 @@ Every restriction has one of two types, chosen with the "סוג ההגבלה" se
 
 | Type | Label | Meaning | Stored as |
 |---|---|---|---|
-| Full | `"הגבלה מלאה"` | Calls are blocked, except for the permits defined (hours / devices) | `durationMinutes = null` |
-| Duration-limited | `"הגבלת משך שיחה"` | Calls are allowed, up to a maximum duration per call | `durationMinutes = 1…120` |
+| Full | `"הגבלה מלאה"` | Calls are blocked, except for the permits defined (hours / devices) | `numbDurationLimit = null` |
+| Duration-limited | `"הגבלת משך שיחה"` | Calls are allowed, up to a maximum duration per call | `numbDurationLimit = 1…120` |
 
 Choosing "הגבלת משך שיחה" in effect creates an all-day permit with a minutes cap, which hours and devices can then narrow.
 
@@ -50,7 +50,7 @@ What the trainee can do during the restriction's date range:
 
 - Each save creates or updates **one record**.
 - The hours window is the same every day of the date range. Hours are both set or both empty; end must be after start on the same day ([OQ-13](../../pending-decisions.md#oq-13)).
-- Status: **active** while `endDate >= today`, otherwise **ended** ([OQ-01](../../pending-decisions.md#oq-01)).
+- Status: **active** while `dateEnd >= today`, otherwise **ended** ([OQ-01](../../pending-decisions.md#oq-01)). The server computes it (`isEnded`, by its own clock, at day level); the client only reads the flag.
 - Records cannot be cancelled or deleted in this version ([OQ-02](../../pending-decisions.md#oq-02)).
 
 ---
@@ -61,7 +61,7 @@ Used by the history card ([history.md](03_trainee_restriction_history.md)) and b
 
 ### 3.1 Type label
 
-| `durationMinutes` | Label |
+| `numbDurationLimit` | Label |
 |---|---|
 | `null` | `"הגבלה מלאה"` |
 | X | `"הגבלת משך שיחה - עד X דק׳"` (the spaces in "עד X דק׳" are non-breaking) |
@@ -83,6 +83,8 @@ Examples: full + nothing → `"לא הוגדרו"` / `"לא הוגדרו"`; full
 
 | Method & path | Request Schema | Response Schema | Used by |
 |---|---|---|---|
-| `POST TraineeRestrictions/GetTraineeRestrictions` | `GetTraineeRestrictionsRequest` (`traineeIds: [traineeId]`) | `GetTraineeRestrictionsResponse` (`records: TraineeRestrictionRecordDto[]`) | History & Edit cache |
-| `POST TraineeRestrictions/CreateTraineeRestriction` | `CreateTraineeRestrictionRequest` | `CreateTraineeRestrictionResponse` (`MutationResultDto`) | Form, create |
-| `PUT TraineeRestrictions/UpdateTraineeRestriction` | `UpdateTraineeRestrictionRequest` | `UpdateTraineeRestrictionResponse` (`MutationResultDto`) | Form, edit |
+| `POST TraineeRestrictions/GetTraineeRestrictions` | `GetTraineeRestrictionsRequest` (`idntTraineeList: [traineeId]`) | `GetTraineeRestrictionsResponse` (`records: TraineeRestrictionRecordDto[]`) | History & Edit cache |
+| `POST TraineeRestrictions/CreateTraineeRestriction` | `CreateTraineeRestrictionRequest` (`idntTraineeList`, the dates, conditions, `textRestrictionReason`, `codeRestrictionReason`, `idntUserApproval`, `textFile`) | `CreateTraineeRestrictionResponse` (`MutationResultDto` – `createdIds`, one per trainee) | Form, create |
+| `PUT TraineeRestrictions/UpdateTraineeRestriction` | `UpdateTraineeRestrictionRequest` (`idntPrevious` + the same fields; no trainee) | `UpdateTraineeRestrictionResponse` (`MutationResultDto` – the new id). 409 when the previous record was replaced or has ended | Form, edit |
+
+The actions are those of `TraineeRestrictionsController` (`service-layer/`, 2026-11-09); the contract is `trainee-restrictions.schema.ts`.

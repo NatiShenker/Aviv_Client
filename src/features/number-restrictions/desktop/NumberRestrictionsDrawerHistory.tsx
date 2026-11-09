@@ -5,7 +5,7 @@ import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import type { NumberRecordFormTarget } from "../form/useNumberRecordFormSession";
 import NumberRecordCard from "../history/NumberRecordCard";
 import { useNumberRestrictionsHistory } from "../history/useNumberRestrictionsHistory";
-import { buildNumberRecordKey, numberRecordRefOf } from "../numberRestrictionsLogic";
+import { numberRecordKeyOf, numberRecordRefOf } from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 import NumberRecordDrawerForm from "./NumberRecordDrawerForm";
 
@@ -35,7 +35,7 @@ export default function NumberRestrictionsDrawerHistory({
   };
 
   const renderCard = (record: TraineePhoneRecordDto) => {
-    const recordKey = buildNumberRecordKey(record);
+    const recordKey = numberRecordKeyOf(record);
     return (
       <NumberRecordCard
         record={record}
@@ -65,7 +65,7 @@ export default function NumberRestrictionsDrawerHistory({
         records={phoneRecords}
         history={history}
         resultsCountText={resultsCountText}
-        getRecordKey={buildNumberRecordKey}
+        getRecordKey={numberRecordKeyOf}
         renderCard={renderCard}
         onCreate={() => setFormTarget({ mode: "create", basedOnRef: null })}
       />

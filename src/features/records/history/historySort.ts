@@ -64,13 +64,13 @@ export function findHistorySortOption(key: string): HistorySortOption {
 
 function compareRecordsBy(field: HistorySortField, first: DatedHistoryRecord, second: DatedHistoryRecord): number {
   // תאריכי YYYY-MM-DD מסודרים נכון גם בהשוואת מחרוזות
-  const byStartDate = first.startDate.localeCompare(second.startDate);
+  const byStartDate = first.dateStart.localeCompare(second.dateStart);
 
   switch (field) {
     case "startDate":
       return byStartDate;
     case "endDate":
-      return first.endDate.localeCompare(second.endDate);
+      return first.dateEnd.localeCompare(second.dateEnd);
     case "status": {
       // בשוויון סטטוס - לפי תאריך ההתחלה
       const byStatus = Number(isRecordActive(first)) - Number(isRecordActive(second));

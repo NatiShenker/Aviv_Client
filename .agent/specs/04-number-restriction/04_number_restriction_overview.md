@@ -34,14 +34,17 @@ Every permit and every restriction is a **separate record** in the history list.
 | `institute` | `"הגבלת פנימייה – {institute}"` (Institute restriction – …) | "חוסאם" | Every trainee of that institute |
 | `trainee` | `"הגבלה לחניך"` (Trainee restriction) | A `restriction` record created in this feature | This trainee only |
 
+The scope is a display derivation (2026-11-09): the server returns `sourceRestriction.codeRestrictionScope` – the `DECODE` value as is, `1` general / `2` trainee (`RESTRICTION_SCOPE_CODE`) – and `institutes`; `1` with no institutes → `national`, `1` with institutes → `institute`, `2` → `trainee`.
+
 ### 2.3 Permit rules
 
 - **A permit always relies on one specific restriction.** The user finds it by entering the full number and choosing among the restrictions that apply to this trainee.
 - **One number per permit.**
 - **Dates must be inside the restriction's period.** Default: from the later of today and the restriction's start, to the restriction's end.
 - **Several permits on the same restriction are allowed** (e.g. 08:00–09:00 and 18:00–19:00). Each is a separate record. Overlaps are not checked ([OQ-12](../../pending-decisions.md#oq-12)).
-- On `GET`, the permit includes `sourceRestriction: SourceRestrictionSummaryDto` (resolved via SQL `JOIN` to `AVIV_RESTRICTION_NUMBER` + `AVIV_INSTITUTES_RESTRICTION_NUMBER`) for display ([OQ-11](../../pending-decisions.md#oq-11)).
-- Type, number and restriction cannot be changed after creation.
+- On `GET`, the permit includes `sourceRestriction: SourceRestrictionSummaryDto` (resolved via SQL `JOIN` to `AVIV_RESTRICTION_NUMBER` + `AVIV_INSTITUTES_RESTRICTION_NUMBER`) for display ([OQ-11](../../pending-decisions.md#oq-11)); its `existingTraineePermits` are filled in the lookup only.
+- Type, number and restriction cannot be changed after creation; an update sends `idntPrevious` only, and the server takes them from the previous record.
+- When a trainee's number restriction is updated, the server creates a new parent row and **re-points the trainee's active permits to it** (server decision D-1), so the permits stay attached to the restriction's current version.
 
 ### 2.4 Restriction rules
 
@@ -77,7 +80,7 @@ Each result also carries **this trainee's existing permits** on it that have not
 
 ### 2.8 Status
 
-Active while `endDate >= today`, else ended ([OQ-01](../../pending-decisions.md#oq-01)). Label: `"פעיל"` / `"הסתיים"` for permits, `"פעילה"` / `"הסתיימה"` for restrictions.
+Active while `dateEnd >= today`, else ended ([OQ-01](../../pending-decisions.md#oq-01)); the server computes it (`isEnded`, by its own clock, at day level). Label: `"פעיל"` / `"הסתיים"` for permits, `"פעילה"` / `"הסתיימה"` for restrictions.
 
 ---
 
@@ -99,12 +102,14 @@ Active while `endDate >= today`, else ended ([OQ-01](../../pending-decisions.md#
 
 | Method & path | Request / Query Schema (`phone-exceptions.schema.ts`) | Response Schema | Used by |
 |---|---|---|---|
-| `POST PhoneExceptions/GetTraineePhoneRecords` | `GetTraineePhoneRecordsRequest` (`traineeIds: [traineeId]`) | `GetTraineePhoneRecordsResponse` (`records: TraineePhoneRecordDto[]`) | History & Edit cache |
-| `POST PhoneExceptions/LookupPhoneRestrictionsForPermit` | `LookupPhoneRestrictionsForPermitRequest` (`traineeId`, `instituteId`, `phoneNumbers: [phone]`) | `LookupPhoneRestrictionsForPermitResponse` (returns all active national, institute, and trainee restrictions for the phone + existing permits) | Form, permit search (no lookup is needed in restriction mode) |
-| `POST PhoneExceptions/CreateTraineePhoneRestriction` | `CreateTraineePhoneRestrictionRequest` | `CreateTraineePhoneRestrictionResponse` (one record created per phone in `phoneNumbers[]`) | Form, create restriction |
-| `PUT PhoneExceptions/UpdateTraineePhoneRestriction` | `UpdateTraineePhoneRestrictionRequest` | `UpdateTraineePhoneRestrictionResponse` (deactivates old ID `LOGI_ACTIVE = 0`, returns new record) | Form, edit restriction |
-| `POST PhoneExceptions/CreateTraineePhonePermit` | `CreateTraineePhonePermitRequest` | `CreateTraineePhonePermitResponse` | Form, create permit |
-| `PUT PhoneExceptions/UpdateTraineePhonePermit` | `UpdateTraineePhonePermitRequest` | `UpdateTraineePhonePermitResponse` (deactivates old ID `LOGI_ACTIVE = 0`, returns new record) | Form, edit permit |
+| `POST PhoneExceptions/GetTraineePhoneRecords` | `GetTraineePhoneRecordsRequest` (`idntTraineeList: [traineeId]`) | `GetTraineePhoneRecordsResponse` (`records: TraineePhoneRecordDto[]`, `isPermit` tells the kinds apart) | History & Edit cache |
+| `POST PhoneExceptions/LookupPhoneRestrictionsForPermit` | `LookupPhoneRestrictionsForPermitRequest` (`idntTrainee`, `idntInstitution`, `phoneNumberList: [phone]`) | `LookupPhoneRestrictionsForPermitResponse` (`results[]` per number, with the normalized `textPhoneNumber` and `activeRestrictions`: the not-ended national, institute and trainee restrictions for the phone + the trainee's existing permits) | Form, permit search (no lookup is needed in restriction mode) |
+| `POST PhoneExceptions/CreateTraineePhoneRestriction` | `CreateTraineePhoneRestrictionRequest` (`idntTraineeList`, `phoneNumberList`, the dates, conditions, `textRestrictionReason`, `codeRestrictionReason`, approval) | `CreateTraineePhoneRestrictionResponse` (`createdIds` – one record per trainee × number) | Form, create restriction |
+| `PUT PhoneExceptions/UpdateTraineePhoneRestriction` | `UpdateTraineePhoneRestrictionRequest` (`idntPrevious` + the restriction fields) | `UpdateTraineePhoneRestrictionResponse` (deactivates the previous version, re-points its permits, returns the new id). 409 when the previous record was replaced or has ended | Form, edit restriction |
+| `POST PhoneExceptions/CreateTraineePhonePermit` | `CreateTraineePhonePermitRequest` (`idntTraineeList`, `idntInstitution`, `idntAvivRestrictionNumber`, the dates, conditions, `textPermitReason`, `codePermitReason`, approval) | `CreateTraineePhonePermitResponse`. 409 when the restriction is not active or does not apply; 400 `datePermitStart` when the dates fall outside it | Form, create permit |
+| `PUT PhoneExceptions/UpdateTraineePhonePermit` | `UpdateTraineePhonePermitRequest` (`idntPrevious` + the permit fields) | `UpdateTraineePhonePermitResponse` (deactivates the previous permit, returns the new id). 409 when the permit was replaced or has ended, or its restriction has ended | Form, edit permit |
+
+The actions are those of `PhoneExceptionsController` (`service-layer/`, 2026-11-09); the contract is `phone-exceptions.schema.ts`.
 
 ---
 

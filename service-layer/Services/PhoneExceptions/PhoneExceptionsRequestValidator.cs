@@ -35,7 +35,7 @@ public static class PhoneExceptionsRequestValidator
         string[] phoneNumbers = NormalizePhoneNumbers(request.PhoneNumberList, PhoneExceptionsRequestFields.PhoneNumberList);
         RequestRules.RequireDateRange(request.DateRestrictionStart, request.DateRestrictionEnd, PhoneExceptionsRequestFields.DateRestrictionStart, PhoneExceptionsRequestFields.DateRestrictionEnd);
         int[] deviceIds = ValidateConditions(request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ValidateApproval(request.TextRestrictionReason, PhoneExceptionsRequestFields.TextRestrictionReason, request.IdntUserApproval, request.TextFile);
+        ValidateRestrictionApproval(request.TextRestrictionReason, request.CodeRestrictionReason, request.IdntUserApproval, request.TextFile);
 
         return request with { IdntTraineeList = traineeIds, PhoneNumberList = phoneNumbers, IdntDeviceList = deviceIds };
     }
@@ -45,7 +45,7 @@ public static class PhoneExceptionsRequestValidator
         RequestRules.RequirePositive(request.IdntPrevious, PhoneExceptionsRequestFields.IdntPrevious);
         RequestRules.RequireDateRange(request.DateRestrictionStart, request.DateRestrictionEnd, PhoneExceptionsRequestFields.DateRestrictionStart, PhoneExceptionsRequestFields.DateRestrictionEnd);
         int[] deviceIds = ValidateConditions(request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ValidateApproval(request.TextRestrictionReason, PhoneExceptionsRequestFields.TextRestrictionReason, request.IdntUserApproval, request.TextFile);
+        ValidateRestrictionApproval(request.TextRestrictionReason, request.CodeRestrictionReason, request.IdntUserApproval, request.TextFile);
 
         return request with { IdntDeviceList = deviceIds };
     }
@@ -57,7 +57,7 @@ public static class PhoneExceptionsRequestValidator
         RequestRules.RequirePositive(request.IdntAvivRestrictionNumber, PhoneExceptionsRequestFields.IdntAvivRestrictionNumber);
         RequestRules.RequireDateRange(request.DatePermitStart, request.DatePermitEnd, PhoneExceptionsRequestFields.DatePermitStart, PhoneExceptionsRequestFields.DatePermitEnd);
         int[] deviceIds = ValidateConditions(request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ValidateApproval(request.TextPermitReason, PhoneExceptionsRequestFields.TextPermitReason, request.IdntUserApproval, request.TextFile);
+        ValidatePermitApproval(request.TextPermitReason, request.CodePermitReason, request.IdntUserApproval, request.TextFile);
 
         return request with { IdntTraineeList = traineeIds, IdntDeviceList = deviceIds };
     }
@@ -67,7 +67,7 @@ public static class PhoneExceptionsRequestValidator
         RequestRules.RequirePositive(request.IdntPrevious, PhoneExceptionsRequestFields.IdntPrevious);
         RequestRules.RequireDateRange(request.DatePermitStart, request.DatePermitEnd, PhoneExceptionsRequestFields.DatePermitStart, PhoneExceptionsRequestFields.DatePermitEnd);
         int[] deviceIds = ValidateConditions(request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ValidateApproval(request.TextPermitReason, PhoneExceptionsRequestFields.TextPermitReason, request.IdntUserApproval, request.TextFile);
+        ValidatePermitApproval(request.TextPermitReason, request.CodePermitReason, request.IdntUserApproval, request.TextFile);
 
         return request with { IdntDeviceList = deviceIds };
     }
@@ -122,10 +122,24 @@ public static class PhoneExceptionsRequestValidator
         return RequestRules.DistinctPositiveIds(deviceIds, PhoneExceptionsRequestFields.IdntDeviceList);
     }
 
-    /// <summary>פירוט חובה עד אורך העמודה (I-14), מאשר, ונתיב קובץ חובה (D-13).</summary>
-    private static void ValidateApproval(string? details, string detailsFieldName, int approverId, string? textFile)
+    /// <summary>הגבלה: פירוט חובה עד אורך העמודה (I-14), קוד סיבה חובה (I-23), מאשר, ונתיב קובץ חובה (D-13).</summary>
+    private static void ValidateRestrictionApproval(string? details, int codeReason, int approverId, string? textFile)
     {
-        RequestRules.RequireText(details, PhoneExceptionsLimits.DetailsMaxLength, detailsFieldName);
+        RequestRules.RequireText(details, PhoneExceptionsLimits.DetailsMaxLength, PhoneExceptionsRequestFields.TextRestrictionReason);
+        RequestRules.RequirePositive(codeReason, PhoneExceptionsRequestFields.CodeRestrictionReason);
+        ValidateApproverAndFile(approverId, textFile);
+    }
+
+    /// <summary>היתר: אותם כללים, עם שמות השדות של ההיתר.</summary>
+    private static void ValidatePermitApproval(string? details, int codeReason, int approverId, string? textFile)
+    {
+        RequestRules.RequireText(details, PhoneExceptionsLimits.DetailsMaxLength, PhoneExceptionsRequestFields.TextPermitReason);
+        RequestRules.RequirePositive(codeReason, PhoneExceptionsRequestFields.CodePermitReason);
+        ValidateApproverAndFile(approverId, textFile);
+    }
+
+    private static void ValidateApproverAndFile(int approverId, string? textFile)
+    {
         RequestRules.RequirePositive(approverId, PhoneExceptionsRequestFields.IdntUserApproval);
         RequestRules.RequireText(textFile, FilePaths.TextFileMaxLength, PhoneExceptionsRequestFields.TextFile);
     }

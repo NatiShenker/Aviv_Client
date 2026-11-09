@@ -22,6 +22,7 @@ public static class TraineeRestrictionsRequestFields
     public const string TimePermitEnd = "timePermitEnd";
     public const string IdntDeviceList = "idntDeviceList";
     public const string TextRestrictionReason = "textRestrictionReason";
+    public const string CodeRestrictionReason = "codeRestrictionReason";
     public const string IdntUserApproval = "idntUserApproval";
     public const string TextFile = "textFile";
 }

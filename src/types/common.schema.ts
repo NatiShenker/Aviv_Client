@@ -1,6 +1,7 @@
 /**
  * @file common.schema.ts
- * @description טיפוסים משותפים, פרימיטיביים ומבני בסיס עבור קליינט "מבט" ו"חוסאם"
+ * @description טיפוסים משותפים, פרימיטיביים ומבני בסיס עבור קליינט "מבט" ו"חוסאם".
+ * שמות השדות הם של Aviv_Service: ה-camelCase של ה-DTO בסגנון ה-DB (A-7), כפי שהסרביס מחזיר ומקבל.
  */
 
 /** פורמט תאריך: YYYY-MM-DD */
@@ -18,34 +19,30 @@ export interface LookupItem<TId = number> {
   name: string;
 }
 
-/** פרטי גורם מאשר (נבחר ב-Client מול MFE חיצוני, נשמר ב-DB כ-IDNT_USER_APPROVAL) */
+/**
+ * הגורם המאשר (IDNT_USER_APPROVAL): נבחר ב-Client מול MFE חיצוני; בשליפה השם מצורף בשרת מטבלת העובדים,
+ * וריק כשאין שורה (C-8). התפקיד לא מצורף כרגע
+ */
 export interface ApproverRef {
   id: number;
   fullName: string;
-  roleTitle?: string;
+  roleTitle?: string | null;
 }
 
-/** פרטי קובץ אסמכתא (מועלה מה-Client ל-SharePoint, נשמר ב-DB כ-IDNT_APPROVED_FILE) */
-export interface FileAttachmentRef {
+/** קובץ האישור (AVIV_FILE): textFile הוא הנתיב ב-SharePoint, ו-fileName נגזר ממנו בשרת (D-13) */
+export interface ApprovedFileDto {
   id: number;
   fileName: string;
-  externalUrl?: string;
+  textFile: string;
 }
 
-/**
- * סטטוס סנכרון הרשומה מול המרכזייה (נגזר בשרת מהשוואת LAST_REQUEST_UID ל-LAST_SUCCESS_REQUEST_UID)
- */
-export type SwitchboardSyncStatus = "synced" | "pending" | "failed";
-
-/**
- * סטטוס מחזור חיים של רשומה פעילה (LOGI_ACTIVE = 1) ביחס לתאריך הנוכחי
- */
-export type TemporalStatus = "active" | "scheduled" | "expired";
+/** הקובץ שהועלה ל-SharePoint, כפי שהוא נשלח בשמירה (textFile + textFileName) ומוחזק בטופס */
+export type ApprovedFileInput = Pick<ApprovedFileDto, "fileName" | "textFile">;
 
 /**
  * אופי ההגבלה / ההיתר:
  * - "full": חסימה הרמטית (בהגבלה) או פתיחה מלאה ללא הגבלת דקות (בהיתר)
- * - "limited": שיחה מוגבלת למשך דקות מרבי (NUMB_CALL_DURATION)
+ * - "limited": שיחה מוגבלת למשך דקות מרבי (NUMB_DURATION_LIMIT)
  */
 export type CallLimitKind = "full" | "limited";
 
@@ -55,11 +52,11 @@ export type CallLimitKind = "full" | "limited";
  */
 export interface PermittedCallConditionsDto {
   /** משך שיחה מרבי בדקות (1-120). null = ללא הגבלת משך שיחה (או חסימה הרמטית כשאין היתרים) */
-  durationMinutes: number | null;
+  numbDurationLimit: number | null;
   /** שעת התחלה מותרת לשיחה בכל יום בטווח התאריכים (TIME_PERMIT_START). null = כל היממה */
-  startTime: TimeString | null;
+  timePermitStart: TimeString | null;
   /** שעת סיום מותרת לשיחה בכל יום בטווח התאריכים (TIME_PERMIT_END). null = כל היממה */
-  endTime: TimeString | null;
+  timePermitEnd: TimeString | null;
   /** רשימת מכשירים שבהם מותר לחניך לשוחח. מערך ריק [] = מותר בכל מכשירי הפנימייה */
   devices: LookupItem<number>[];
 }
@@ -68,63 +65,57 @@ export interface PermittedCallConditionsDto {
  * תנאי היתר לשיחה בעת שליחה לשרת (POST / PUT) - שליחת מזהים בלבד
  */
 export interface PermittedCallConditionsInput {
-  durationMinutes: number | null;
-  startTime: TimeString | null;
-  endTime: TimeString | null;
+  numbDurationLimit: number | null;
+  timePermitStart: TimeString | null;
+  timePermitEnd: TimeString | null;
   /** מזהי מכשירים מותרים (IDNT_DEVICE). מערך ריק [] = כל מכשירי הפנימייה */
-  deviceIds: number[];
+  idntDeviceList: number[];
 }
 
 /**
- * פרטי החלטה, סיבה ואישור בשליפה מהשרת (GET)
+ * פרטי ההחלטה והאישור בשליפה מהשרת (GET).
+ * הסיבה מהרשימה הסגורה אינה מוחזרת: היא עדיין לא נשמרת ב-DB (I-23, pending-decisions)
  */
 export interface DecisionApprovalDto {
-  /** קוד או טקסט הסיבה הראשית שנבחרה מהרשימה */
-  reason: string;
-  /** פירוט נוסף בטקסט חופשי */
-  details: string;
+  /** הפירוט בטקסט חופשי (TEXT_RESTRICTION_REASON / TEXT_PERMIT_REASON) */
+  textReason: string;
   /** הגורם המאשר (IDNT_USER_APPROVAL + שם מתוך JOIN) */
   approver: ApproverRef;
-  /** קובץ האישור שצורף (IDNT_APPROVED_FILE + שם הקובץ) */
-  approvedFile: FileAttachmentRef;
+  /** קובץ האישור שצורף (IDNT_APPROVED_FILE → AVIV_FILE) */
+  approvedFile: ApprovedFileDto;
 }
 
 /**
- * פרטי החלטה, סיבה ואישור בשליחה לשרת (POST / PUT)
+ * האישור בשליחה לשרת (POST / PUT): הגורם המאשר והקובץ.
+ * הפירוט וקוד הסיבה הם שדות של כל בקשה בשמה (textRestrictionReason + codeRestrictionReason / textPermitReason + codePermitReason)
  */
-export interface DecisionApprovalInput {
-  /** סיבה שנבחרה מרשימה (או קוד סיבה CODE_RESTRICTION) */
-  reason: string;
-  reasonCode?: number;
-  /** פירוט חופשי */
-  details: string;
+export interface ApprovalInput {
   /** מזהה הגורם המאשר שהתקבל מה-MFE השלישי (IDNT_USER_APPROVAL) */
-  approverId: number;
-  /** מזהה הקובץ שהתקבל מ-SharePoint (IDNT_APPROVED_FILE) */
-  approvedFileId: number;
+  idntUserApproval: number;
+  /** הנתיב של הקובץ ב-SharePoint; הפרוצדורה מכניסה ממנו את שורת AVIV_FILE (D-13) */
+  textFile: string;
+  /** שם הקובץ לתצוגה בלבד; הפרוצדורה מקבלת את הנתיב בלבד */
+  textFileName: string;
 }
 
 /**
  * שדות מעקב ובקרה (Audit) שחוזרים בכל רשומה מהשרת
  */
 export interface AuditMetadataDto {
-  isActive: boolean;
-  temporalStatus: TemporalStatus;
-  syncStatus: SwitchboardSyncStatus;
-  createdAt: string;
-  updatedAt: string | null;
-  updatedByUserId: number;
+  /** הסתיימה לפי שעון השרת, ברמת יום (I-19). רשומה עתידית אינה "הסתיימה" (OQ-01) */
+  isEnded: boolean;
+  /** yyyy-MM-ddTHH:mm:ss בזמן השרת, בלי אזור זמן (I-18) */
+  dateCreated: string;
+  dateUpdated: string | null;
+  idntUserUpdate: number;
 }
 
 /**
  * מעטפת תשובה אחידה לפעולות שמירה/עדכון (POST / PUT)
- * מאחר שכל עדכון יוצר רשומה חדשה ב-DB, השרת תמיד מחזיר את המזהה/ים החדשים שנוצרו.
+ * מאחר שכל עדכון יוצר רשומה חדשה ב-DB, השרת תמיד מחזיר את המזהה/ים החדשים שנוצרו - ורק אותם (A-14, I-20).
  */
-export interface MutationResultDto<Tecord = unknown> {
+export interface MutationResultDto {
   createdIds: number[];
-  requestUid: string;
-  syncStatus: SwitchboardSyncStatus;
-  records?: Tecord[];
 }
 
 /** כיוון מיון ברשימות בצד הלקוח (רשימת החניכים וההיסטוריות) */

@@ -21,7 +21,6 @@ const ALL_SCENARIO_KEYS = [
   "devices",
   "reasons",
   "approvers",
-  "approvedFiles",
   "sharePointUpload",
 ] as const;
 

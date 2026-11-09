@@ -77,7 +77,7 @@ public class PhoneExceptionsRepository(IDataAccess dataAccess) : IPhoneException
         ProcedureParameters.AddPhoneNumberList(parameters, request.PhoneNumberList);
         ProcedureParameters.AddDateRange(parameters, "@DATE_RESTRICTION_START", request.DateRestrictionStart, "@DATE_RESTRICTION_END", request.DateRestrictionEnd);
         ProcedureParameters.AddConditions(parameters, request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ProcedureParameters.AddApproval(parameters, "@TEXT_RESTRICTION_REASON", request.TextRestrictionReason, PhoneExceptionsLimits.DetailsMaxLength, request.IdntUserApproval, request.TextFile);
+        ProcedureParameters.AddApproval(parameters, "@TEXT_RESTRICTION_REASON", request.TextRestrictionReason, PhoneExceptionsLimits.DetailsMaxLength, "@CODE_RESTRICTION_REASON", request.CodeRestrictionReason, request.IdntUserApproval, request.TextFile);
         ProcedureParameters.AddActingUser(parameters, actingUserId, requestUid);
 
         return CreatedIds.ReadAsync(dataAccess, DatabaseName, StoredProcedures.CREATE_TRAINEE_RESTRICTION_NUMBER, parameters);
@@ -89,7 +89,7 @@ public class PhoneExceptionsRepository(IDataAccess dataAccess) : IPhoneException
         parameters.Add("@IDNT_PREVIOUS", request.IdntPrevious, DbType.Int32);
         ProcedureParameters.AddDateRange(parameters, "@DATE_RESTRICTION_START", request.DateRestrictionStart, "@DATE_RESTRICTION_END", request.DateRestrictionEnd);
         ProcedureParameters.AddConditions(parameters, request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ProcedureParameters.AddApproval(parameters, "@TEXT_RESTRICTION_REASON", request.TextRestrictionReason, PhoneExceptionsLimits.DetailsMaxLength, request.IdntUserApproval, request.TextFile);
+        ProcedureParameters.AddApproval(parameters, "@TEXT_RESTRICTION_REASON", request.TextRestrictionReason, PhoneExceptionsLimits.DetailsMaxLength, "@CODE_RESTRICTION_REASON", request.CodeRestrictionReason, request.IdntUserApproval, request.TextFile);
         ProcedureParameters.AddActingUser(parameters, actingUserId, requestUid);
 
         return CreatedIds.ReadAsync(dataAccess, DatabaseName, StoredProcedures.UPDATE_TRAINEE_RESTRICTION_NUMBER, parameters);
@@ -103,7 +103,7 @@ public class PhoneExceptionsRepository(IDataAccess dataAccess) : IPhoneException
         parameters.Add("@IDNT_AVIV_RESTRICTION_NUMBER", request.IdntAvivRestrictionNumber, DbType.Int32);
         ProcedureParameters.AddDateRange(parameters, "@DATE_PERMIT_START", request.DatePermitStart, "@DATE_PERMIT_END", request.DatePermitEnd);
         ProcedureParameters.AddConditions(parameters, request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ProcedureParameters.AddApproval(parameters, "@TEXT_PERMIT_REASON", request.TextPermitReason, PhoneExceptionsLimits.DetailsMaxLength, request.IdntUserApproval, request.TextFile);
+        ProcedureParameters.AddApproval(parameters, "@TEXT_PERMIT_REASON", request.TextPermitReason, PhoneExceptionsLimits.DetailsMaxLength, "@CODE_PERMIT_REASON", request.CodePermitReason, request.IdntUserApproval, request.TextFile);
         ProcedureParameters.AddActingUser(parameters, actingUserId, requestUid);
 
         return CreatedIds.ReadAsync(dataAccess, DatabaseName, StoredProcedures.CREATE_TRAINEE_PERMIT_FOR_RESTRICTION_NUMBER, parameters);
@@ -115,7 +115,7 @@ public class PhoneExceptionsRepository(IDataAccess dataAccess) : IPhoneException
         parameters.Add("@IDNT_PREVIOUS", request.IdntPrevious, DbType.Int32);
         ProcedureParameters.AddDateRange(parameters, "@DATE_PERMIT_START", request.DatePermitStart, "@DATE_PERMIT_END", request.DatePermitEnd);
         ProcedureParameters.AddConditions(parameters, request.NumbDurationLimit, request.TimePermitStart, request.TimePermitEnd, request.IdntDeviceList);
-        ProcedureParameters.AddApproval(parameters, "@TEXT_PERMIT_REASON", request.TextPermitReason, PhoneExceptionsLimits.DetailsMaxLength, request.IdntUserApproval, request.TextFile);
+        ProcedureParameters.AddApproval(parameters, "@TEXT_PERMIT_REASON", request.TextPermitReason, PhoneExceptionsLimits.DetailsMaxLength, "@CODE_PERMIT_REASON", request.CodePermitReason, request.IdntUserApproval, request.TextFile);
         ProcedureParameters.AddActingUser(parameters, actingUserId, requestUid);
 
         return CreatedIds.ReadAsync(dataAccess, DatabaseName, StoredProcedures.UPDATE_TRAINEE_PERMIT_FOR_RESTRICTION_NUMBER, parameters);

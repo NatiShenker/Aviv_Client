@@ -31,12 +31,9 @@ import type { FormStartingPoint } from "@/features/records/form/formStartingPoin
 import { FORM_TEXTS } from "@/features/records/form/formTexts";
 import { tryAddPhone } from "@/features/records/form/phone/phoneNumbersLogic";
 import type { ISODateString, PhoneString } from "@/types/common.schema";
-import type {
-  SourceRestrictionSummaryDto,
-  TraineePhoneRecordDto,
-  TraineePhoneRecordType,
-} from "@/types/phone-exceptions.schema";
+import type { SourceRestrictionSummaryDto, TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import { normalizePhone } from "@/utils/phone";
+import { recordTypeOf, type TraineePhoneRecordType } from "../numberRestrictionsLogic";
 import { NUMBER_RESTRICTIONS_TEXTS } from "../numberRestrictionsTexts";
 
 /*
@@ -161,8 +158,8 @@ export function createInitialNumberRecordState(
       return {
         ...COMMON_INITIAL_STATE,
         mode: "edit",
-        recordType: record.type,
-        selectedRestriction: record.type === "permit" ? record.sourceRestriction : null,
+        recordType: recordTypeOf(record),
+        selectedRestriction: record.isPermit ? record.sourceRestriction : null,
         values: { ...conditionsValuesFromRecord(record), ...decisionValuesFromRecord(record) },
         touchedDates: touchedDatesFor(true),
         openConditions: openConditionsForRecord(record),
@@ -181,14 +178,14 @@ function createBasedOnState(record: TraineePhoneRecordDto, today: ISODateString)
   const createState = {
     ...COMMON_INITIAL_STATE,
     mode: "create" as const,
-    recordType: record.type,
+    recordType: recordTypeOf(record),
     touchedDates: touchedDatesFor(false),
   };
 
-  if (record.type === "restriction") {
+  if (!record.isPermit) {
     return {
       ...createState,
-      addedPhones: [record.phoneNumber],
+      addedPhones: [record.textPhoneNumber],
       values: {
         ...callTermsFromRecord(record),
         ...createDefaultDateRange(today),
@@ -200,10 +197,10 @@ function createBasedOnState(record: TraineePhoneRecordDto, today: ISODateString)
 
   return {
     ...createState,
-    phoneDraft: record.phoneNumber,
+    phoneDraft: record.textPhoneNumber,
     copiedPermitTerms: {
       terms: callTermsFromRecord(record),
-      preferredRestrictionId: record.sourceRestriction.restrictionId,
+      preferredRestrictionId: record.sourceRestriction.idntAvivRestrictionNumber,
     },
     values: { ...createNewConditionsValues(today), ...createBasedOnDecisionValues(record) },
     openConditions: CLOSED_CONDITIONS,
@@ -298,7 +295,7 @@ export function completePhoneSearch(
     lookup: { status: "done", searchedPhone: phone, results, isOutdated: false },
   };
   const preferredRestriction = results.find(
-    (restriction) => restriction.restrictionId === state.copiedPermitTerms?.preferredRestrictionId,
+    (restriction) => restriction.idntAvivRestrictionNumber === state.copiedPermitTerms?.preferredRestrictionId,
   );
   if (preferredRestriction) {
     return chooseRestriction(searchedState, preferredRestriction, today);
@@ -346,17 +343,17 @@ export function chooseRestriction(
   restriction: SourceRestrictionSummaryDto,
   today: ISODateString,
 ): NumberRecordFormState {
-  if (state.selectedRestriction?.restrictionId === restriction.restrictionId) {
+  if (state.selectedRestriction?.idntAvivRestrictionNumber === restriction.idntAvivRestrictionNumber) {
     return { ...state, isPickerOpen: false };
   }
 
-  const startDate = restriction.startDate > today ? restriction.startDate : today;
+  const startDate = restriction.dateStart > today ? restriction.dateStart : today;
   const terms = state.copiedPermitTerms?.terms ?? EMPTY_CALL_TERMS;
   return {
     ...state,
     selectedRestriction: restriction,
     isPickerOpen: false,
-    values: { ...state.values, startDate, endDate: restriction.endDate, ...terms },
+    values: { ...state.values, startDate, endDate: restriction.dateEnd, ...terms },
     touchedDates: touchedDatesFor(true),
     openConditions: openConditionsForTerms(terms),
     errors: withoutErrors(state.errors, ["restriction", "dates", "duration", "hours", "devices"]),
@@ -383,7 +380,7 @@ export function shouldShowDetailBlocks(state: NumberRecordFormState): boolean {
 /** היתר: התאריכים בתוך תקופת ההגבלה (ספק 04 form §4.8). הגבלה: בלי גבולות */
 export function permitDateBounds(state: NumberRecordFormState): DateBounds | null {
   const restriction = state.recordType === "permit" ? state.selectedRestriction : null;
-  return restriction ? { min: restriction.startDate, max: restriction.endDate } : null;
+  return restriction ? { min: restriction.dateStart, max: restriction.dateEnd } : null;
 }
 
 export function buildFormTitle({ mode, recordType }: Pick<NumberRecordFormState, "mode" | "recordType">): string {

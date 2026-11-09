@@ -51,8 +51,10 @@ DetailGrid, two columns (right column first). The number, type tag, dates and st
 | 1 | `"סוג"` (Type) – type label, permit or restriction variant ([overview §3](04_number_restriction_overview.md)), full width | |
 | 2 (permits only) | `"חל על הגבלה"` (Applies to restriction; decided 2026-10-21) – `"{scope label} · {range}"`, full width | |
 | 3 | `"שעות מותרות"` – hours value; LTR when set | `"מכשירים מותרים"` – 1 device → its label; more → `"{n} מכשירים"`; or the default value |
-| 4 | `"סיבה"` – label or `"לא צוין"` | `"גורם מאשר"` – label or `"לא צוין"` |
+| 4 | `"גורם מאשר"` – name or `"לא צוין"` | |
 | 5 | `"פירוט"` – full width, **only when not empty** | |
+
+There is no `"סיבה"` row: the server does not return the reason while it is not stored ([pending-decisions](../../pending-decisions.md), 2026-11-09). It comes back when the columns exist.
 
 Below the grid: outline button `"עריכה"` with edit icon – or, on an ended record, `"יצירת היתר דומה"` / `"יצירת הגבלה דומה"` (decided 2026-10-21) with a copy icon (an ended record cannot be edited, [00 §3.22](../00_foundations.md)).
 
@@ -65,7 +67,7 @@ Below the grid: outline button `"עריכה"` with edit icon – or, on an ended
 
 ## 4. Behavior & states
 
-- **Search** matches the trimmed query (substring) against: phone, full type label (`"היתר למספר"` / `"הגבלה למספר"`), type label (e.g. `"היתר עם הגבלת משך - עד 15 דק׳"`, non-breaking spaces count as spaces), scope label of the underlying restriction (permits), reason, details, approver, hours value, devices value and every device label, date range (`DD/MM/YY-DD/MM/YY`), start and end dates (`YYYY-MM-DD`).
+- **Search** matches the trimmed query (substring) against: phone, full type label (`"היתר למספר"` / `"הגבלה למספר"`), type label (e.g. `"היתר עם הגבלת משך - עד 15 דק׳"`, non-breaking spaces count as spaces), scope label of the underlying restriction (permits), details, approver, hours value, devices value and every device label, date range (`DD/MM/YY-DD/MM/YY`), start and end dates (`YYYY-MM-DD`).
 - **Empty list** and **no search match** both show `"לא נמצאו הגבלות או היתרים"`.
 - **Sort sheet rows:** as in [03 history §4](../03-trainee-restriction/03_trainee_restriction_history.md), except the status rows, in the masculine because the list holds restrictions and permits together: `"סטטוס: פעילים תחילה"` / `"סטטוס: שהסתיימו תחילה"` (decided 2026-10-21).
 
@@ -75,10 +77,10 @@ Below the grid: outline button `"עריכה"` with edit icon – or, on an ended
 
 | When | Call | Schema |
 |---|---|---|
-| Screen opens; returning from the form | `POST PhoneExceptions/GetTraineePhoneRecords` | Request: `GetTraineePhoneRecordsRequest` (`traineeIds: [traineeId]`)<br>Response: `GetTraineePhoneRecordsResponse` (`records: TraineePhoneRecordDto[]`) |
+| Screen opens; returning from the form | `POST PhoneExceptions/GetTraineePhoneRecords` (`PhoneExceptionsController`, 2026-11-09) | Request: `GetTraineePhoneRecordsRequest` (`idntTraineeList: [traineeId]`)<br>Response: `GetTraineePhoneRecordsResponse` (`records: TraineePhoneRecordDto[]`) – restrictions and permits in one list, the active versions only, active and ended, no paging |
 
 - Search and sort run on the client over `records`.
-- Display values come from `TraineePhoneRecordDto` (`TraineePhoneRestrictionRecordDto | TraineePhonePermitRecordDto`); `"חל על הגבלה"` uses `record.sourceRestriction` (joined by the server from `AVIV_RESTRICTION_NUMBER`).
+- Display values come from `TraineePhoneRecordDto` (`TraineePhoneRestrictionRecordDto | TraineePhonePermitRecordDto`, told apart by the server's `isPermit` flag; the record key `permit-12` / `restriction-12` is derived from it); the status from `isEnded`; `"חל על הגבלה"` uses `record.sourceRestriction` (joined by the server from `AVIV_RESTRICTION_NUMBER`), whose `codeRestrictionScope` + `institutes` give the scope label ([overview §2.2](04_number_restriction_overview.md)).
 
 ---
 

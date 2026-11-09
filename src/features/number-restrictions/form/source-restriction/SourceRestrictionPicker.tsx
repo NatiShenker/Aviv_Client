@@ -16,6 +16,7 @@ const TEXTS = NUMBER_RESTRICTIONS_TEXTS.form.picker;
 export interface SourceRestrictionOptionsListProps {
   /** הכרטיסים שמוצגים עכשיו: כולם בזמן בחירה, או רק הנבחר */
   restrictions: SourceRestrictionSummaryDto[];
+  /** idntAvivRestrictionNumber של ההגבלה שנבחרה */
   selectedRestrictionId: number | null;
   /** בזמן בחירה אפשר לבחור הגבלה; אחרת מוצג רק הכרטיס שנבחר */
   isChoosing: boolean;
@@ -102,7 +103,7 @@ export default function SourceRestrictionPicker({ form, SourceRestrictionOptions
 
       <SourceRestrictionOptionsList
         restrictions={view.visibleRestrictions}
-        selectedRestrictionId={selectedRestriction?.restrictionId ?? null}
+        selectedRestrictionId={selectedRestriction?.idntAvivRestrictionNumber ?? null}
         isChoosing={view.isChoosing}
         hintId={view.hint ? hintId : undefined}
         onChoose={form.choose}

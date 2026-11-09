@@ -58,7 +58,7 @@ Title decided 2026-10-21. There is no hint line under it (removed 2026-10-21).
 
 As in [00 §4.3](../00_foundations.md#43-reasons--decision-block), with the trainee-restriction reasons list ([00 §6](../00_foundations.md#6-lookup-lists--external-sources)). Reason and approver are required here. The approver field (MFE + selected-approver card with `"החלפה"`) and the file field (`IpsFileUpload` + attached-file row) are described in 00 §4.3.
 
-- **Edit:** the record stores the reason's name, so the reason is selected in the list by name ([pending-decisions](../../pending-decisions.md)).
+- **Edit:** the server does not return the reason (it is accepted but not stored yet – [pending-decisions](../../pending-decisions.md), 2026-11-09), so the select starts empty and the user chooses again.
 
 ### 3.5 Footer
 
@@ -116,7 +116,7 @@ The screen scrolls to the top on open.
 1. Run all rules in §5 and show every error at once.
 2. If there is an hours error, open the hours accordion.
 3. If there are errors, stop (nothing is saved).
-4. Otherwise build the input (`CreateTraineeRestrictionRequest` / `UpdateTraineeRestrictionRequest`): `durationMinutes` = the minutes when the type is `"הגבלת משך שיחה"`, else `null`; `startTime` / `endTime` = `null` when both times are empty.
+4. Otherwise build the input (`CreateTraineeRestrictionRequest` / `UpdateTraineeRestrictionRequest`): `numbDurationLimit` = the minutes when the type is `"הגבלת משך שיחה"`, else `null`; `timePermitStart` / `timePermitEnd` = `null` when both times are empty.
 5. Create (`POST`) or update (`PUT`), then go one step back to the history list with the saved record open ([00 §4.2](../00_foundations.md)).
 
 **Production addition:** after a failed submit, scroll to and focus the first field with an error.
@@ -127,7 +127,7 @@ The screen scrolls to the top on open.
 
 ### 4.9 Create based on an ended record
 
-As in [00 §4.2](../00_foundations.md): title `"הגבלה חדשה"`; type, minutes, hours and devices from the record (accordions with values open); reason (matched by name) and details from the record; dates today / tomorrow, muted; approver and file empty. Saving creates a new record (`POST`); the ended record is not changed.
+As in [00 §4.2](../00_foundations.md): title `"הגבלה חדשה"`; type, minutes, hours and devices from the record (accordions with values open); details from the record (the reason starts empty – the server does not return it); dates today / tomorrow, muted; approver and file empty. Saving creates a new record (`POST`); the ended record is not changed.
 
 ---
 
@@ -142,7 +142,7 @@ All rules run on submit.
 | Duration | Only with `"הגבלת משך שיחה"`: whole number 1–120 | `"יש להזין מספר דקות שלם בין 1 ל-120"` (Enter a whole number of minutes between 1 and 120) | Minutes change, or the type changes |
 | Hours | Both times or none | `"יש לבחור שעת התחלה ושעת סיום"` (Pick a start time and an end time) | Either time changes or is cleared |
 | Hours | End time > start time | `"שעת הסיום חייבת להיות אחרי שעת ההתחלה"` (End time must be after start time) | Either time changes or is cleared |
-| Reason | A reason is chosen (`CODE_RESTRICTION`, [00 §4.3](../00_foundations.md)) | `"יש לבחור סיבה"` **(proposed)** | A reason is chosen |
+| Reason | A reason is chosen (sent as `codeRestrictionReason`, [00 §4.3](../00_foundations.md)) | `"יש לבחור סיבה"` **(proposed)** | A reason is chosen |
 | Details | Not empty (spaces only count as empty) | `"יש להזין פירוט"` **(proposed)** | The details change |
 | Approver | An approver is chosen | `"יש לבחור גורם מאשר"` **(proposed)** | An approver is chosen |
 | File | One file attached | `"יש לצרף קובץ"` (A file must be attached) | A file is attached |
@@ -155,30 +155,36 @@ Only one message per slot is shown (the first failing rule). Devices have no rul
 
 ### 6.1 Field mapping
 
+The names are the service's (`TraineeRestrictionsController`, 2026-11-09).
+
 | Form field | Schema field (`CreateTraineeRestrictionRequest` / `UpdateTraineeRestrictionRequest`) |
 |---|---|
-| Trainee | `traineeIds: [traineeId]` (create) / `traineeId: number` (update) |
-| Start / end date | `startDate` / `endDate` (`ISODateString`) |
-| Type + minutes | `durationMinutes: number \| null` (`null` for `"הגבלה מלאה"`) |
-| Start / end time | `startTime: TimeString \| null`, `endTime: TimeString \| null` |
-| Devices | `deviceIds: number[]` |
-| `"סיבה"` | `reason: string`, `reasonCode?: number` |
-| `"פירוט"` | `details: string` |
-| `"גורם מאשר"` | `approverId: number` (selected via 3rd-party Approver MFE) |
-| `"צירוף קובץ"` | `approvedFileId: number` (uploaded directly to SharePoint) |
+| Trainee | `idntTraineeList: [traineeId]` (create). Update sends `idntPrevious: number` only – the server takes the trainee from the previous record |
+| Start / end date | `dateRestrictionStart` / `dateRestrictionEnd` (`ISODateString`) |
+| Type + minutes | `numbDurationLimit: number \| null` (`null` for `"הגבלה מלאה"`) |
+| Start / end time | `timePermitStart: TimeString \| null`, `timePermitEnd: TimeString \| null` |
+| Devices | `idntDeviceList: number[]` |
+| `"סיבה"` | `codeRestrictionReason: number` – accepted by the server, not stored yet ([pending-decisions](../../pending-decisions.md)) |
+| `"פירוט"` | `textRestrictionReason: string` |
+| `"גורם מאשר"` | `idntUserApproval: number` (selected via 3rd-party Approver MFE) |
+| `"צירוף קובץ"` | `textFile: string` (the SharePoint path from the upload) + `textFileName: string` (display only) |
 
 ### 6.3 Server errors → form slots
 
+The keys are the server's field names; the text is empty, and the form shows its generic text ([00 §7](../00_foundations.md)).
+
 | `fieldErrors` key | Slot |
 |---|---|
-| `startDate`, `endDate` | Dates |
-| `durationMinutes` | Duration |
-| `startTime`, `endTime` | Hours (also opens the hours accordion) |
-| `deviceIds` | Shown under the devices accordion row (opens it) |
-| `reason`, `reasonCode` | Reason |
-| `details` | Details |
-| `approverId` | Approver |
-| `approvedFileId` | File |
+| `dateRestrictionStart`, `dateRestrictionEnd` | Dates |
+| `numbDurationLimit` | Duration |
+| `timePermitStart`, `timePermitEnd` | Hours (also opens the hours accordion) |
+| `idntDeviceList` | Shown under the devices accordion row (opens it) |
+| `codeRestrictionReason` | Reason |
+| `textRestrictionReason` | Details |
+| `idntUserApproval` | Approver |
+| `textFile` | File |
+| `idntTraineeList`, `idntPrevious` (no visible field) | The general save error |
+| `409 CONFLICT` with `idntPrevious` (the record was replaced or has ended since the history loaded) | The general save error |
 
 ---
 

@@ -75,13 +75,13 @@ function validatePermitDatesInsideRestriction(state: NumberRecordFormState): str
   return isInside ? undefined : TEXTS.validation.permitOutsideRestriction(formatDateRange(bounds.min, bounds.max));
 }
 
-// ── שמירה: שגיאות שרת → מקומות בטופס (ספק 04 form §6.3) ──
+// ── שמירה: שגיאות שרת → מקומות בטופס (ספק 04 form §6.3), בשמות השדות של השרת (C-4) ──
 
+// idntTraineeList, idntInstitution ו-idntPrevious אין להם שדה גלוי, ולכן הם מגיעים לשגיאת השמירה הכללית
 const NUMBER_RECORD_SERVER_FIELD_SLOTS: Record<string, NumberRecordErrorSlot> = {
   ...CALL_FORM_SERVER_FIELD_SLOTS,
-  phoneNumber: "phone",
-  phoneNumbers: "phone",
-  sourceRestrictionId: "restriction",
+  phoneNumberList: "phone",
+  idntAvivRestrictionNumber: "restriction",
 };
 
 /** מקומות שגיאה בלי שדה גלוי: בעריכה המספר וההגבלה נעולים בכרטיס, ובהגבלה חדשה אין בחירת הגבלה */

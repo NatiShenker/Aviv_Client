@@ -23,6 +23,10 @@ public class TraineeRestrictionRow
     public DateTime? TimePermitEnd { get; set; }
     public string? TextReason { get; set; }
     public int? IdntUserApproval { get; set; }
+
+    /// <summary>I-22: שם הגורם המאשר מ-A_WORKERS; ריק כשאין שורת ייחוס (C-8).</summary>
+    public string? ApproverName { get; set; }
+
     public int? IdntApprovedFile { get; set; }
     public string? TextFile { get; set; }
 

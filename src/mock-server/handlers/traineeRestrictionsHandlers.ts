@@ -4,99 +4,131 @@ import type {
   GetTraineeRestrictionsRequest,
   GetTraineeRestrictionsResponse,
   TraineeRestrictionRecordDto,
+  TraineeRestrictionSaveFields,
   UpdateTraineeRestrictionRequest,
   UpdateTraineeRestrictionResponse,
 } from "@/types/trainee-restrictions.schema";
 import { buildAuditMetadata } from "../data/recordMetadataBuilders";
+import { activeRecords, toRecordDto, type StoredRecord } from "../data/storedRecords";
 import { TRAINEE_RESTRICTIONS_MOCK_DATA } from "../data/traineeRestrictionsMockData";
 import type { MockRequest } from "../mockRequest";
 import {
   MOCK_CURRENT_USER_ID,
+  allocateFileId,
   decisionFromInput,
   devicesFromIds,
+  findReplaceableRecord,
   nextRecordId,
-  throwConflict,
-  throwIfEnded,
-  throwNotFound,
   toMutationResult,
 } from "./mutationHelpers";
-import { throwIfInvalid, validateConditionsAndDecision, type ConditionsAndDecisionInput } from "./recordInputValidation";
+import {
+  SERVER_FIELDS,
+  checkApproval,
+  checkConditions,
+  requireDateRange,
+  requireIdList,
+  requirePositive,
+  throwIfInvalid,
+  type FailedField,
+} from "./recordInputValidation";
 
-const INVALID_INPUT_MESSAGE = "Trainee restriction is invalid";
+/*
+ * "הגבלות לחניך" (ספק 03), כמו TraineeRestrictionsController והפרוצדורות שלו:
+ * עדכון לא משנה רשומה - הקודמת נכבית (LOGI_ACTIVE = 0) ונוספת רשומה פעילה חדשה (D-1, T-7).
+ */
 
-// רק הגרסה הפעילה של כל רשומה (LOGI_ACTIVE = 1). עדכון יוצר רשומה חדשה ומכבה את הקודמת
+// ── שליפה (B-5): רק הגרסה הפעילה של כל רשומה ──
+
 export function handleGetTraineeRestrictions(request: MockRequest): GetTraineeRestrictionsResponse {
-  const { traineeIds } = request.body as GetTraineeRestrictionsRequest;
+  const { idntTraineeList } = request.body as GetTraineeRestrictionsRequest;
+  throwIfInvalid(requireIdList(idntTraineeList, SERVER_FIELDS.idntTraineeList));
 
-  const records = TRAINEE_RESTRICTIONS_MOCK_DATA.filter(
-    (restriction) => restriction.isActive && traineeIds.includes(restriction.traineeId),
-  );
+  const records = activeRecords(TRAINEE_RESTRICTIONS_MOCK_DATA)
+    .filter((restriction) => idntTraineeList.includes(restriction.idntTrainee))
+    .map(toRecordDto);
   return { records };
 }
 
+// ── יצירה: רשומה לכל חניך (P-12) ──
+
 export function handleCreateTraineeRestriction(request: MockRequest): CreateTraineeRestrictionResponse {
   const input = request.body as CreateTraineeRestrictionRequest;
-  throwIfInvalid(validateConditionsAndDecision(input), INVALID_INPUT_MESSAGE);
+  throwIfInvalid(requireIdList(input.idntTraineeList, SERVER_FIELDS.idntTraineeList) ?? checkSaveFields(input));
 
-  const records = input.traineeIds.map((traineeId) => {
-    const id = nextRecordId(TRAINEE_RESTRICTIONS_MOCK_DATA);
-    const record = buildRestrictionRecord(input, { id, traineeId, restrictionUid: `${RESTRICTION_UID_PREFIX}${id}` });
+  // D-13: שורת קובץ אחת לכל שמירה
+  const fileId = allocateFileId();
+  const records = input.idntTraineeList.map((idntTrainee) => {
+    const record = buildRestrictionRecord(input, { id: nextRecordId(TRAINEE_RESTRICTIONS_MOCK_DATA), idntTrainee, fileId });
     TRAINEE_RESTRICTIONS_MOCK_DATA.push(record);
     return record;
   });
-  return toMutationResult(records);
+  return toMutationResult(records.map((record) => record.id));
 }
+
+// ── עדכון: גרסה חדשה (T-7) ──
 
 export function handleUpdateTraineeRestriction(request: MockRequest): UpdateTraineeRestrictionResponse {
   const input = request.body as UpdateTraineeRestrictionRequest;
-  const previous = TRAINEE_RESTRICTIONS_MOCK_DATA.find((restriction) => restriction.id === input.previousRestrictionId);
+  throwIfInvalid(requirePositive(input.idntPrevious, SERVER_FIELDS.idntPrevious) ?? checkSaveFields(input));
 
-  if (!previous) {
-    throwNotFound(`No trainee restriction ${input.previousRestrictionId}`);
-  }
-  if (!previous.isActive) {
-    throwConflict(`Trainee restriction ${input.previousRestrictionId} was already replaced`);
-  }
-  throwIfEnded(previous, `Trainee restriction ${input.previousRestrictionId}`);
-  throwIfInvalid(validateConditionsAndDecision(input), INVALID_INPUT_MESSAGE);
-
-  // עדכון לא משנה רשומה: הקודמת נכבית, ונוספת רשומה פעילה חדשה עם אותו מזהה לוגי
+  // תפיסת הגרסה הקודמת (409 כשאינה קיימת, הוחלפה או הסתיימה); החניך נלקח ממנה ולא מהבקשה (T-9)
+  const previous = findReplaceableRecord(TRAINEE_RESTRICTIONS_MOCK_DATA, input.idntPrevious);
   previous.isActive = false;
+
   const record = buildRestrictionRecord(input, {
     id: nextRecordId(TRAINEE_RESTRICTIONS_MOCK_DATA),
-    traineeId: previous.traineeId,
-    restrictionUid: previous.restrictionUid,
+    idntTrainee: previous.idntTrainee,
+    fileId: allocateFileId(),
   });
   TRAINEE_RESTRICTIONS_MOCK_DATA.push(record);
-  return toMutationResult([record]);
+  return toMutationResult([record.id]);
+}
+
+// ── אימות (TraineeRestrictionsRequestValidator) ──
+
+function checkSaveFields(input: TraineeRestrictionSaveFields): FailedField {
+  return (
+    requireDateRange(
+      input.dateRestrictionStart,
+      input.dateRestrictionEnd,
+      SERVER_FIELDS.dateRestrictionStart,
+      SERVER_FIELDS.dateRestrictionEnd,
+    ) ??
+    checkConditions(input) ??
+    checkApproval(
+      input.textRestrictionReason,
+      SERVER_FIELDS.textRestrictionReason,
+      input.codeRestrictionReason,
+      SERVER_FIELDS.codeRestrictionReason,
+      input,
+    )
+  );
 }
 
 // ── בניית הרשומה ──
 
-const RESTRICTION_UID_PREFIX = "TR-";
-// הערך של CODE_RESTRICTION טרם הוגדר מול ה-DB; כשאין קוד סיבה - ערך קבוע לדוגמה
-const PLACEHOLDER_RESTRICTION_CODE = 1;
-
 interface RecordIdentity {
   id: number;
-  traineeId: number;
-  restrictionUid: string;
+  idntTrainee: number;
+  fileId: number;
 }
 
+// codeRestrictionReason מתקבל ולא נשמר, כמו בפרוצדורה (I-23)
 function buildRestrictionRecord(
-  input: ConditionsAndDecisionInput,
+  input: TraineeRestrictionSaveFields,
   identity: RecordIdentity,
-): TraineeRestrictionRecordDto {
+): StoredRecord<TraineeRestrictionRecordDto> {
   return {
-    ...identity,
-    restrictionCode: input.reasonCode ?? PLACEHOLDER_RESTRICTION_CODE,
-    startDate: input.startDate,
-    endDate: input.endDate,
-    durationMinutes: input.durationMinutes,
-    startTime: input.startTime,
-    endTime: input.endTime,
-    devices: devicesFromIds(input.deviceIds),
-    ...decisionFromInput(input),
-    ...buildAuditMetadata(input.startDate, input.endDate, 0, MOCK_CURRENT_USER_ID),
+    id: identity.id,
+    idntTrainee: identity.idntTrainee,
+    dateStart: input.dateRestrictionStart,
+    dateEnd: input.dateRestrictionEnd,
+    numbDurationLimit: input.numbDurationLimit,
+    timePermitStart: input.timePermitStart,
+    timePermitEnd: input.timePermitEnd,
+    devices: devicesFromIds(input.idntDeviceList),
+    ...decisionFromInput(input.textRestrictionReason, input, identity.fileId),
+    ...buildAuditMetadata(input.dateRestrictionEnd, 0, MOCK_CURRENT_USER_ID),
+    isActive: true,
   };
 }

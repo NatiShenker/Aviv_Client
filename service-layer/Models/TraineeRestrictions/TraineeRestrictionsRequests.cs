@@ -9,6 +9,7 @@ public record GetTraineeRestrictionsRequestDto(int[] IdntTraineeList);
 /// <summary>
 /// POST TraineeRestrictions/CreateTraineeRestriction – "הגבלה לחניך" לחניכים, רשומה לכל חניך (P-12).
 /// NumbDurationLimit ריק = הגבלה מלאה (ספק 03 §2.2); שעות ומכשירים ריקים = כל היממה / כל המכשירים.
+/// CodeRestrictionReason – קוד הסיבה מהרשימה הסגורה; מתקבל ועובר לפרוצדורה, לא נשמר עד שתהיה עמודה (I-23, Q-12).
 /// </summary>
 public record CreateTraineeRestrictionRequestDto(
     int[] IdntTraineeList,
@@ -19,6 +20,7 @@ public record CreateTraineeRestrictionRequestDto(
     string? TimePermitEnd,
     int[] IdntDeviceList,
     string TextRestrictionReason,
+    int CodeRestrictionReason,
     int IdntUserApproval,
     string TextFile,
     string? TextFileName);
@@ -36,6 +38,7 @@ public record UpdateTraineeRestrictionRequestDto(
     string? TimePermitEnd,
     int[] IdntDeviceList,
     string TextRestrictionReason,
+    int CodeRestrictionReason,
     int IdntUserApproval,
     string TextFile,
     string? TextFileName);

@@ -30,8 +30,8 @@ export const NUMBER_RESTRICTIONS_TEXTS = {
     endedBadge: { permit: "הסתיים", restriction: "הסתיימה" },
     // הוחלט 2026-10-21
     createBasedOn: { permit: "יצירת היתר דומה", restriction: "יצירת הגבלה דומה" },
-    /** בשורות ההגבלה שעליה יושב היתר (בבוחר ובכרטיס הנעול) */
-    noReason: "ללא סיבה",
+    /** בשורות ההגבלה שעליה יושב היתר (בבוחר ובכרטיס הנעול), כשאין לה פירוט. מוצע - ממתין לאישור (pending-decisions) */
+    noReason: "ללא פירוט",
   },
 
   // היקף ההגבלה (ספק 04 overview §2.2)

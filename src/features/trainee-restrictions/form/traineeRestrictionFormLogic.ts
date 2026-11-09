@@ -11,7 +11,7 @@ import {
   createBasedOnDecisionValues,
   createEmptyDecisionValues,
   decisionValuesFromRecord,
-  toDecisionInput,
+  toApprovalInput,
   validateDecision,
   type DecisionValues,
   type ValidatedDecision,
@@ -28,6 +28,7 @@ import type { ISODateString } from "@/types/common.schema";
 import type {
   CreateTraineeRestrictionRequest,
   TraineeRestrictionRecordDto,
+  TraineeRestrictionSaveFields,
   UpdateTraineeRestrictionRequest,
 } from "@/types/trainee-restrictions.schema";
 
@@ -99,7 +100,7 @@ export function validateTraineeRestrictionForm(values: TraineeRestrictionFormVal
   });
 }
 
-/** שגיאות שרת (400) → מקומות בטופס (ספק 03 form §6.3) */
+/** שגיאות שרת (400) → מקומות בטופס (ספק 03 form §6.3), לפי שמות השדות של השרת (C-4) */
 export function mapTraineeRestrictionServerErrors(fieldErrors: Record<string, string>): TraineeRestrictionFormErrors {
   return mapServerFieldErrors(fieldErrors, CALL_FORM_SERVER_FIELD_SLOTS);
 }
@@ -111,13 +112,7 @@ export function buildCreateTraineeRestrictionRequest(
   decision: ValidatedDecision,
   traineeId: number,
 ): CreateTraineeRestrictionRequest {
-  return {
-    traineeIds: [traineeId],
-    startDate: values.startDate,
-    endDate: values.endDate,
-    ...toConditionsInput(values),
-    ...toDecisionInput(values.details, decision),
-  };
+  return { idntTraineeList: [traineeId], ...buildSaveFields(values, decision) };
 }
 
 export function buildUpdateTraineeRestrictionRequest(
@@ -125,12 +120,19 @@ export function buildUpdateTraineeRestrictionRequest(
   decision: ValidatedDecision,
   record: TraineeRestrictionRecordDto,
 ): UpdateTraineeRestrictionRequest {
+  // T-9: החניך נלקח בשרת מהרשומה הקודמת ולא נשלח
+  return { idntPrevious: record.id, ...buildSaveFields(values, decision) };
+}
+
+/** השדות המשותפים ליצירה ולעדכון, בשמות השרת */
+function buildSaveFields(values: TraineeRestrictionFormValues, decision: ValidatedDecision): TraineeRestrictionSaveFields {
   return {
-    previousRestrictionId: record.id,
-    traineeId: record.traineeId,
-    startDate: values.startDate,
-    endDate: values.endDate,
+    dateRestrictionStart: values.startDate,
+    dateRestrictionEnd: values.endDate,
     ...toConditionsInput(values),
-    ...toDecisionInput(values.details, decision),
+    textRestrictionReason: values.details,
+    // I-23: קוד הסיבה מתקבל בשרת ולא נשמר עד שתהיה עמודה (pending-decisions)
+    codeRestrictionReason: decision.reasonId,
+    ...toApprovalInput(decision),
   };
 }

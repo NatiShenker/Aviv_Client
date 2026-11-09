@@ -29,6 +29,8 @@ public static class PhoneExceptionsRequestFields
     public const string IdntDeviceList = "idntDeviceList";
     public const string TextRestrictionReason = "textRestrictionReason";
     public const string TextPermitReason = "textPermitReason";
+    public const string CodeRestrictionReason = "codeRestrictionReason";
+    public const string CodePermitReason = "codePermitReason";
     public const string IdntUserApproval = "idntUserApproval";
     public const string TextFile = "textFile";
 }

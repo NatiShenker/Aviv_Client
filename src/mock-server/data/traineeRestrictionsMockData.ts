@@ -2,8 +2,8 @@ import type { LookupItem, TimeString } from "@/types/common.schema";
 import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
 import { daysFromToday } from "../mockDates";
 import { DEVICES_MOCK_DATA } from "./devicesMockData";
-import { TRAINEE_RESTRICTION_REASONS_MOCK_DATA } from "./reasonsMockData";
 import { buildAuditMetadata, buildDecisionApproval } from "./recordMetadataBuilders";
+import type { StoredRecord } from "./storedRecords";
 import {
   TRAINEES_MOCK_DATA,
   showcaseEndedRecordCount,
@@ -24,6 +24,7 @@ interface RestrictionTerms {
   permittedHours: PermittedHours | null;
   /** כמה ממכשירי הפנימייה מותרים. 0 = לא הוגדרו מכשירים */
   permittedDeviceCount: number;
+  /** הפירוט החופשי (TEXT_RESTRICTION_REASON) */
   details: string;
 }
 
@@ -155,10 +156,6 @@ function endedRestrictionDates(order: number): RestrictionDates {
 
 // ── בניית הרשומות ──
 
-const RESTRICTION_UID_PREFIX = "TR-";
-// הערך של CODE_RESTRICTION טרם הוגדר מול ה-DB; ערך קבוע לדוגמה
-const PLACEHOLDER_RESTRICTION_CODE = 1;
-
 interface RestrictionSeed {
   trainee: TraineeMockRecord;
   terms: RestrictionTerms;
@@ -187,31 +184,31 @@ function permittedDevices(instituteId: number, count: number): LookupItem<number
     .map(({ id, name }) => ({ id, name }));
 }
 
-function buildRestrictionRecord({ trainee, terms, dates }: RestrictionSeed, id: number): TraineeRestrictionRecordDto {
-  const startDate = daysFromToday(dates.startDaysFromToday);
-  const endDate = daysFromToday(dates.endDaysFromToday);
-  const reason = TRAINEE_RESTRICTION_REASONS_MOCK_DATA[id % TRAINEE_RESTRICTION_REASONS_MOCK_DATA.length].name;
-  const decision = buildDecisionApproval(id, reason);
+function buildRestrictionRecord(
+  { trainee, terms, dates }: RestrictionSeed,
+  id: number,
+): StoredRecord<TraineeRestrictionRecordDto> {
+  const dateStart = daysFromToday(dates.startDaysFromToday);
+  const dateEnd = daysFromToday(dates.endDaysFromToday);
+  const decision = buildDecisionApproval(id, terms.details);
 
   return {
     id,
-    restrictionUid: `${RESTRICTION_UID_PREFIX}${id}`,
-    traineeId: trainee.id,
-    restrictionCode: PLACEHOLDER_RESTRICTION_CODE,
-    startDate,
-    endDate,
-    durationMinutes: terms.durationMinutes,
-    startTime: terms.permittedHours?.startTime ?? null,
-    endTime: terms.permittedHours?.endTime ?? null,
+    idntTrainee: trainee.id,
+    dateStart,
+    dateEnd,
+    numbDurationLimit: terms.durationMinutes,
+    timePermitStart: terms.permittedHours?.startTime ?? null,
+    timePermitEnd: terms.permittedHours?.endTime ?? null,
     devices: permittedDevices(trainee.instituteId, terms.permittedDeviceCount),
     ...decision,
-    details: terms.details,
-    ...buildAuditMetadata(startDate, endDate, dates.startDaysFromToday, decision.approver.id),
+    ...buildAuditMetadata(dateEnd, dates.startDaysFromToday, decision.approver.id),
+    isActive: true,
   };
 }
 
 const RESTRICTION_SEEDS = TRAINEES_MOCK_DATA.flatMap((trainee, index) => seedsForTrainee(trainee, index));
 
-export const TRAINEE_RESTRICTIONS_MOCK_DATA: TraineeRestrictionRecordDto[] = RESTRICTION_SEEDS.map(
+export const TRAINEE_RESTRICTIONS_MOCK_DATA: StoredRecord<TraineeRestrictionRecordDto>[] = RESTRICTION_SEEDS.map(
   (seed, index) => buildRestrictionRecord(seed, index + 1),
 );

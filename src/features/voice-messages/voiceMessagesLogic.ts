@@ -1,5 +1,6 @@
 import {
   buildDecisionDetailItems,
+  buildReasonDetailItem,
   decisionSearchParts,
   type DetailItem,
 } from "@/features/records/history/card/recordDetails";
@@ -39,7 +40,8 @@ export function isAllCallsMessage(record: Pick<TraineeVoiceMessageRecordDto, "ph
 
 /**
  * הפרטים בכרטיס פתוח (בכל שורה - הפרט הימני ראשון).
- * המספר, התאריכים והסטטוס כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן
+ * המספר, התאריכים והסטטוס כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן.
+ * הסיבה מהרשימה היא שדה של 05 (הסרביס שלו עוד לא הוגדר), ולכן השורה שלה נבנית כאן
  */
 export function buildVoiceMessageDetails(record: TraineeVoiceMessageRecordDto): DetailItem[] {
   return [
@@ -49,6 +51,7 @@ export function buildVoiceMessageDetails(record: TraineeVoiceMessageRecordDto): 
       value: record.repeatDuringCall ? TEXTS.details.yes : TEXTS.details.no,
       isFullWidth: true,
     },
+    buildReasonDetailItem(record.reason),
     ...buildDecisionDetailItems(record),
   ];
 }
@@ -60,10 +63,11 @@ function buildVoiceMessageSearchParts(record: TraineeVoiceMessageRecordDto): str
   return [
     record.phoneNumber ?? TEXTS.card.allCalls,
     record.repeatDuringCall ? TEXTS.details.repeatDuringCall : "",
+    record.reason,
     ...decisionSearchParts(record),
-    formatDateRange(record.startDate, record.endDate),
-    record.startDate,
-    record.endDate,
+    formatDateRange(record.dateStart, record.dateEnd),
+    record.dateStart,
+    record.dateEnd,
   ];
 }
 

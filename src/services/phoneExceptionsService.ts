@@ -21,9 +21,9 @@ import { clearCachedTrainees } from "./traineesService";
 
 const ENDPOINTS = SERVICE_ENDPOINTS.phoneExceptions;
 
-/** כל ההגבלות וההיתרים של החניך למספרים, פעילים ושהסתיימו (ספק 04 history §6). בלי זכרון - תמיד מהשרת */
+/** כל ההגבלות וההיתרים של החניך למספרים, פעילים ושהסתיימו (ספק 04 history §6, B-5). בלי זכרון - תמיד מהשרת */
 export async function getTraineePhoneRecords(traineeId: number): Promise<TraineePhoneRecordDto[]> {
-  const request: GetTraineePhoneRecordsRequest = { traineeIds: [traineeId] };
+  const request: GetTraineePhoneRecordsRequest = { idntTraineeList: [traineeId] };
   const response = await serviceClient.post<GetTraineePhoneRecordsResponse>(ENDPOINTS.getTraineePhoneRecords, request);
   return response.records;
 }
@@ -31,6 +31,7 @@ export async function getTraineePhoneRecords(traineeId: number): Promise<Trainee
 export interface PermitRestrictionsLookup {
   traineeId: number;
   instituteId: number;
+  /** מספר מנורמל (ספרות בלבד) */
   phoneNumber: PhoneString;
 }
 
@@ -40,12 +41,17 @@ export async function lookupPhoneRestrictionsForPermit({
   instituteId,
   phoneNumber,
 }: PermitRestrictionsLookup): Promise<SourceRestrictionSummaryDto[]> {
-  const request: LookupPhoneRestrictionsForPermitRequest = { traineeId, instituteId, phoneNumbers: [phoneNumber] };
+  const request: LookupPhoneRestrictionsForPermitRequest = {
+    idntTrainee: traineeId,
+    idntInstitution: instituteId,
+    phoneNumberList: [phoneNumber],
+  };
   const response = await serviceClient.post<LookupPhoneRestrictionsForPermitResponse>(
     ENDPOINTS.lookupRestrictionsForPermit,
     request,
   );
-  const phoneResult = response.results.find((result) => result.phoneNumber === phoneNumber);
+  // השרת מחזיר את המספר אחרי נרמול; המספר שנשלח כבר מנורמל, ולכן הם שווים
+  const phoneResult = response.results.find((result) => result.textPhoneNumber === phoneNumber);
   return phoneResult?.activeRestrictions ?? [];
 }
 

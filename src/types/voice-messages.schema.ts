@@ -3,7 +3,8 @@
  * @description סכמות עבור פעולת "הודעה קולית לנמען": הודעה מזהה שמושמעת לנמען בשיחות היוצאות של החניך.
  *
  * הסכמה משוערת - נוסחה בקליינט לפי ספק 05 וההחלטות עליו, עד שהסרביס יגדיר אותה (ראו pending-decisions).
- * שמות הטבלאות בבסיס הנתונים עדיין לא ידועים.
+ * שמות הטבלאות בבסיס הנתונים עדיין לא ידועים. החלקים המשותפים לכל הרשומות (audit, אישור, תוצאת שמירה,
+ * תאריכי הרשומה) עוקבים אחרי המוסכמות של הסרביס ב-03/04; השדות של 05 עצמו נשארים כפי שנוסחו.
  *
  * כולל:
  * 1. שליפת ההודעות של חניך.
@@ -12,9 +13,9 @@
  */
 
 import type {
+  ApprovalInput,
   AuditMetadataDto,
   DecisionApprovalDto,
-  DecisionApprovalInput,
   ISODateString,
   MutationResultDto,
   PhoneString,
@@ -40,7 +41,7 @@ export interface TraineeVoiceMessageRecordDto extends DecisionApprovalDto, Audit
   id: number;
   traineeId: number;
   scope: VoiceMessageScope;
-  /** מזהה המספר בטבלת המספרים (AVIV_PHONE_NUMBERS), כמו ברשומות "הגבלות והיתרים למספר". null כש-scope === "all" */
+  /** מזהה המספר בטבלת המספרים (AVIV_LIST_PHONE_NUMBER), כמו ברשומות "הגבלות והיתרים למספר". null כש-scope === "all" */
   phoneNumberId: number | null;
   /** המספר שההודעה מושמעת בשיחות אליו. null כש-scope === "all" */
   phoneNumber: PhoneString | null;
@@ -49,8 +50,10 @@ export interface TraineeVoiceMessageRecordDto extends DecisionApprovalDto, Audit
    * זו "ההודעה האינטראקטיבית" של דגלי רשימת החניכים. false = הודעה רגילה, פעם אחת לפני השיחה
    */
   repeatDuringCall: boolean;
-  startDate: ISODateString;
-  endDate: ISODateString;
+  /** הסיבה מהרשימה הסגורה (שם). שדה של 05 בלבד - ב-03/04 הסיבה עדיין לא נשמרת ולא מוחזרת */
+  reason: string;
+  dateStart: ISODateString;
+  dateEnd: ISODateString;
 }
 
 export interface GetTraineeVoiceMessagesResponse {
@@ -58,10 +61,22 @@ export interface GetTraineeVoiceMessagesResponse {
 }
 
 // ============================================================================
-// 2. יצירת הודעה
+// 2. פרטי ההחלטה בשליחה - הסיבה (שם וקוד) והפירוט כפי שנוסחו ב-05, והאישור המשותף
 // ============================================================================
 
-export interface CreateTraineeVoiceMessageRequest extends DecisionApprovalInput {
+export interface VoiceMessageDecisionInput extends ApprovalInput {
+  /** סיבה שנבחרה מרשימה */
+  reason: string;
+  reasonCode?: number;
+  /** פירוט חופשי */
+  details: string;
+}
+
+// ============================================================================
+// 3. יצירת הודעה
+// ============================================================================
+
+export interface CreateTraineeVoiceMessageRequest extends VoiceMessageDecisionInput {
   /** מערך מזהי חניכים (במסך חניך בודד: [traineeId]) */
   traineeIds: number[];
   scope: VoiceMessageScope;
@@ -72,13 +87,13 @@ export interface CreateTraineeVoiceMessageRequest extends DecisionApprovalInput 
   endDate: ISODateString;
 }
 
-export type CreateTraineeVoiceMessageResponse = MutationResultDto<TraineeVoiceMessageRecordDto>;
+export type CreateTraineeVoiceMessageResponse = MutationResultDto;
 
 // ============================================================================
-// 3. עדכון הודעה קיימת (מכבה את הרשומה הקודמת ויוצר רשומה פעילה חדשה)
+// 4. עדכון הודעה קיימת (מכבה את הרשומה הקודמת ויוצר רשומה פעילה חדשה)
 // ============================================================================
 
-export interface UpdateTraineeVoiceMessageRequest extends DecisionApprovalInput {
+export interface UpdateTraineeVoiceMessageRequest extends VoiceMessageDecisionInput {
   /** מזהה הרשומה הקודמת שתהפוך ל-LOGI_ACTIVE = 0 */
   previousId: number;
   traineeId: number;
@@ -91,4 +106,4 @@ export interface UpdateTraineeVoiceMessageRequest extends DecisionApprovalInput 
   endDate: ISODateString;
 }
 
-export type UpdateTraineeVoiceMessageResponse = MutationResultDto<TraineeVoiceMessageRecordDto>;
+export type UpdateTraineeVoiceMessageResponse = MutationResultDto;
