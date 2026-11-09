@@ -1,4 +1,4 @@
-﻿namespace Aviv_Service.Models;
+﻿namespace Aviv_Service.Models.PhoneExceptions;
 
 // בקשות "הגבלות והיתרים למספר" (פיצ'ר 04), בשמות בסגנון ה-DB כמו שאר הסרביס (A-7).
 // תאריכים ושעות כמחרוזות "yyyy-MM-dd" / "HH:mm" (A-8). TextFileName לתצוגה בלבד; הפרוצדורות מקבלות @TEXT_FILE בלבד (D-13).

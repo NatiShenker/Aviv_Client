@@ -38,35 +38,34 @@ Paths are relative to `service-layer/`. Namespaces follow the folders: `Aviv_Ser
 | `Utils/TraineeRestrictionsConstants.cs` | `TraineeRestrictionsLimits` (`DetailsMaxLength = 1000`, the length of `AVIV_TRAINEE_RESTRICTION.TEXT_RESTRICTION_REASON`, assumed until TQ-2) and `TraineeRestrictionsRequestFields` (the camelCase names a 400 can carry, §6). |
 | `Utils/StoredProcedures.TraineeRestrictions.cs` | The three procedure names, a `partial` addition to `StoredProcedures` (A-15, I-16). |
 
-### 2.2 Shared files (new, 10; T-12)
+### 2.2 Shared files (new, 9; T-12)
 
-Extracted from the 04 files in phase 3, batch 3. Each file is named by what it holds; none carries a feature prefix.
+Extracted from the 04 files in phase 3. Each file is named by what it holds; none carries a feature prefix. *(Revised 2026-11-09 after the owner's review of batch 3, TI-7: helpers are grouped by kind, so a helper that only 04 uses today sits with its siblings; a shared file never imports a feature namespace.)*
 
 | File | Holds | Taken from |
 |---|---|---|
-| `Models/LookupItemDto.cs` | `LookupItemDto` (id + name) | `PhoneExceptionsResponses.cs` |
-| `Models/ApprovalDtos.cs` | `ApproverDto`, `FileDto` – the "סיבות ואישורים" block of spec 00 §4.3 | `PhoneExceptionsResponses.cs` |
-| `Models/MutationResultDto.cs` | `MutationResultDto { CreatedIds }` (A-14) | `PhoneExceptionsResponses.cs` |
-| `Models/DeviceRow.cs` | `DeviceRow { ConditionsRowId, DeviceId, DeviceName }` | `PhoneExceptionsRows.cs` |
-| `Models/CreatedIdRow.cs` | `CreatedIdRow { CreatedId }` | `PhoneExceptionsRows.cs` |
+| `Models/RecordDtos.cs` | The DTOs every record returns the same way: `LookupItemDto` (id + name), `ApproverDto` and `FileDto` (the "סיבות ואישורים" block of spec 00 §4.3), `MutationResultDto { CreatedIds }` (A-14) | `PhoneExceptionsResponses.cs` |
+| `Models/RecordRows.cs` | The rows every read or save returns the same way: `DeviceRow`, `InstituteRow` (04 only today), `CreatedIdRow` | `PhoneExceptionsRows.cs` |
 | `Services/RequestRules.cs` | Static, pure input rules that take the field name as a parameter: `RequireIdList`, `DistinctPositiveIds`, `RequirePositive`, `RequirePositiveWhenPresent`, `RequireDateRange`, `RequireDurationRange` (owns `DurationMinutesMin = 1`, `DurationMinutesMax = 120`), `ValidateTimeWindow`, `RequireText`. Each throws `ApiException.Validation(fieldName)` on the first failing rule. | the private helpers of `PhoneExceptionsRequestValidator.cs` |
-| `Repository/ProcedureParameters.cs` | Static Dapper helpers for the parameters every save shares: `AddIdList` (TVP via `ToDataTable()`), `AddDateRange`, `AddConditions`, `AddApproval` (takes the details parameter name and the feature's details length), `AddActingUser`. *(Added while listing the 03 repository: the 04 repository holds the same five private helpers, ~45 lines.)* | the private helpers of `PhoneExceptionsRepository.cs` |
+| `Services/RecordPartsAssembler.cs` | The parts every assembler builds the same way from rows: `ToDevices`, `ToInstitutes` (04 only today), `ToApprover` (Q-1: name empty until a users join exists), `ToFile` (D-13, via `FilePaths`) | the private helpers of `PhoneRecordsAssembler.cs` |
+| `Repository/ProcedureParameters.cs` | Static Dapper helpers for the procedure parameters: `AddIdList` (TVP via `ToDataTable()`), `AddPhoneNumberList` (04 only today, A-9), `AddDateRange`, `AddConditions`, `AddApproval` (takes the details parameter name and the feature's details length), `AddActingUser` | the private helpers of `PhoneExceptionsRepository.cs` |
+| `Repository/CreatedIds.cs` | `static Task<List<int>> ReadAsync(IDataAccess dataAccess, string databaseName, string procedureName, DynamicParameters parameters)` – runs a save procedure through `QueryMultiple` and reads its `CreatedIdRow` set (A-14, A-16) | `ReadCreatedIdsAsync` of `PhoneExceptionsRepository.cs` |
 | `Utils/FilePaths.cs` | `TextFileMaxLength = 500` and `FileNameFromPath(path)` – the D-13 rule | `PhoneRecordsAssembler.cs`, `PhoneExceptionsConstants.cs` |
 | `Infrastructure/ApiActionRunner.cs` | `static Task<IActionResult> RunAsync<TRequest, TResponse>(TRequest request, Func<TRequest, Task<TResponse>> action, string actionName, ILogger logger)`: `Ok(response)`; `ApiException` → `ErrorResponses.FromApiException`; business `SqlException` (50400–50499) → the same through `SqlErrorMapper`; anything else → log + 500 (A-2, A-6, A-13) | the private `RunAsync` of `PhoneExceptionsController.cs` |
 | `Infrastructure/ActingUserId.cs` | `static int From(ICurrentUserService currentUserService)` – the one place that knows the member of `ICurrentUserService` (I-7) | `GetActingUserId()` of `PhoneExceptionsOrchestrator.cs` |
 
-Already shared and unchanged: `Infrastructure/ApiException.cs`, `Infrastructure/ApiErrors.cs`, `Utils/DateTimeStrings.cs`.
+Already shared and unchanged: `Infrastructure/ApiException.cs`, `Infrastructure/ApiErrors.cs`, `Utils/DateTimeStrings.cs`. Limits sit next to what they limit: `RequestRules.DurationMinutesMin / Max`, `FilePaths.TextFileMaxLength`, `PhoneNumbers.ListMaxLength`; each feature keeps only its `DetailsMaxLength` (per table, I-14).
 
 ### 2.3 What changes in the 04 files (phase 3, batch 3; mechanical, no logic)
 
 | 04 file | Change |
 |---|---|
-| `Models/PhoneExceptions/PhoneExceptionsRequests.cs`, `…Responses.cs`, `…Rows.cs` | Moved into the feature sub-folder, namespace `Aviv_Service.Models.PhoneExceptions`; the shared types of §2.2 removed from Responses and Rows |
-| `Services/PhoneExceptions/PhoneExceptionsOrchestrator.cs`, `PhoneExceptionsRequestValidator.cs`, `PhoneRecordsAssembler.cs` | Moved, namespace `Aviv_Service.Services.PhoneExceptions`; `GetActingUserId()` → `ActingUserId.From`; the private rules → `RequestRules.*` (the composition stays in the validator, with `PhoneExceptionsRequestFields`); `FileNameFromPath` → `FilePaths.FileNameFromPath` |
+| `Models/PhoneExceptions/PhoneExceptionsRequests.cs`, `…Responses.cs`, `…Rows.cs` | Moved into the feature sub-folder, namespace `Aviv_Service.Models.PhoneExceptions`; the shared types of §2.2 removed from Responses (`LookupItemDto`, `ApproverDto`, `FileDto`, `MutationResultDto`) and Rows (`DeviceRow`, `InstituteRow`, `CreatedIdRow`) |
+| `Services/PhoneExceptions/PhoneExceptionsOrchestrator.cs`, `PhoneExceptionsRequestValidator.cs`, `PhoneRecordsAssembler.cs` | Moved, namespace `Aviv_Service.Services.PhoneExceptions`; `GetActingUserId()` → `ActingUserId.From`; the private rules → `RequestRules.*` (the composition stays in the validator, with `PhoneExceptionsRequestFields`); `ToDevices`, `ToInstitutes`, `ToFile` and the approver line → `RecordPartsAssembler.*`; `PhoneExceptionsLimits.PhoneNumberListMaxLength` → `PhoneNumbers.ListMaxLength` |
 | `Controllers/PhoneExceptionsController.cs` | `RunAsync` → `ApiActionRunner.RunAsync`; `using Aviv_Service.Models.PhoneExceptions;` |
-| `Repository/PhoneExceptionsRepository.cs` | The five private helpers → `ProcedureParameters.*`; `PhoneExceptionsLimits.TextFileMaxLength` → `FilePaths.TextFileMaxLength`; `using` of the moved namespace |
+| `Repository/PhoneExceptionsRepository.cs` | The six private helpers → `ProcedureParameters.*` (`AddPhoneNumberList` included); `ReadCreatedIdsAsync` → `CreatedIds.ReadAsync`; `using` of the moved namespace |
 | `Interfaces/IPhoneExceptionsOrchestrator.cs`, `IPhoneExceptionsRepository.cs` | `using Aviv_Service.Models.PhoneExceptions;` |
-| `Utils/PhoneExceptionsConstants.cs` | `PhoneExceptionsLimits` keeps `DetailsMaxLength` and `PhoneNumberListMaxLength`; `TextFileMaxLength`, `DurationMinutesMin/Max` removed (now in `FilePaths` and `RequestRules`) |
+| `Utils/PhoneExceptionsConstants.cs`, `Utils/PhoneNumbers.cs` | `PhoneExceptionsLimits` keeps `DetailsMaxLength` only; `TextFileMaxLength`, `DurationMinutesMin/Max` moved to `FilePaths` and `RequestRules`; `PhoneNumberListMaxLength` moved to `PhoneNumbers.ListMaxLength`, next to `JoinForProcedure` |
 | `../number-restrictions/03-manual-test-checklist.md` §F.1, §F.2 row 7 | The copy list becomes the layout of §2.4; the DI registration line names `Aviv_Service.Services.PhoneExceptions` |
 
 ### 2.4 The resulting layout of `service-layer/`
@@ -76,11 +75,11 @@ Controllers/     PhoneExceptionsController.cs, TraineeRestrictionsController.cs
 Infrastructure/  ApiException.cs, ApiErrors.cs, ApiActionRunner.cs, ActingUserId.cs
 Interfaces/      IPhoneExceptionsOrchestrator.cs, IPhoneExceptionsRepository.cs,
                  ITraineeRestrictionsOrchestrator.cs, ITraineeRestrictionsRepository.cs
-Models/          LookupItemDto.cs, ApprovalDtos.cs, MutationResultDto.cs, DeviceRow.cs, CreatedIdRow.cs
+Models/          RecordDtos.cs, RecordRows.cs
                  PhoneExceptions/      PhoneExceptionsRequests.cs, PhoneExceptionsResponses.cs, PhoneExceptionsRows.cs
                  TraineeRestrictions/  TraineeRestrictionsRequests.cs, TraineeRestrictionsResponses.cs, TraineeRestrictionsRows.cs
-Repository/      ProcedureParameters.cs, PhoneExceptionsRepository.cs, TraineeRestrictionsRepository.cs
-Services/        RequestRules.cs
+Repository/      ProcedureParameters.cs, CreatedIds.cs, PhoneExceptionsRepository.cs, TraineeRestrictionsRepository.cs
+Services/        RequestRules.cs, RecordPartsAssembler.cs
                  PhoneExceptions/      PhoneExceptionsOrchestrator.cs, PhoneExceptionsRequestValidator.cs, PhoneRecordsAssembler.cs
                  TraineeRestrictions/  TraineeRestrictionsOrchestrator.cs, TraineeRestrictionsRequestValidator.cs, TraineeRestrictionsAssembler.cs
 Utils/           DateTimeStrings.cs, FilePaths.cs, PhoneNumbers.cs, PhoneExceptionsConstants.cs, TraineeRestrictionsConstants.cs,

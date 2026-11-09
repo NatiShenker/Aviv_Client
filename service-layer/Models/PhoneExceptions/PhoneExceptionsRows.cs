@@ -1,7 +1,7 @@
-﻿namespace Aviv_Service.Models;
+﻿namespace Aviv_Service.Models.PhoneExceptions;
 
 // השורות השטוחות שהפרוצדורות של "הגבלות והיתרים למספר" מחזירות. הכינויים ב-SQL הם שמות המאפיינים (Dapper ממפה לפי שם).
-// תאריכים כ-DateTime; המחרוזות נוצרות ב-PhoneRecordsAssembler (I-5).
+// תאריכים כ-DateTime; המחרוזות נוצרות ב-PhoneRecordsAssembler (I-5). DeviceRow, InstituteRow ו-CreatedIdRow יושבים ב-Models/RecordRows.cs (T-12 של 03).
 
 /// <summary>
 /// תוצאות 1 ו-2 של SP_AVIV_GET_TRAINEE_NUMBER_RESTRICTIONS_AND_PERMITS: הגבלה (IsPermit = 0) או היתר (IsPermit = 1), אותם כינויים בשתיהן.
@@ -64,14 +64,6 @@ public class SourceRestrictionRow
     public string? TextReason { get; set; }
 }
 
-/// <summary>פנימייה המקושרת להגבלה כללית (AVIV_INSTITUTES_RESTRICTION_NUMBER). היסטוריה תוצאה 4, lookup תוצאה 2. שם ריק כשאין שורת ייחוס (I-15).</summary>
-public class InstituteRow
-{
-    public int RestrictionNumberId { get; set; }
-    public int InstituteId { get; set; }
-    public string InstituteName { get; set; } = "";
-}
-
 /// <summary>תוצאה 3 של SP_AVIV_GET_RESTRICTIONS_FOR_PERMIT: היתר קיים של החניך על הגבלת מקור, שלא הסתיים.</summary>
 public class ExistingPermitRow
 {
@@ -82,23 +74,6 @@ public class ExistingPermitRow
     public int? NumbDurationLimit { get; set; }
     public DateTime? TimePermitStart { get; set; }
     public DateTime? TimePermitEnd { get; set; }
-}
-
-/// <summary>
-/// מכשיר של שורת תנאים או של היתר (AVIV_PERMITS_DEVICE). היסטוריה תוצאה 3, lookup תוצאה 4.
-/// ConditionsRowId – השורה ב-AVIV_PERMITS_FOR_RESTRICTION שאליה שייך המכשיר. שם ריק כשאין שורת ייחוס (I-15).
-/// </summary>
-public class DeviceRow
-{
-    public int ConditionsRowId { get; set; }
-    public int DeviceId { get; set; }
-    public string DeviceName { get; set; } = "";
-}
-
-/// <summary>סט התוצאה האחרון של כל פרוצדורת שמירה: המזהים שנוצרו (A-14).</summary>
-public class CreatedIdRow
-{
-    public int CreatedId { get; set; }
 }
 
 /// <summary>סטי התוצאה של SP_AVIV_GET_TRAINEE_NUMBER_RESTRICTIONS_AND_PERMITS: הרשומות (הגבלות והיתרים יחד), המכשירים, הפנימיות.</summary>

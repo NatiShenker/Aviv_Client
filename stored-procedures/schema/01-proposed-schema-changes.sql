@@ -1,4 +1,4 @@
-/* ============================================================================
+﻿/* ============================================================================
    Aviv - number restrictions and permits (feature 04)
    Schema changes for the DBA - phase 1 output, trimmed in phase 2, reduced
    again on 2026-11-08 by the product owner's decision (see below).
@@ -113,10 +113,11 @@ GO
 -- ALTER TABLE dbo.AVIV_FILE ADD TEXT_FILE_NAME nvarchar(255) NULL;   -- optional
 
 /* ----------------------------------------------------------------------------
-   8. AVIV_TRAINEE_RESTRICTION (feature 03 - outside this scope)         CLOSED (D-12)
-   The trainee key is unified to IDNT_TRAINEE across all tables.
+   8. AVIV_TRAINEE_RESTRICTION (feature 03)                              CLOSED (D-12)
+   The trainee key is unified to IDNT_TRAINEE across all tables. The rename
+   lives in the feature 03 script, delivered together with this one:
+   stored-procedures/schema/02-proposed-schema-changes-trainee-restrictions.sql
    ---------------------------------------------------------------------------- */
--- EXEC sp_rename 'dbo.AVIV_TRAINEE_RESTRICTION.IDNT_AVIV_TRAINEE_DATA', 'IDNT_TRAINEE', 'COLUMN';
 
 /* ----------------------------------------------------------------------------
    9. Environment checks (read-only, run once)

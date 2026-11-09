@@ -2,9 +2,12 @@
 
 namespace Aviv_Service.Utils;
 
-/// <summary>נרמול ואימות של מספרי טלפון בפורמט המקומי (§6), וחיבורם למחרוזת אחת לפרוצדורות (A-9).</summary>
+/// <summary>נרמול ואימות של מספרי טלפון בפורמט המקומי (§6), וחיבורם למחרוזת אחת לפרוצדורות (A-9), עם גודל הפרמטר שמקבל אותה.</summary>
 public static class PhoneNumbers
 {
+    /// <summary>A-9, I-17: @PHONE_NUMBER_LIST הוא VARCHAR(500); מחרוזת ארוכה יותר הייתה נקטעת בשקט והמספר האחרון אובד. כ-45 מספרים נכנסים.</summary>
+    public const int ListMaxLength = 500;
+
     private static readonly Regex LocalNumberPattern = new(@"^0\d{8,9}$", RegexOptions.Compiled);
 
     // תווי עיצוב שמשתמשים מקלידים ואינם חלק מהמספר

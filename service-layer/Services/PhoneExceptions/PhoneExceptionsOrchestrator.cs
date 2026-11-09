@@ -1,11 +1,13 @@
-﻿using Aviv_Service.Interfaces;
+﻿using Aviv_Service.Infrastructure;
+using Aviv_Service.Interfaces;
 using Aviv_Service.Models;
+using Aviv_Service.Models.PhoneExceptions;
 
-namespace Aviv_Service.Services;
+namespace Aviv_Service.Services.PhoneExceptions;
 
 /// <summary>
 /// האורקסטרטור של "הגבלות והיתרים למספר" (A-11): מאמת את הבקשה, לוקח את המשתמש הפועל, יוצר מזהה בקשה לכל שמירה,
-/// קורא ל-repository ומרכיב את התשובה. חריגות אינן נתפסות כאן – הקונטרולר מתרגם אותן ל-HTTP (A-6).
+/// קורא ל-repository ומרכיב את התשובה. חריגות אינן נתפסות כאן – ApiActionRunner מתרגם אותן ל-HTTP (A-6).
 /// </summary>
 public class PhoneExceptionsOrchestrator(
     IPhoneExceptionsRepository phoneExceptionsRepository,
@@ -33,12 +35,13 @@ public class PhoneExceptionsOrchestrator(
 
     // ===========================================
     // שמירה – D-19: מזהה בקשה אחד (Guid) לכל שמירה, נחתם על כל שורה שהפרוצדורה כותבת (LAST_REQUEST_UID)
+    // D-14, I-7: המשתמש הפועל נקרא דרך ActingUserId (משותף, T-12 של 03)
     // ===========================================
 
     public async Task<MutationResultDto> CreateTraineePhoneRestrictionAsync(CreateTraineeRestrictionNumberRequestDto request)
     {
         CreateTraineeRestrictionNumberRequestDto validRequest = PhoneExceptionsRequestValidator.ValidateCreateRestriction(request);
-        List<int> createdIds = await phoneExceptionsRepository.CreateTraineeRestrictionNumberAsync(validRequest, GetActingUserId(), Guid.NewGuid());
+        List<int> createdIds = await phoneExceptionsRepository.CreateTraineeRestrictionNumberAsync(validRequest, ActingUserId.From(currentUserService), Guid.NewGuid());
 
         return new MutationResultDto { CreatedIds = createdIds };
     }
@@ -46,7 +49,7 @@ public class PhoneExceptionsOrchestrator(
     public async Task<MutationResultDto> UpdateTraineePhoneRestrictionAsync(UpdateTraineeRestrictionNumberRequestDto request)
     {
         UpdateTraineeRestrictionNumberRequestDto validRequest = PhoneExceptionsRequestValidator.ValidateUpdateRestriction(request);
-        List<int> createdIds = await phoneExceptionsRepository.UpdateTraineeRestrictionNumberAsync(validRequest, GetActingUserId(), Guid.NewGuid());
+        List<int> createdIds = await phoneExceptionsRepository.UpdateTraineeRestrictionNumberAsync(validRequest, ActingUserId.From(currentUserService), Guid.NewGuid());
 
         return new MutationResultDto { CreatedIds = createdIds };
     }
@@ -54,7 +57,7 @@ public class PhoneExceptionsOrchestrator(
     public async Task<MutationResultDto> CreateTraineePhonePermitAsync(CreateTraineePermitRequestDto request)
     {
         CreateTraineePermitRequestDto validRequest = PhoneExceptionsRequestValidator.ValidateCreatePermit(request);
-        List<int> createdIds = await phoneExceptionsRepository.CreateTraineePermitForRestrictionNumberAsync(validRequest, GetActingUserId(), Guid.NewGuid());
+        List<int> createdIds = await phoneExceptionsRepository.CreateTraineePermitForRestrictionNumberAsync(validRequest, ActingUserId.From(currentUserService), Guid.NewGuid());
 
         return new MutationResultDto { CreatedIds = createdIds };
     }
@@ -62,28 +65,8 @@ public class PhoneExceptionsOrchestrator(
     public async Task<MutationResultDto> UpdateTraineePhonePermitAsync(UpdateTraineePermitRequestDto request)
     {
         UpdateTraineePermitRequestDto validRequest = PhoneExceptionsRequestValidator.ValidateUpdatePermit(request);
-        List<int> createdIds = await phoneExceptionsRepository.UpdateTraineePermitForRestrictionNumberAsync(validRequest, GetActingUserId(), Guid.NewGuid());
+        List<int> createdIds = await phoneExceptionsRepository.UpdateTraineePermitForRestrictionNumberAsync(validRequest, ActingUserId.From(currentUserService), Guid.NewGuid());
 
         return new MutationResultDto { CreatedIds = createdIds };
-    }
-
-    // ===========================================
-    // עזרים
-    // ===========================================
-
-    /// <summary>
-    /// D-14: המשתמש הפועל נרשם ב-IDNT_USER_UPDATE.
-    /// I-7: החבר של ICurrentUserService אינו ידוע מהרפרנס; זו הנקודה היחידה שמתאימים בסרביס האמיתי.
-    /// </summary>
-    private int GetActingUserId()
-    {
-        string? userId = currentUserService.UserId;
-
-        if (!int.TryParse(userId, out int actingUserId))
-        {
-            throw new InvalidOperationException("The current user id is missing or is not a number.");
-        }
-
-        return actingUserId;
     }
 }

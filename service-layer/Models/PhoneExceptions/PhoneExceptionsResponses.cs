@@ -1,7 +1,8 @@
-﻿namespace Aviv_Service.Models;
+﻿namespace Aviv_Service.Models.PhoneExceptions;
 
 // תשובות "הגבלות והיתרים למספר". תאריכים "yyyy-MM-dd", שעות "HH:mm", חותמות ביקורת "yyyy-MM-ddTHH:mm:ss" (A-8, I-18).
 // I-19: הדגלים IsPermit ו-IsEnded וקוד ה-scope מגיעים מהפרוצדורה כמו שהם; הקליינט מחזיק את ה-LOOKUP ומחליט מה להציג.
+// הטיפוסים המשותפים (LookupItemDto, ApproverDto, FileDto, MutationResultDto) יושבים ב-Aviv_Service.Models (T-12 של 03).
 
 /// <summary>תשובת GetTraineePhoneRecords: הגבלות והיתרים באותה רשימה; המיון הוא של הקליינט (B-5).</summary>
 public class TraineePhoneRecordsResponseDto
@@ -95,33 +96,4 @@ public class PhoneLookupResultDto
 {
     public string TextPhoneNumber { get; set; } = "";
     public List<SourceRestrictionSummaryDto> ActiveRestrictions { get; set; } = [];
-}
-
-/// <summary>מזהה ושם לתצוגה (מכשיר, פנימייה). שם ריק כשאין שורת ייחוס (C-8).</summary>
-public class LookupItemDto
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = "";
-}
-
-/// <summary>הגורם המאשר (IDNT_USER_APPROVAL). Q-1, I-8: טבלת המשתמשים במסד אחר – השם ריק עד שיהיה JOIN; הקליינט מציג את המזהה.</summary>
-public class ApproverDto
-{
-    public int Id { get; set; }
-    public string FullName { get; set; } = "";
-    public string? RoleTitle { get; set; }
-}
-
-/// <summary>קובץ האישור (AVIV_FILE). D-13: TextFile הוא הנתיב ב-SharePoint, FileName נגזר מהקטע האחרון שלו.</summary>
-public class FileDto
-{
-    public int Id { get; set; }
-    public string FileName { get; set; } = "";
-    public string TextFile { get; set; } = "";
-}
-
-/// <summary>תשובת כל שמירה (A-14): המזהים שנוצרו בלבד. הקליינט טוען מחדש את ההיסטוריה ופותח את CreatedIds[0].</summary>
-public class MutationResultDto
-{
-    public List<int> CreatedIds { get; set; } = [];
 }

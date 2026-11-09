@@ -1,11 +1,13 @@
 ﻿using Aviv_Service.Models;
+using Aviv_Service.Models.PhoneExceptions;
 using Aviv_Service.Utils;
 
-namespace Aviv_Service.Services;
+namespace Aviv_Service.Services.PhoneExceptions;
 
 /// <summary>
 /// הרכבת התשובות מסטי התוצאה של הפרוצדורות (A-4, §8): הצמדת מכשירים, פנימיות והיתרים קיימים להורים לפי מזהה,
-/// והמרת תאריכים ושעות למחרוזות (I-5). הדגלים (IsPermit, IsEnded) וקוד ה-scope עוברים מהפרוצדורה כמו שהם (I-19).
+/// והמרת תאריכים ושעות למחרוזות (I-5). החלקים המשותפים לכל רשומה (מכשירים, פנימיות, מאשר, קובץ) נבנים ב-RecordPartsAssembler (T-12 של 03).
+/// הדגלים (IsPermit, IsEnded) וקוד ה-scope עוברים מהפרוצדורה כמו שהם (I-19).
 /// </summary>
 public static class PhoneRecordsAssembler
 {
@@ -36,7 +38,7 @@ public static class PhoneRecordsAssembler
     {
         // D-2: המכשירים יושבים על שורת התנאים (של הגבלה – השורה הצמודה; של היתר – ההיתר עצמו). הגבלה בלי תנאים – בלי שורה ובלי מכשירים
         List<LookupItemDto> devices = row.ConditionsRowId is int conditionsRowId
-            ? ToDevices(devicesByConditionsRowId[conditionsRowId])
+            ? RecordPartsAssembler.ToDevices(devicesByConditionsRowId[conditionsRowId])
             : [];
 
         var record = new TraineePhoneRecordDto
@@ -55,8 +57,8 @@ public static class PhoneRecordsAssembler
             TimePermitEnd = DateTimeStrings.FormatTime(row.TimePermitEnd),
             Devices = devices,
             TextReason = row.TextReason ?? "",
-            Approver = new ApproverDto { Id = row.IdntUserApproval ?? 0 },
-            ApprovedFile = ToFile(row.IdntApprovedFile, row.TextFile),
+            Approver = RecordPartsAssembler.ToApprover(row.IdntUserApproval),
+            ApprovedFile = RecordPartsAssembler.ToFile(row.IdntApprovedFile, row.TextFile),
             DateCreated = DateTimeStrings.FormatTimestamp(row.DateCreated) ?? "",
             DateUpdated = DateTimeStrings.FormatTimestamp(row.DateUpdated),
             IdntUserUpdate = row.IdntUserUpdate ?? 0,
@@ -80,7 +82,7 @@ public static class PhoneRecordsAssembler
             IdntAvivListPhoneNumber = permitRow.PhoneNumberId,
             TextPhoneNumber = permitRow.PhoneNumber,
             CodeRestrictionScope = permitRow.SourceCodeRestrictionScope ?? 0,
-            Institutes = ToInstitutes(institutes),
+            Institutes = RecordPartsAssembler.ToInstitutes(institutes),
             DateStart = DateTimeStrings.FormatDate(permitRow.SourceDateStart),
             DateEnd = DateTimeStrings.FormatDate(permitRow.SourceDateEnd),
             TextReason = permitRow.SourceTextReason ?? "",
@@ -135,7 +137,7 @@ public static class PhoneRecordsAssembler
             IdntAvivListPhoneNumber = row.PhoneNumberId,
             TextPhoneNumber = row.PhoneNumber,
             CodeRestrictionScope = row.CodeRestrictionScope,
-            Institutes = ToInstitutes(institutesByRestrictionId[row.RestrictionNumberId]),
+            Institutes = RecordPartsAssembler.ToInstitutes(institutesByRestrictionId[row.RestrictionNumberId]),
             DateStart = DateTimeStrings.FormatDate(row.DateStart),
             DateEnd = DateTimeStrings.FormatDate(row.DateEnd),
             TextReason = row.TextReason ?? "",
@@ -153,40 +155,7 @@ public static class PhoneRecordsAssembler
             NumbDurationLimit = row.NumbDurationLimit,
             TimePermitStart = DateTimeStrings.FormatTime(row.TimePermitStart),
             TimePermitEnd = DateTimeStrings.FormatTime(row.TimePermitEnd),
-            Devices = ToDevices(devicesByPermitId[row.PermitId]),
+            Devices = RecordPartsAssembler.ToDevices(devicesByPermitId[row.PermitId]),
         };
-    }
-
-    // ===========================================
-    // פריטי משנה
-    // ===========================================
-
-    private static List<LookupItemDto> ToDevices(IEnumerable<DeviceRow> devices)
-    {
-        return devices
-            .Select(device => new LookupItemDto { Id = device.DeviceId, Name = device.DeviceName })
-            .ToList();
-    }
-
-    private static List<LookupItemDto> ToInstitutes(IEnumerable<InstituteRow> institutes)
-    {
-        return institutes
-            .Select(institute => new LookupItemDto { Id = institute.InstituteId, Name = institute.InstituteName })
-            .ToList();
-    }
-
-    /// <summary>D-13: שם הקובץ נגזר מהקטע האחרון של הנתיב ב-SharePoint.</summary>
-    private static FileDto ToFile(int? fileId, string? textFile)
-    {
-        string path = textFile ?? "";
-
-        return new FileDto { Id = fileId ?? 0, FileName = FileNameFromPath(path), TextFile = path };
-    }
-
-    private static string FileNameFromPath(string path)
-    {
-        int lastSeparator = path.LastIndexOfAny(['/', '\\']);
-
-        return lastSeparator < 0 ? path : path[(lastSeparator + 1)..];
     }
 }

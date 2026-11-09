@@ -214,13 +214,15 @@ The exact statements are at the end of `00-test-data.sql`.
 
 ## F. Wire the C# into the real service (`service-layer/`)
 
-### F.1 Copy the sixteen files into the existing folders
+### F.1 Copy the files into the existing folders
 
-`Controllers/PhoneExceptionsController.cs` · `Infrastructure/ApiException.cs` · `Infrastructure/ApiErrors.cs` · `Interfaces/IPhoneExceptionsOrchestrator.cs` · `Interfaces/IPhoneExceptionsRepository.cs` · `Models/PhoneExceptionsRequests.cs` · `Models/PhoneExceptionsResponses.cs` · `Models/PhoneExceptionsRows.cs` · `Repository/PhoneExceptionsRepository.cs` · `Services/PhoneExceptionsOrchestrator.cs` · `Services/PhoneExceptionsRequestValidator.cs` · `Services/PhoneRecordsAssembler.cs` · `Utils/DateTimeStrings.cs` · `Utils/PhoneExceptionsConstants.cs` · `Utils/PhoneNumbers.cs` · `Utils/StoredProcedures.PhoneExceptions.cs`
+**Superseded on 2026-11-09 by feature 03 (decisions T-12, T-13, T-16 in [../trainee-restrictions/decisions.md](../trainee-restrictions/decisions.md)).** The code that both features share was extracted into feature-neutral files, and the 04 `Models` and `Services` files moved into `PhoneExceptions/` sub-folders. The current copy list of **both** features (37 files) is [../trainee-restrictions/03-manual-test-checklist.md §F.1](../trainee-restrictions/03-manual-test-checklist.md); use it instead of the sixteen-file list that stood here.
 
 `Infrastructure/` is a new folder (namespace `Aviv_Service.Infrastructure`). All files are UTF-8 with BOM; the comments are Hebrew.
 
 ### F.2 Adaptation points (the only places that may need a hand edit)
+
+**Superseded on 2026-11-09**: the current table, with the shared files' paths (`Infrastructure/ActingUserId.cs` for the `ICurrentUserService` member, `Infrastructure/ApiActionRunner.cs` for the `SqlClient` namespace, `Repository/ProcedureParameters.cs` for `ToDataTable()`, the DI registrations of both features with their new namespaces), is [../trainee-restrictions/03-manual-test-checklist.md §F.2](../trainee-restrictions/03-manual-test-checklist.md). The table below is the 2026-11-09 morning state, kept for the history of the design; the decision ids still apply.
 
 | # | Where | What to check | Decision |
 |---|---|---|---|
