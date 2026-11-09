@@ -37,7 +37,7 @@ Namespaces and folders follow the existing service (`Aviv_Service.Models`, `.Int
 | `Infrastructure/ApiException.cs`, `Infrastructure/ApiErrors.cs` | The error contract (section 5): `ApiException`; `ApiErrorDto`, `ApiErrorCodes`, `ErrorResponses`, `SqlErrorMapper`. |
 | `Utils/StoredProcedures.PhoneExceptions.cs`, `Utils/PhoneExceptionsConstants.cs`, `Utils/PhoneNumbers.cs`, `Utils/DateTimeStrings.cs` | Procedure name constants (a `partial` addition to the existing class); the input limits and the camelCase field names of 400 bodies (`PhoneExceptionsLimits`, `PhoneExceptionsRequestFields`, I-14, I-17); phone normalization and validation; the string ↔ `DateTime` conversions of A-8 (I-5, I-18). |
 
-The stored procedures live in `stored-procedures/phone-exceptions/`, one file per procedure, and the DDL for the DBA in `stored-procedures/schema/`.
+The stored procedures live in `stored-procedures/number-restrictions/`, one file per procedure, and the DDL for the DBA in `stored-procedures/schema/`.
 
 ---
 

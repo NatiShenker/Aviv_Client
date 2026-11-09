@@ -3,7 +3,7 @@
    Schema changes for the DBA - phase 1 output, trimmed in phase 2, reduced
    again on 2026-11-08 by the product owner's decision (see below).
 
-   Source of every item: service-layer/docs/decisions.md (IDs D-n, A-n, P-n, Q-n, I-n).
+   Source of every item: service-layer/docs/number-restrictions/decisions.md (IDs D-n, A-n, P-n, Q-n, I-n).
 
    WHAT THIS SCRIPT DOES: adds three columns (with the defaults that an
    ADD ... NOT NULL needs on a populated table) and proposes two DECODE sets.

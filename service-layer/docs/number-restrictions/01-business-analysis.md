@@ -118,7 +118,7 @@ erDiagram
 
 ## 6. Schema changes to request from the DBA
 
-The DDL is in [`stored-procedures/schema/01-proposed-schema-changes.sql`](../../stored-procedures/schema/01-proposed-schema-changes.sql). Amended 2026-11-08: by the owner's decision the script applies three columns and two `DECODE` sets only; CHECK constraints and indexes were removed (decisions.md D-18, A-1), and the details columns stay `varchar` (P-9).
+The DDL is in [`stored-procedures/schema/01-proposed-schema-changes.sql`](../../../stored-procedures/schema/01-proposed-schema-changes.sql). Amended 2026-11-08: by the owner's decision the script applies three columns and two `DECODE` sets only; CHECK constraints and indexes were removed (decisions.md D-18, A-1), and the details columns stay `varchar` (P-9).
 
 | Table | Change | Status |
 |---|---|---|

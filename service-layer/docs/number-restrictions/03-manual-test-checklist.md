@@ -90,7 +90,7 @@ WHERE  COLUMNS.name IN ('CODE_RESTRICTION_SCOPE', 'LOGI_RESTRICTION_INLINE_PERMI
 
 ---
 
-## C. Create the six procedures (`stored-procedures/phone-exceptions/`)
+## C. Create the six procedures (`stored-procedures/number-restrictions/`)
 
 Each file starts with `USE [ZeroThree03]` and uses `CREATE OR ALTER`, so the order does not matter and re-running is safe. If A.2 found different collations, apply the `COLLATE DATABASE_DEFAULT` change first.
 
@@ -110,7 +110,7 @@ A failure at this step is almost always a column name (A.7) or a missing DDL col
 
 ---
 
-## D. Run the test script (`stored-procedures/phone-exceptions/00-test-data.sql`)
+## D. Run the test script (`stored-procedures/number-restrictions/00-test-data.sql`)
 
 Run the whole file (F5) and read the grids top to bottom. The script is re-runnable: it removes everything of the test number series `05999900xx` first, including rows that the save examples created. Reference ids (trainee 999001, institute 999001, approver 999001, user 999999, devices 999001 / 999002) exist nowhere else, so `DeviceName` and `InstituteName` come back empty on purpose (I-15, C-8).
 
