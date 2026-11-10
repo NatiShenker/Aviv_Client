@@ -1,5 +1,6 @@
 import { HEBREW_LOCALE } from "@/config/appConstants";
 import { INSTITUTES_TEXTS } from "@/features/institutes/institutesTexts";
+import { formatPersonalNumber } from "@/features/trainee/traineeDisplay";
 import type { WingLocationDto } from "@/types/organization.schema";
 import type { TraineeListFiltersState, TraineeListItemDto, TraineeSortField } from "@/types/trainees.schema";
 import type { TraineeSortOption } from "./traineesListOptions";
@@ -35,7 +36,7 @@ export function locationsOfSelectedWings(
   if (selectedWingIds.length === 0) {
     return locations;
   }
-  return locations.filter((location) => selectedWingIds.includes(location.wingId));
+  return locations.filter((location) => selectedWingIds.includes(location.parentId));
 }
 
 /** משאיר בבחירה רק מיקומים ששייכים לאגפים שנבחרו */
@@ -45,14 +46,14 @@ export function keepLocationsOfWings(
   selectedWingIds: number[],
 ): number[] {
   const availableLocationIds = new Set(
-    locationsOfSelectedWings(locations, selectedWingIds).map((location) => location.id),
+    locationsOfSelectedWings(locations, selectedWingIds).map((location) => location.locationId),
   );
   return selectedLocationIds.filter((locationId) => availableLocationIds.has(locationId));
 }
 
 /** לחניך יש הגבלה פעילה לחניך - התגית "מוגבל עד" בכרטיס (OQ-03) */
 export function isTraineeRestricted(trainee: TraineeListItemDto): boolean {
-  return Boolean(trainee.restrictedUntilDate);
+  return trainee.dateRestrictedUntil !== null;
 }
 
 export function filterAndSortTrainees(
@@ -66,7 +67,7 @@ export function filterAndSortTrainees(
     .sort((first, second) => {
       const bySortField = directionFactor * compareTraineesBy(sort.field, first, second);
       // בשוויון - לפי השם, תמיד מא׳ עד ת׳
-      return bySortField !== 0 ? bySortField : compareHebrew(first.fullName, second.fullName);
+      return bySortField !== 0 ? bySortField : compareHebrew(first.textFullName, second.textFullName);
     });
 }
 
@@ -77,9 +78,9 @@ function matchesTraineeFilters(
 ): boolean {
   const { flags } = trainee;
 
-  // 1. חיפוש טקסטואלי (שם או קוד חניך)
+  // 1. חיפוש טקסטואלי (שם או מספר אישי)
   const q = filters.searchQuery.trim();
-  if (q && !trainee.fullName.includes(q) && !trainee.traineeCode.includes(q)) {
+  if (q && !trainee.textFullName.includes(q) && !formatPersonalNumber(trainee.numbPersonalNumber).includes(q)) {
     return false;
   }
 
@@ -134,11 +135,11 @@ function matchesTraineeFilters(
 function compareTraineesBy(field: TraineeSortField, first: TraineeListItemDto, second: TraineeListItemDto): number {
   switch (field) {
     case "name":
-      return compareHebrew(first.fullName, second.fullName);
+      return compareHebrew(first.textFullName, second.textFullName);
     case "status":
       return Number(isTraineeRestricted(first)) - Number(isTraineeRestricted(second));
     case "minutes":
-      return first.remainingMinutes - second.remainingMinutes;
+      return first.numbRemainingMinutes - second.numbRemainingMinutes;
     case "wing":
       return compareHebrew(first.wing.name, second.wing.name);
     case "location":

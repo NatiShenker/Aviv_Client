@@ -1,4 +1,5 @@
 import { IpsButton } from "ui-library";
+import { useDeviceNameResolver } from "@/features/records/deviceNames";
 import AppIcon from "@/shared/components/AppIcon";
 import type { SourceRestrictionSummaryDto } from "@/types/phone-exceptions.schema";
 import { buildChooseSourceRestrictionLabel, formatExistingPermitsSummary } from "../form/source-restriction/sourceRestrictionPickerLogic";
@@ -27,6 +28,8 @@ export default function SourceRestrictionOptionCard({
 }: SourceRestrictionOptionCardProps) {
   const hasExistingPermits = restriction.existingTraineePermits.length > 0;
   const borderClass = isSelected ? "border-primary" : "border-divider";
+  // E-8: ההיתרים הקיימים מחזיקים מזהי מכשירים; השמות מרשימת מכשירי הפנימייה
+  const deviceNameOf = useDeviceNameResolver();
 
   return (
     <article className={`rounded-card border bg-paper ${borderClass}`}>
@@ -35,7 +38,7 @@ export default function SourceRestrictionOptionCard({
         {/* מידע בלבד - לא מונע היתר נוסף (OQ-12) */}
         {hasExistingPermits && (
           <p className="mt-1 text-sm text-text-primary">
-            {TEXTS.existingPermits(formatExistingPermitsSummary(restriction.existingTraineePermits))}
+            {TEXTS.existingPermits(formatExistingPermitsSummary(restriction.existingTraineePermits, deviceNameOf))}
           </p>
         )}
       </div>

@@ -6,5 +6,5 @@ export const MISSING_PHOTO_URL = "/mock-images/missing-trainee-photo.jpg";
 
 /** תמונת המוק של כל חניך, לפי מזהה החניך: אותה תמונה אמיתית לכולם, מתוך src/assets */
 export const TRAINEE_PHOTOS_MOCK_DATA = new Map<number, string>(
-  TRAINEES_MOCK_DATA.map((trainee) => [trainee.id, traineePhotoUrl]),
+  TRAINEES_MOCK_DATA.map((trainee) => [trainee.idntTrainee, traineePhotoUrl]),
 );

@@ -1,7 +1,8 @@
 import { SERVICE_ENDPOINTS } from "@/config/serviceEndpoints";
 import type { HttpMethod } from "@/infrastructure/http/httpClient";
 import { APPROVER_STAND_IN_ENDPOINTS } from "@/integrations/approver-mfe/approversStandInService";
-import type { ApproverRef, LookupItem, MutationResultDto } from "@/types/common.schema";
+import type { ApproverRef, MutationResultDto } from "@/types/common.schema";
+import type { GetDecodeResponse } from "@/types/lookups.schema";
 import type {
   GetInstituteDevicesResponse,
   GetInstitutesAndWingsResponse,
@@ -21,12 +22,7 @@ import {
   handleGetPermissionsForInstitute,
 } from "./handlers/institutionsHandlers";
 import { handleGetLocationsAndVirtualLocations } from "./handlers/locationsHandlers";
-import {
-  handleGetInstituteDevices,
-  handleGetPhoneExceptionReasons,
-  handleGetTraineeRestrictionReasons,
-  handleGetVoiceMessageReasons,
-} from "./handlers/lookupsHandlers";
+import { handleGetDecode, handleGetInstituteDevices } from "./handlers/lookupsHandlers";
 import {
   handleCreateTraineePhonePermit,
   handleCreateTraineePhoneRestriction,
@@ -70,14 +66,14 @@ const MOCK_ROUTES: MockRoute[] = [
     url: SERVICE_ENDPOINTS.trainees.getTrainees,
     scenarioKey: "trainees",
     handle: handleGetTrainees,
-    createEmptyResponse: (): GetTraineesResponse => ({ trainees: [] }),
+    createEmptyResponse: (): GetTraineesResponse => [],
   },
   {
     method: "POST",
     url: SERVICE_ENDPOINTS.locations.getLocationsAndVirtualLocations,
     scenarioKey: "locations",
     handle: handleGetLocationsAndVirtualLocations,
-    createEmptyResponse: (): GetLocationsAndVirtualLocationsResponse => ({ locations: [] }),
+    createEmptyResponse: (): GetLocationsAndVirtualLocationsResponse => [],
   },
   {
     method: "POST",
@@ -168,28 +164,14 @@ const MOCK_ROUTES: MockRoute[] = [
     url: SERVICE_ENDPOINTS.devices.getInstituteDevices,
     scenarioKey: "devices",
     handle: handleGetInstituteDevices,
-    createEmptyResponse: (): GetInstituteDevicesResponse => ({ devices: [] }),
+    createEmptyResponse: (): GetInstituteDevicesResponse => [],
   },
   {
-    method: "GET",
-    url: SERVICE_ENDPOINTS.lookups.getTraineeRestrictionReasons,
+    method: "POST",
+    url: SERVICE_ENDPOINTS.lookups.getDecode,
     scenarioKey: "reasons",
-    handle: handleGetTraineeRestrictionReasons,
-    createEmptyResponse: (): LookupItem<number>[] => [],
-  },
-  {
-    method: "GET",
-    url: SERVICE_ENDPOINTS.lookups.getPhoneExceptionReasons,
-    scenarioKey: "reasons",
-    handle: handleGetPhoneExceptionReasons,
-    createEmptyResponse: (): LookupItem<number>[] => [],
-  },
-  {
-    method: "GET",
-    url: SERVICE_ENDPOINTS.lookups.getVoiceMessageReasons,
-    scenarioKey: "reasons",
-    handle: handleGetVoiceMessageReasons,
-    createEmptyResponse: (): LookupItem<number>[] => [],
+    handle: handleGetDecode,
+    createEmptyResponse: (): GetDecodeResponse => [],
   },
   // סימולציה של ה-MFE של הגורם המאשר - יימחק כשה-MFE ישולב
   {

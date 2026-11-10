@@ -8,11 +8,11 @@ import { TRAINEES_LIST_TEXTS } from "./traineesListTexts";
 const TEXTS = TRAINEES_LIST_TEXTS.filters;
 
 export function buildWingFilterOptions(wings: WingDto[]): IpsSelectOption[] {
-  return wings.map((wing) => ({ value: wing.id, label: buildWingLabel(wing) }));
+  return wings.map((wing) => ({ value: wing.wingId, label: buildWingLabel(wing) }));
 }
 
 /**
- * מיקומי האגפים שנבחרו בלבד (בלי בחירת אגף - כל המיקומים בפנימייה), מקובצים לפי אגף.
+ * מיקומי האגפים שנבחרו בלבד (בלי בחירת אגף - כל המיקומים בפנימייה), מקובצים לפי אגף (parentId).
  * הקבוצות גם מבדילות בין מיקומים עם אותו שם באגפים שונים
  */
 export function buildLocationFilterOptions(
@@ -20,11 +20,11 @@ export function buildLocationFilterOptions(
   selectedWingIds: number[],
   wings: WingDto[],
 ): IpsSelectOption[] {
-  const wingLabelById = new Map(wings.map((wing) => [wing.id, buildWingLabel(wing)]));
+  const wingLabelById = new Map(wings.map((wing) => [wing.wingId, buildWingLabel(wing)]));
   return locationsOfSelectedWings(locations, selectedWingIds).map((location) => ({
-    value: location.id,
-    label: location.name,
-    group: wingLabelById.get(location.wingId),
+    value: location.locationId,
+    label: location.locationName,
+    group: wingLabelById.get(location.parentId),
   }));
 }
 

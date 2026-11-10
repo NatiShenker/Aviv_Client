@@ -28,9 +28,9 @@ public static class TraineeRestrictionsAssembler
 
     private static TraineeRestrictionRecordDto ToRecord(TraineeRestrictionRow row, ILookup<int, DeviceRow> devicesByConditionsRowId)
     {
-        // D-2, T-2: המכשירים יושבים על שורת התנאים הפנימית; הגבלה בלי שעות ומכשירים – בלי שורה ובלי מכשירים
-        List<LookupItemDto> devices = row.ConditionsRowId is int conditionsRowId
-            ? RecordPartsAssembler.ToDevices(devicesByConditionsRowId[conditionsRowId])
+        // D-2, T-2: המכשירים יושבים על שורת התנאים הפנימית; הגבלה בלי שעות ומכשירים – בלי שורה ובלי מכשירים. E-8: מזהים בלבד
+        List<int> deviceIds = row.ConditionsRowId is int conditionsRowId
+            ? RecordPartsAssembler.ToDeviceIds(devicesByConditionsRowId[conditionsRowId])
             : [];
 
         return new TraineeRestrictionRecordDto
@@ -43,7 +43,7 @@ public static class TraineeRestrictionsAssembler
             NumbDurationLimit = row.NumbDurationLimit,
             TimePermitStart = DateTimeStrings.FormatTime(row.TimePermitStart),
             TimePermitEnd = DateTimeStrings.FormatTime(row.TimePermitEnd),
-            Devices = devices,
+            IdntDeviceList = deviceIds,
             TextReason = row.TextReason ?? "",
             Approver = RecordPartsAssembler.ToApprover(row.IdntUserApproval, row.ApproverName),
             ApprovedFile = RecordPartsAssembler.ToFile(row.IdntApprovedFile, row.TextFile),

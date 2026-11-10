@@ -24,12 +24,12 @@ export async function getLocationsAndVirtualLocations(query: LocationsQuery): Pr
     instituteIds: query.instituteIds,
     wingIds: query.wingIds,
   };
-  const response = await serviceClient.post<GetLocationsAndVirtualLocationsResponse>(
+  const locations = await serviceClient.post<GetLocationsAndVirtualLocationsResponse>(
     SERVICE_ENDPOINTS.locations.getLocationsAndVirtualLocations,
     request,
   );
-  locationsCache.set(query, response.locations);
-  return response.locations;
+  locationsCache.set(query, locations);
+  return locations;
 }
 
 /** המיקומים שכבר נטענו לשאילתה הזו, או null אם עוד לא נטענו */

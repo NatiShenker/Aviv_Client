@@ -47,8 +47,9 @@ export type ApprovedFileInput = Pick<ApprovedFileDto, "fileName" | "textFile">;
 export type CallLimitKind = "full" | "limited";
 
 /**
- * תנאי היתר לשיחה (משותף להגבלת חניך, להגבלת מספר עם תנאים, ולהיתר למספר)
- * בשליפה (GET) מוחזרים אובייקטי המכשירים המלאים (id + name) לצורך הצגה.
+ * תנאי היתר לשיחה (משותף להגבלת חניך, להגבלת מספר עם תנאים, ולהיתר למספר).
+ * בשליפה (GET) מוחזרים מזהי המכשירים בלבד, כמו בשליחה (E-8); השם נלקח מרשימת מכשירי הפנימייה שכבר נטענה
+ * (features/records/deviceNames), ומכשיר שאינו בה - הוסר - מוצג בטקסט נפילה.
  */
 export interface PermittedCallConditionsDto {
   /** משך שיחה מרבי בדקות (1-120). null = ללא הגבלת משך שיחה (או חסימה הרמטית כשאין היתרים) */
@@ -57,8 +58,8 @@ export interface PermittedCallConditionsDto {
   timePermitStart: TimeString | null;
   /** שעת סיום מותרת לשיחה בכל יום בטווח התאריכים (TIME_PERMIT_END). null = כל היממה */
   timePermitEnd: TimeString | null;
-  /** רשימת מכשירים שבהם מותר לחניך לשוחח. מערך ריק [] = מותר בכל מכשירי הפנימייה */
-  devices: LookupItem<number>[];
+  /** מזהי המכשירים שבהם מותר לחניך לשוחח (AVIV_PERMITS_DEVICE.IDNT_DEVICE). מערך ריק [] = מותר בכל מכשירי הפנימייה */
+  idntDeviceList: number[];
 }
 
 /**

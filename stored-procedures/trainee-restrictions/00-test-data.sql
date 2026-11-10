@@ -27,8 +27,8 @@
        institute and location columns (T-2, P-3, P-6).
 
    Reference tables (users, devices) are not touched: the ids below are
-   sentinels that exist nowhere else (Q-1, Q-9). The read procedure LEFT JOINs
-   the device names (I-15), so DeviceName comes back empty here - expected.
+   sentinels that exist nowhere else (Q-1, Q-9). The read procedure returns
+   device ids only (E-8, 2026-11-10); names are the client's, from the devices list.
 
    Scenario for trainee 998001 (today-relative dates, valid whenever it runs):
      R1  duration-limited, 10 minutes, no hours, no devices   (-5 .. +30)  -> one row only (T-2)
@@ -222,7 +222,7 @@ INSERT INTO @BothTraineesList (IDNT_GENERAL) VALUES (@TestTrainee), (@SecondTrai
 --     R3: IsEnded 1, ConditionsRowId NULL
 --     R4: IsEnded 0 (future counts as not ended, C-11), ConditionsRowId = R4 InlineConditions, 08:00-12:00
 --     every row: TextReason filled, TextFile = the test path, IdntUserApproval 999001
---   set 2 (devices, by ConditionsRowId): 2 rows - R2's conditions row -> 999001 and 999002, DeviceName empty
+--   set 2 (devices, by ConditionsRowId): 2 rows - R2's conditions row -> 999001 and 999002 (ids only, E-8)
 EXEC dbo.SP_AVIV_GET_TRAINEE_RESTRICTIONS @IDNT_TRAINEE_LIST = @TraineeList;
 
 -- ===========================================

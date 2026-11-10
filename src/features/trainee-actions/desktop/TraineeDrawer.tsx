@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { IpsIconButton } from "ui-library";
+import { formatPersonalNumber } from "@/features/trainee/traineeDisplay";
 import TraineePhoto from "@/features/trainee/TraineePhoto";
 import { TRAINEE_TEXTS } from "@/features/trainee/traineeTexts";
 import AppIcon from "@/shared/components/AppIcon";
@@ -111,14 +112,14 @@ interface TraineeDrawerHeaderProps {
 function TraineeDrawerHeader({ trainee, titleId, onClose }: TraineeDrawerHeaderProps) {
   return (
     <header className={`flex shrink-0 items-start gap-4 border-b border-divider py-5 ${DRAWER_ROW_GUTTER_CLASS}`}>
-      {trainee && <TraineePhoto traineeId={trainee.id} />}
+      {trainee && <TraineePhoto traineeId={trainee.idntTrainee} />}
       <div className="min-w-0 flex-1 pt-1">
         {trainee ? (
           <>
-            <h2 id={titleId} title={trainee.fullName} className="truncate text-xl font-medium text-text-primary">
-              {trainee.fullName}
+            <h2 id={titleId} title={trainee.textFullName} className="truncate text-xl font-medium text-text-primary">
+              {trainee.textFullName}
             </h2>
-            <p className="mt-0.5 text-sm text-text-secondary">{trainee.traineeCode}</p>
+            <p className="mt-0.5 text-sm text-text-secondary">{formatPersonalNumber(trainee.numbPersonalNumber)}</p>
           </>
         ) : (
           // החניך כבר לא ברשימה: ההודעה מוצגת מתחת לכותרת, וכאן היא רק השם הנגיש של המגירה

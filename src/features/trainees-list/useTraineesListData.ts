@@ -5,6 +5,7 @@ import {
   getLocationsAndVirtualLocations,
   type LocationsQuery,
 } from "@/services/locationsService";
+import { prefetchReasons } from "@/services/reasonsService";
 import { getCachedTrainees, getTrainees } from "@/services/traineesService";
 import { isEmptyList, useAsyncResource, type AsyncResource } from "@/shared/hooks/useAsyncResource";
 import type { InstituteWithWingsDto, WingLocationDto } from "@/types/organization.schema";
@@ -25,7 +26,7 @@ export function useTraineesListData(institute: InstituteWithWingsDto | null): Tr
 
   const locationsQueryFor = (selectedInstituteId: number): LocationsQuery => ({
     instituteIds: [selectedInstituteId],
-    wingIds: institute?.wings.map((wing) => wing.id) ?? [],
+    wingIds: institute?.wings.map((wing) => wing.wingId) ?? [],
   });
 
   const trainees = useAsyncResource({
@@ -41,10 +42,11 @@ export function useTraineesListData(institute: InstituteWithWingsDto | null): Tr
     readCache: (selectedInstituteId) => getCachedLocations(locationsQueryFor(selectedInstituteId)),
   });
 
-  // המכשירים נטענים ברקע מיד אחרי החניכים, כדי שהטפסים ייפתחו איתם (ספק 00 §6)
+  // המכשירים ורשימות הסיבות נטענים ברקע מיד אחרי החניכים, כדי שהטפסים ייפתחו איתם (ספק 00 §6; KC-1)
   useEffect(() => {
     if (trainees.status === "success" && instituteId !== null) {
       prefetchInstituteDevices(instituteId);
+      prefetchReasons();
     }
   }, [trainees.status, instituteId]);
 

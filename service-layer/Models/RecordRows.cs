@@ -5,13 +5,12 @@
 
 /// <summary>
 /// שורת מכשיר של שורת תנאים או של היתר (AVIV_PERMITS_DEVICE). ConditionsRowId – השורה ב-AVIV_PERMITS_FOR_RESTRICTION שאליה שייך המכשיר.
-/// השם מ-AVIV_DEVICE_DATA; ריק כשאין שורת ייחוס (I-15).
+/// E-8: מזהה בלבד – שם המכשיר נבנה רק ב-SP_AVIV_GET_DEVICES, והקליינט מאתר אותו ברשימת המכשירים שבידו.
 /// </summary>
 public class DeviceRow
 {
     public int ConditionsRowId { get; set; }
     public int DeviceId { get; set; }
-    public string DeviceName { get; set; } = "";
 }
 
 /// <summary>פנימייה המקושרת להגבלה כללית (AVIV_INSTITUTES_RESTRICTION_NUMBER). השם מ-A_LOCATION; ריק כשאין שורת ייחוס (I-15).</summary>

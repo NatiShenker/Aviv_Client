@@ -36,9 +36,9 @@ public static class PhoneRecordsAssembler
         ILookup<int, DeviceRow> devicesByConditionsRowId,
         ILookup<int, InstituteRow> institutesByRestrictionId)
     {
-        // D-2: המכשירים יושבים על שורת התנאים (של הגבלה – השורה הצמודה; של היתר – ההיתר עצמו). הגבלה בלי תנאים – בלי שורה ובלי מכשירים
-        List<LookupItemDto> devices = row.ConditionsRowId is int conditionsRowId
-            ? RecordPartsAssembler.ToDevices(devicesByConditionsRowId[conditionsRowId])
+        // D-2: המכשירים יושבים על שורת התנאים (של הגבלה – השורה הצמודה; של היתר – ההיתר עצמו). הגבלה בלי תנאים – בלי שורה ובלי מכשירים. E-8: מזהים בלבד
+        List<int> deviceIds = row.ConditionsRowId is int conditionsRowId
+            ? RecordPartsAssembler.ToDeviceIds(devicesByConditionsRowId[conditionsRowId])
             : [];
 
         var record = new TraineePhoneRecordDto
@@ -55,7 +55,7 @@ public static class PhoneRecordsAssembler
             NumbDurationLimit = row.NumbDurationLimit,
             TimePermitStart = DateTimeStrings.FormatTime(row.TimePermitStart),
             TimePermitEnd = DateTimeStrings.FormatTime(row.TimePermitEnd),
-            Devices = devices,
+            IdntDeviceList = deviceIds,
             TextReason = row.TextReason ?? "",
             Approver = RecordPartsAssembler.ToApprover(row.IdntUserApproval, row.ApproverName),
             ApprovedFile = RecordPartsAssembler.ToFile(row.IdntApprovedFile, row.TextFile),
@@ -155,7 +155,7 @@ public static class PhoneRecordsAssembler
             NumbDurationLimit = row.NumbDurationLimit,
             TimePermitStart = DateTimeStrings.FormatTime(row.TimePermitStart),
             TimePermitEnd = DateTimeStrings.FormatTime(row.TimePermitEnd),
-            Devices = RecordPartsAssembler.ToDevices(devicesByPermitId[row.PermitId]),
+            IdntDeviceList = RecordPartsAssembler.ToDeviceIds(devicesByPermitId[row.PermitId]),
         };
     }
 }

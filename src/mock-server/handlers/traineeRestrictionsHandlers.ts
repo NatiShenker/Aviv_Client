@@ -16,7 +16,6 @@ import {
   MOCK_CURRENT_USER_ID,
   allocateFileId,
   decisionFromInput,
-  devicesFromIds,
   findReplaceableRecord,
   nextRecordId,
   toMutationResult,
@@ -126,7 +125,8 @@ function buildRestrictionRecord(
     numbDurationLimit: input.numbDurationLimit,
     timePermitStart: input.timePermitStart,
     timePermitEnd: input.timePermitEnd,
-    devices: devicesFromIds(input.idntDeviceList),
+    // E-8: מזהי המכשירים כפי שנשלחו (אחרי הסרת כפילויות באימות), כמו AVIV_PERMITS_DEVICE
+    idntDeviceList: input.idntDeviceList,
     ...decisionFromInput(input.textRestrictionReason, input, identity.fileId),
     ...buildAuditMetadata(input.dateRestrictionEnd, 0, MOCK_CURRENT_USER_ID),
     isActive: true,

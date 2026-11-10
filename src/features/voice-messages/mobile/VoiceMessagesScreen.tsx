@@ -11,7 +11,7 @@ export default function VoiceMessagesScreen() {
       permissionId={PERMISSION_IDS.voiceMessage}
       loadingLabel={VOICE_MESSAGES_TEXTS.states.loading}
       renderHistory={({ traineeId, trainee }, header) => (
-        <VoiceMessagesHistory traineeId={traineeId} traineeFullName={trainee?.fullName ?? ""} header={header} />
+        <VoiceMessagesHistory traineeId={traineeId} traineeFullName={trainee?.textFullName ?? ""} header={header} />
       )}
     />
   );

@@ -1,3 +1,4 @@
+import type { DeviceNameResolver } from "@/features/records/deviceNames";
 import { formatDevicesSelection } from "@/features/records/form/call-conditions/callConditionsLogic";
 import { CALL_CONDITIONS_TEXTS } from "@/features/records/form/call-conditions/callConditionsTexts";
 import type { ExistingPermitDto, SourceRestrictionSummaryDto } from "@/types/phone-exceptions.schema";
@@ -78,21 +79,21 @@ export function buildChooseSourceRestrictionLabel(restriction: SourceRestriction
 
 /**
  * לכל היתר: שעות או "כל היום"; אחר כך מכשירים (אחד - השם, כמה - "{n} מכשירים") אם יש;
- * אחר כך "עד X דק׳" אם יש. כמה היתרים מופרדים ב-"; ".
+ * אחר כך "עד X דק׳" אם יש. כמה היתרים מופרדים ב-"; ". שמות המכשירים - מרשימת מכשירי הפנימייה (E-8)
  */
-export function formatExistingPermitsSummary(permits: ExistingPermitDto[]): string {
-  return permits.map(formatExistingPermit).join(TEXTS.existingPermitsSeparator);
+export function formatExistingPermitsSummary(permits: ExistingPermitDto[], deviceNameOf: DeviceNameResolver): string {
+  return permits.map((permit) => formatExistingPermit(permit, deviceNameOf)).join(TEXTS.existingPermitsSeparator);
 }
 
-function formatExistingPermit(permit: ExistingPermitDto): string {
+function formatExistingPermit(permit: ExistingPermitDto, deviceNameOf: DeviceNameResolver): string {
   const hours =
     permit.timePermitStart && permit.timePermitEnd
       ? isolateLtr(formatTimeRange(permit.timePermitStart, permit.timePermitEnd))
       : CALL_CONDITIONS_TEXTS.values.allDay;
   const parts = [hours];
 
-  if (permit.devices.length > 0) {
-    parts.push(formatDevicesSelection(permit.devices.map((device) => device.name)));
+  if (permit.idntDeviceList.length > 0) {
+    parts.push(formatDevicesSelection(permit.idntDeviceList.map(deviceNameOf)));
   }
   if (permit.numbDurationLimit !== null) {
     parts.push(CALL_CONDITIONS_TEXTS.values.durationUpTo(permit.numbDurationLimit));

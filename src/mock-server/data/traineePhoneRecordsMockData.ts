@@ -163,7 +163,7 @@ function matchesDistribution(index: number, { every, offset }: Distribution): bo
 }
 
 const OTHER_TRAINEES = TRAINEES_MOCK_DATA.map((trainee, index) => ({ trainee, index })).filter(
-  ({ trainee }) => trainee.id !== DEMO_TRAINEE.id,
+  ({ trainee }) => trainee.idntTrainee !== DEMO_TRAINEE.idntTrainee,
 );
 
 const DISTRIBUTED_RESTRICTION_SEEDS: RestrictionSeed[] = OTHER_TRAINEES.filter(({ index }) =>
@@ -177,7 +177,7 @@ const DISTRIBUTED_RESTRICTION_SEEDS: RestrictionSeed[] = OTHER_TRAINEES.filter((
 
 /** ההגבלה הפנימייתית חלה רק על חניכי הדר; לכל השאר - ההגבלה הארצית */
 function distributedPermitRestrictionId(trainee: TraineeMockRecord, index: number): number {
-  const isHadarTrainee = trainee.instituteId === DEMO_TRAINEE.instituteId;
+  const isHadarTrainee = trainee.idntInstitution === DEMO_TRAINEE.idntInstitution;
   if (isHadarTrainee && index % 2 === 0) {
     return GLOBAL_RESTRICTION_IDS.generalHadar;
   }
@@ -296,8 +296,9 @@ const PHONE_NUMBER_ID_BASE = 7000;
 const RESTRICTION_FILE_ID_BASE = 5000;
 const PERMIT_FILE_ID_BASE = 5500;
 
-function devicesOf(deviceIds: number[]): LookupItem<number>[] {
-  return DEVICES_MOCK_DATA.filter((device) => deviceIds.includes(device.id)).map(({ id, name }) => ({ id, name }));
+/** E-8: הרשומה מחזיקה מזהי מכשירים בלבד; רק מכשירים שקיימים במוק, כמו שורות AVIV_PERMITS_DEVICE */
+function knownDeviceIds(deviceIds: number[]): number[] {
+  return DEVICES_MOCK_DATA.filter((device) => deviceIds.includes(device.idntDevice)).map((device) => device.idntDevice);
 }
 
 function conditionsOf(terms: CallTerms): PermittedCallConditionsDto {
@@ -305,7 +306,7 @@ function conditionsOf(terms: CallTerms): PermittedCallConditionsDto {
     numbDurationLimit: terms.durationMinutes,
     timePermitStart: terms.permittedHours?.startTime ?? null,
     timePermitEnd: terms.permittedHours?.endTime ?? null,
-    devices: devicesOf(terms.deviceIds),
+    idntDeviceList: knownDeviceIds(terms.deviceIds),
   };
 }
 
@@ -318,7 +319,7 @@ function buildRestrictionRecord(seed: RestrictionSeed, id: number): StoredRecord
     isPermit: false,
     id,
     idntAvivRestrictionNumber: RESTRICTION_NUMBER_ID_BASE + id,
-    idntTrainee: seed.trainee.id,
+    idntTrainee: seed.trainee.idntTrainee,
     idntAvivListPhoneNumber: PHONE_NUMBER_ID_BASE + id,
     textPhoneNumber: seed.phoneNumber,
     dateStart,
@@ -344,7 +345,7 @@ function buildPermitRecord(
     isPermit: true,
     id,
     idntAvivRestrictionNumber: sourceRestriction.idntAvivRestrictionNumber,
-    idntTrainee: seed.trainee.id,
+    idntTrainee: seed.trainee.idntTrainee,
     // המספר נגזר מההגבלה שעליה חל ההיתר (ספק 04 form §6.1)
     idntAvivListPhoneNumber: sourceRestriction.idntAvivListPhoneNumber,
     textPhoneNumber: sourceRestriction.textPhoneNumber,

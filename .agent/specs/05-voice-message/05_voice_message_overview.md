@@ -42,6 +42,6 @@ The message plays on **all calls** or only on calls to **selected numbers**. A *
 | `POST VoiceMessages/GetTraineeVoiceMessages` | `GetTraineeVoiceMessagesRequest` (`traineeIds: [traineeId]`) | `GetTraineeVoiceMessagesResponse` (`records: TraineeVoiceMessageRecordDto[]`) | History & edit |
 | `POST VoiceMessages/CreateTraineeVoiceMessage` | `CreateTraineeVoiceMessageRequest` (one record per number in `phoneNumbers[]`) | `CreateTraineeVoiceMessageResponse` (`MutationResultDto`) | Form, create |
 | `PUT VoiceMessages/UpdateTraineeVoiceMessage` | `UpdateTraineeVoiceMessageRequest` (locked `scope` + `phoneNumber` sent as in the record) | `UpdateTraineeVoiceMessageResponse` (`MutationResultDto`) | Form, edit |
-| `GET Lookups/GetVoiceMessageReasons` | – | `LookupItem<number>[]` | Form, reasons list |
+| `POST Lookups/GetDecode` (table `voiceMessageReasons`, `config/decodeTables.ts`; replaced `GET Lookups/GetVoiceMessageReasons` on 2026-11-10) | `{ codeTableList }` | `{ tables: [{ codeTable, codeTableName, items: LookupItem<number>[] }] }` | Form, reasons list (`reasonsService.getReasons("voiceMessage")`) |
 
 Action names are placeholders until the service defines them ([00 §7](../00_foundations.md)).

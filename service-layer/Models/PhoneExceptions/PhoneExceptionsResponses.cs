@@ -34,7 +34,9 @@ public class TraineePhoneRecordDto
     public int? NumbDurationLimit { get; set; }
     public string? TimePermitStart { get; set; }
     public string? TimePermitEnd { get; set; }
-    public List<LookupItemDto> Devices { get; set; } = [];
+
+    /// <summary>E-8: מזהי המכשירים בלבד, כמו בבקשה; הקליינט מאתר את השם ברשימת המכשירים של הפנימייה (SP_AVIV_GET_DEVICES).</summary>
+    public List<int> IdntDeviceList { get; set; } = [];
 
     /// <summary>הפירוט החופשי (D-6).</summary>
     public string TextReason { get; set; } = "";
@@ -82,7 +84,9 @@ public class ExistingPermitDto
     public int? NumbDurationLimit { get; set; }
     public string? TimePermitStart { get; set; }
     public string? TimePermitEnd { get; set; }
-    public List<LookupItemDto> Devices { get; set; } = [];
+
+    /// <summary>E-8: מזהי המכשירים בלבד; הקליינט מאתר את השם ברשימת המכשירים של הפנימייה.</summary>
+    public List<int> IdntDeviceList { get; set; } = [];
 }
 
 /// <summary>תשובת LookupPhoneRestrictionsForPermit: תוצאה לכל מספר שנשלח, בסדר הבקשה.</summary>

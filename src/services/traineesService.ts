@@ -11,10 +11,11 @@ import type {
 const traineesCache = createQueryCache<number[], TraineeListItemDto[]>(idsKey);
 
 export async function getTrainees(instituteIds: number[]): Promise<TraineeListItemDto[]> {
-  const request: GetTraineesRequest = { instituteIds };
-  const response = await serviceClient.post<GetTraineesResponse>(SERVICE_ENDPOINTS.trainees.getTrainees, request);
-  traineesCache.set(instituteIds, response.trainees);
-  return response.trainees;
+  // סינון האגף מקומי, ולכן רשימת האגפים ריקה (L-9)
+  const request: GetTraineesRequest = { idntInstitutionList: instituteIds, idntWingList: [] };
+  const trainees = await serviceClient.post<GetTraineesResponse>(SERVICE_ENDPOINTS.trainees.getTrainees, request);
+  traineesCache.set(instituteIds, trainees);
+  return trainees;
 }
 
 /** הרשימה שכבר נטענה לפנימיות האלה, או null אם עוד לא נטענה */
@@ -48,5 +49,5 @@ export function getCachedTrainee({ instituteId, traineeId }: TraineeLookup): Tra
 }
 
 function findById(trainees: TraineeListItemDto[], traineeId: number): TraineeListItemDto | null {
-  return trainees.find((trainee) => trainee.id === traineeId) ?? null;
+  return trainees.find((trainee) => trainee.idntTrainee === traineeId) ?? null;
 }

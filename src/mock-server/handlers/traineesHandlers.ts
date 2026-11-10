@@ -20,16 +20,14 @@ interface DatedRecord {
   dateEnd: ISODateString;
 }
 
+/** כמו SP_AVIV_GET_TRAINEES (L-1): חניך נכלל כשהפנימייה שלו ברשימה או כשהאגף שלו ברשימה */
 export function handleGetTrainees(request: MockRequest): GetTraineesResponse {
-  const { instituteIds, wingIds = [] } = request.body as GetTraineesRequest;
+  const { idntInstitutionList, idntWingList } = request.body as GetTraineesRequest;
 
-  const trainees = TRAINEES_MOCK_DATA.filter(
-    (trainee) =>
-      instituteIds.includes(trainee.instituteId) &&
-      (wingIds.length === 0 || wingIds.includes(trainee.wing.id)),
+  // התשובה היא הרשימה עצמה (L-15)
+  return TRAINEES_MOCK_DATA.filter(
+    (trainee) => idntInstitutionList.includes(trainee.idntInstitution) || idntWingList.includes(trainee.wing.id),
   ).map(toTraineeListItem);
-
-  return { trainees };
 }
 
 /** כתובת תמונת החניך. הפעולה האמיתית מחזירה את קובץ התמונה עצמו, ולכן הכתובת נכנסת ישירות ל-src */
@@ -38,22 +36,22 @@ export function resolveTraineePhotoUri(params: unknown): string {
   return TRAINEE_PHOTOS_MOCK_DATA.get(Number(traineeId)) ?? MISSING_PHOTO_URL;
 }
 
-// הדגלים נגזרים מהרשומות עצמן, כמו שהשרת מחשב אותם ב-SQL, כדי שיצירת רשומה תתעדכן גם ברשימה
+// הדגלים נגזרים מהרשומות עצמן, כמו שהפרוצדורה מחשבת אותם (I-19), כדי שיצירת רשומה תתעדכן גם ברשימה
 function toTraineeListItem(record: TraineeMockRecord): TraineeListItemDto {
   const { staticFlags, ...traineeFields } = record;
   const activeRestrictions = TRAINEE_RESTRICTIONS_MOCK_DATA.filter(
-    (restriction) => restriction.idntTrainee === record.id && isActiveToday(restriction),
+    (restriction) => restriction.idntTrainee === record.idntTrainee && isActiveToday(restriction),
   );
   const activePhoneRecords = TRAINEE_PHONE_RECORDS_MOCK_DATA.filter(
-    (phoneRecord) => phoneRecord.idntTrainee === record.id && isActiveToday(phoneRecord),
+    (phoneRecord) => phoneRecord.idntTrainee === record.idntTrainee && isActiveToday(phoneRecord),
   );
   const activeVoiceMessages = TRAINEE_VOICE_MESSAGES_MOCK_DATA.filter(
-    (voiceMessage) => voiceMessage.traineeId === record.id && isActiveToday(voiceMessage),
+    (voiceMessage) => voiceMessage.traineeId === record.idntTrainee && isActiveToday(voiceMessage),
   );
 
   return {
     ...traineeFields,
-    restrictedUntilDate: latestEndDate(activeRestrictions),
+    dateRestrictedUntil: latestEndDate(activeRestrictions),
     flags: {
       hasActiveFullRestriction: activeRestrictions.some((restriction) => restriction.numbDurationLimit === null),
       hasActiveMinutesRestriction: activeRestrictions.some((restriction) => restriction.numbDurationLimit !== null),
@@ -71,7 +69,7 @@ function isActiveToday(record: DatedRecord): boolean {
   return record.isActive && isTodayInRange(record.dateStart, record.dateEnd);
 }
 
-// "מוגבל עד" = תאריך הסיום המאוחר מבין ההגבלות הפעילות (OQ-03)
+// "מוגבל עד" = תאריך הסיום המאוחר מבין ההגבלות הפעילות (OQ-03, L-3)
 function latestEndDate(records: DatedRecord[]): ISODateString | null {
   if (records.length === 0) {
     return null;

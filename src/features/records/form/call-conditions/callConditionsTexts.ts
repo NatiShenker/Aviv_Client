@@ -12,6 +12,10 @@ export const CALL_CONDITIONS_TEXTS = {
     notSet: "לא הוגדרו",
     devicesCount: (count: number) => `${count} מכשירים`,
     durationUpTo,
+    // E-8: שם מכשיר ברשומה כשרשימת המכשירים עוד לא נטענה - תחילת הפורמט של השרת ("מכשיר {מזהה}, {מיקום}") בלי המיקום
+    deviceById: (deviceId: number) => `מכשיר ${deviceId}`,
+    // מוצע - ממתין לאישור (pending-decisions): מכשיר שאינו ברשימת מכשירי הפנימייה, כלומר הוסר (LOGI_ACTIVE = 0)
+    inactiveDevice: (deviceId: number) => `מכשיר ${deviceId} - לא פעיל`,
   },
 
   // תווית הסוג בכרטיס (ספק 03 overview §3.1, ספק 04 overview §3)

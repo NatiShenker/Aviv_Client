@@ -89,10 +89,10 @@ function CardsGrid({ trainees, activeTraineeId, onOpenTrainee, resetVisibleCount
     <>
       <ul className="grid grid-cols-cards gap-4">
         {visibleItems.map((trainee) => {
-          const borderClass = trainee.id === activeTraineeId ? ACTIVE_CARD_BORDER_CLASS : CARD_BORDER_CLASS;
+          const borderClass = trainee.idntTrainee === activeTraineeId ? ACTIVE_CARD_BORDER_CLASS : CARD_BORDER_CLASS;
           const accessibleName = buildTraineeAccessibleName(trainee);
           return (
-            <li key={trainee.id} className={`relative transition-colors ${CARD_FRAME_CLASS} ${borderClass}`}>
+            <li key={trainee.idntTrainee} className={`relative transition-colors ${CARD_FRAME_CLASS} ${borderClass}`}>
               {/*
                 הכרטיס כולו פותח את המגירה: כפתור שקוף מעליו, כדי שהכרטיס עצמו יישאר זהה למובייל.
                 הכפתור לפני הכרטיס, כדי ש-Tab יגיע קודם לכרטיס ואחר כך ל-⋮ שבתוכו; ה-⋮ יושב מעל הכפתור
@@ -100,7 +100,7 @@ function CardsGrid({ trainees, activeTraineeId, onOpenTrainee, resetVisibleCount
               <button
                 type="button"
                 aria-label={TRAINEES_LIST_TEXTS.openTraineeActions(accessibleName)}
-                onClick={() => onOpenTrainee(trainee.id)}
+                onClick={() => onOpenTrainee(trainee.idntTrainee)}
                 className={`absolute inset-0 cursor-pointer rounded-card ${FOCUS_RING_CLASS}`}
               />
               <TraineeCard
@@ -109,7 +109,7 @@ function CardsGrid({ trainees, activeTraineeId, onOpenTrainee, resetVisibleCount
                   <div className="relative z-10 -my-1 -me-2">
                     <TraineeCardMenu
                       traineeAccessibleName={accessibleName}
-                      onOpenScreen={(screen) => onOpenTrainee(trainee.id, screen)}
+                      onOpenScreen={(screen) => onOpenTrainee(trainee.idntTrainee, screen)}
                     />
                   </div>
                 }

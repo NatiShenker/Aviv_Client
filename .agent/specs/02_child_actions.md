@@ -53,7 +53,7 @@ Prototype source: `client/pages/ChildDetails.tsx`.
 
 ## 6. Data & API (`trainees.schema.ts`)
 
-- Reads the trainee's `fullName`, `traineeCode`, and `instituteId` directly from the cached `TraineeListItemDto` in the client service store (loaded on the home screen via `POST Trainees/GetTrainees` – see [01 §6.2](01_children_list.md)).
+- Reads the trainee's `textFullName`, `numbPersonalNumber` (formatted by `formatPersonalNumber`), and `idntInstitution` directly from the cached `TraineeListItemDto` in the client service store (loaded on the home screen via `POST Trainees/GetTrainees` – see [01 §6.2](01_children_list.md)).
 - When the trainees store is empty (e.g. it was cleared after saving a restriction), the service layer fetches the institute's trainees list first; if the `traineeId` does not exist, the not-found screen is shown.
 
 ---

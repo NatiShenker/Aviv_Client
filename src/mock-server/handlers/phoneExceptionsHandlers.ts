@@ -33,7 +33,6 @@ import {
   MOCK_CURRENT_USER_ID,
   allocateFileId,
   decisionFromInput,
-  devicesFromIds,
   findReplaceableRecord,
   nextRecordId,
   toMutationResult,
@@ -155,7 +154,7 @@ function currentPermitsOn(idntTrainee: number, idntAvivRestrictionNumber: number
       numbDurationLimit: permit.numbDurationLimit,
       timePermitStart: permit.timePermitStart,
       timePermitEnd: permit.timePermitEnd,
-      devices: permit.devices,
+      idntDeviceList: permit.idntDeviceList,
     }));
 }
 
@@ -465,11 +464,12 @@ function buildPermitRecord(input: PhonePermitSaveFields, identity: PermitIdentit
   };
 }
 
+// E-8: הרשומה מחזיקה את מזהי המכשירים כפי שנשלחו (אחרי הסרת כפילויות באימות), כמו AVIV_PERMITS_DEVICE
 function conditionsFromInput(input: PhoneRestrictionSaveFields | PhonePermitSaveFields) {
   return {
     numbDurationLimit: input.numbDurationLimit,
     timePermitStart: input.timePermitStart,
     timePermitEnd: input.timePermitEnd,
-    devices: devicesFromIds(input.idntDeviceList),
+    idntDeviceList: input.idntDeviceList,
   };
 }

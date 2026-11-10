@@ -60,10 +60,9 @@ WHERE  object_id IN (OBJECT_ID('dbo.AVIV_RESTRICTION_NUMBER'), OBJECT_ID('dbo.AV
 ORDER BY table_name, name;
 ```
 
-- [ ] **A.7 Lookup tables and columns (I-15).** The read procedures join names by these exact columns. The location columns are the ones `SP_AVIV_GET_LOCATIONS` uses; `TEXT_DEVICE_NAME` is an assumption. A wrong name fails at `CREATE PROCEDURE` time, not at run time, so this check is cheap. Both queries must return rows.
+- [ ] **A.7 Lookup tables and columns (I-15).** The read procedures join the institute name by these exact columns, the ones `SP_AVIV_GET_LOCATIONS` uses. A wrong name fails at `CREATE PROCEDURE` time, not at run time, so this check is cheap. The query must return a row. *(2026-11-10, E-8: the device name is no longer joined – the device sets return ids only; the devices table is checked in [../devices/03-manual-test-checklist.md §A](../devices/03-manual-test-checklist.md).)*
 
 ```sql
-SELECT TOP (1) IDNT_DEVICE, TEXT_DEVICE_NAME FROM dbo.AVIV_DEVICE_DATA;
 SELECT TOP (1) IDNT_LOCATION_TRAINEE, TEXT_NAME_LOCATION, CODE_SUG_LOCATION
 FROM   ODSINTERNALDATA..A_LOCATION WHERE CODE_SUG_LOCATION = 3330016;   -- institute type, as in SP_AVIV_GET_LOCATIONS
 ```
@@ -135,7 +134,7 @@ Dates are relative to today, so the expectations hold whenever the script runs.
   - N2 active: `IsEnded` 0, 16:00–19:00, 15 minutes, `SourceCodeRestrictionScope` 1, `SourceTraineeRestrictionNumberId` NULL.
   - N2 ended: `IsEnded` 1, `SourceCodeRestrictionScope` 1.
   - N4 permit: `IsEnded` 0 (it still runs although its restriction ended, P-11), `SourceCodeRestrictionScope` 2, `SourceTraineeRestrictionNumberId` = N4's trainee row.
-- [ ] **Set 3 – devices:** 3 rows keyed by `ConditionsRowId`: N3's conditions row → 999001 and 999002; the active N2 permit → 999001. `DeviceName` empty.
+- [ ] **Set 3 – devices:** 3 rows keyed by `ConditionsRowId`: N3's conditions row → 999001 and 999002; the active N2 permit → 999001. Two columns only (`ConditionsRowId`, `DeviceId`; E-8, 2026-11-10).
 - [ ] **Set 4 – institutes:** 0 rows (N2 is national, N4 is the trainee's own).
 
 ### D.3 Read 2 – lookup from the trainee's institute, four numbers (four grids)

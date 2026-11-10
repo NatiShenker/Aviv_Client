@@ -170,15 +170,13 @@ BEGIN
     -- ===========================================
     -- תוצאה 4: מכשירי ההיתרים הקיימים (DeviceRow)
     -- ===========================================
-    -- I-15: השם הוא תווית בלבד – LEFT JOIN בלי סינון פעילות; בלי שורה – שם ריק (C-8)
+    -- E-8 (מתקן את I-15): מזהי מכשירים בלבד. שם המכשיר נבנה רק ב-SP_AVIV_GET_DEVICES, והקליינט מאתר אותו ברשימת המכשירים שבידו;
+    -- מכשיר שהוסר (LOGI_ACTIVE = 0) אינו ברשימה ומוצג בקליינט בטקסט נפילה.
     SELECT  PERMIT_DEVICE.IDNT_AVIV_PERMITS_FOR_RESTRICTION AS ConditionsRowId,
-            PERMIT_DEVICE.IDNT_DEVICE                       AS DeviceId,
-            ISNULL(DEVICE.TEXT_DEVICE_NAME, N'')            AS DeviceName
+            PERMIT_DEVICE.IDNT_DEVICE                       AS DeviceId
     FROM    #ExistingPermits AS KEYS
     JOIN    dbo.AVIV_PERMITS_DEVICE AS PERMIT_DEVICE (NOLOCK)
             ON PERMIT_DEVICE.IDNT_AVIV_PERMITS_FOR_RESTRICTION = KEYS.PermitId
-    LEFT JOIN dbo.AVIV_DEVICE_DATA AS DEVICE (NOLOCK)
-            ON DEVICE.IDNT_DEVICE = PERMIT_DEVICE.IDNT_DEVICE
     WHERE   PERMIT_DEVICE.LOGI_ACTIVE = 1;
 END
 GO

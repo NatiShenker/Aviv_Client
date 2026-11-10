@@ -1,15 +1,14 @@
 import type { LookupItem } from "@/types/common.schema";
 import type { InstituteWithWingsDto } from "@/types/organization.schema";
 import type { TraineeActiveStatusFlagsDto, TraineeListItemDto } from "@/types/trainees.schema";
-import { daysFromToday } from "../mockDates";
 import { INSTITUTES_MOCK_DATA } from "./institutesMockData";
 import { LOCATIONS_MOCK_DATA } from "./locationsMockData";
 
 /** דגלים שלא נגזרים מרשומות אחרות במוק: יתרה וסלקום (סרביס צד שלישי) */
 export type TraineeStaticFlags = Pick<TraineeActiveStatusFlagsDto, "hasBalance" | "hasCellcomDiscrepancy">;
 
-/** חניך כפי שהוא שמור במוק. שאר הדגלים ו-restrictedUntilDate מחושבים ב-handler, כמו בשרת */
-export type TraineeMockRecord = Omit<TraineeListItemDto, "flags" | "restrictedUntilDate"> & {
+/** חניך כפי שהוא שמור במוק. שאר הדגלים ו-dateRestrictedUntil מחושבים ב-handler, כמו בפרוצדורה */
+export type TraineeMockRecord = Omit<TraineeListItemDto, "flags" | "dateRestrictedUntil"> & {
   staticFlags: TraineeStaticFlags;
 };
 
@@ -38,12 +37,12 @@ const ARAB_NAMES = {
 const NAME_GROUP_SIZE = 5;
 const ARAB_NAMES_PER_GROUP = 2;
 
-// מספר חניך: 7 ספרות, לא רציף ובלי אפסים מובילים - כמו מספרים אמיתיים.
+// מספר אישי: 7 ספרות, לא רציף ובלי אפסים מובילים - כמו מספרים אמיתיים (LQ-3).
 // הכפלה במספר זר לטווח (לא מתחלק ב-2, 3 או 5) ושארית החלוקה בטווח הן התאמה חד-חד-ערכית, ולכן אין שני חניכים
 // עם אותו מספר. מכפיל גדול מפזר מספרים של חניכים סמוכים על פני כל הטווח
-const TRAINEE_CODE_MIN = 1000000;
-const TRAINEE_CODE_RANGE = 9000000;
-const TRAINEE_CODE_MULTIPLIER = 2654437;
+const PERSONAL_NUMBER_MIN = 1000000;
+const PERSONAL_NUMBER_RANGE = 9000000;
+const PERSONAL_NUMBER_MULTIPLIER = 2654437;
 
 // מספיק חניכים כדי לראות גלילה וטעינה הדרגתית גם במסך דסקטופ רחב
 const TRAINEE_COUNT_BY_INSTITUTE: Record<number, number> = {
@@ -55,7 +54,6 @@ const TRAINEE_COUNT_BY_INSTITUTE: Record<number, number> = {
 const TRAINEE_ID_BLOCK_PER_INSTITUTE = 1000;
 const REMAINING_MINUTES_STEP = 7;
 const MAX_REMAINING_MINUTES = 120;
-const LAST_ACTIVITY_WINDOW_DAYS = 30;
 
 // פיזור קבוע של מצבים בין החניכים, כדי שלכל אפשרות סינון יהיו התאמות
 interface Distribution {
@@ -74,12 +72,12 @@ function matchesDistribution(index: number, { every, offset }: Distribution): bo
 // לכל חניך מיקום ספציפי באגף שלו, כדי שהכרטיס יציג את האגף יחד עם המיקום (בקשת המשתמש, 2026-10-21).
 // מיקום וירטואלי אינו מקום שחניך נמצא בו, ולכן לא משובץ. הכרטיס עדיין מטפל בחניך בלי מיקום - הסכמה מאפשרת זאת
 function pickLocation(wingId: number, index: number): LookupItem<number> | null {
-  const wingLocations = LOCATIONS_MOCK_DATA.filter((location) => location.wingId === wingId && !location.isVirtual);
+  const wingLocations = LOCATIONS_MOCK_DATA.filter((location) => location.parentId === wingId && !location.isVirtual);
   if (wingLocations.length === 0) {
     return null;
   }
   const location = wingLocations[index % wingLocations.length];
-  return { id: location.id, name: location.name };
+  return { id: location.locationId, name: location.locationName };
 }
 
 /**
@@ -102,31 +100,28 @@ function buildTraineeName(index: number): { firstName: string; lastName: string 
   };
 }
 
-function buildTraineeCode(id: number): string {
-  return String(TRAINEE_CODE_MIN + ((id * TRAINEE_CODE_MULTIPLIER) % TRAINEE_CODE_RANGE));
+function buildPersonalNumber(idntTrainee: number): number {
+  return PERSONAL_NUMBER_MIN + ((idntTrainee * PERSONAL_NUMBER_MULTIPLIER) % PERSONAL_NUMBER_RANGE);
 }
 
 function buildTrainee(institute: InstituteWithWingsDto, index: number): TraineeMockRecord {
-  const id = institute.id * TRAINEE_ID_BLOCK_PER_INSTITUTE + index + 1;
+  const idntTrainee = institute.id * TRAINEE_ID_BLOCK_PER_INSTITUTE + index + 1;
   const { firstName, lastName } = buildTraineeName(index);
   // באגף וירטואלי אין חניכים
   const traineeWings = institute.wings.filter((candidate) => !candidate.isVirtualContainer);
   const wing = traineeWings[index % traineeWings.length];
-  const remainingMinutes = (index * REMAINING_MINUTES_STEP) % MAX_REMAINING_MINUTES;
+  const numbRemainingMinutes = (index * REMAINING_MINUTES_STEP) % MAX_REMAINING_MINUTES;
 
   return {
-    id,
-    traineeCode: buildTraineeCode(id),
-    firstName,
-    lastName,
-    fullName: `${firstName} ${lastName}`,
-    instituteId: institute.id,
-    wing: { id: wing.id, name: wing.name },
-    location: pickLocation(wing.id, index),
-    lastActivityDate: daysFromToday(-(index % LAST_ACTIVITY_WINDOW_DAYS)),
-    remainingMinutes,
+    idntTrainee,
+    numbPersonalNumber: buildPersonalNumber(idntTrainee),
+    textFullName: `${firstName} ${lastName}`,
+    idntInstitution: institute.id,
+    wing: { id: wing.wingId, name: wing.wingName },
+    location: pickLocation(wing.wingId, index),
+    numbRemainingMinutes,
     staticFlags: {
-      hasBalance: remainingMinutes > 0,
+      hasBalance: numbRemainingMinutes > 0,
       hasCellcomDiscrepancy: matchesDistribution(index, STATE_DISTRIBUTION.cellcomDiscrepancy),
     },
   };
@@ -153,14 +148,14 @@ const SHOWCASE_REGULAR_HISTORY_COUNT = 10;
  * המיון יציב, כמו ברשימה, ולכן חניכים עם אותו שם נשארים בסדר המקורי.
  */
 export const SHOWCASE_TRAINEES: TraineeMockRecord[] = TRAINEES_MOCK_DATA.filter(
-  (trainee) => trainee.instituteId === INSTITUTES_MOCK_DATA[0].id,
+  (trainee) => trainee.idntInstitution === INSTITUTES_MOCK_DATA[0].id,
 )
-  .sort((first, second) => first.fullName.localeCompare(second.fullName, HEBREW_LOCALE))
+  .sort((first, second) => first.textFullName.localeCompare(second.textFullName, HEBREW_LOCALE))
   .slice(0, SHOWCASE_TRAINEE_COUNT);
 
 /** המקום של החניך בין חניכי התצוגה (0 = הראשון ברשימה), או null כשהוא לא אחד מהם */
 export function showcaseRankOf(trainee: TraineeMockRecord): number | null {
-  const rank = SHOWCASE_TRAINEES.findIndex((showcaseTrainee) => showcaseTrainee.id === trainee.id);
+  const rank = SHOWCASE_TRAINEES.findIndex((showcaseTrainee) => showcaseTrainee.idntTrainee === trainee.idntTrainee);
   return rank === -1 ? null : rank;
 }
 

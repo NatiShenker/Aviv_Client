@@ -1,12 +1,5 @@
-import type {
-  ApprovalInput,
-  DecisionApprovalDto,
-  ISODateString,
-  LookupItem,
-  MutationResultDto,
-} from "@/types/common.schema";
+import type { ApprovalInput, DecisionApprovalDto, ISODateString, MutationResultDto } from "@/types/common.schema";
 import { APPROVERS_MOCK_DATA } from "../data/approversMockData";
-import { DEVICES_MOCK_DATA } from "../data/devicesMockData";
 import type { StoredRecord } from "../data/storedRecords";
 import { hasEnded } from "../mockDates";
 import { throwConflictError } from "../mockRequest";
@@ -35,11 +28,6 @@ export function allocateFileId(): number {
 /** תשובת השמירה: המזהים שנוצרו בלבד (A-14, I-20) */
 export function toMutationResult(createdIds: number[]): MutationResultDto {
   return { createdIds };
-}
-
-/** המכשירים המלאים (מזהה + שם) לפי המזהים שנשלחו, כמו JOIN בשרת */
-export function devicesFromIds(deviceIds: number[]): LookupItem<number>[] {
-  return DEVICES_MOCK_DATA.filter((device) => deviceIds.includes(device.id)).map(({ id, name }) => ({ id, name }));
 }
 
 const PATH_SEPARATORS = /[\\/]/;
