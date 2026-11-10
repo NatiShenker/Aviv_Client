@@ -2,24 +2,25 @@
  * @file trainees.schema.ts
  * @description סכמות עבור שליפת רשימת החניכים בפנימייה (ChildrenList.tsx / ChildDetails.tsx),
  * כולל דגלים בוליאניים נפרדים לכל מצב פעיל, וטיפוסי הסינון והמיון בצד הלקוח.
+ * החוזה של TraineesController (service-layer/Models/Trainees), בשמות בסגנון ה-DB (A-7, LC-1).
  * הסינון עצמו נמצא ב-features/trainees-list/traineesListLogic.ts.
  */
 
 import type { ISODateString, LookupItem } from "./common.schema.ts";
 
 // ============================================================================
-// 1. בקשת שליפת חניכים לפי פנימייה (מערך פנימיות לסקיילביליות)
-// POST Trainees/GetTrainees - החוזה משוער, הפעולה עדיין לא קיימת בסרביס (ראו pending-decisions)
+// 1. בקשת שליפת חניכים לפי פנימיות ו/או אגפים (POST Trainees/GetTrainees)
+// חניך נכלל כשהפנימייה שלו ברשימה הראשונה או האגף שלו ברשימה השנייה; לפחות אחת מהרשימות אינה ריקה (L-9)
 // ============================================================================
 
 export interface GetTraineesRequest {
-  instituteIds: number[];
-  /** אופציונלי - צמצום לאגפים מסוימים. כרגע לא נשלח, כי סינון האגף מקומי */
-  wingIds?: number[];
+  idntInstitutionList: number[];
+  /** אגפים. כרגע נשלח ריק, כי סינון האגף מקומי */
+  idntWingList: number[];
 }
 
 // ============================================================================
-// 2. דגלים בוליאניים נפרדים לכל חניך (מחושבים בשרת/SQL עבור תאריך השליפה)
+// 2. דגלים בוליאניים נפרדים לכל חניך (מחושבים בפרוצדורה עבור תאריך השליפה, I-19)
 // ============================================================================
 
 /**
@@ -27,26 +28,26 @@ export interface GetTraineesRequest {
  * הפרדה לבוליאנים עצמאיים מאפשרת לחניך להחזיק מספר מצבים במקביל (למשל גם הגבלת מספר א' וגם היתר למספר ב').
  */
 export interface TraineeActiveStatusFlagsDto {
-  // c. הגבלה לחניך (AVIV_TRAINEE_RESTRICTION)
+  // c. הגבלה לחניך (AVIV_TRAINEE_RESTRICTION, L-3)
   /** האם קיימת היום הגבלה מלאה (הרמטית, ללא דקות) פעילה לחניך */
   hasActiveFullRestriction: boolean;
-  /** האם קיימת היום הגבלת דקות (NUMB_CALL_DURATION) פעילה לחניך */
+  /** האם קיימת היום הגבלת דקות (NUMB_DURATION_LIMIT) פעילה לחניך */
   hasActiveMinutesRestriction: boolean;
 
-  // d. הודעה לנמען
+  // d. הודעה לנמען (AVIV_TRAINEE_MESSAGE, L-5)
   /** האם קיימת היום הודעה רגילה פעילה לנמען */
   hasActiveMessage: boolean;
   /** האם קיימת היום הודעה אינטראקטיבית פעילה לנמען ("הודעה חוזרת" - repeatDuringCall ב-voice-messages.schema) */
   hasActiveInteractiveMessage: boolean;
 
-  // e. הגבלות והיתרים למספר (AVIV_TRAINEE_RESTRICTION_NUMBER / PERMITS)
-  /** האם קיימת היום הגבלה פעילה למספר טלפון עבור החניך */
+  // e. הגבלות והיתרים למספר (AVIV_TRAINEE_RESTRICTION_NUMBER / PERMITS, L-4)
+  /** האם קיימת היום הגבלת מספר של החניך עצמו (היקף חניך בלבד) */
   hasActivePhoneRestriction: boolean;
   /** האם קיים היום היתר פעיל למספר טלפון עבור החניך */
   hasActivePhonePermit: boolean;
 
-  // f. יתרה וסנכרון (מתקבל בשרת מסרביס שלישי - סלקום)
-  /** האם קיימת לחניך יתרת דקות (remainingMinutes > 0) */
+  // f. יתרה וסנכרון (מתקבל בשרת מסרביס שלישי - סלקום; עד שהחיבור ייבנה השרת מחזיר false, L-6)
+  /** האם קיימת לחניך יתרת דקות (numbRemainingMinutes > 0) */
   hasBalance: boolean;
   /** האם קיים פער בנתונים מול סלקום (להצגת האזהרה בכרטיס החניך) */
   hasCellcomDiscrepancy: boolean;
@@ -57,39 +58,37 @@ export interface TraineeActiveStatusFlagsDto {
 // ============================================================================
 
 export interface TraineeListItemDto {
-  id: number;
-  /** מספר ת"ז או קוד חניך המוצג לצד השם (למשל "012453") */
-  traineeCode: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  // התמונה מגיעה מפעולה נפרדת (GetTraineePhotoRequest), ולכן אינה חלק מהרשימה
+  /** TRAINEE_SNAPSHOT.IDNT_TRAINEE - המפתח שכל טבלאות AVIV מצביעות עליו */
+  idntTrainee: number;
+  /** המספר האישי, מספרי. לתצוגה - formatPersonalNumber (features/trainee/traineeDisplay) */
+  numbPersonalNumber: number;
+  /** שם פרטי ושם משפחה, מורכב בשרת */
+  textFullName: string;
+  // התמונה מגיעה מ-API חיצוני לפי מזהה החניך (traineePhotosService), ולכן אינה חלק מהרשימה
 
-  instituteId: number;
-  /** a. אגף */
+  idntInstitution: number;
+  /** a. אגף (MAIN_WINGS_TABLE) */
   wing: LookupItem<number>;
-  /** b. מיקום באגף */
+  /** b. מיקום באגף (A_LOCATION); null כשלחניך אין מיקום */
   location: LookupItem<number> | null;
 
-  /** תאריך עדכון/שהייה. חלק מחוזה השרת, אבל לא מוצג ולא משמש למיון (OQ-07) */
-  lastActivityDate: ISODateString;
-  /** תאריך סיום ההגבלה הפעילה (להצגת התגית "מוגבל עד DD/MM" בכרטיס החניך) */
-  restrictedUntilDate?: ISODateString | null;
+  /** תאריך סיום ההגבלה הפעילה המאוחרת (להצגת התגית "מוגבל עד DD/MM" בכרטיס החניך); null כשאין */
+  dateRestrictedUntil: ISODateString | null;
 
-  /** יתרת דקות החניך (מתקבלת מהסרביס השלישי) */
-  remainingMinutes: number;
+  /** יתרת דקות החניך (מתקבלת מהסרביס השלישי; 0 עד שהחיבור ייבנה) */
+  numbRemainingMinutes: number;
 
   /** דגלי הסטטוס הפעילים לסינון */
   flags: TraineeActiveStatusFlagsDto;
 }
 
-export interface GetTraineesResponse {
-  trainees: TraineeListItemDto[];
-}
+/** התשובה היא הרשימה עצמה, כמו בשליפות הקיימות בסרביס (L-15); ההיסטוריות של 03/04 נשארו עטופות ב-{ records } */
+export type GetTraineesResponse = TraineeListItemDto[];
 
 // ============================================================================
 // 3a. תמונת חניך (GET Trainees/GetTraineePhoto - שם זמני, ראו pending-decisions)
-// הפעולה מחזירה את קובץ התמונה עצמו; הכתובת נבנית בקליינט ונכנסת ישירות ל-src
+// הפעולה מחזירה את קובץ התמונה עצמו; הכתובת נבנית בקליינט ונכנסת ישירות ל-src.
+// הוחלט (L-8): הדפדפן פונה ל-API החיצוני ישירות; בסיס הכתובת יוחלף כשתינתן (LQ-4)
 // ============================================================================
 
 export interface GetTraineePhotoRequest {

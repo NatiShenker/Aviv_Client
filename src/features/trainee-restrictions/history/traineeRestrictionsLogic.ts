@@ -1,3 +1,4 @@
+import type { DeviceNameResolver } from "@/features/records/deviceNames";
 import {
   buildDurationTypeLabel,
   buildPermittedDeviceNames,
@@ -51,9 +52,12 @@ export function traineeRestrictionCardDomId(recordId: number): string {
 
 /**
  * הפרטים בכרטיס פתוח, לפי הסדר בספק 03 history §3.2 (בכל שורה - הפרט הימני ראשון).
- * הסוג והתאריכים כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן
+ * הסוג והתאריכים כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן. שמות המכשירים - מרשימת מכשירי הפנימייה (E-8)
  */
-export function buildTraineeRestrictionDetails(record: TraineeRestrictionRecordDto): DetailItem[] {
+export function buildTraineeRestrictionDetails(
+  record: TraineeRestrictionRecordDto,
+  deviceNameOf: DeviceNameResolver,
+): DetailItem[] {
   return [
     {
       key: "hours",
@@ -61,7 +65,7 @@ export function buildTraineeRestrictionDetails(record: TraineeRestrictionRecordD
       value: buildPermittedHoursValue(record, RULE_KIND),
       isLtr: hasPermittedHours(record),
     },
-    { key: "devices", label: TEXTS.details.devices, value: buildPermittedDevicesValue(record, RULE_KIND) },
+    { key: "devices", label: TEXTS.details.devices, value: buildPermittedDevicesValue(record, RULE_KIND, deviceNameOf) },
     ...buildDecisionDetailItems(record),
   ];
 }
@@ -69,13 +73,16 @@ export function buildTraineeRestrictionDetails(record: TraineeRestrictionRecordD
 // ── חיפוש ומיון (ספק 03 history §4, ספק 00 §4.1) ──
 
 /** הערכים הגלויים של הרשומה, שהחיפוש בודק */
-function buildTraineeRestrictionSearchParts(record: TraineeRestrictionRecordDto): string[] {
+function buildTraineeRestrictionSearchParts(
+  record: TraineeRestrictionRecordDto,
+  deviceNameOf: DeviceNameResolver,
+): string[] {
   return [
     ...decisionSearchParts(record),
     buildTraineeRestrictionTypeLabel(record),
     buildPermittedHoursValue(record, RULE_KIND),
-    buildPermittedDevicesValue(record, RULE_KIND),
-    ...buildPermittedDeviceNames(record),
+    buildPermittedDevicesValue(record, RULE_KIND, deviceNameOf),
+    ...buildPermittedDeviceNames(record, deviceNameOf),
     buildTraineeRestrictionDateRange(record),
     record.dateStart,
     record.dateEnd,
@@ -86,8 +93,10 @@ export function filterAndSortTraineeRestrictions(
   records: TraineeRestrictionRecordDto[],
   searchQuery: string,
   sort: HistorySortOption,
+  deviceNameOf: DeviceNameResolver,
 ): TraineeRestrictionRecordDto[] {
-  return sortHistoryRecords(filterBySearchQuery(records, searchQuery, buildTraineeRestrictionSearchParts), sort);
+  const searchPartsOf = (record: TraineeRestrictionRecordDto) => buildTraineeRestrictionSearchParts(record, deviceNameOf);
+  return sortHistoryRecords(filterBySearchQuery(records, searchQuery, searchPartsOf), sort);
 }
 
 /** "מוצגות X הגבלות" מתחת לחיפוש, לפי הרשומות שמוצגות אחרי החיפוש */

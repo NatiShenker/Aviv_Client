@@ -32,10 +32,12 @@ GO
 
 /* ----------------------------------------------------------------------------
    1. DECODE - two new code sets                                      CLOSED (D-10)
-   The DECODE table's column names were not exported. Adjust the column list
-   below to the real structure (CODE_TABLE + code + text is assumed).
+   SUPERSEDED 2026-11-10 (lookups, K-5): the table is dbo.AVIV_DECODE, its set
+   key CODE_TABLE is numeric, and the DBA fills it. Nothing below is to be run.
+   The type and scope codes (1 trainee / 2 number; 1 general / 2 trainee) stay
+   the documented DECLARE constants of the procedures (K-7). Kept for history.
    ---------------------------------------------------------------------------- */
--- OPEN: confirm the DECODE column names before running.
+-- SUPERSEDED: do not run; see service-layer/docs/lookups/decisions.md K-5.
 -- INSERT INTO dbo.DECODE (CODE_TABLE, CODE, TEXT_DESCRIPTION) VALUES
 --   ('AVIV_RESTRICTION_TYPE',  1, N'Trainee restriction (AVIV_TRAINEE_RESTRICTION)'),
 --   ('AVIV_RESTRICTION_TYPE',  2, N'Number restriction (AVIV_RESTRICTION_NUMBER)'),

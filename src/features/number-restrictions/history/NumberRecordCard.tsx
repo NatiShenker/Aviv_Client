@@ -1,3 +1,4 @@
+import { useDeviceNameResolver } from "@/features/records/deviceNames";
 import ExpandableRecordCard from "@/features/records/history/card/ExpandableRecordCard";
 import RecordPeriodSummary from "@/features/records/history/card/RecordPeriodSummary";
 import { isRecordActive } from "@/features/records/history/recordStatus";
@@ -27,6 +28,8 @@ interface NumberRecordCardProps {
  */
 export default function NumberRecordCard({ record, isOpen, onToggle, onEdit, onCreateBasedOn }: NumberRecordCardProps) {
   const recordType = recordTypeOf(record);
+  // E-8: הרשומה מחזיקה מזהי מכשירים; השמות מרשימת מכשירי הפנימייה
+  const deviceNameOf = useDeviceNameResolver();
 
   return (
     <ExpandableRecordCard
@@ -48,7 +51,7 @@ export default function NumberRecordCard({ record, isOpen, onToggle, onEdit, onC
           endedLabel={CARD_TEXTS.endedBadge[recordType]}
         />
       }
-      details={buildNumberRecordDetails(record)}
+      details={buildNumberRecordDetails(record, deviceNameOf)}
       isOpen={isOpen}
       onToggle={onToggle}
       isEnded={!isRecordActive(record)}

@@ -36,7 +36,8 @@ function DesktopTraineesListContent() {
   const areToolsDisabled = trainees.status !== "success";
   const traineeDrawer = useTraineeDrawer();
   // המגירה מציגה את החניך מתוך הרשימה שכבר נטענה
-  const drawerTrainee = trainees.data?.find((trainee) => trainee.id === traineeDrawer.drawer?.traineeId) ?? null;
+  const drawerTrainee =
+    trainees.data?.find((trainee) => trainee.idntTrainee === traineeDrawer.drawer?.traineeId) ?? null;
 
   useEffect(() => {
     forgetTraineesListPosition();

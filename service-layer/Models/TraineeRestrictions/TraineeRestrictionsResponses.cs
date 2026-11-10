@@ -29,7 +29,9 @@ public class TraineeRestrictionRecordDto
     // שעות ומכשירים מותרים, מהשורה הפנימית (D-2); null / ריק = כל היממה / כל המכשירים
     public string? TimePermitStart { get; set; }
     public string? TimePermitEnd { get; set; }
-    public List<LookupItemDto> Devices { get; set; } = [];
+
+    /// <summary>E-8: מזהי המכשירים בלבד, כמו בבקשה; הקליינט מאתר את השם ברשימת המכשירים של הפנימייה (SP_AVIV_GET_DEVICES).</summary>
+    public List<int> IdntDeviceList { get; set; } = [];
 
     /// <summary>הפירוט החופשי (TEXT_RESTRICTION_REASON, T-3).</summary>
     public string TextReason { get; set; } = "";

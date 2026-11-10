@@ -105,7 +105,7 @@ Decisions the implementation had to take where the phase-2 document left room. C
 | I-12 | Required-field checks in the save procedures | Verified | Empty trainee list → 400 `idntTraineeList` |
 | I-13 | `sp_getapplock` around the phone-number get-or-create | Not applicable | No dictionary table in 03 |
 | I-14 | Details length assumed 1000 | Verified | TQ-2 confirms the real length |
-| I-15 | Device names joined from `AVIV_DEVICE_DATA`, `LEFT JOIN`, `ISNULL(name, '')` | Verified | Same join, same columns to confirm (Q-9) |
+| I-15 | Device names joined from `AVIV_DEVICE_DATA`, `LEFT JOIN`, `ISNULL(name, '')` | **Amended 2026-11-10 (E-8)** | Set 2 of `SP_AVIV_GET_TRAINEE_RESTRICTIONS` returns `ConditionsRowId, DeviceId` only; the name is composed in `SP_AVIV_GET_DEVICES` and resolved by the client from its cached devices list (fallback text for a removed device). `TraineeRestrictionRecordDto.Devices` → `IdntDeviceList: List<int>`. See [../devices/decisions.md](../devices/decisions.md) |
 | I-16 | Flat C# layout, one namespace per folder, `partial StoredProcedures` | **Amended** | One nesting level by feature in `Models/` and `Services/`, namespace following the folder (T-13); the shared code is extracted, not duplicated (T-12); everything else in I-16 holds (no inheritance, no nested classes, file-scoped namespaces, primary constructors, `partial StoredProcedures`) |
 | I-17 | Phone-number list length | Not applicable | |
 | I-18 | Timestamps `yyyy-MM-ddTHH:mm:ss`; nullable audit columns in the `Rows` | Verified | |

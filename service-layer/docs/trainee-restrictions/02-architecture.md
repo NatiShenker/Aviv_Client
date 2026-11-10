@@ -210,7 +210,7 @@ Saves return the shared `MutationResultDto { CreatedIds }`. Not returned: `restr
 | Class | Columns (aliases) | Produced by |
 |---|---|---|
 | `TraineeRestrictionRow` | `Id`, `IsEnded`, `ConditionsRowId?`, `TraineeId`, `DateStart`, `DateEnd`, `NumbDurationLimit?`, `TimePermitStart?`, `TimePermitEnd?`, `TextReason?`, `IdntUserApproval?`, `ApproverName?` *(2026-11-09, I-22)*, `IdntApprovedFile?`, `TextFile?`, `DateCreated?`, `DateUpdated?`, `IdntUserUpdate?` | history set 1 |
-| `DeviceRow` (shared) | `ConditionsRowId`, `DeviceId`, `DeviceName` | history set 2 |
+| `DeviceRow` (shared) | `ConditionsRowId`, `DeviceId` *(`DeviceName` removed 2026-11-10, E-8; the DTO carries `IdntDeviceList: List<int>`)* | history set 2 |
 | `CreatedIdRow` (shared) | `CreatedId` | every save |
 | `TraineeRestrictionsRowSets(List<TraineeRestrictionRow> Restrictions, List<DeviceRow> Devices)` | the two result sets of one history call | repository |
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent, type MouseEvent } from "react";
 import { IpsRadioGroup, type IpsRadioGroupOption, type IpsRadioGroupValue } from "ui-library";
+import { useDeviceNameResolver } from "@/features/records/deviceNames";
 import type { SourceRestrictionSummaryDto } from "@/types/phone-exceptions.schema";
 import { formatDateRange } from "@/utils/dates";
 import { ENTER_KEY } from "@/utils/dom";
@@ -121,6 +122,8 @@ function toRestrictionCardOption(restriction: SourceRestrictionSummaryDto): IpsR
 
 function RestrictionCardDetails({ restriction }: { restriction: SourceRestrictionSummaryDto }) {
   const hasExistingPermits = restriction.existingTraineePermits.length > 0;
+  // E-8: ההיתרים הקיימים מחזיקים מזהי מכשירים; השמות מרשימת מכשירי הפנימייה
+  const deviceNameOf = useDeviceNameResolver();
 
   return (
     <>
@@ -133,7 +136,7 @@ function RestrictionCardDetails({ restriction }: { restriction: SourceRestrictio
       {hasExistingPermits && (
         <span className="mt-1 block text-text-primary">
           {NUMBER_RESTRICTIONS_TEXTS.form.picker.existingPermits(
-            formatExistingPermitsSummary(restriction.existingTraineePermits),
+            formatExistingPermitsSummary(restriction.existingTraineePermits, deviceNameOf),
           )}
         </span>
       )}

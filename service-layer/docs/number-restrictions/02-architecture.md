@@ -238,10 +238,10 @@ public class ApiErrorDto { public string Code { get; set; } = ""; public string 
 | `SourceRestrictionRow` | `PhoneNumber`, `RestrictionNumberId`, `TraineeRestrictionNumberId?`, `PhoneNumberId`, `CodeRestrictionScope`, `DateStart`, `DateEnd`, `TextReason` | lookup set 1 |
 | `InstituteRow` | `RestrictionNumberId`, `InstituteId`, `InstituteName` | history set 4, lookup set 2 |
 | `ExistingPermitRow` | `PermitId`, `RestrictionNumberId`, `DateStart`, `DateEnd`, `NumbDurationLimit?`, `TimePermitStart?`, `TimePermitEnd?` | lookup set 3 |
-| `DeviceRow` | `ConditionsRowId`, `DeviceId`, `DeviceName` | history set 3, lookup set 4 |
+| `DeviceRow` | `ConditionsRowId`, `DeviceId` *(`DeviceName` removed 2026-11-10, E-8)* | history set 3, lookup set 4 |
 | `CreatedIdRow` | `CreatedId` | every save |
 
-`InstituteName` and `DeviceName` are joined in the procedures (amended 2026-11-08, I-15): devices from `AVIV_DEVICE_DATA`, institutes from `ODSINTERNALDATA..A_LOCATION` (type "פנימייה"), both `LEFT JOIN` with `ISNULL(name, '')`, so a missing lookup row still yields the id with an empty name (C-8). The column names follow `SP_AVIV_GET_LOCATIONS` and are confirmed in SSMS before the first run (Q-9, Q-10). *(Amended 2026-11-09, I-22)* `ApproverName` is joined the same way from `ODSINTERNALDATA..A_WORKERS` (`IDNT_WORKER`, `TEXT_FIRST_NAME` + `TEXT_LAST_NAME`; assumed, confirmed in SSMS); `RecordPartsAssembler.ToApprover(id, name)` fills `ApproverDto.FullName`, and `RoleTitle` stays empty.
+`InstituteName` is joined in the procedures (amended 2026-11-08, I-15) from `ODSINTERNALDATA..A_LOCATION` (type "פנימייה"), `LEFT JOIN` with `ISNULL(name, '')`, so a missing lookup row still yields the id with an empty name (C-8). *(Amended 2026-11-10, E-8)* `DeviceName` is no longer joined: the device sets return ids only, the name is composed in `SP_AVIV_GET_DEVICES`, and the DTOs carry `IdntDeviceList: List<int>` (see [../devices/02-architecture.md](../devices/02-architecture.md)). The column names follow `SP_AVIV_GET_LOCATIONS` and are confirmed in SSMS before the first run (Q-9, Q-10). *(Amended 2026-11-09, I-22)* `ApproverName` is joined the same way from `ODSINTERNALDATA..A_WORKERS` (`IDNT_WORKER`, `TEXT_FIRST_NAME` + `TEXT_LAST_NAME`; assumed, confirmed in SSMS); `RecordPartsAssembler.ToApprover(id, name)` fills `ApproverDto.FullName`, and `RoleTitle` stays empty.
 
 ---
 

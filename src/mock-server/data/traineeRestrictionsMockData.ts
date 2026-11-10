@@ -1,4 +1,4 @@
-import type { LookupItem, TimeString } from "@/types/common.schema";
+import type { TimeString } from "@/types/common.schema";
 import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
 import { daysFromToday } from "../mockDates";
 import { DEVICES_MOCK_DATA } from "./devicesMockData";
@@ -178,10 +178,11 @@ function seedsForTrainee(trainee: TraineeMockRecord, traineeIndex: number): Rest
   return [...currentSeeds, ...endedSeeds];
 }
 
-function permittedDevices(instituteId: number, count: number): LookupItem<number>[] {
-  return DEVICES_MOCK_DATA.filter((device) => device.instituteId === instituteId)
+/** מזהי המכשירים המותרים (E-8: הרשומה מחזיקה מזהים בלבד) - הראשונים מבין מכשירי הפנימייה */
+function permittedDeviceIds(instituteId: number, count: number): number[] {
+  return DEVICES_MOCK_DATA.filter((device) => device.idntInstitution === instituteId)
     .slice(0, count)
-    .map(({ id, name }) => ({ id, name }));
+    .map((device) => device.idntDevice);
 }
 
 function buildRestrictionRecord(
@@ -194,13 +195,13 @@ function buildRestrictionRecord(
 
   return {
     id,
-    idntTrainee: trainee.id,
+    idntTrainee: trainee.idntTrainee,
     dateStart,
     dateEnd,
     numbDurationLimit: terms.durationMinutes,
     timePermitStart: terms.permittedHours?.startTime ?? null,
     timePermitEnd: terms.permittedHours?.endTime ?? null,
-    devices: permittedDevices(trainee.instituteId, terms.permittedDeviceCount),
+    idntDeviceList: permittedDeviceIds(trainee.idntInstitution, terms.permittedDeviceCount),
     ...decision,
     ...buildAuditMetadata(dateEnd, dates.startDaysFromToday, decision.approver.id),
     isActive: true,

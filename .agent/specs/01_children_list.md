@@ -78,7 +78,7 @@ No row may overflow the screen width (320px and up). The header (both rows) stay
 2. **Divider:** 16px below, lighter than a card frame – `border-inner` (`#ebebf0`; in code `grey-100`, decided 2026-10-21: in the frame's color the desktop card read as two stacked boxes).
 3. **Bottom rows** (8px below, 12/15, gray; the icons are 16px, decided 2026-10-21 – at 20px they were larger than the 12px text). One fixed structure at every card width (decided 2026-10-19), so the minutes are in the same place on every card:
    - **First row, right:** location pin + `"אגף {wing.name}"` (and wing location `location.name` when present), truncated when long.
-   - **First row, left:** timer + `"{remainingMinutes} דקות"`, or `"דקה אחת"` (one minute) for 1 (decided 2026-10-21) (fetched by the backend from the 3rd-party Cellcom service).
+   - **First row, left:** timer + `"{numbRemainingMinutes} דקות"`, or `"דקה אחת"` (one minute) for 1 (decided 2026-10-21) (fetched by the backend from the 3rd-party Cellcom service).
    - **Second row (conditional), left – under the minutes** (decided 2026-10-21; it was on the right, under the location, and read as part of it – the gap concerns the minutes balance, which comes from Cellcom too): warning icon + `"פער בנתונים מול סלקום"` (Data gap with Cellcom, decided 2026-10-21), color `#bd4d00` – **rendered only when `flags.hasCellcomDiscrepancy === true`** (from the 3rd-party Cellcom service).
    - The loading skeleton follows the same structure (photo and name, with no badge; then location and minutes).
 
@@ -136,7 +136,7 @@ SortSheet titled `"מיון"`: one row per field **and** direction (`IpsRadioLis
 | Option | Compares |
 |---|---|
 | `"שם"` | Display name, Hebrew locale order |
-| `"סטטוס"` | Whether the trainee has an active **trainee restriction** (the `"מוגבל עד"` badge, `restrictedUntilDate`) – not a number restriction |
+| `"סטטוס"` | Whether the trainee has an active **trainee restriction** (the `"מוגבל עד"` badge, `dateRestrictedUntil`) – not a number restriction |
 | `"יתרת דקות"` | The minutes value ([OQ-07](../pending-decisions.md#oq-07)) |
 
 - Ties in any sort are broken by name, always `א׳ עד ת׳`.
@@ -153,10 +153,10 @@ All calls go to Aviv_Service. `clientIds` is always `[AVIV_CLIENT_ID]` (55).
 |---|---|---|
 | App start, before the screen can show the list | `POST Institutions/GetInstitutionsAndWings` | `GetInstitutesAndWingsRequest` (`clientIds`) → `GetInstitutesAndWingsResponse`. The server checks permissions and returns only the permitted institutes, each with its wings (`isVirtualContainer` per wing) |
 | An institute is selected (in background, parallel) | `GET Institutions/GetPermissionsForInstitution` | `GetPermissionsForInstituteRequest` (`instituteId`, `clientIds`) → `number[]` (the user's permission IDs for that institute). A failure shows a toast; the screen keeps working |
-| An institute is selected (parallel) | `POST Trainees/GetTrainees` *(approximate – not in the service yet)* | `GetTraineesRequest` (`instituteIds`, optional `wingIds`) → `GetTraineesResponse`. *(Server merges SQL SP results with the 3rd-party Cellcom service for `remainingMinutes`, `hasBalance`, and `hasCellcomDiscrepancy`).* |
+| An institute is selected (parallel) | `POST Trainees/GetTrainees` (`TraineesController`, `SP_AVIV_GET_TRAINEES`; built 2026-11-10, `service-layer/docs/trainees-list/`) | `GetTraineesRequest` (`idntInstitutionList`, `idntWingList` – institutes or wings, at least one) → `GetTraineesResponse`. The procedure returns the current trainees (`TRAINEE_SNAPSHOT`, `LOGI_ACTIVE = 1`) with the wing and location names, `dateRestrictedUntil` and six flags computed from the 03 / 04 / 05 tables; the service merges the Cellcom values (`numbRemainingMinutes`, `hasBalance`, `hasCellcomDiscrepancy`) through `ICellcomBalanceProvider` – a stand-in returning 0 / false until the integration exists (pending-decisions). |
 | An institute is selected (in background, parallel) | `POST Locations/GetLocationsAndVirtualLocations` | `GetLocationsAndVirtualLocationsRequest` (`clientIds`, `instituteIds`, `wingIds` = all the institute's wings) → `GetLocationsAndVirtualLocationsResponse` (`isVirtual`, `hasDevice` per location). Feeds filter group **b** |
 | An institute is selected | *One more call – not defined yet* | See `.agent/pending-decisions.md` |
-| A card is rendered | `GET Trainees/GetTraineePhoto` *(name is a placeholder)* | `GetTraineePhotoRequest` (`traineeId`). Returns the image file itself, so the client builds the URL (`serviceClient.buildServiceUrl`) and puts it in the `img` `src`; the browser loads it lazily |
+| A card is rendered | `GET Trainees/GetTraineePhoto` *(name is a placeholder)* | `GetTraineePhotoRequest` (`traineeId`). Returns the image file itself, so the client builds the URL (`serviceClient.buildServiceUrl`) and puts it in the `img` `src`; the browser loads it lazily. *(Decided 2026-11-10)* The photo comes from an external API called directly by the browser, not through Aviv_Service; the URL base changes when the API address is known (pending-decisions) |
 
 - Search, filter (`matchesTraineeFilters`) and sort run **on the client** over the loaded list.
 

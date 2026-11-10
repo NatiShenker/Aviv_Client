@@ -7,18 +7,18 @@ import type {
   GetInstituteDevicesResponse,
 } from "@/types/organization.schema";
 
-// המכשירים כמעט לא משתנים, ולכן נשמרים עד רענון הדף (ספק 00 §6)
+// המכשירים כמעט לא משתנים, ולכן נשמרים עד רענון הדף (ספק 00 §6). המפתח הוא הפנימייה
 const devicesCache = createQueryCache<number[], DeviceDto[]>(idsKey);
 
-/** מכשירי הפנימייה, לבחירת "מכשירים מותרים" בטפסים */
+/** מכשירי הפנימייה: לבחירת "מכשירים מותרים" בטפסים, ולשמות המכשירים ברשומות ההיסטוריה (E-8) */
 export async function getInstituteDevices(instituteId: number): Promise<DeviceDto[]> {
-  const request: GetInstituteDevicesRequest = { instituteIds: [instituteId] };
-  const response = await serviceClient.post<GetInstituteDevicesResponse>(
+  const request: GetInstituteDevicesRequest = { idntInstitutionList: [instituteId], idntWingList: [] };
+  const devices = await serviceClient.post<GetInstituteDevicesResponse>(
     SERVICE_ENDPOINTS.devices.getInstituteDevices,
     request,
   );
-  devicesCache.set(request.instituteIds, response.devices);
-  return response.devices;
+  devicesCache.set(request.idntInstitutionList, devices);
+  return devices;
 }
 
 export function getCachedInstituteDevices(instituteId: number): DeviceDto[] | null {

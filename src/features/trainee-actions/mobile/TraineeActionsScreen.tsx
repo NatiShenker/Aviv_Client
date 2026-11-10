@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useRouteTrainee } from "@/features/trainee/mobile/useRouteTrainee";
+import { formatPersonalNumber } from "@/features/trainee/traineeDisplay";
 import { TRAINEE_TEXTS } from "@/features/trainee/traineeTexts";
 import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
@@ -32,7 +33,12 @@ export default function TraineeActionsScreen() {
 // כמו בכרטיס: השם ככותרת והמספר בשורה מתחתיו - אותו מבנה כותרת כמו בהיסטוריה ובטופס
 function TraineeActionsContent() {
   const { traineeId, trainee } = useRouteTrainee();
-  const header = <PageHeader title={trainee.data?.fullName ?? ""} subtitle={trainee.data?.traineeCode} />;
+  const header = (
+    <PageHeader
+      title={trainee.data?.textFullName ?? ""}
+      subtitle={trainee.data ? formatPersonalNumber(trainee.data.numbPersonalNumber) : undefined}
+    />
+  );
 
   // חניך שכבר לא ברשימת הפנימייה (הרשימה נטענת מחדש אחרי שינוי נתונים)
   if (traineeId === null || trainee.status === "empty") {

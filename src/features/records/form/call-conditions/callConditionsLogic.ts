@@ -7,6 +7,7 @@ import type {
 } from "@/types/common.schema";
 import type { DeviceDto } from "@/types/organization.schema";
 import { formatTimeRange } from "@/utils/dates";
+import type { DeviceNameResolver } from "../../deviceNames";
 import { createDefaultDateRange } from "../dateRangeLogic";
 import { FORM_TEXTS } from "../formTexts";
 import { CALL_CONDITIONS_TEXTS } from "./callConditionsTexts";
@@ -69,7 +70,7 @@ export function callTermsFromRecord(record: PermittedCallConditionsDto): CallTer
     durationText: record.numbDurationLimit === null ? "" : String(record.numbDurationLimit),
     startTime: record.timePermitStart ?? "",
     endTime: record.timePermitEnd ?? "",
-    deviceIds: record.devices.map((device) => device.id),
+    deviceIds: [...record.idntDeviceList],
   };
 }
 
@@ -185,8 +186,8 @@ export function buildDevicesSummary(values: CallConditionsValues, devices: Devic
     return buildUnsetDevicesText(values, ruleKind);
   }
   const selectedDeviceNames = devices
-    .filter((device) => values.deviceIds.includes(device.id))
-    .map((device) => device.name);
+    .filter((device) => values.deviceIds.includes(device.idntDevice))
+    .map((device) => device.textDeviceName);
   // כל עוד רשימת המכשירים לא נטענה, אין שמות - רק מספר המכשירים
   if (selectedDeviceNames.length !== values.deviceIds.length) {
     return TEXTS.values.devicesCount(values.deviceIds.length);
@@ -212,7 +213,7 @@ function recordPermitsState(record: PermittedCallConditionsDto): PermittedCondit
   return {
     isDurationLimited: record.numbDurationLimit !== null,
     hasPermittedHours: hasPermittedHours(record),
-    permittedDeviceCount: record.devices.length,
+    permittedDeviceCount: record.idntDeviceList.length,
   };
 }
 
@@ -223,17 +224,24 @@ export function buildPermittedHoursValue(record: PermittedCallConditionsDto, rul
   return isOpenByDefault(ruleKind, recordPermitsState(record)) ? TEXTS.values.allDay : TEXTS.values.notSet;
 }
 
-/** מכשיר אחד - השם שלו; כמה - "{n} מכשירים" (יכולים להיות הרבה); אף אחד - לפי "פתוחה כברירת מחדל" */
-export function buildPermittedDevicesValue(record: PermittedCallConditionsDto, ruleKind: CallRuleKind): string {
-  if (record.devices.length > 0) {
-    return formatDevicesSelection(buildPermittedDeviceNames(record));
+/**
+ * מכשיר אחד - השם שלו; כמה - "{n} מכשירים" (יכולים להיות הרבה); אף אחד - לפי "פתוחה כברירת מחדל".
+ * E-8: הרשומה מחזיקה מזהים בלבד, והשם נלקח מרשימת מכשירי הפנימייה (deviceNameOf, features/records/deviceNames)
+ */
+export function buildPermittedDevicesValue(
+  record: PermittedCallConditionsDto,
+  ruleKind: CallRuleKind,
+  deviceNameOf: DeviceNameResolver,
+): string {
+  if (record.idntDeviceList.length > 0) {
+    return formatDevicesSelection(buildPermittedDeviceNames(record, deviceNameOf));
   }
   return isOpenByDefault(ruleKind, recordPermitsState(record)) ? TEXTS.values.allDevices : TEXTS.values.notSet;
 }
 
 /** שמות המכשירים המותרים - גם כשבכרטיס מוצג רק מספרם, החיפוש בהיסטוריה מוצא לפיהם */
-export function buildPermittedDeviceNames(record: PermittedCallConditionsDto): string[] {
-  return record.devices.map((device) => device.name);
+export function buildPermittedDeviceNames(record: PermittedCallConditionsDto, deviceNameOf: DeviceNameResolver): string[] {
+  return record.idntDeviceList.map(deviceNameOf);
 }
 
 /** "הגבלה מלאה" / "הגבלת משך שיחה - עד X דק׳", ובהיתר "היתר מלא" / "היתר עם הגבלת משך - עד X דק׳" */

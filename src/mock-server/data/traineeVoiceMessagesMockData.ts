@@ -137,7 +137,7 @@ function distributedSeed(
 }
 
 const OTHER_TRAINEES = TRAINEES_MOCK_DATA.map((trainee, index) => ({ trainee, index })).filter(
-  ({ trainee }) => trainee.id !== DEMO_TRAINEE.id,
+  ({ trainee }) => trainee.idntTrainee !== DEMO_TRAINEE.idntTrainee,
 );
 
 // הודעה רגילה לכל השיחות
@@ -236,7 +236,7 @@ function buildVoiceMessageRecord(seed: VoiceMessageSeed, id: number): StoredReco
 
   return {
     id,
-    traineeId: seed.trainee.id,
+    traineeId: seed.trainee.idntTrainee,
     scope: seed.phoneNumber === null ? "all" : "selected",
     phoneNumberId: seed.phoneNumber === null ? null : PHONE_NUMBER_ID_BASE + id,
     phoneNumber: seed.phoneNumber,

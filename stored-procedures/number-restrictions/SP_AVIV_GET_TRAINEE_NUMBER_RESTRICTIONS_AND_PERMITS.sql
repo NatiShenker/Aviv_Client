@@ -171,10 +171,10 @@ BEGIN
     -- תוצאה 3: מכשירים של שורות התנאים ושל ההיתרים (DeviceRow)
     -- ===========================================
     -- שני סוגי השורות יושבים באותה טבלה (AVIV_PERMITS_FOR_RESTRICTION), ולכן סט אחד עם המפתח ConditionsRowId מספיק לשניהם.
-    -- I-15: השם הוא תווית בלבד, ולכן LEFT JOIN בלי סינון פעילות – מכשיר שהוסר עדיין מוצג בהיסטוריה; בלי שורה – שם ריק (C-8)
+    -- E-8 (מתקן את I-15): מזהי מכשירים בלבד. שם המכשיר נבנה רק ב-SP_AVIV_GET_DEVICES, והקליינט מאתר אותו ברשימת המכשירים שבידו;
+    -- מכשיר שהוסר (LOGI_ACTIVE = 0) אינו ברשימה ומוצג בקליינט בטקסט נפילה.
     SELECT  PERMIT_DEVICE.IDNT_AVIV_PERMITS_FOR_RESTRICTION AS ConditionsRowId,
-            PERMIT_DEVICE.IDNT_DEVICE                       AS DeviceId,
-            ISNULL(DEVICE.TEXT_DEVICE_NAME, N'')            AS DeviceName
+            PERMIT_DEVICE.IDNT_DEVICE                       AS DeviceId
     FROM    (
                 SELECT  InlinePermitId AS ConditionsRowId
                 FROM    #TraineeRestrictions
@@ -185,8 +185,6 @@ BEGIN
             ) AS KEYS
     JOIN    dbo.AVIV_PERMITS_DEVICE AS PERMIT_DEVICE (NOLOCK)
             ON PERMIT_DEVICE.IDNT_AVIV_PERMITS_FOR_RESTRICTION = KEYS.ConditionsRowId
-    LEFT JOIN dbo.AVIV_DEVICE_DATA AS DEVICE (NOLOCK)
-            ON DEVICE.IDNT_DEVICE = PERMIT_DEVICE.IDNT_DEVICE
     WHERE   PERMIT_DEVICE.LOGI_ACTIVE = 1;
 
     -- ===========================================

@@ -8,6 +8,8 @@ How to use: features 03 and 04 are deployed together, so section 0 gives the com
 
 ## 0. Combined run order with 04
 
+*2026-11-10: the three queries written after 03 / 04 (trainees list, devices, lookups) join this order; the full combined table, including them, is [../trainees-list/03-manual-test-checklist.md §0](../trainees-list/03-manual-test-checklist.md). Three procedures of 03 / 04 changed the same day (device ids only, E-8) and are re-created in step 3.*
+
 | Step | What | Checklist |
 |---|---|---|
 | 1 | Environment checks, read-only | [04 §A](../number-restrictions/03-manual-test-checklist.md) (A.1–A.9), then 03 §A below |
@@ -40,7 +42,7 @@ ORDER BY COLUMNS.column_id;
 - [ ] **A.4 `TEXT_RESTRICTION_REASON`: type, length, collation (I-14, Q-2, P-9).** The code assumes 1000 characters. If `max_length` is smaller, change `@TEXT_RESTRICTION_REASON VARCHAR(1000)` in the two save procedures and `TraineeRestrictionsLimits.DetailsMaxLength`. A non-Hebrew collation on this `varchar` column stores Hebrew as `?` (accepted by P-9; record it).
 - [ ] **A.5 `IDNT_AVIV_TRAINEE_RESTRICTION` is IDENTITY (I-11).** `is_identity` = 1. The save procedures use `OUTPUT INSERTED` and `SCOPE_IDENTITY()`, and the test script inserts without keys.
 - [ ] **A.6 Nullability of the audit and approval columns (I-18).** `TraineeRestrictionRow` declares `DateCreated`, `DateUpdated`, `IdntUserUpdate`, `TextReason`, `IdntUserApproval`, `IdntApprovedFile` nullable. If all are `NOT NULL`, the properties can be tightened; if any is nullable, leave them. The DTO is unaffected.
-- [ ] **A.7 Device names (I-15, Q-9).** Same as 04 §A.7: `SELECT TOP (1) IDNT_DEVICE, TEXT_DEVICE_NAME FROM dbo.AVIV_DEVICE_DATA;` must return a row. 03 does not join institutes. **Approver name (I-22, added 2026-11-09):** settled by 04 §A.7b (`ODSINTERNALDATA..A_WORKERS`: `IDNT_WORKER`, `TEXT_FIRST_NAME`, `TEXT_LAST_NAME`); a corrected column name is applied to `SP_AVIV_GET_TRAINEE_RESTRICTIONS` set 1 as well.
+- [ ] **A.7 Device names – superseded 2026-11-10 (E-8).** Set 2 returns device ids only, so there is no device-name column to check; the devices table is checked in [../devices/03-manual-test-checklist.md §A](../devices/03-manual-test-checklist.md). **Approver name (I-22, added 2026-11-09):** settled by 04 §A.7b (`ODSINTERNALDATA..A_WORKERS`: `IDNT_WORKER`, `TEXT_FIRST_NAME`, `TEXT_LAST_NAME`); a corrected column name is applied to `SP_AVIV_GET_TRAINEE_RESTRICTIONS` set 1 as well.
 - [ ] **A.8 Compatibility level and server clock.** Settled by 04 §A.1 and §A.3; nothing to repeat.
 
 ---
@@ -83,7 +85,7 @@ A failure at this step is almost always a column name (A.1) or a missing DDL col
 
 ## D. Run the test script (`stored-procedures/trainee-restrictions/00-test-data.sql`)
 
-Run the whole file (F5) and read the grids top to bottom. The script is re-runnable: it removes everything of trainees `998001` and `998002` first, including the rows the save examples created. Devices `999001` / `999002`, approver `999001` and user `999999` are sentinels that exist nowhere else, so `DeviceName` comes back empty on purpose (I-15, C-8). Dates are relative to today.
+Run the whole file (F5) and read the grids top to bottom. The script is re-runnable: it removes everything of trainees `998001` and `998002` first, including the rows the save examples created. Devices `999001` / `999002`, approver `999001` and user `999999` are sentinels that exist nowhere else; the device set returns ids only (E-8, 2026-11-10). Dates are relative to today.
 
 ### D.1 Scenario ids
 
@@ -97,7 +99,7 @@ Run the whole file (F5) and read the grids top to bottom. The script is re-runna
   - R3: `IsEnded` 1, `ConditionsRowId` NULL.
   - R4: `IsEnded` 0 (future is not ended, C-11), `ConditionsRowId` = R4 inline conditions, 08:00–12:00.
   - Every row: `TextReason` filled, `TextFile` = the test path, `IdntUserApproval` 999001, `DateCreated` filled.
-- [ ] **Set 2 – devices:** 2 rows keyed by R2's `ConditionsRowId`: 999001 and 999002, `DeviceName` empty.
+- [ ] **Set 2 – devices:** 2 rows keyed by R2's `ConditionsRowId`: 999001 and 999002 (two columns only, E-8).
 
 ### D.3 Read 2 – trainee 998002
 
@@ -179,7 +181,7 @@ All files are UTF-8 with BOM; the comments are Hebrew. `Infrastructure/` is a ne
 
 Run after section D, so that the test scenario is in the database, and after 04 §F.4. Bodies are camelCase JSON; property names match the C# records (`System.Text.Json` default binding).
 
-- [ ] **F.4.1 History.** `POST api/TraineeRestrictions/GetTraineeRestrictions` with `{ "idntTraineeList": [998001, 998002] }`. Expected 200 with `records` (7 after the saves of §D, 4 for 998001 alone before them). Spot-check one row with conditions and one without: `isEnded`, `dateStart` as `yyyy-MM-dd`, `numbDurationLimit` (10 on R1-new, null on R2-new), `timePermitStart` as `HH:mm` or null, `devices[]` with `id` / `name` (name empty), `textReason`, `approver.id` 999001 with empty `fullName` (the sentinel has no `A_WORKERS` row; a record saved with a real worker id shows the name – I-22), `approvedFile.fileName` = `trainee-restriction.pdf` derived from the path (D-13), `dateCreated` as `yyyy-MM-ddTHH:mm:ss`. No `restrictionUid`, `restrictionCode`, `isPermit`, `sourceRestriction` (TC-1, TC-2).
+- [ ] **F.4.1 History.** `POST api/TraineeRestrictions/GetTraineeRestrictions` with `{ "idntTraineeList": [998001, 998002] }`. Expected 200 with `records` (7 after the saves of §D, 4 for 998001 alone before them). Spot-check one row with conditions and one without: `isEnded`, `dateStart` as `yyyy-MM-dd`, `numbDurationLimit` (10 on R1-new, null on R2-new), `timePermitStart` as `HH:mm` or null, `idntDeviceList` (ids only, E-8: `[999001, 999002]` on R2), `textReason`, `approver.id` 999001 with empty `fullName` (the sentinel has no `A_WORKERS` row; a record saved with a real worker id shows the name – I-22), `approvedFile.fileName` = `trainee-restriction.pdf` derived from the path (D-13), `dateCreated` as `yyyy-MM-ddTHH:mm:ss`. No `restrictionUid`, `restrictionCode`, `isPermit`, `sourceRestriction` (TC-1, TC-2).
 - [ ] **F.4.2 Empty body.** `POST` with no body. Expected 400 from `[ApiController]` – ASP.NET's `ProblemDetails` body, **not** `ApiErrorDto` (same as 04 §F.4.2).
 - [ ] **F.4.3 Validator 400.** `{ "idntTraineeList": [] }` → 400 `{ "code": "VALIDATION_ERROR", "message": "idntTraineeList", "fieldErrors": { "idntTraineeList": "" } }`.
 - [ ] **F.4.4 Create 200.** `POST CreateTraineeRestriction` with `idntTraineeList` [998001], `dateRestrictionStart` today, `dateRestrictionEnd` +30 days, `numbDurationLimit` 15, `timePermitStart` "16:00", `timePermitEnd` "18:00", `idntDeviceList` [999001], `textRestrictionReason` a text, `codeRestrictionReason` 1 (I-23), `idntUserApproval` 999001, `textFile` a path. Expected 200 `{ "createdIds": [a] }`; the history then shows it with `isEnded` false, `numbDurationLimit` 15, the hours and one device; in SSMS the restriction row carries `IDNT_USER_UPDATE` = the logged-in user's id (not 999999) and the inline row carries `NUMB_DURATION_LIMIT` NULL (T-2). No column holds the reason code yet.

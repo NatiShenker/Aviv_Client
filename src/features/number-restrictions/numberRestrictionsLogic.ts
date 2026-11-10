@@ -1,3 +1,4 @@
+import type { DeviceNameResolver } from "@/features/records/deviceNames";
 import {
   buildDurationTypeLabel,
   buildPermittedDeviceNames,
@@ -134,9 +135,9 @@ export function buildNumberRecordTypeLabel(record: TraineePhoneRecordDto): strin
 
 /**
  * הפרטים בכרטיס פתוח, לפי הסדר בספק 04 history §3.2 (בכל שורה - הפרט הימני ראשון).
- * המספר, תגית הסוג והתאריכים כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן
+ * המספר, תגית הסוג והתאריכים כבר מופיעים בתקציר הכרטיס, ולכן לא חוזרים כאן. שמות המכשירים - מרשימת מכשירי הפנימייה (E-8)
  */
-export function buildNumberRecordDetails(record: TraineePhoneRecordDto): DetailItem[] {
+export function buildNumberRecordDetails(record: TraineePhoneRecordDto, deviceNameOf: DeviceNameResolver): DetailItem[] {
   const recordType = recordTypeOf(record);
   const details: DetailItem[] = [
     { key: "type", label: TEXTS.details.type, value: buildNumberRecordTypeLabel(record), isFullWidth: true },
@@ -158,7 +159,7 @@ export function buildNumberRecordDetails(record: TraineePhoneRecordDto): DetailI
       value: buildPermittedHoursValue(record, recordType),
       isLtr: hasPermittedHours(record),
     },
-    { key: "devices", label: TEXTS.details.devices, value: buildPermittedDevicesValue(record, recordType) },
+    { key: "devices", label: TEXTS.details.devices, value: buildPermittedDevicesValue(record, recordType, deviceNameOf) },
     ...buildDecisionDetailItems(record),
   );
   return details;
@@ -167,7 +168,7 @@ export function buildNumberRecordDetails(record: TraineePhoneRecordDto): DetailI
 // ── חיפוש ומיון (ספק 04 history §4, ספק 00 §4.1) ──
 
 /** הערכים הגלויים של הרשומה, שהחיפוש בודק */
-function buildNumberRecordSearchParts(record: TraineePhoneRecordDto): string[] {
+function buildNumberRecordSearchParts(record: TraineePhoneRecordDto, deviceNameOf: DeviceNameResolver): string[] {
   const recordType = recordTypeOf(record);
   const scopeLabel = record.isPermit ? buildScopeLabel(record.sourceRestriction) : "";
   return [
@@ -177,8 +178,8 @@ function buildNumberRecordSearchParts(record: TraineePhoneRecordDto): string[] {
     scopeLabel,
     ...decisionSearchParts(record),
     buildPermittedHoursValue(record, recordType),
-    buildPermittedDevicesValue(record, recordType),
-    ...buildPermittedDeviceNames(record),
+    buildPermittedDevicesValue(record, recordType, deviceNameOf),
+    ...buildPermittedDeviceNames(record, deviceNameOf),
     buildNumberRecordDateRange(record),
     record.dateStart,
     record.dateEnd,
@@ -189,8 +190,10 @@ export function filterAndSortNumberRecords(
   records: TraineePhoneRecordDto[],
   searchQuery: string,
   sort: HistorySortOption,
+  deviceNameOf: DeviceNameResolver,
 ): TraineePhoneRecordDto[] {
-  return sortHistoryRecords(filterBySearchQuery(records, searchQuery, buildNumberRecordSearchParts), sort);
+  const searchPartsOf = (record: TraineePhoneRecordDto) => buildNumberRecordSearchParts(record, deviceNameOf);
+  return sortHistoryRecords(filterBySearchQuery(records, searchQuery, searchPartsOf), sort);
 }
 
 /**

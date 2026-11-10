@@ -5,9 +5,12 @@ export const SERVICE_ENDPOINTS = {
     getPermissionsForInstitution: "Institutions/GetPermissionsForInstitution",
   },
   trainees: {
-    // שמות הפעולות זמניים - הפעולות עדיין לא הוגדרו בסרביס (ראו pending-decisions)
+    // הפעולה של TraineesController (service-layer/Controllers)
     getTrainees: "Trainees/GetTrainees",
-    /** מחזירה את קובץ התמונה עצמו, ולכן הכתובת נכנסת ישירות ל-src */
+    /**
+     * מחזירה את קובץ התמונה עצמו, ולכן הכתובת נכנסת ישירות ל-src. שם זמני: התמונה תגיע מ-API חיצוני ישירות (L-8),
+     * ובסיס הכתובת יוחלף כשתינתן (pending-decisions)
+     */
     getTraineePhoto: "Trainees/GetTraineePhoto",
   },
   locations: {
@@ -41,13 +44,12 @@ export const SERVICE_ENDPOINTS = {
     /** PUT: מכבה את הרשומה הקודמת ויוצר רשומה פעילה חדשה */
     updateTraineeVoiceMessage: "VoiceMessages/UpdateTraineeVoiceMessage",
   },
+  // הפעולה של DevicesController (service-layer/Controllers)
   devices: {
     getInstituteDevices: "Devices/GetInstituteDevices",
   },
-  // רשימות הסיבות: בעתיד מטבלאות DECODE לפי CODE_TABLE (ראו pending-decisions)
+  // הפעולה של LookupsController (service-layer/Controllers): טבלאות קוד מ-AVIV_DECODE לפי מזהי טבלאות (config/decodeTables)
   lookups: {
-    getTraineeRestrictionReasons: "Lookups/GetTraineeRestrictionReasons",
-    getPhoneExceptionReasons: "Lookups/GetPhoneExceptionReasons",
-    getVoiceMessageReasons: "Lookups/GetVoiceMessageReasons",
+    getDecode: "Lookups/GetDecode",
   },
 } as const;

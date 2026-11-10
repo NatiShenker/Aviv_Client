@@ -9,10 +9,11 @@ namespace Aviv_Service.Services;
 /// </summary>
 public static class RecordPartsAssembler
 {
-    public static List<LookupItemDto> ToDevices(IEnumerable<DeviceRow> devices)
+    /// <summary>E-8: מזהי המכשירים בלבד; השם נבנה ב-SP_AVIV_GET_DEVICES והקליינט מאתר אותו ברשימת המכשירים שבידו.</summary>
+    public static List<int> ToDeviceIds(IEnumerable<DeviceRow> devices)
     {
         return devices
-            .Select(device => new LookupItemDto { Id = device.DeviceId, Name = device.DeviceName })
+            .Select(device => device.DeviceId)
             .ToList();
     }
 

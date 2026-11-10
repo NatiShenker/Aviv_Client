@@ -27,7 +27,7 @@ export function readStoredWingIds(institute: InstituteWithWingsDto): number[] {
   if (!stored || stored.instituteId !== institute.id) {
     return [];
   }
-  const existingWingIds = new Set(institute.wings.map((wing) => wing.id));
+  const existingWingIds = new Set(institute.wings.map((wing) => wing.wingId));
   return stored.wingIds.filter((wingId) => existingWingIds.has(wingId));
 }
 

@@ -35,14 +35,14 @@ const DRAWER_ACTION_VIEWS: Record<DrawerActionKey, DrawerActionView> = {
     permissionId: PERMISSION_IDS.traineeRestriction,
     loadingLabel: TRAINEE_RESTRICTIONS_TEXTS.states.loading,
     renderHistory: ({ trainee, navigation, onRecordSaved }) => (
-      <TraineeRestrictionsDrawerHistory traineeId={trainee.id} navigation={navigation} onRecordSaved={onRecordSaved} />
+      <TraineeRestrictionsDrawerHistory traineeId={trainee.idntTrainee} navigation={navigation} onRecordSaved={onRecordSaved} />
     ),
   },
   numberRestriction: {
     permissionId: PERMISSION_IDS.numberRestriction,
     loadingLabel: NUMBER_RESTRICTIONS_TEXTS.states.loading,
     renderHistory: ({ trainee, navigation, onRecordSaved }) => (
-      <NumberRestrictionsDrawerHistory traineeId={trainee.id} navigation={navigation} onRecordSaved={onRecordSaved} />
+      <NumberRestrictionsDrawerHistory traineeId={trainee.idntTrainee} navigation={navigation} onRecordSaved={onRecordSaved} />
     ),
   },
   voiceMessage: {
@@ -50,8 +50,8 @@ const DRAWER_ACTION_VIEWS: Record<DrawerActionKey, DrawerActionView> = {
     loadingLabel: VOICE_MESSAGES_TEXTS.states.loading,
     renderHistory: ({ trainee, navigation, onRecordSaved }) => (
       <VoiceMessagesDrawerHistory
-        traineeId={trainee.id}
-        traineeFullName={trainee.fullName}
+        traineeId={trainee.idntTrainee}
+        traineeFullName={trainee.textFullName}
         navigation={navigation}
         onRecordSaved={onRecordSaved}
       />

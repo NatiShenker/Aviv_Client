@@ -77,7 +77,7 @@ Note: like the form summary ([form.md §4.5](03_trainee_restriction_form.md#45-h
 | Every time the screen opens (no client cache – the history is always fresh); returning from the form | `POST TraineeRestrictions/GetTraineeRestrictions` (`TraineeRestrictionsController`, 2026-11-09) | Request: `GetTraineeRestrictionsRequest` (`idntTraineeList: [traineeId]`)<br>Response: `GetTraineeRestrictionsResponse` (`records: TraineeRestrictionRecordDto[]`) – the active versions only, active and ended, no paging |
 
 - Search and sort run on the client over the loaded `records` list.
-- Display values come from `TraineeRestrictionRecordDto`: `textReason` (details), `approver.fullName`, `devices[].name`, `timePermitStart` / `timePermitEnd`, `numbDurationLimit`, `dateStart` / `dateEnd`, and the status from `isEnded` (computed by the server, day level).
+- Display values come from `TraineeRestrictionRecordDto`: `textReason` (details), `approver.fullName`, `idntDeviceList` (device ids only, 2026-11-10 – the names come from the institute's cached devices list, `Devices/GetInstituteDevices`; a removed device shows the fallback text of `features/records/deviceNames.ts`), `timePermitStart` / `timePermitEnd`, `numbDurationLimit`, `dateStart` / `dateEnd`, and the status from `isEnded` (computed by the server, day level).
 
 ---
 

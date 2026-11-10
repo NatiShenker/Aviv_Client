@@ -73,9 +73,9 @@ function TraineeCards({ trainees, restoredVisibleCount, onVisibleCountChange }: 
     <>
       <ul className="flex flex-col gap-3 px-5">
         {visibleItems.map((trainee) => (
-          <li key={trainee.id}>
+          <li key={trainee.idntTrainee}>
             {/* group: הכרטיס מוכהה ברגע הנגיעה, כדי שירגישו שהמערכת קלטה עד שהמסך הבא נכנס */}
-            <Link to={ROUTES.traineeActions(trainee.id)} className={`group block rounded-card ${FOCUS_RING_CLASS}`}>
+            <Link to={ROUTES.traineeActions(trainee.idntTrainee)} className={`group block rounded-card ${FOCUS_RING_CLASS}`}>
               <TraineeCard trainee={trainee} />
             </Link>
           </li>

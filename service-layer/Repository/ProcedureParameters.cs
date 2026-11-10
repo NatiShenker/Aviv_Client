@@ -13,10 +13,14 @@ namespace Aviv_Service.Repository;
 /// </summary>
 public static class ProcedureParameters
 {
-    /// <summary>רשימת מזהים כ-TVP dbo.INT_TABLE.</summary>
-    public static void AddIdList(DynamicParameters parameters, string parameterName, int[] ids)
+    /// <summary>
+    /// רשימת מזהים כ-TVP dbo.INT_TABLE. רשימה חסרה נשלחת ריקה וכפילויות מוסרות כאן (כמו הנרמול ב-LocationsRepository),
+    /// כי הפרוצדורות ממלאות מהרשימות טבלאות זמניות עם מפתח ראשי; בשמירות הוולידטור כבר עשה זאת (I-4).
+    /// </summary>
+    public static void AddIdList(DynamicParameters parameters, string parameterName, int[]? ids)
     {
-        parameters.Add(parameterName, ids.ToList().ToDataTable(), DbType.Object);
+        List<int> distinctIds = (ids ?? []).Distinct().ToList();
+        parameters.Add(parameterName, distinctIds.ToDataTable(), DbType.Object);
     }
 
     /// <summary>A-9: המספרים המנורמלים עוברים כמחרוזת אחת מופרדת בפסיקים (@PHONE_NUMBER_LIST), ונפרקים בפרוצדורה ב-STRING_SPLIT.</summary>

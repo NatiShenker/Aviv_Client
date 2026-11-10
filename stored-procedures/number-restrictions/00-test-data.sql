@@ -26,8 +26,8 @@
 
    Reference tables (users, devices, institutes) are not touched: the ids below
    are sentinels that exist nowhere else (Q-1, Q-9, Q-10). The read procedures
-   LEFT JOIN the device and institute names (I-15), so for these sentinel ids
-   DeviceName and InstituteName come back empty - that is expected here.
+   LEFT JOIN the institute name (I-15), so for these sentinel ids InstituteName
+   comes back empty - that is expected here. Device sets return ids only (E-8).
 
    Scenario (today-relative dates, so it stays valid whenever it runs):
      N1 0599990001  general restriction narrowed to the trainee's institute (-30 .. +60)
