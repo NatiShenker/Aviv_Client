@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
 import { ROUTE_PATTERNS, ROUTES } from "@/config/routes";
 import RecordHistoryLayout from "@/features/records/mobile/RecordHistoryLayout";
 import { useRecordFormRoute } from "@/features/records/mobile/useRecordFormRoute";
 import { useRecordFormSlot } from "@/features/records/mobile/useRecordFormSlot";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { useAppNavigate } from "@/shells/mobile/navigation/useAppNavigate";
 import type { TraineePhoneRecordDto } from "@/types/phone-exceptions.schema";
 import type { NumberRecordFormTarget } from "../form/useNumberRecordFormSession";
 import NumberRecordCard from "../history/NumberRecordCard";
@@ -24,7 +24,7 @@ interface NumberRestrictionsHistoryProps {
  * וטופס ההגבלה / ההיתר מעליה (ספק 04 form).
  */
 export default function NumberRestrictionsHistory({ traineeId, header }: NumberRestrictionsHistoryProps) {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { phoneRecords, history, resultsCountText } = useNumberRestrictionsHistory(traineeId);
 
   const renderCard = (record: TraineePhoneRecordDto) => {

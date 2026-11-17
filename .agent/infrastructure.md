@@ -9,12 +9,13 @@ Binding guidance for the shared infrastructure every screen uses. Read it with `
   - `src/config/` — values that configure the app: `appConstants.ts` (client ID, list page size, selection TTL, `STORAGE_KEYS`, Hebrew locale, the desktop breakpoint `DESKTOP_LAYOUT_MIN_WIDTH_PX`, the SharePoint target), `routes.ts` (route patterns, builders and params), `serviceEndpoints.ts` (the `Controller/Action` names).
   - `src/store/` — the contexts the whole app reads; state only, no UI:
     - `institutesContext.tsx` (`InstitutesProvider` / `useInstitutes`: the institutes, the selected institute and its permissions) with `instituteSelection.ts` (the remembered selection);
-    - `platformContext.tsx` (`PlatformProvider` / `usePlatform`: the layout).
+    - `platformContext.tsx` (`PlatformProvider` / `usePlatform`: the layout);
+    - `appMountContext.tsx` (`AppMountProvider` / `useAppPath`: Aviv's `/*` mount route, its base path and the direct-entry redirect; see Mounting and the base path).
 
     A feature's own memory (e.g. `traineesListMemory.ts`) stays in the feature, and the query caches stay with the services.
   - `src/types/` — the server contract (`*.schema.ts`, one file per area) and general client types (`SortDirection` in `common.schema.ts`). A feature's own types stay in the feature.
   - `src/utils/` — generic helpers with no domain knowledge and no React: `dates.ts`, `dom.ts`, `text.ts`, `phone.ts`.
-- `src/shells/mobile/` — the mobile page shell: page root, header, pinned top, sticky action bar, the full-screen form sheet and its opening (`FormSheet`, `useFormSheetSession`), the sort sheet, the navigation and the window hooks (`navigation/`), the screen spacing (`screenSpacing.ts`: top spacing and the side gutter), the mobile form controls (`mobileFormControls.ts`) and the shell texts (`mobileShellTexts.ts`).
+- `src/shells/mobile/` — the mobile page shell: page root, header, pinned top, sticky action bar, the full-screen form sheet and its opening (`FormSheet`, `useFormSheetSession`), the sort sheet, the navigation and the window hooks (`navigation/`; forward navigation only through `useAppNavigate` and `AppLink`), the screen spacing (`screenSpacing.ts`: top spacing and the side gutter), the mobile form controls (`mobileFormControls.ts`) and the shell texts (`mobileShellTexts.ts`).
 - `src/shells/desktop/` — the desktop shell:
   - `DesktopPage`: the page root fills the viewport, and the screen decides which area inside it scrolls.
   - `drawer/` — the side drawer and its parts:
@@ -74,6 +75,7 @@ Each rule is checked by path, and the check must come back empty.
 | R5 | `shared` doesn't import `features`, `shells`, `store` or the root files. |
 | R6 | Between features:<br>- `institutes` and `trainee` — for every feature;<br>- `records` — only for the three record features;<br>- the record features don't import each other;<br>- the only exceptions are the routers: `MobileRoutes` (the mobile screens), the drawer in `trainee-actions/desktop` (the record features' desktop histories, their texts and the `records` blocks), and `trainees-list/desktop`, which opens the drawer. |
 | R7 | No two files in `src` share a name. |
+| R8 | `useNavigate` and `Link` from `react-router-dom` are imported only in `shells/mobile/navigation/` and in `store/appMountContext.tsx`. Forward navigation goes through `useAppNavigate` / `AppLink`, and a `useMatch` pattern through `useAppPath` (see Mounting and the base path). |
 | R10 | The required folders: `types` imports nothing; `config` imports only `types`; `utils` only `types` and `config`; `store` only `services`, `infrastructure`, `types`, `config`, `utils` and `shared/hooks`. |
 
 ### Platform split
@@ -113,6 +115,14 @@ Each rule is checked by path, and the check must come back empty.
 - The drawer lives in memory only (`useTraineeDrawer`; the screens and their keys in `traineeDrawerScreens.ts`; the transitions between them in `DrawerScreens`). The URL does not change.
 - A form inside it reports unsaved changes through `useReportUnsavedChanges`, called by `DrawerRecordFormFrame`, so the drawer can ask before it closes.
 - A save calls the drawer's `onRecordSaved`, and the list refreshes in the background.
+
+### Mounting and the base path
+
+- `AppMountProvider` (`store/appMountContext.tsx`), rendered in `App.tsx` above the layout routes, renders Aviv as the element of a `/*` route: in the host as a descendant of the route the host declares for Aviv (for example `service/:id/*`), standalone under the router of `bootstrap.tsx`. Aviv's base path is the current pathname minus that route's splat remainder (`useParams()["*"]`), and `useAppPath()` prefixes an Aviv path (`ROUTES`) with it.
+- In the host, `App` renders inside the host's router, so an absolute path such as `/trainee/5` resolves against the host's `basename`, not against Aviv's mount point. Everything that resolves a path against the router therefore goes through `useAppPath()`: `useAppNavigate` / `AppLink` (forward navigation on mobile) and the `useMatch` patterns in `useRecordFormRoute`. `ROUTES` and `ROUTE_PATTERNS` stay without the base: a `<Route path>` is matched as a descendant route, relative to the mount point. `useNavigateBack` (`navigate(-1)`) needs no base.
+- A direct entry to an inner URL (a link or a refresh) starts from the opening screen. Standalone, `prepareAppEntry` replaces the URL before the router mounts; in the host, the provider replaces it through the router once at mount (keeping the search and the hash) and renders nothing until then.
+- Mobile host contract: Aviv's route must end with `/*`, or its inner URLs never reach it. The desktop host has no inner routing of ours; the fallback `Navigate` to `/` in `DesktopRoutes` is the only absolute path left, and it never renders there. `shells/mobile/navigation` imports `store/appMountContext` (a shell to store dependency; R4 and R5 allow it).
+- The host's shared copy of `react-router-dom` does not export the `NavigationType` enum as a value (seen 2026-11-17: `Cannot read properties of undefined (reading 'Push')`). Take only types and hooks from the shared packages; `pageTransition.ts` compares `useNavigationType()` against the string values.
 
 ### Platform detection
 

@@ -21,7 +21,8 @@ The UI is in Hebrew only and is laid out right-to-left (RTL).
 - When essential information about behavior, design or data is missing, ask. Do not invent requirements or business rules.
 - **Pending Decisions Management:** If the user explicitly states that a certain feature, design, or logic is "undecided", "leave it for later", or "we'll handle this in the future", you MUST document it in `.agent/pending-decisions.md` under the appropriate category (Architecture/Logic or Design/UX). Record every open question there as well.
 - The user runs and tests the app. Do not run it or test in a browser unless explicitly asked.
-- Keep changes focused on the task. When done, briefly report what was implemented, what was verified, and what remains open.
+- **Focused changes.** The app is running and is in user testing (as of 2026-11-17), so every change is limited to the real need of the task: no refactoring, renaming, splitting or cleanup beyond it, and nothing done only because it is nearby. A split or an extraction (for example to keep code DRY) is made only when the task genuinely needs it, and the report says why. This rule always applied; now it is twice as strict.
+- When done, briefly report what was implemented, what was verified, and what remains open.
 
 ## Sources of Truth
 

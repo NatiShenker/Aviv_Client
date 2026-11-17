@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
 import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
 import LoadMoreSentinel from "@/shared/components/LoadMoreSentinel";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
 import { useIncrementalList } from "@/shared/hooks/useIncrementalList";
+import AppLink from "@/shells/mobile/navigation/AppLink";
 import type { TraineeListItemDto } from "@/types/trainees.schema";
 import TraineeCard from "../components/TraineeCard";
 import TraineeCardSkeleton from "../components/TraineeCardSkeleton";
@@ -75,9 +75,9 @@ function TraineeCards({ trainees, restoredVisibleCount, onVisibleCountChange }: 
         {visibleItems.map((trainee) => (
           <li key={trainee.idntTrainee}>
             {/* group: הכרטיס מוכהה ברגע הנגיעה, כדי שירגישו שהמערכת קלטה עד שהמסך הבא נכנס */}
-            <Link to={ROUTES.traineeActions(trainee.idntTrainee)} className={`group block rounded-card ${FOCUS_RING_CLASS}`}>
+            <AppLink to={ROUTES.traineeActions(trainee.idntTrainee)} className={`group block rounded-card ${FOCUS_RING_CLASS}`}>
               <TraineeCard trainee={trainee} />
-            </Link>
+            </AppLink>
           </li>
         ))}
       </ul>

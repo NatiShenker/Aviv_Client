@@ -1,10 +1,10 @@
-import { Link } from "react-router-dom";
 import { useRouteTrainee } from "@/features/trainee/mobile/useRouteTrainee";
 import { formatPersonalNumber } from "@/features/trainee/traineeDisplay";
 import { TRAINEE_TEXTS } from "@/features/trainee/traineeTexts";
 import { FOCUS_RING_CLASS } from "@/shared/components/focusRing";
 import ScreenStateMessage from "@/shared/components/ScreenStateMessage";
 import AppPage from "@/shells/mobile/AppPage";
+import AppLink from "@/shells/mobile/navigation/AppLink";
 import { useScrollToTopOnOpen } from "@/shells/mobile/navigation/useScrollToTopOnOpen";
 import PageHeader from "@/shells/mobile/PageHeader";
 import { SCREEN_SIDE_GUTTER_CLASS, SCREEN_TOP_SPACING_CLASS } from "@/shells/mobile/screenSpacing";
@@ -81,8 +81,8 @@ interface ActionLinkRowProps extends ActionRowContentProps {
 /** שורה שמובילה לעמוד של הפעולה. מוכהית ברגע הנגיעה, עד שהמסך הבא נכנס */
 function ActionLinkRow({ label, description, icon, to }: ActionLinkRowProps) {
   return (
-    <Link to={to} className={`${ACTION_ROW_CLASS} text-text-primary active:bg-grey-50 ${FOCUS_RING_CLASS}`}>
+    <AppLink to={to} className={`${ACTION_ROW_CLASS} text-text-primary active:bg-grey-50 ${FOCUS_RING_CLASS}`}>
       <ActionRowContent label={label} description={description} icon={icon} />
-    </Link>
+    </AppLink>
   );
 }

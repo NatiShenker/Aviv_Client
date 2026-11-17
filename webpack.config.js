@@ -13,13 +13,16 @@ const homePcPath = "C:\\Users\\משתמש\\Desktop\\source\\repos\\ui-library";
 const workPcPath = "C:\\Users\\user\\Desktop\\source\\ui-library";
 const UI_LIBRARY_PATH = fs.existsSync(homePcPath) ? homePcPath : workPcPath;
 
-module.exports = ({ sviva, mode }) => {
-	const PORT = 4171;
+const PORT = 4171;
 
-	const svivaPrefixMap = {
-		dev: "dev-",
-		prod: ""
-	};
+const svivaPrefixMap = {
+	dev: "dev-",
+	prod: ""
+};
+
+const getPublicPath = (svivaPrefix) => `https://${svivaPrefix}projDns.com/Aviv_Client/`;
+
+module.exports = ({ sviva, mode }) => {
 
 	const SVIVA = svivaPrefixMap[sviva] || "dev-";
 	const isLocal = mode === "development";
@@ -42,7 +45,7 @@ module.exports = ({ sviva, mode }) => {
 		dev: {
 			mode: 'production',
 			output: {
-				// publicPath: PUBLIC_PATH,
+				publicPath: getPublicPath(svivaPrefixMap.dev),
 				path: path.resolve(__dirname, 'build'),
 				filename: "[name].[contenthash].js",
 				clean: true,
@@ -54,6 +57,7 @@ module.exports = ({ sviva, mode }) => {
 		prod: {
 			mode: 'production',
 			output: {
+				publicPath: getPublicPath(svivaPrefixMap.prod),
 				path: path.resolve(__dirname, 'build'),
 				filename: "[name].[contenthash].js",
 				clean: true,

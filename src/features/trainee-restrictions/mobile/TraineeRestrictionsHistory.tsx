@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
 import { ROUTE_PATTERNS, ROUTES, parseRouteId } from "@/config/routes";
 import RecordHistoryLayout from "@/features/records/mobile/RecordHistoryLayout";
 import { useRecordFormRoute } from "@/features/records/mobile/useRecordFormRoute";
 import { useRecordFormSlot } from "@/features/records/mobile/useRecordFormSlot";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { useAppNavigate } from "@/shells/mobile/navigation/useAppNavigate";
 import type { TraineeRestrictionRecordDto } from "@/types/trainee-restrictions.schema";
 import type { TraineeRestrictionFormTarget } from "../form/useTraineeRestrictionFormSession";
 import TraineeRestrictionCard from "../history/TraineeRestrictionCard";
@@ -24,7 +24,7 @@ interface TraineeRestrictionsHistoryProps {
  * וטופס ההגבלה מעליה (ספק 03 form).
  */
 export default function TraineeRestrictionsHistory({ traineeId, header }: TraineeRestrictionsHistoryProps) {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { restrictions, history, resultsCountText } = useTraineeRestrictionsHistory(traineeId);
 
   const renderCard = (record: TraineeRestrictionRecordDto) => (

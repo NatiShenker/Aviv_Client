@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { useAppNavigate } from "@/shells/mobile/navigation/useAppNavigate";
 import { useNavigateBack } from "@/shells/mobile/navigation/useNavigateBack";
 import type { RecordFormTarget } from "../form/formStartingPoint";
 import type { DatedHistoryRecord } from "../history/recordStatus";
@@ -25,7 +25,7 @@ export function useRecordFormSlot<TRecord extends DatedHistoryRecord, TRecordRef
   historyPath,
   onSaved,
 }: RecordFormSlotOptions<TRecord, TRecordRef, TSavedRecordKey>) {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const close = useNavigateBack();
   const { openTarget, editRecord, basedOnRecord, isEditTargetUnavailable } = useHistoryFormTarget({
     formTarget,
