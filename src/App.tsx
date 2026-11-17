@@ -6,6 +6,7 @@ import { INSTITUTES_TEXTS } from "./features/institutes/institutesTexts";
 import AppErrorBoundary from "./infrastructure/errors/AppErrorBoundary";
 import MobileRoutes from "./MobileRoutes";
 import { STICKY_ACTION_BAR_HEIGHT_PX } from "./shells/mobile/screenSpacing";
+import { AppMountProvider } from "./store/appMountContext";
 import { InstitutesProvider, useInstitutes } from "./store/institutesContext";
 import { PlatformProvider, usePlatform } from "./store/platformContext";
 
@@ -17,7 +18,9 @@ export default function App() {
           <AppErrorBoundary>
             <InstitutesProvider>
               <PermissionsFailureWarning />
-              <LayoutRoutes />
+              <AppMountProvider>
+                <LayoutRoutes />
+              </AppMountProvider>
             </InstitutesProvider>
           </AppErrorBoundary>
         </LayoutToastProvider>

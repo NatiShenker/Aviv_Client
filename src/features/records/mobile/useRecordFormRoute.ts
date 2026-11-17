@@ -1,5 +1,6 @@
 import { useMatch, useSearchParams } from "react-router-dom";
 import { BASED_ON_QUERY_PARAM, type TraineeRouteParams } from "@/config/routes";
+import { useAppPath } from "@/store/appMountContext";
 import type { RecordFormTarget } from "../form/formStartingPoint";
 
 interface RecordFormRouteOptions<TRecordRef> {
@@ -18,8 +19,10 @@ export function useRecordFormRoute<TRecordRef>({
   recordParam,
   parseRecordRef,
 }: RecordFormRouteOptions<TRecordRef>): RecordFormTarget<TRecordRef> | null {
-  const createMatch = useMatch(createPattern);
-  const editMatch = useMatch(editPattern);
+  // התבניות הן של אביב, והנתיב בכתובת כולל את הבסיס שאביב מורכבת בו
+  const toAppPath = useAppPath();
+  const createMatch = useMatch(toAppPath(createPattern));
+  const editMatch = useMatch(toAppPath(editPattern));
   const [searchParams] = useSearchParams();
 
   if (createMatch) {

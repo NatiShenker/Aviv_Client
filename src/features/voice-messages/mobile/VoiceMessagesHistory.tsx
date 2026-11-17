@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
 import { ROUTE_PATTERNS, ROUTES, parseRouteId } from "@/config/routes";
 import RecordHistoryLayout from "@/features/records/mobile/RecordHistoryLayout";
 import { useRecordFormRoute } from "@/features/records/mobile/useRecordFormRoute";
 import { useRecordFormSlot } from "@/features/records/mobile/useRecordFormSlot";
 import type { AsyncResource } from "@/shared/hooks/useAsyncResource";
+import { useAppNavigate } from "@/shells/mobile/navigation/useAppNavigate";
 import type { TraineeVoiceMessageRecordDto } from "@/types/voice-messages.schema";
 import type { VoiceMessageFormTarget } from "../form/useVoiceMessageFormSession";
 import { useVoiceMessagesHistory } from "../history/useVoiceMessagesHistory";
@@ -26,7 +26,7 @@ interface VoiceMessagesHistoryProps {
  * וטופס ההודעה מעליה (ספק 05 form).
  */
 export default function VoiceMessagesHistory({ traineeId, traineeFullName, header }: VoiceMessagesHistoryProps) {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { voiceMessages, history, resultsCountText } = useVoiceMessagesHistory(traineeId);
 
   const renderCard = (record: TraineeVoiceMessageRecordDto) => (
